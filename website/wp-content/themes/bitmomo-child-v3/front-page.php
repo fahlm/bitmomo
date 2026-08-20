@@ -1,39 +1,7 @@
 <?php
 /** Front Page — Bitmomo VERIFIED FIXED */
-$home_url = esc_url( home_url( '/' ) );
+get_header();
 ?>
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-  <meta charset="<?php bloginfo('charset'); ?>">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <?php wp_head(); ?>
-</head>
-<body <?php body_class(); ?>>
-<?php if ( function_exists( 'wp_body_open' ) ) { wp_body_open(); } ?>
-
-<header class="bm-header">
-  <div class="bm-container">
-    <?php bitmomo_render_brand(); ?>
-    <?php bitmomo_render_menu_toggle(); ?>
-
-    <nav class="bm-nav" id="bm-nav" aria-label="<?php esc_attr_e('Primary','bitmomo'); ?>">
-      <?php
-      $menu_html = wp_nav_menu([
-        'theme_location' => 'primary',
-        'container'      => false,
-        'menu_class'     => 'bm-nav-list',
-        'fallback_cb'    => '__return_false',
-        'echo'           => false,
-        'depth'          => 1,
-      ]);
-      if ( $menu_html ) { echo $menu_html; }
-      ?>
-    </nav>
-
-    <a class="bm-cta" href="#subscribe">SUBSCRIBE</a>
-  </div>
-</header>
 
 <main>
 
@@ -45,7 +13,7 @@ $home_url = esc_url( home_url( '/' ) );
       <p class="bm-hero-sub">
         Bergabung dengan ribuan pembaca dan dapatkan berita serta analisis terkini langsung ke inbox Anda.
       </p>
-      <a class="bm-hero-btn" href="#subscribe">Mulai Berlangganan</a>
+      <a class="bm-hero-btn js-open-subscribe" href="#subscribe">Mulai Berlangganan</a>
     </div>
   </section>
 
@@ -126,12 +94,4 @@ $home_url = esc_url( home_url( '/' ) );
 
 </main>
 
-<footer class="bm-footer">
-  <div class="bm-container">
-    <p>© <?php echo esc_html( date('Y') ); ?> <?php bloginfo('name'); ?>. Semua hak cipta dilindungi.</p>
-  </div>
-</footer>
-
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>
