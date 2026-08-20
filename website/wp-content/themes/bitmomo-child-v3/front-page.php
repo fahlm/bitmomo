@@ -14,17 +14,10 @@ $home_url = esc_url( home_url( '/' ) );
 
 <header class="bm-header">
   <div class="bm-container">
-    <a href="<?php echo $home_url; ?>" class="bm-brand" aria-label="<?php esc_attr_e('Home','bitmomo'); ?>">
-      <?php
-      if ( function_exists( 'the_custom_logo' ) && has_custom_logo() ) {
-        the_custom_logo();
-      } else { ?>
-        <span class="bm-logo-dot" aria-hidden="true"></span>
-        <span class="bm-brand-text">BITMOMO</span>
-      <?php } ?>
-    </a>
+    <?php bitmomo_render_brand(); ?>
+    <?php bitmomo_render_menu_toggle(); ?>
 
-    <nav class="bm-nav" aria-label="<?php esc_attr_e('Primary','bitmomo'); ?>">
+    <nav class="bm-nav" id="bm-nav" aria-label="<?php esc_attr_e('Primary','bitmomo'); ?>">
       <?php
       $menu_html = wp_nav_menu([
         'theme_location' => 'primary',
