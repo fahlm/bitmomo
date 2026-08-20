@@ -18,6 +18,31 @@ define('BM_CARD_IMAGE_HEIGHT', 450);
 define('BM_CONTENT_WIDTH', 1120);
 define('BM_DEBUG', defined('WP_DEBUG') && WP_DEBUG);
 
+if (!function_exists('bitmomo_render_brand')) {
+    function bitmomo_render_brand() {
+        echo '<div class="bm-brand">';
+        if (function_exists('the_custom_logo') && has_custom_logo()) {
+            the_custom_logo();
+        } else {
+            printf(
+                '<a class="bm-brand-fallback" href="%s" aria-label="%s"><span class="bm-logo-dot" aria-hidden="true"></span><span class="bm-brand-text">BITMOMO</span></a>',
+                esc_url(home_url('/')),
+                esc_attr__('Home', 'bitmomo')
+            );
+        }
+        echo '</div>';
+    }
+}
+
+if (!function_exists('bitmomo_render_menu_toggle')) {
+    function bitmomo_render_menu_toggle() {
+        printf(
+            '<button class="bm-hamburger" id="bm-hamburger" type="button" aria-label="%s" aria-controls="bm-nav" aria-expanded="false"><span></span><span></span><span></span></button>',
+            esc_attr__('Menu', 'bitmomo')
+        );
+    }
+}
+
 class Bitmomo_Performance_Optimizer {
 
     private static $instance = null;
@@ -387,59 +412,41 @@ class Bitmomo_Performance_Optimizer {
         <script>
         (function() {
             'use strict';
-            if (document.getElementById('bm-hamburger')) return;
-            
-            var header = document.querySelector('.bm-header .bm-container');
-            if (!header) return;
-            
-            // Fix nested <a> in brand
-            var brand = header.querySelector('.bm-brand');
-            if (brand && brand.tagName === 'A') {
-                var innerLink = brand.querySelector('a.custom-logo-link');
-                if (innerLink) {
-                    var div = document.createElement('div');
-                    div.className = 'bm-brand';
-                    div.innerHTML = innerLink.outerHTML;
-                    brand.parentNode.replaceChild(div, brand);
-                    brand = div;
-                }
-            }
-            
-            // Create hamburger
-            var hamburger = document.createElement('button');
-            hamburger.id = 'bm-hamburger';
-            hamburger.className = 'bm-hamburger';
-            hamburger.setAttribute('aria-label', 'Menu');
-            hamburger.innerHTML = '<span></span><span></span><span></span>';
-            
-            // Insert
-            var cta = header.querySelector('.bm-cta');
-            if (cta) cta.before(hamburger);
-            else header.appendChild(hamburger);
-            
-            var nav = document.querySelector('.bm-nav');
-            if (!nav) return;
-            
-            hamburger.addEventListener('click', function() {
-                var isOpen = nav.classList.toggle('open');
+
+            var hamburger = document.getElementById('bm-hamburger');
+            var nav = document.getElementById('bm-nav') || document.querySelector('.bm-nav');
+            if (!hamburger || !nav) return;
+
+            if (!nav.id) nav.id = 'bm-nav';
+            hamburger.setAttribute('aria-controls', nav.id);
+            hamburger.setAttribute('aria-expanded', 'false');
+
+            function setOpen(isOpen, returnFocus) {
+                nav.classList.toggle('open', isOpen);
                 hamburger.classList.toggle('active', isOpen);
                 document.body.classList.toggle('menu-open', isOpen);
+                hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                if (!isOpen && returnFocus) hamburger.focus();
+            }
+
+            hamburger.addEventListener('click', function() {
+                setOpen(hamburger.getAttribute('aria-expanded') !== 'true', false);
             });
-            
+
             nav.querySelectorAll('a').forEach(function(link) {
                 link.addEventListener('click', function() {
-                    nav.classList.remove('open');
-                    hamburger.classList.remove('active');
-                    document.body.classList.remove('menu-open');
+                    setOpen(false, false);
                 });
             });
-            
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    nav.classList.remove('open');
-                    hamburger.classList.remove('active');
-                    document.body.classList.remove('menu-open');
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && hamburger.getAttribute('aria-expanded') === 'true') {
+                    setOpen(false, true);
                 }
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) setOpen(false, false);
             });
         })();
         </script>

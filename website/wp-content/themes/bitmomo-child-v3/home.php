@@ -13,21 +13,9 @@
 <header class="bm-header">
   <div class="bm-container">
     
-    <!-- BRAND/LOGO -->
-    <?php if (function_exists('the_custom_logo') && has_custom_logo()) : ?>
-      <div class="bm-brand"><?php the_custom_logo(); ?></div>
-    <?php else : ?>
-      <a href="<?php echo esc_url(home_url('/')); ?>" class="bm-brand">
-        <span class="bm-brand-text">BITMOMO</span>
-      </a>
-    <?php endif; ?>
-    
-    <!-- HAMBURGER BUTTON (Mobile) -->
-    <button class="bm-hamburger" id="bm-hamburger" aria-label="Menu" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+    <!-- BRAND/LOGO + MOBILE MENU -->
+    <?php bitmomo_render_brand(); ?>
+    <?php bitmomo_render_menu_toggle(); ?>
     
     <!-- NAVIGATION -->
     <nav class="bm-nav" id="bm-nav">
@@ -105,43 +93,5 @@
 
 <?php wp_footer(); ?>
 
-<!-- Hamburger Menu Script -->
-<script>
-(function() {
-  var hamburger = document.getElementById('bm-hamburger');
-  var nav = document.getElementById('bm-nav');
-  if (!hamburger || !nav) return;
-  
-  hamburger.addEventListener('click', function() {
-    hamburger.classList.toggle('active');
-    nav.classList.toggle('open');
-    document.body.classList.toggle('menu-open');
-    
-    var expanded = hamburger.getAttribute('aria-expanded') === 'true';
-    hamburger.setAttribute('aria-expanded', !expanded);
-  });
-  
-  // Close menu when clicking a link
-  var links = nav.querySelectorAll('a');
-  links.forEach(function(link) {
-    link.addEventListener('click', function() {
-      hamburger.classList.remove('active');
-      nav.classList.remove('open');
-      document.body.classList.remove('menu-open');
-      hamburger.setAttribute('aria-expanded', 'false');
-    });
-  });
-  
-  // Close menu on resize to desktop
-  window.addEventListener('resize', function() {
-    if (window.innerWidth > 768) {
-      hamburger.classList.remove('active');
-      nav.classList.remove('open');
-      document.body.classList.remove('menu-open');
-      hamburger.setAttribute('aria-expanded', 'false');
-    }
-  });
-})();
-</script>
 </body>
 </html>

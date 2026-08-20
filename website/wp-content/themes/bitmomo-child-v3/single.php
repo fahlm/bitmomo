@@ -12,15 +12,10 @@
 
 <header class="bm-header">
   <div class="bm-container">
-    <a href="<?php echo esc_url( home_url('/') ); ?>" class="bm-brand">
-      <?php if ( function_exists('the_custom_logo') && has_custom_logo() ) {
-        the_custom_logo();
-      } else { ?>
-        <span class="bm-brand-text">BITMOMO</span>
-      <?php } ?>
-    </a>
+    <?php bitmomo_render_brand(); ?>
+    <?php bitmomo_render_menu_toggle(); ?>
 
-    <nav class="bm-nav">
+    <nav class="bm-nav" id="bm-nav">
       <?php
       $menu_html = wp_nav_menu([
         'theme_location' => 'primary',
