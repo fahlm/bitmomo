@@ -1,0 +1,98 @@
+<?php
+/** Bitmomo Assets Trait. @package Bitmomo */
+
+if (!defined('ABSPATH')) exit;
+
+trait Bitmomo_Assets_Trait {
+    /* ---------- Setup ---------- */
+    public function theme_setup() {
+        add_theme_support('title-tag');
+        add_theme_support('post-thumbnails');
+        add_theme_support('responsive-embeds');
+        add_theme_support('editor-styles');
+
+        register_nav_menus([
+            'primary' => __('Primary Menu', 'bitmomo'),
+            'footer'  => __('Footer Menu', 'bitmomo')
+        ]);
+
+        add_image_size('bm-card', BM_CARD_IMAGE_WIDTH, BM_CARD_IMAGE_HEIGHT, true);
+
+        add_theme_support('custom-logo', [
+            'height'      => 40,
+            'width'       => 160,
+            'flex-height' => true,
+            'flex-width'  => true
+        ]);
+
+        $GLOBALS['content_width'] = BM_CONTENT_WIDTH;
+    }
+
+    public function enqueue_styles() {
+        // Parent (Hello Elementor) style
+        wp_enqueue_style('hello-elementor-style',
+            get_template_directory_uri() . '/style.css', [], null);
+
+        // Critical CSS inline (optional)
+        $critical_path = get_stylesheet_directory() . '/critical.css';
+        if (file_exists($critical_path)) {
+            printf("<style>%s</style>\n", @file_get_contents($critical_path));
+        }
+
+        // Child custom.css (cache-busting via mtime)
+        $custom_css_path = get_stylesheet_directory() . '/custom.css';
+        $custom_css_uri  = get_stylesheet_directory_uri() . '/custom.css';
+        $version = $this->get_file_version($custom_css_path);
+        wp_enqueue_style('bitmomo-child', $custom_css_uri, ['hello-elementor-style'], $version);
+    }
+
+    /* ---------- Bloat / Assets ---------- */
+    public function remove_bloat() {
+        $acts = [
+            ['wp_head','print_emoji_detection_script',7],
+            ['wp_print_styles','print_emoji_styles'],
+            ['admin_print_scripts','print_emoji_detection_script'],
+            ['admin_print_styles','print_emoji_styles'],
+            ['wp_head','wp_oembed_add_discovery_links'],
+            ['wp_head','rest_output_link_wp_head'],
+            ['wp_head','wp_generator'],
+            ['wp_head','rsd_link'],
+            ['wp_head','wlwmanifest_link'],
+        ];
+        foreach ($acts as $a) {
+            if (count($a)===3) remove_action($a[0],$a[1],$a[2]); else remove_action($a[0],$a[1]);
+        }
+    }
+
+    public function optimize_assets() {
+        if (is_admin()) return;
+
+        wp_dequeue_style('hello-elementor-fonts');
+        wp_dequeue_style('classic-theme-styles');
+
+        add_filter('elementor/frontend/print_google_fonts','__return_false',99);
+    }
+
+    public function filter_loader_src($src) {
+        if (!$src) return $src;
+        if (str_contains($src, 'fonts.googleapis.com')) {
+            $src = add_query_arg('display','swap',$src);
+        }
+        return $src;
+    }
+
+    public function optimize_jquery($scripts) {
+        if (!is_admin() && isset($scripts->registered['jquery'])) {
+            $deps = $scripts->registered['jquery']->deps;
+            $scripts->registered['jquery']->deps = array_diff($deps, ['jquery-migrate']);
+        }
+    }
+
+    public function add_resource_hints($urls,$rel) {
+        if ($rel==='preconnect') {
+            $urls[] = ['href'=>'https://fonts.gstatic.com','crossorigin'=>true];
+            $urls[] = ['href'=>'https://cdn.bitmomo.id','crossorigin'=>true];
+        }
+        return $urls;
+    }
+}
