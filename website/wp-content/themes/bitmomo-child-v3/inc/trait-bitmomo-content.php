@@ -44,21 +44,4 @@ trait Bitmomo_Content_Trait {
         return $atts;
     }
 
-    public function force_subscribe_links_in_content($html) {
-        if (empty($html)) return $html;
-        return preg_replace_callback(
-            '~<a\s+([^>]*?\bhref=["\']?([^"\'>\s#]*?/subscribe/?|#subscribe)["\']?[^>]*)>~i',
-            function($m){
-                $tag = $m[0];
-                $tag = preg_replace('~href=["\']?[^"\'>\s#]*?/subscribe/?["\']?~i', 'href="#subscribe"', $tag);
-                if (stripos($tag,'href=')===false) $tag = str_ireplace('<a ','<a href="#subscribe" ',$tag);
-                if (stripos($tag,'class=')!==false) {
-                    $tag = preg_replace('~class=["\']([^"\']*)["\']~i','class="$1 js-open-subscribe"',$tag);
-                } else {
-                    $tag = str_ireplace('<a ','<a class="js-open-subscribe" ',$tag);
-                }
-                return $tag;
-            }, $html
-        );
-    }
 }

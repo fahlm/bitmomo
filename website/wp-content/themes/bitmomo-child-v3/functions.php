@@ -68,7 +68,6 @@ class Bitmomo_Performance_Optimizer {
         // Bloat/Assets
         add_action('init',                   [$this, 'remove_bloat'], 1);
         add_action('wp_enqueue_scripts',     [$this, 'optimize_assets'], 100);
-        add_action('wp_default_scripts',     [$this, 'optimize_jquery']);
 
         // Images
         add_filter('wp_img_tag_add_decoding_attr',          [$this, 'set_image_decoding']);
@@ -92,7 +91,6 @@ class Bitmomo_Performance_Optimizer {
 
         // Universal subscribe triggers + fallback CSS
         add_filter('nav_menu_link_attributes', [$this, 'force_subscribe_link_attrs'], 10, 3);
-        add_filter('the_content',               [$this, 'force_subscribe_links_in_content'], 11);
         add_action('wp_head',                   [$this, 'inline_img_fallback_css'], 1);
 
         // Modal/footer + debug
@@ -100,7 +98,6 @@ class Bitmomo_Performance_Optimizer {
         add_action('wp_footer', [$this, 'performance_debug'], 999);
         
         // === HAMBURGER MENU INJECTION (NEW) ===
-        add_action('wp_footer', [$this, 'inject_hamburger_menu'], 98);
     }
 
 /* ---------- Helpers ---------- */

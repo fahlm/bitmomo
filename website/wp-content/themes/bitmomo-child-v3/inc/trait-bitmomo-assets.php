@@ -44,6 +44,15 @@ trait Bitmomo_Assets_Trait {
         $custom_css_uri  = get_stylesheet_directory_uri() . '/custom.css';
         $version = $this->get_file_version($custom_css_path);
         wp_enqueue_style('bitmomo-child', $custom_css_uri, ['hello-elementor-style'], $version);
+
+        $frontend_js_path = get_stylesheet_directory() . '/assets/js/bitmomo-frontend.js';
+        wp_enqueue_script(
+            'bitmomo-frontend',
+            get_stylesheet_directory_uri() . '/assets/js/bitmomo-frontend.js',
+            [],
+            $this->get_file_version($frontend_js_path),
+            true
+        );
     }
 
     /* ---------- Bloat / Assets ---------- */
@@ -79,13 +88,6 @@ trait Bitmomo_Assets_Trait {
             $src = add_query_arg('display','swap',$src);
         }
         return $src;
-    }
-
-    public function optimize_jquery($scripts) {
-        if (!is_admin() && isset($scripts->registered['jquery'])) {
-            $deps = $scripts->registered['jquery']->deps;
-            $scripts->registered['jquery']->deps = array_diff($deps, ['jquery-migrate']);
-        }
     }
 
     public function add_resource_hints($urls,$rel) {
