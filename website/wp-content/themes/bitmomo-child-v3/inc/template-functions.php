@@ -5,17 +5,15 @@ if (!defined('ABSPATH')) exit;
 
 if (!function_exists('bitmomo_render_brand')) {
     function bitmomo_render_brand() {
-        echo '<div class="bm-brand">';
-        if (function_exists('the_custom_logo') && has_custom_logo()) {
-            the_custom_logo();
-        } else {
-            printf(
-                '<a class="bm-brand-fallback" href="%s" aria-label="%s"><span class="bm-logo-dot" aria-hidden="true"></span><span class="bm-brand-text">BITMOMO</span></a>',
-                esc_url(home_url('/')),
-                esc_attr__('Home', 'bitmomo')
-            );
-        }
-        echo '</div>';
+        $logo_url = get_stylesheet_directory_uri() . '/assets/images/bitmomo-logo.png';
+
+        printf(
+            '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s"><img src="%s" width="1254" height="1254" alt="%s" decoding="async"></a></div>',
+            esc_url(home_url('/')),
+            esc_attr__('Bitmomo home', 'bitmomo'),
+            esc_url($logo_url),
+            esc_attr__('Bitmomo', 'bitmomo')
+        );
     }
 }
 
