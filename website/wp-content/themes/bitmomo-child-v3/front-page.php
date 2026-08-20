@@ -36,40 +36,19 @@ get_header();
         if ( $big->have_posts() ) :
           $first = true;
           while ( $big->have_posts() ) : $big->the_post(); ?>
-            <article class="bm-card">
-              <a class="bm-card-art" href="<?php echo esc_url( get_permalink() ); ?>">
-                <?php
-                if ( has_post_thumbnail() ) {
-                  $attrs = [
-                    'class'         => 'bm-card-img',
-                    'alt'           => the_title_attribute(['echo'=>false]),
-                    'decoding'      => 'async',
-                    'loading'       => ( $first ? 'eager' : 'lazy' ),
-                    'fetchpriority' => ( $first ? 'high' : null ),
-                    'sizes'         => '(max-width: 900px) 100vw, 400px',
-                  ];
-                  the_post_thumbnail( 'bm-card', array_filter( $attrs ) );
-                } else {
-                  $title_txt = wp_strip_all_tags( get_the_title() );
-                  $safe_txt  = esc_html( mb_strimwidth( $title_txt, 0, 48, '…', 'UTF-8' ) );
-                  $svg = rawurlencode(
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450">
-                      <rect width="800" height="450" fill="#0f2434"/>
-                      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-                        font-family="system-ui,-apple-system,Segoe UI,Roboto,Arial" font-size="28" fill="#adc7cf">'.$safe_txt.'</text>
-                    </svg>'
-                  );
-                  echo '<img class="bm-card-img" src="data:image/svg+xml;charset=UTF-8,'.$svg.'" width="800" height="450" alt="">';
-                }
-                ?>
-              </a>
 
-              <h3 class="bm-card-title">
-                <a href="<?php echo esc_url( get_permalink() ); ?>"><?php the_title(); ?></a>
-              </h3>
-
-              <p class="bm-card-text"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 22, '…' ) ); ?></p>
-            </article>
+            <?php
+            get_template_part(
+              'template-parts/content',
+              'card',
+              [
+                'heading_level' => 'h3',
+                'image_size'    => 'bm-card',
+                'excerpt_words' => 22,
+                'eager'         => $first,
+              ]
+            );
+            ?>
           <?php
             $first = false;
           endwhile;

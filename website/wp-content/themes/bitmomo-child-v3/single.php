@@ -57,17 +57,18 @@ get_header();
               <h2 class="bm-section-title">Bacaan Terkait</h2>
               <div class="bm-cards">
               <?php while ( $rel->have_posts() ) : $rel->the_post(); ?>
-                <article class="bm-card">
-                  <a class="bm-card-art" href="<?php the_permalink(); ?>">
-                    <?php if ( has_post_thumbnail() ) {
-                      the_post_thumbnail('large', ['loading' => 'lazy']);
-                    } else { ?>
-                      <img src="https://placehold.co/800x450/0f2434/adc7cf?text=<?php echo rawurlencode(get_the_title()); ?>" alt="">
-                    <?php } ?>
-                  </a>
-                  <h3 class="bm-card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                  <p class="bm-card-text"><?php echo wp_trim_words( get_the_excerpt(), 22, '…' ); ?></p>
-                </article>
+
+                <?php
+                get_template_part(
+                  'template-parts/content',
+                  'card',
+                  [
+                    'heading_level' => 'h3',
+                    'image_size'    => 'large',
+                    'excerpt_words' => 22,
+                  ]
+                );
+                ?>
               <?php endwhile; wp_reset_postdata(); ?>
               </div>
             </div>

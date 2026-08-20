@@ -638,3 +638,43 @@ button.bm-hamburger span,
 .bm-nav-list {
   align-items: center !important;
 }
+
+/* ============= CATEGORY ARCHIVE ============= */
+.bm-page-head {
+  text-align: center;
+  padding: clamp(60px, 8vw, 120px) 20px clamp(40px, 6vw, 80px);
+  border-bottom: 1px solid var(--stroke);
+  background:
+    radial-gradient(800px 400px at 70% -10%, rgba(38, 208, 198, .12), transparent 65%),
+    radial-gradient(600px 300px at 20% -12%, rgba(36, 139, 199, .12), transparent 60%),
+    linear-gradient(180deg, #0f2233 0%, #0c1c2a 100%);
+}
+
+.bm-page-head .bm-container {
+  margin: 0 auto;
+}
+
+.bm-page-title {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding-bottom: 12px;
+  color: #f2f7fa;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.2;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .25);
+}
+
+.bm-page-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--teal);
+  transform: translateX(-50%);
+}
+

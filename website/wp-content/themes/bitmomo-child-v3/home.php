@@ -17,23 +17,19 @@ get_header();
       <?php if (have_posts()) : ?>
         <div class="bm-cards">
           <?php $i = 0; while (have_posts()) : the_post(); $i++; ?>
-            <article class="bm-card">
-              <a class="bm-card-art" href="<?php the_permalink(); ?>">
-                <?php if (has_post_thumbnail()) {
-                  the_post_thumbnail('bm-card', [
-                    'class'         => 'bm-card-img',
-                    'loading'       => $i === 1 ? 'eager' : 'lazy',
-                    'fetchpriority' => $i === 1 ? 'high' : false,
-                    'width'         => 800,
-                    'height'        => 450
-                  ]);
-                } else { ?>
-                  <img class="bm-card-img" src="https://placehold.co/800x450/0f2434/adc7cf?text=<?php echo rawurlencode(get_the_title()); ?>" alt="" width="800" height="450">
-                <?php } ?>
-              </a>
-              <h3 class="bm-card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-              <p class="bm-card-text"><?php echo wp_trim_words(get_the_excerpt(), 26, '…'); ?></p>
-            </article>
+
+            <?php
+            get_template_part(
+              'template-parts/content',
+              'card',
+              [
+                'heading_level' => 'h3',
+                'image_size'    => 'bm-card',
+                'excerpt_words' => 26,
+                'eager'         => 1 === $i,
+              ]
+            );
+            ?>
           <?php endwhile; ?>
         </div>
         <nav class="bm-pagination">
