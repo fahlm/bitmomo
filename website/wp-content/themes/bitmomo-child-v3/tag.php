@@ -81,26 +81,18 @@ $archive_desc  = tag_description();
       <?php if ( have_posts() ) : ?>
         <div class="bm-cards">
           <?php while ( have_posts() ) : the_post(); ?>
-            <article <?php post_class('bm-card'); ?>>
 
-              <a class="bm-card-art" href="<?php the_permalink(); ?>" aria-label="<?php echo esc_attr( get_the_title() ); ?>">
-                <?php if ( has_post_thumbnail() ) {
-                  the_post_thumbnail('large', ['class'=>'bm-card-img','loading'=>'lazy','decoding'=>'async']);
-                } else {
-                  echo '<div style="aspect-ratio:16/9; background:#0a1d2a;"></div>';
-                } ?>
-              </a>
-
-              <h2 class="bm-card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-
-              <p class="bm-card-text">
-                <?php
-                  $raw = has_excerpt() ? get_the_excerpt() : wp_strip_all_tags( get_the_content() );
-                  echo esc_html( wp_trim_words( $raw, 26, '…' ) );
-                ?>
-              </p>
-
-            </article>
+            <?php
+            get_template_part(
+              'template-parts/content',
+              'card',
+              [
+                'heading_level' => 'h2',
+                'image_size'    => 'large',
+                'excerpt_words' => 26,
+              ]
+            );
+            ?>
           <?php endwhile; ?>
         </div>
 
