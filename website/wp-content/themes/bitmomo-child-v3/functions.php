@@ -55,7 +55,6 @@ class Bitmomo_Performance_Optimizer {
         add_filter('wp_calculate_image_sizes',              [$this, 'optimize_image_sizes'], 10, 5);
 
         // Advanced assets
-        add_filter('script_loader_tag', [$this, 'defer_javascript'], 10, 3);
         add_filter('style_loader_src',  [$this, 'filter_loader_src']);
         add_filter('script_loader_src', [$this, 'filter_loader_src']);
         add_filter('wp_resource_hints', [$this, 'add_resource_hints'], 10, 2);
@@ -150,26 +149,8 @@ class Bitmomo_Performance_Optimizer {
         add_filter('elementor/frontend/print_google_fonts','__return_false',99);
     }
 
-    public function defer_javascript($tag,$handle,$src) {
-        if (is_admin() || empty($src)) return $tag;
-
-        $skip = [
-            'jquery','jquery-core','jquery-migrate',
-            'elementor-frontend','elementor-webpack-runtime','elementor-sticky','elementor-waypoints',
-            'imagesloaded','swiper',
-            'mailpoet-form','mailpoet-public','litespeed-cache',
-            'wp-polyfill','wp-i18n'
-        ];
-        if (in_array($handle, $skip, true)) return $tag;
-
-        if (str_contains($tag,'defer') || str_contains($tag,'async')) return $tag;
-
-        return sprintf("<script src=\"%s\" defer></script>\n", esc_url($src));
-    }
-
     public function filter_loader_src($src) {
         if (!$src) return $src;
-        $src = remove_query_arg('ver',$src);
         if (str_contains($src, 'fonts.googleapis.com')) {
             $src = add_query_arg('display','swap',$src);
         }
@@ -206,18 +187,39 @@ class Bitmomo_Performance_Optimizer {
     }
 
     public function optimize_content_images($content) {
-        if (!$this->should_optimize_content()) return $content;
-        $content = preg_replace('/<img(?![^>]+loading=)/i',  '<img loading="lazy" ',  $content);
-        $content = preg_replace('/<img(?![^>]+decoding=)/i', '<img decoding="async" ', $content);
-        return $content;
+        if (!$this->should_optimize_content() || !class_exists('WP_HTML_Tag_Processor')) {
+            return $content;
+        }
+
+        $processor = new WP_HTML_Tag_Processor($content);
+        while ($processor->next_tag('img')) {
+            if ($processor->get_attribute('loading') === null) {
+                $processor->set_attribute('loading', 'lazy');
+            }
+            if ($processor->get_attribute('decoding') === null) {
+                $processor->set_attribute('decoding', 'async');
+            }
+        }
+
+        return $processor->get_updated_html();
     }
 
     public function set_lcp_image_priority($content) {
-        static $done=false;
-        if ($done || !$this->should_optimize_content()) return $content;
-        $done=true;
-        return preg_replace('/<img(?![^>]*\bfetchpriority=)([^>]+)>/i',
-            '<img loading="eager" fetchpriority="high"$1>', $content, 1);
+        static $done = false;
+        if ($done || !$this->should_optimize_content() || !class_exists('WP_HTML_Tag_Processor')) {
+            return $content;
+        }
+
+        $processor = new WP_HTML_Tag_Processor($content);
+        if (!$processor->next_tag('img')) {
+            return $content;
+        }
+
+        $done = true;
+        $processor->set_attribute('loading', 'eager');
+        $processor->set_attribute('fetchpriority', 'high');
+
+        return $processor->get_updated_html();
     }
 
     public function optimize_image_sizes($sizes,$size,$src,$meta,$id) {
@@ -291,13 +293,28 @@ class Bitmomo_Performance_Optimizer {
     }
 
     public function optimize_thumbnail_loading($html,$post_id,$thumb_id,$size,$attr) {
-        if ($this->first_card_post_id && (int)$post_id === $this->first_card_post_id) {
-            $html = preg_replace('/<img /','<img loading="eager" fetchpriority="high" ', $html, 1);
-        } else {
-            $html = preg_replace('/<img(?![^>]+loading=)/','<img loading="lazy" ', $html, 1);
-            $html = preg_replace('/<img(?![^>]+decoding=)/','<img decoding="async" ', $html, 1);
+        if (!class_exists('WP_HTML_Tag_Processor')) {
+            return $html;
         }
-        return $html;
+
+        $processor = new WP_HTML_Tag_Processor($html);
+        if (!$processor->next_tag('img')) {
+            return $html;
+        }
+
+        if ($this->first_card_post_id && (int)$post_id === $this->first_card_post_id) {
+            $processor->set_attribute('loading', 'eager');
+            $processor->set_attribute('fetchpriority', 'high');
+        } else {
+            if ($processor->get_attribute('loading') === null) {
+                $processor->set_attribute('loading', 'lazy');
+            }
+            if ($processor->get_attribute('decoding') === null) {
+                $processor->set_attribute('decoding', 'async');
+            }
+        }
+
+        return $processor->get_updated_html();
     }
 
     /* ---------- Content Enhancements ---------- */

@@ -1,0 +1,78 @@
+name: Theme safety checks
+
+on:
+  pull_request:
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - ".github/workflows/theme-safety.yml"
+  push:
+    branches:
+      - main
+      - "chore/**"
+      - "feature/**"
+      - "fix/**"
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - ".github/workflows/theme-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: theme-safety-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php-syntax:
+    name: PHP syntax and baseline files
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Show PHP version
+        run: php --version
+
+      - name: Verify production baseline file set
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          theme_dir="website/wp-content/themes/bitmomo-child-v3"
+          expected=(
+            "functions.php"
+            "custom.css"
+            "front-page.php"
+            "single.php"
+            "home.php"
+            "category.php"
+            "tag.php"
+            "style.css"
+          )
+
+          for file in "${expected[@]}"; do
+            test -f "${theme_dir}/${file}" || {
+              echo "::error file=${theme_dir}/${file}::Required baseline file is missing"
+              exit 1
+            }
+          done
+
+      - name: Lint theme PHP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          theme_dir="website/wp-content/themes/bitmomo-child-v3"
+          mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
+
+          if [ "${#php_files[@]}" -eq 0 ]; then
+            echo "::error::No PHP files found in ${theme_dir}"
+            exit 1
+          fi
+
+          for file in "${php_files[@]}"; do
+            php -l "${file}"
+          done
