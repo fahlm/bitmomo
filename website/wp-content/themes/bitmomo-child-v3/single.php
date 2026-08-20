@@ -1,37 +1,7 @@
 <?php
 /** Single Post — Bitmomo */
+get_header();
 ?>
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-  <meta charset="<?php bloginfo('charset'); ?>">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <?php wp_head(); ?>
-</head>
-<body <?php body_class(); ?>>
-
-<header class="bm-header">
-  <div class="bm-container">
-    <?php bitmomo_render_brand(); ?>
-    <?php bitmomo_render_menu_toggle(); ?>
-
-    <nav class="bm-nav" id="bm-nav">
-      <?php
-      $menu_html = wp_nav_menu([
-        'theme_location' => 'primary',
-        'container'      => false,
-        'menu_class'     => 'bm-nav-list',
-        'fallback_cb'    => '__return_false',
-        'echo'           => false,
-        'depth'          => 1,
-      ]);
-      if ($menu_html) { echo $menu_html; }
-      ?>
-    </nav>
-
-    <a class="bm-cta" href="<?php echo esc_url( home_url('/subscribe/') ); ?>">SUBSCRIBE</a>
-  </div>
-</header>
 
 <main>
   <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
@@ -73,7 +43,6 @@
     </article>
 
     <?php
-      // ===== Related posts by same category (max 3) =====
       $primary_cat_id = $cats ? $cats[0]->term_id : 0;
       if ( $primary_cat_id ) :
         $rel = new WP_Query([
@@ -110,12 +79,4 @@
   <?php endwhile; endif; ?>
 </main>
 
-<footer class="bm-footer">
-  <div class="bm-container">
-    <p>© <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. Semua hak cipta dilindungi.</p>
-  </div>
-</footer>
-
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>
