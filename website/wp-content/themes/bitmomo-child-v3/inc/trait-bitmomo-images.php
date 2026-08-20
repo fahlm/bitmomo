@@ -74,9 +74,11 @@ trait Bitmomo_Images_Trait {
 
     public function preload_critical_assets() {
         if (is_admin()) return;
-        if (is_front_page()) $this->preload_hero_image();
-        if ($this->first_card_post_id) $this->preload_first_card_image();
-        $this->preload_featured_image();
+        if (is_singular()) {
+            $this->preload_featured_image();
+        } elseif ($this->first_card_post_id) {
+            $this->preload_first_card_image();
+        }
     }
 
     private function preload_hero_image() {
