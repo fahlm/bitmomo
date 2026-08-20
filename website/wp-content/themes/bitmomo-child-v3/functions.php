@@ -185,4 +185,313 @@ class Bitmomo_Performance_Optimizer {
 
     public function add_resource_hints($urls,$rel) {
         if ($rel==='preconnect') {
-            $urls[] = ['href'=>'https://fonts.gstatic.c²È="25Ì¬¡mxùt¨ýq‰¡É•˜õl‰ptü¡mx‰pœùqÌt¨ü½ÍÕ‰ÍÉ¥‰”¼ýðÍÕ‰ÍÉ¥‰”¥l‰ptýmxùt¨¤ùù¤œ°(€€€€€€€€€€€™Õ¹Ñ¥½¸ ‘´¥ì(€€€€€€€€€€€€€€€€‘Ñ…œ€ô€‘µlÁtì(€€€€€€€€€€€€€€€€‘Ñ…œ€ôÁÉ•}É•Á±…” ù¡É•˜õl‰ptýmx‰pœùqÌt¨ü½ÍÕ‰ÍÉ¥‰”¼ýl‰ptýù¤œ°€¡É•˜ôˆÍÕ‰ÍÉ¥‰”ˆœ°€‘Ñ…œ¤ì(€€€€€€€€€€€€€€€¥˜€¡ÍÑÉ¥Á½Ì ‘Ñ…œ°¡É•˜ôœ¤ôôõ™…±Í”¤€‘Ñ…œ€ôÍÑÉ}¥É•Á±…” œñ„€œ°œñ„¡É•˜ôˆÍÕ‰ÍÉ¥‰”ˆ€œ°‘Ñ…œ¤ì(€€€€€€€€€€€€€€€¥˜€¡ÍÑÉ¥Á½Ì ‘Ñ…œ°±…ÍÌôœ¤„ôõ™…±Í”¤ì(€€€€€€€€€€€€€€€€€€€€‘Ñ…œ€ôÁÉ•}É•Á±…” ù±…ÍÌõl‰pt¡mx‰pt¨¥l‰puù¤œ°±…ÍÌôˆÄ©Ìµ½Á•¸µÍÕ‰ÍÉ¥‰”ˆœ°‘Ñ…œ¤ì(€€€€€€€€€€€€€€€ô•±Í”ì(€€€€€€€€€€€€€€€€€€€€‘Ñ…œ€ôÍÑÉ}¥É•Á±…” œñ„€œ°œñ„±…ÍÌô‰©Ìµ½Á•¸µÍÕ‰ÍÉ¥‰”ˆ€œ°‘Ñ…œ¤ì(€€€€€€€€€€€€€€€ô(€€€€€€€€€€€€€€€É•ÑÕÉ¸€‘Ñ…œì(€€€€€€€€€€€ô°€‘¡Ñµ°(€€€€€€€€¤ì(€€€ô((€€€€¼¨€´´´´´´´´´´…±±‰…¬ML€´´´´´´´´´´€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸¥¹±¥¹•}¥µ}™…±±‰…­}ÍÌ ¤ì(€€€€€€€•¡¼€ˆñÍÑå±”ù¥µœé¹½Ð¡mÍÉt¤±¥µmÍÉŒôœt±¥µmÍÉŒôœŒuí‘¥ÍÁ±…äé¹½¹”…¥µÁ½ÉÑ…¹Ñôð½ÍÑå±”ùq¸ˆì(€€€ô((€€€€¼¨€ôôôôôôôôôô!5	UIH59T%9)Q%=8€¡9\¤€ôôôôôôôôôô€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸¥¹©•Ñ}¡…µ‰ÕÉ•É}µ•¹Ô ¤ì(€€€€€€€¥˜€¡¥Í}…‘µ¥¸ ¤¤É•ÑÕÉ¸ì(€€€€€€€€üø(€€€€€€€€ñÍÉ¥ÁÐø(€€€€€€€€¡™Õ¹Ñ¥½¸ ¤ì(€€€€€€€€€€€€ÕÍ”ÍÑÉ¥Ðœì(€€€€€€€€€€€¥˜€¡‘½Õµ•¹Ð¹•Ñ±•µ•¹Ñ	å% ‰´µ¡…µ‰ÕÉ•Èœ¤¤É•ÑÕÉ¸ì(€€€€€€€€€€€€(€€€€€€€€€€€Ù…È¡•…‘•È€ô‘½Õµ•¹Ð¹ÅÕ•ÉåM•±•Ñ½È œ¹‰´µ¡•…‘•È€¹‰´µ½¹Ñ…¥¹•Èœ¤ì(€€€€€€€€€€€¥˜€ …¡•…‘•È¤É•ÑÕÉ¸ì(€€€€€€€€€€€€(€€€€€€€€€€€€¼¼¥à¹•ÍÑ•€ñ„ø¥¸‰É…¹(€€€€€€€€€€€Ù…È‰É…¹€ô¡•…‘•È¹ÅÕ•ÉåM•±•Ñ½È œ¹‰´µ‰É…¹œ¤ì(€€€€€€€€€€€¥˜€¡‰É…¹€˜˜‰É…¹¹Ñ…9…µ”€ôôô€œ¤ì(€€€€€€€€€€€€€€€Ù…È¥¹¹•É1¥¹¬€ô‰É…¹¹ÅÕ•ÉåM•±•Ñ½È „¹ÕÍÑ½´µ±½¼µ±¥¹¬œ¤ì(€€€€€€€€€€€€€€€¥˜€¡¥¹¹•É1¥¹¬¤ì(€€€€€€€€€€€€€€€€€€€Ù…È‘¥Ø€ô‘½Õµ•¹Ð¹É•…Ñ•±•µ•¹Ð ‘¥Øœ¤ì(€€€€€€€€€€€€€€€€€€€‘¥Ø¹±…ÍÍ9…µ”€ô€‰´µ‰É…¹œì(€€€€€€€€€€€€€€€€€€€‘¥Ø¹¥¹¹•É!Q50€ô¥¹¹•É1¥¹¬¹½ÕÑ•É!Q50ì(€€€€€€€€€€€€€€€€€€€‰É…¹¹Á…É•¹Ñ9½‘”¹É•Á±…•¡¥±¡‘¥Ø°‰É…¹¤ì(€€€€€€€€€€€€€€€€€€€‰É…¹€ô‘¥Øì(€€€€€€€€€€€€€€€ô(€€€€€€€€€€€ô(€€€€€€€€€€€€(€€€€€€€€€€€€¼¼É•…Ñ”¡…µ‰ÕÉ•È(€€€€€€€€€€€Ù…È¡…µ‰ÕÉ•È€ô‘½Õµ•¹Ð¹É•…Ñ•±•µ•¹Ð ‰ÕÑÑ½¸œ¤ì(€€€€€€€€€€€¡…µ‰ÕÉ•È¹¥€ô€‰´µ¡…µ‰ÕÉ•Èœì(€€€€€€€€€€€¡…µ‰ÕÉ•È¹±…ÍÍ9…µ”€ô€‰´µ¡…µ‰ÕÉ•Èœì(€€€€€€€€€€€¡…µ‰ÕÉ•È¹Í•ÑÑÑÉ¥‰ÕÑ” …É¥„µ±…‰•°œ°€5•¹Ôœ¤ì(€€€€€€€€€€€¡…µ‰ÕÉ•È¹¥¹¹•É!Q50€ô€œñÍÁ…¸øð½ÍÁ…¸øñÍÁ…¸øð½ÍÁ…¸øñÍÁ…¸øð½ÍÁ…¸øœì(€€€€€€€€€€€€(€€€€€€€€€€€€¼¼%¹Í•ÉÐ(€€€€€€€€€€€Ù…ÈÑ„€ô¡•…‘•È¹ÅÕ•ÉåM•±•Ñ½È œ¹‰´µÑ„œ¤ì(€€€€€€€€€€€¥˜€¡Ñ„¤Ñ„¹‰•™½É”¡¡…µ‰ÕÉ•È¤ì(€€€€€€€€€€€•±Í”¡•…‘•È¹…ÁÁ•¹‘¡¥±¡¡…µ‰ÕÉ•È¤ì(€€€€€€€€€€€€(€€€€€€€€€€€Ù…È¹…Ø€ô‘½Õµ•¹Ð¹ÅÕ•ÉåM•±•Ñ½È œ¹‰´µ¹…Øœ¤ì(€€€€€€€€€€€¥˜€ …¹…Ø¤É•ÑÕÉ¸ì(€€€€€€€€€€€€(€€€€€€€€€€€¡…µ‰ÕÉ•È¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ±¥¬œ°™Õ¹Ñ¥½¸ ¤ì(€€€€€€€€€€€€€€€Ù…È¥Í=Á•¸€ô¹…Ø¹±…ÍÍ1¥ÍÐ¹Ñ½±” ½Á•¸œ¤ì(€€€€€€€€€€€€€€€¡…µ‰ÕÉ•È¹±…ÍÍ1¥ÍÐ¹Ñ½±” …Ñ¥Ù”œ°¥Í=Á•¸¤ì(€€€€€€€€€€€€€€€‘½Õµ•¹Ð¹‰½‘ä¹±…ÍÍ1¥ÍÐ¹Ñ½±” µ•¹Ôµ½Á•¸œ°¥Í=Á•¸¤ì(€€€€€€€€€€€ô¤ì(€€€€€€€€€€€€(€€€€€€€€€€€¹…Ø¹ÅÕ•ÉåM•±•Ñ½É±° „œ¤¹™½É… ¡™Õ¹Ñ¥½¸¡±¥¹¬¤ì(€€€€€€€€€€€€€€€±¥¹¬¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ±¥¬œ°™Õ¹Ñ¥½¸ ¤ì(€€€€€€€€€€€€€€€€€€€¹…Ø¹±…ÍÍ1¥ÍÐ¹É•µ½Ù” ½Á•¸œ¤ì(€€€€€€€€€€€€€€€€€€€¡…µ‰ÕÉ•È¹±…ÍÍ1¥ÍÐ¹É•µ½Ù” …Ñ¥Ù”œ¤ì(€€€€€€€€€€€€€€€€€€€‘½Õµ•¹Ð¹‰½‘ä¹±…ÍÍ1¥ÍÐ¹É•µ½Ù” µ•¹Ôµ½Á•¸œ¤ì(€€€€€€€€€€€€€€€ô¤ì(€€€€€€€€€€€ô¤ì(€€€€€€€€€€€€(€€€€€€€€€€€Ý¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È É•Í¥é”œ°™Õ¹Ñ¥½¸ ¤ì(€€€€€€€€€€€€€€€¥˜€¡Ý¥¹‘½Ü¹¥¹¹•É]¥‘Ñ €ø€ÜØà¤ì(€€€€€€€€€€€€€€€€€€€¹…Ø¹±…ÍÍ1¥ÍÐ¹É•µ½Ù” ½Á•¸œ¤ì(€€€€€€€€€€€€€€€€€€€¡…µ‰ÕÉ•È¹±…ÍÍ1¥ÍÐ¹É•µ½Ù” …Ñ¥Ù”œ¤ì(€€€€€€€€€€€€€€€€€€€‘½Õµ•¹Ð¹‰½‘ä¹±…ÍÍ1¥ÍÐ¹É•µ½Ù” µ•¹Ôµ½Á•¸œ¤ì(€€€€€€€€€€€€€€€ô(€€€€€€€€€€€ô¤ì(€€€€€€€ô¤ ¤ì(€€€€€€€€ð½ÍÉ¥ÁÐø(€€€€€€€€ðýÁ¡À(€€€ô((€€€€¼¨€´´´´´´´´´´5½‘…°€´´´´´´´´´´€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸É•¹‘•É}µ…¥±Á½•Ñ}µ½‘…° ¤ì(€€€€€€€¥˜€¡¥Í}…‘µ¥¸ ¤ñð€…Í¡½ÉÑ½‘•}•á¥ÍÑÌ µ…¥±Á½•Ñ}™½É´œ¤¤É•ÑÕÉ¸ì(€€€€€€€¥˜€ „‘Ñ¡¥Ì´ùÍ¡½Õ±‘}±½…‘}µ½‘…° ¤¤É•ÑÕÉ¸ì((€€€€€€€€‘™½Éµ}¥€ô	5}5%1A=Q}=I5}%ì€üø(€€€€€€€€ñÍÁ…¸¥ô‰ÍÕ‰ÍÉ¥‰”ˆ¡¥‘‘•¸øð½ÍÁ…¸øñÍÁ…¸¥ô‰¹•ÝÍ±•ÑÑ•Èˆ¡¥‘‘•¸øð½ÍÁ…¸ø(€€€€€€€€ñ‘¥Ø¥ô‰‰´µÍÕ‰ÍÉ¥‰”µµ½‘…°ˆ…É¥„µ¡¥‘‘•¸ô‰ÑÉÕ”ˆÉ½±”ô‰‘¥…±½œˆø(€€€€€€€€€€€€ñ„±…ÍÌô‰‰´µÍÕ‰ÍÉ¥‰”µ‰…­‘É½Àˆ¡É•˜ôˆŒˆ…É¥„µ¡¥‘‘•¸ô‰ÑÉÕ”ˆÑ…‰¥¹‘•àôˆ´Äˆøð½„ø(€€€€€€€€€€€€ñ‘¥Ø±…ÍÌô‰‰´µÍÕ‰ÍÉ¥‰”µ‘¥…±½œˆÉ½±”ô‰‘½Õµ•¹Ðˆ…É¥„µµ½‘…°ô‰ÑÉÕ”ˆÑ…‰¥¹‘•àôˆ´Äˆø(€€€€€€€€€€€€€€€€ñ„±…ÍÌô‰‰´µÍÕ‰ÍÉ¥‰”µ±½Í”ˆ¡É•˜ôˆŒˆ‘…Ñ„µ±½Í”ôˆÄˆ…É¥„µ±…‰•°ôˆðýÁ¡À•¡¼•Í}…ÑÑÉ}| QÕÑÕÀœ°‰¥Ñµ½µ¼œ¤ì€üøˆû\ð½„ø(€€€€€€€€€€€€€€€€ñ Ì±…ÍÌô‰‰´µÍÕ‰ÍÉ¥‰”µÑ¥Ñ±”ˆøðýÁ¡À•¡¼•Í}¡Ñµ±}| …‰Õ¹œ9•ÝÍ±•ÑÑ•È	¥Ñµ½µ¼œ°‰¥Ñµ½µ¼œ¤ì€üøð½ Ìø(€€€€€€€€€€€€€€€€ñ‘¥Ø±…ÍÌô‰‰´µÍÕ‰ÍÉ¥‰”µ™½É´ˆøðýÁ¡À•¡¼‘½}Í¡½ÉÑ½‘” ‰mµ…¥±Á½•Ñ}™½É´¥õp‰ì‘™½Éµ}¥‘õp‰tˆ¤ì€üøð½‘¥Øø(€€€€€€€€€€€€€€€€ñÀ±…ÍÌô‰‰´µÍÕ‰ÍÉ¥‰”µ¹½Ñ”ˆøðýÁ¡À•¡¼•Í}¡Ñµ±}| -…µ¤…¹Ñ¤ÍÁ…´¸	¥Í„Õ¹ÍÕ‰ÍÉ¥‰”­…Á…¸Í…©„¸œ°‰¥Ñµ½µ¼œ¤ì€üøð½Àø(€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€ð½‘¥Øø(€€€€€€€€ñÍÉ¥ÁÐø(€€€€€€€€¡™Õ¹Ñ¥½¸ ¥ì(€€€€€€€€€€ÕÍ”ÍÑÉ¥Ðœì(€€€€€€€€€Ù…È´õ‘½Õµ•¹Ð¹•Ñ±•µ•¹Ñ	å% ‰´µÍÕ‰ÍÉ¥‰”µµ½‘…°œ¤ì¥˜ …´¤É•ÑÕÉ¸ì(€€€€€€€€€Ù…Èˆõ‘½Õµ•¹Ð¹‰½‘äì(€€€€€€€€€™Õ¹Ñ¥½¸½Á•¸¡”¥ì¥˜¡”˜™”¹ÁÉ•Ù•¹Ñ•™…Õ±Ð¥”¹ÁÉ•Ù•¹Ñ•™…Õ±Ð ¤ì´¹Í•ÑÑÑÉ¥‰ÕÑ” …É¥„µ¡¥‘‘•¸œ°™…±Í”œ¤ìˆ¹ÍÑå±”¹½Ù•É™±½Üô¡¥‘‘•¸œì(€€€€€€€€€€€Í•ÑQ¥µ•½ÕÐ¡™Õ¹Ñ¥½¸ ¥íÙ…Èàõ´¹ÅÕ•ÉåM•±•Ñ½È ¥¹ÁÕÑmÑåÁ”ô‰•µ…¥°‰tœ¤ì¥˜¡à˜™à¹™½ÕÌ¥à¹™½ÕÌ ¤íô°ÄÀÀ¤ìô(€€€€€€€€€™Õ¹Ñ¥½¸±½Í”¡”¥ì¥˜¡”˜™”¹ÁÉ•Ù•¹Ñ•™…Õ±Ð¥”¹ÁÉ•Ù•¹Ñ•™…Õ±Ð ¤ì´¹Í•ÑÑÑÉ¥‰ÕÑ” …É¥„µ¡¥‘‘•¸œ°ÑÉÕ”œ¤ìˆ¹ÍÑå±”¹½Ù•É™±½Üôœœì(€€€€€€€€€€€¥˜ ¼Œ¡ÍÕ‰ÍÉ¥‰•ñ¹•ÝÍ±•ÑÑ•È¤½¤¹Ñ•ÍÐ¡±½…Ñ¥½¸¹¡…Í¡ñðœœ¤¥ìÑÉåí¡¥ÍÑ½Éä¹É•Á±…•MÑ…Ñ”¡¹Õ±°°œœ±±½…Ñ¥½¸¹Á…Ñ¡¹…µ”­±½…Ñ¥½¸¹Í•…É ¤íõ…Ñ ¡|¥íõôô(€€€€€€€€€™Õ¹Ñ¥½¸¥ÍMÕˆ¡ ¥ì¥˜ … ¤É•ÑÕÉ¸™…±Í”ìÑÉåíÙ…ÈÔõ¹•ÜUI0¡ ±±½…Ñ¥½¸¹½É¥¥¸¤ìÙ…ÈÀô¡Ô¹Á…Ñ¡¹…µ•ñðœœ¤¹É•Á±…” ½p¼¬¼°œœ¤¹Ñ½1½Ý•É…Í” ¤°¡ ô¡Ô¹¡…Í¡ñðœœ¤¹Ñ½1½Ý•É…Í” ¤ì(€€€€€€€€€€€É•ÑÕÉ¸Àôôôœ½ÍÕ‰ÍÉ¥‰”ññ¡ ôôôœÍÕ‰ÍÉ¥‰”ññ¡ ôôôœ¹•ÝÍ±•ÑÑ•Èœìõ…Ñ ¡|¥ìÉ•ÑÕÉ¸™…±Í”ìôô(€€€€€€€€€‘½Õµ•¹Ð¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ±¥¬œ±™Õ¹Ñ¥½¸¡”¥ì(€€€€€€€€€€€Ù…È„õ”¹Ñ…É•Ð˜™”¹Ñ…É•Ð¹±½Í•ÍÐ …m¡É•™tœ¤ì¥˜ …„¤É•ÑÕÉ¸ìÙ…È¡É•˜õ„¹•ÑÑÑÉ¥‰ÕÑ” ¡É•˜œ¥ñðœœì(€€€€€€€€€€€¥˜¡„¹±…ÍÍ1¥ÍÐ¹½¹Ñ…¥¹Ì ©Ìµ½Á•¸µÍÕ‰ÍÉ¥‰”œ¥ññ¥ÍMÕˆ¡¡É•˜¤¥ì”¹ÁÉ•Ù•¹Ñ•™…Õ±Ð ¤ì”¹ÍÑ½ÁAÉ½Á……Ñ¥½¸ ¤ì½Á•¸¡”¤ìô(€€€€€€€€€€€¥˜¡„¹µ…Ñ¡•Ì œ¹‰´µÍÕ‰ÍÉ¥‰”µ±½Í”±m‘…Ñ„µ±½Í”ôˆÄ‰t°¹‰´µÍÕ‰ÍÉ¥‰”µ‰…­‘É½Àœ¤¤±½Í”¡”¤ì(€€€€€€€€€ô±ÑÉÕ”¤ì(€€€€€€€€€‘½Õµ•¹Ð¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ­•å‘½Ý¸œ±™Õ¹Ñ¥½¸¡”¥ì¥˜¡”¹­•äôôôÍ…Á”œ¤±½Í”¡”¤ìô¤ì(€€€€€€€€€¥˜ ¼Œ¡ÍÕ‰ÍÉ¥‰•ñ¹•ÝÍ±•ÑÑ•È¤½¤¹Ñ•ÍÐ¡±½…Ñ¥½¸¹¡…Í¡ñðœœ¤¤½Á•¸ ¤ì(€€€€€€€ô¤ ¤ì(€€€€€€€€ð½ÍÉ¥ÁÐø(€€€€€€€€ðýÁ¡À(€€€ô((€€€€¼¨€´´´´´´´´´´•‰Õœ€´´´´´´´´´´€¨¼(€€€ÁÕ‰±¥Œ™Õ¹Ñ¥½¸Á•É™½Éµ…¹•}‘•‰Õœ ¤ì(€€€€€€€¥˜€ …	5}	U¤É•ÑÕÉ¸ì(€€€€€€€€‘µÌ€ô€¡µ¥É½Ñ¥µ”¡ÑÉÕ”¤´‘Ñ¡¥Ì´ùÁ•É™½Éµ…¹•}Ñ¥µ•È¤¨ÄÀÀÀì(€€€€€€€€‘µ•´€ôµ•µ½Éå}•Ñ}Á•…­}ÕÍ…”¡ÑÉÕ”¤¼ÄÀÐàÔÜØì(€€€€€€€ÁÉ¥¹Ñ˜ ‰q¸ð„´´	¥Ñµ½µ¼A•É™½Éµ…¹”è€”¸É™µÌð5•µ½Éäè€”¸É™5€´´ùq¸ˆ°‘µÌ°‘µ•´¤ì(€€€ô((€€€€¼¨€´´´´´´´´´´!•±Á•ÉÌ€´´´´´´´´´´€¨¼(€€€ÁÉ¥Ù…Ñ”™Õ¹Ñ¥½¸Í¡½Õ±‘}½ÁÑ¥µ¥é•}½¹Ñ•¹Ð ¥ìÉ•ÑÕÉ¸€…¥Í}…‘µ¥¸ ¤€˜˜¥¹}Ñ¡•}±½½À ¤€˜˜¥Í}µ…¥¹}ÅÕ•Éä ¤ìô(€€€ÁÉ¥Ù…Ñ”™Õ¹Ñ¥½¸Í¡½Õ±‘}±½…‘}µ½‘…° ¥ìÉ•ÑÕÉ¸¥Í}Í¥¹±” ¤ñð¥Í}Á…” ¤ñð¥Í}¡½µ” ¤ñð¥Í}™É½¹Ñ}Á…” ¤ñð¥Í}…É¡¥Ù” ¤ìô(€€€ÁÉ¥Ù…Ñ”™Õ¹Ñ¥½¸•Ñ}™¥±•}Ù•ÉÍ¥½¸ ‘™¥±”¥ìÑÉåìÉ•ÑÕÉ¸™¥±•}•á¥ÍÑÌ ‘™¥±”¤ü™¥±•µÑ¥µ” ‘™¥±”¤è	5}YIM%=8ìõ…Ñ ¡á•ÁÑ¥½¸€‘”¥ìÉ•ÑÕÉ¸	5}YIM%=8ìôô)ô((¼¨	½½Ð€¨¼)	¥Ñµ½µ½}A•É™½Éµ…¹•}=ÁÑ¥µ¥é•Èèé•Ñ%¹ÍÑ…¹” ¤ì((¼¨1•…äÍÑÕˆ€¨¼)¥˜€ …™Õ¹Ñ¥½¹}•á¥ÍÑÌ ‰¥Ñµ½µ½}µ…¥±Á½•Ñ}µ½‘…±}™½½Ñ•Èœ¤¤ì(€€€™Õ¹Ñ¥½¸‰¥Ñµ½µ½}µ…¥±Á½•Ñ}µ½‘…±}™½½Ñ•È ¤ì(€€€€€€€	¥Ñµ½µ½}A•É™½Éµ…¹•}=ÁÑ¥µ¥é•Èèé•Ñ%¹ÍÑ…¹” ¤´ùÉ•¹‘•É}µ…¥±Á½•Ñ}µ½‘…° ¤ì(€€€ô)ô((¼¨!•…±Ñ •¹‘Á½¥¹ÑÌ€¨¼)…‘‘}…Ñ¥½¸ ÝÁ}…©…á}¹½ÁÉ¥Ù}‰¥Ñµ½µ½}¡•…±Ñ œ°™Õ¹Ñ¥½¸ ¥ìÝÁ}Í•¹‘}©Í½¸¡lÍÑ…ÑÕÌœôø½¬œ°Ù•ÉÍ¥½¸œôù	5}YIM%=9t¤ìô¤ì)…‘‘}…Ñ¥½¸ ÝÁ}…©…á}‰¥Ñµ½µ½}¡•…±Ñ œ°€€€€€€€™Õ¹Ñ¥½¸ ¥ìÝÁ}Í•¹‘}©Í½¸¡lÍÑ…ÑÕÌœôø½¬œ°Ù•ÉÍ¥½¸œôù	5}YIM%=9t¤ìô¤ì
+            $urls[] = ['href'=>'https://fonts.gstatic.com','crossorigin'=>true];
+            $urls[] = ['href'=>'https://cdn.bitmomo.id','crossorigin'=>true];
+        }
+        return $urls;
+    }
+
+    /* ---------- Images ---------- */
+    public function set_image_decoding($v){ return 'async'; }
+
+    public function force_image_dimensions($attr,$attachment,$size) {
+        if (empty($attr['width']) || empty($attr['height'])) {
+            $meta = wp_get_attachment_metadata($attachment);
+            if (is_array($meta) && !empty($meta['width']) && !empty($meta['height'])) {
+                $attr['width']  = (int)$meta['width'];
+                $attr['height'] = (int)$meta['height'];
+            }
+        }
+        return $attr;
+    }
+
+    public function optimize_content_images($content) {
+        if (!$this->should_optimize_content()) return $content;
+        $content = preg_replace('/<img(?![^>]+loading=)/i',  '<img loading="lazy" ',  $content);
+        $content = preg_replace('/<img(?![^>]+decoding=)/i', '<img decoding="async" ', $content);
+        return $content;
+    }
+
+    public function set_lcp_image_priority($content) {
+        static $done=false;
+        if ($done || !$this->should_optimize_content()) return $content;
+        $done=true;
+        return preg_replace('/<img(?![^>]*\bfetchpriority=)([^>]+)>/i',
+            '<img loading="eager" fetchpriority="high"$1>', $content, 1);
+    }
+
+    public function optimize_image_sizes($sizes,$size,$src,$meta,$id) {
+        $w = is_array($size) ? (int)($size[0] ?? 0) : 0;
+        $is_card = (is_string($size) && $size==='bm-card') || $w>=700;
+        if ($is_card) return '(max-width:640px) 92vw, (max-width:980px) 46vw, 33vw';
+        return $sizes;
+    }
+
+    /* ---------- Preload & detection ---------- */
+    public function detect_first_card_post() {
+        global $wp_query;
+        if (is_home() || is_front_page()) {
+            $p = get_posts(['post_type'=>'post','posts_per_page'=>1,'orderby'=>'date','order'=>'DESC','no_found_rows'=>true,'post_status'=>'publish']);
+            if (!empty($p)) $this->first_card_post_id = (int)$p[0]->ID;
+        } elseif ((is_category()||is_tag()||is_archive()) && $wp_query instanceof WP_Query && !empty($wp_query->posts)) {
+            $this->first_card_post_id = (int)$wp_query->posts[0]->ID;
+        }
+    }
+
+    public function preload_critical_assets() {
+        if (is_admin()) return;
+        if (is_front_page()) $this->preload_hero_image();
+        if ($this->first_card_post_id) $this->preload_first_card_image();
+        $this->preload_featured_image();
+    }
+
+    private function preload_hero_image() {
+        if ($this->did_preload_hero) return;
+        $path = get_stylesheet_directory().'/assets/hero.webp';
+        $uri  = get_stylesheet_directory_uri().'/assets/hero.webp';
+        if (file_exists($path)) {
+            printf("\n<link rel=\"preload\" as=\"image\" href=\"%s\" fetchpriority=\"high\">\n", esc_url($uri));
+            $this->did_preload_hero = true;
+        }
+    }
+
+    private function preload_first_card_image() {
+        if ($this->did_preload_first_card) return;
+        $tid = get_post_thumbnail_id($this->first_card_post_id);
+        if ($tid) {
+            $url = wp_get_attachment_image_url($tid,'large');
+            if ($url) {
+                printf("\n<link rel=\"preload\" as=\"image\" href=\"%s\">\n", esc_url($url));
+                $this->did_preload_first_card = true;
+            }
+        }
+    }
+
+    private function preload_featured_image() {
+        if ($this->did_preload_featured) return;
+        $post_id = 0;
+        if (is_front_page()) {
+            $front = (int)get_option('page_on_front');
+            if ($front) $post_id = $front;
+        } elseif (is_singular()) {
+            $post_id = get_queried_object_id();
+        }
+        if ($post_id && has_post_thumbnail($post_id)) {
+            $id = get_post_thumbnail_id($post_id);
+            $full = wp_get_attachment_image_src($id,'full');
+            $srcset = wp_get_attachment_image_srcset($id,'full');
+            if (!empty($full[0])) {
+                printf("\n<link rel=\"preload\" as=\"image\" href=\"%s\" %s fetchpriority=\"high\">\n",
+                    esc_url($full[0]),
+                    $srcset ? 'imagesrcset="'.esc_attr($srcset).'" imagesizes="(max-width:768px) 92vw, (max-width:1200px) 1100px, 1200px"' : ''
+                );
+                $this->did_preload_featured = true;
+            }
+        }
+    }
+
+    public function optimize_thumbnail_loading($html,$post_id,$thumb_id,$size,$attr) {
+        if ($this->first_card_post_id && (int)$post_id === $this->first_card_post_id) {
+            $html = preg_replace('/<img /','<img loading="eager" fetchpriority="high" ', $html, 1);
+        } else {
+            $html = preg_replace('/<img(?![^>]+loading=)/','<img loading="lazy" ', $html, 1);
+            $html = preg_replace('/<img(?![^>]+decoding=)/','<img decoding="async" ', $html, 1);
+        }
+        return $html;
+    }
+
+    /* ---------- Content Enhancements ---------- */
+    public function add_content_enhancements($content) {
+        if (!is_single() || !in_the_loop() || !is_main_query()) return $content;
+
+        $cta = sprintf(
+            '<div class="bm-subscribe-cta">
+                <a href="#subscribe" class="bm-btn bm-btn-subscribe js-open-subscribe">ðŸš€ %s</a>
+                <p class="bm-subscribe-caption">%s</p>
+            </div>',
+            __('Subscribe Newsletter Bitmomo','bitmomo'),
+            __('Ringkasan AI &amp; Crypto langsung ke inbox.','bitmomo')
+        );
+        $disc = sprintf('<div class="bm-disclaimer"><p><em>%s</em></p></div>',
+            __('Informasi edukasi, bukan saran investasi. Risiko aset kripto tinggi. DYOR.','bitmomo'));
+
+        return $content.$cta.$disc;
+    }
+
+    public function modify_archive_query($q) {
+        if (is_admin() || !$q->is_main_query()) return;
+        if ($q->is_category() || $q->is_tag()) $q->set('posts_per_page', BM_ARCHIVE_POSTS_PER_PAGE);
+    }
+
+    public function handle_subscribe_redirect() {
+        $req  = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '');
+        $path = trim(parse_url($req, PHP_URL_PATH) ?? '/', '/');
+        if (strcasecmp($path,'subscribe')===0) { wp_safe_redirect(home_url('/#subscribe'),302); exit; }
+    }
+
+    /* ---------- Universal subscribe ---------- */
+    public function force_subscribe_link_attrs($atts, $item, $args) {
+        if (empty($atts['href'])) return $atts;
+        $href = strtolower($atts['href']);
+        if (strpos($href, '#subscribe') !== false || preg_match('~(^|/)subscribe/?$~', $href)) {
+            $atts['href'] = '#subscribe';
+            $atts['class'] = (isset($atts['class']) ? $atts['class'].' ' : '') . 'js-open-subscribe';
+        }
+        return $atts;
+    }
+
+    public function force_subscribe_links_in_content($html) {
+        if (empty($html)) return $html;
+        return preg_replace_callback(
+            '~<a\s+([^>]*?\bhref=["\']?([^"\'>\s#]*?/subscribe/?|#subscribe)["\']?[^>]*)>~i',
+            function($m){
+                $tag = $m[0];
+                $tag = preg_replace('~href=["\']?[^"\'>\s#]*?/subscribe/?["\']?~i', 'href="#subscribe"', $tag);
+                if (stripos($tag,'href=')===false) $tag = str_ireplace('<a ','<a href="#subscribe" ',$tag);
+                if (stripos($tag,'class=')!==false) {
+                    $tag = preg_replace('~class=["\']([^"\']*)["\']~i','class="$1 js-open-subscribe"',$tag);
+                } else {
+                    $tag = str_ireplace('<a ','<a class="js-open-subscribe" ',$tag);
+                }
+                return $tag;
+            }, $html
+        );
+    }
+
+    /* ---------- Fallback CSS ---------- */
+    public function inline_img_fallback_css() {
+        echo "<style>img:not([src]),img[src=''],img[src='#']{display:none!important}</style>\n";
+    }
+
+    /* ========== HAMBURGER MENU INJECTION (NEW) ========== */
+    public function inject_hamburger_menu() {
+        if (is_admin()) return;
+        ?>
+        <script>
+        (function() {
+            'use strict';
+            if (document.getElementById('bm-hamburger')) return;
+            
+            var header = document.querySelector('.bm-header .bm-container');
+            if (!header) return;
+            
+            // Fix nested <a> in brand
+            var brand = header.querySelector('.bm-brand');
+            if (brand && brand.tagName === 'A') {
+                var innerLink = brand.querySelector('a.custom-logo-link');
+                if (innerLink) {
+                    var div = document.createElement('div');
+                    div.className = 'bm-brand';
+                    div.innerHTML = innerLink.outerHTML;
+                    brand.parentNode.replaceChild(div, brand);
+                    brand = div;
+                }
+            }
+            
+            // Create hamburger
+            var hamburger = document.createElement('button');
+            hamburger.id = 'bm-hamburger';
+            hamburger.className = 'bm-hamburger';
+            hamburger.setAttribute('aria-label', 'Menu');
+            hamburger.innerHTML = '<span></span><span></span><span></span>';
+            
+            // Insert
+            var cta = header.querySelector('.bm-cta');
+            if (cta) cta.before(hamburger);
+            else header.appendChild(hamburger);
+            
+            var nav = document.querySelector('.bm-nav');
+            if (!nav) return;
+            
+            hamburger.addEventListener('click', function() {
+                var isOpen = nav.classList.toggle('open');
+                hamburger.classList.toggle('active', isOpen);
+                document.body.classList.toggle('menu-open', isOpen);
+            });
+            
+            nav.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    nav.classList.remove('open');
+                    hamburger.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                });
+            });
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    nav.classList.remove('open');
+                    hamburger.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                }
+            });
+        })();
+        </script>
+        <?php
+    }
+
+    /* ---------- Modal ---------- */
+    public function render_mailpoet_modal() {
+        if (is_admin() || !shortcode_exists('mailpoet_form')) return;
+        if (!$this->should_load_modal()) return;
+
+        $form_id = BM_MAILPOET_FORM_ID; ?>
+        <span id="subscribe" hidden></span><span id="newsletter" hidden></span>
+        <div id="bm-subscribe-modal" aria-hidden="true" role="dialog">
+            <a class="bm-subscribe-backdrop" href="#" aria-hidden="true" tabindex="-1"></a>
+            <div class="bm-subscribe-dialog" role="document" aria-modal="true" tabindex="-1">
+                <a class="bm-subscribe-close" href="#" data-close="1" aria-label="<?php echo esc_attr__('Tutup','bitmomo'); ?>">Ã—</a>
+                <h3 class="bm-subscribe-title"><?php echo esc_html__('Gabung Newsletter Bitmomo','bitmomo'); ?></h3>
+                <div class="bm-subscribe-form"><?php echo do_shortcode("[mailpoet_form id=\"{$form_id}\"]"); ?></div>
+                <p class="bm-subscribe-note"><?php echo esc_html__('Kami anti spam. Bisa unsubscribe kapan saja.','bitmomo'); ?></p>
+            </div>
+        </div>
+        <script>
+        (function(){
+          'use strict';
+          var m=document.getElementById('bm-subscribe-modal'); if(!m) return;
+          var b=document.body;
+          function open(e){ if(e&&e.preventDefault)e.preventDefault(); m.setAttribute('aria-hidden','false'); b.style.overflow='hidden';
+            setTimeout(function(){var x=m.querySelector('input[type="email"]'); if(x&&x.focus)x.focus();},100); }
+          function close(e){ if(e&&e.preventDefault)e.preventDefault(); m.setAttribute('aria-hidden','true'); b.style.overflow='';
+            if(/#(subscribe|newsletter)$/i.test(location.hash||'')){ try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}} }
+          function isSub(h){ if(!h) return false; try{var u=new URL(h,location.origin); var p=(u.pathname||'').replace(/\/+$/,'').toLowerCase(), hh=(u.hash||'').toLowerCase();
+            return p==='/subscribe'||hh==='#subscribe'||hh==='#newsletter'; }catch(_){ return false; } }
+          document.addEventListener('click',function(e){
+            var a=e.target&&e.target.closest('a[href]'); if(!a) return; var href=a.getAttribute('href')||'';
+            if(a.classList.contains('js-open-subscribe')||isSub(href)){ e.preventDefault(); e.stopPropagation(); open(e); }
+            if(a.matches('.bm-subscribe-close,[data-close="1"],.bm-subscribe-backdrop')) close(e);
+          },true);
+          document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(e); });
+          if(/#(subscribe|newsletter)$/i.test(location.hash||'')) open();
+        })();
+        </script>
+        <?php
+    }
+
+    /* ---------- Debug ---------- */
+    public function performance_debug() {
+        if (!BM_DEBUG) return;
+        $ms = (microtime(true)-$this->performance_timer)*1000;
+        $mem = memory_get_peak_usage(true)/1048576;
+        printf("\n<!-- Bitmomo Performance: %.2fms | Memory: %.2fMB -->\n",$ms,$mem);
+    }
+
+    /* ---------- Helpers ---------- */
+    private function should_optimize_content(){ return !is_admin() && in_the_loop() && is_main_query(); }
+    private function should_load_modal(){ return is_single() || is_page() || is_home() || is_front_page() || is_archive(); }
+    private function get_file_version($file){ try{ return file_exists($file)? filemtime($file): BM_VERSION; }catch(Exception $e){ return BM_VERSION; } }
+}
+
+/* Boot */
+Bitmomo_Performance_Optimizer::getInstance();
+
+/* Legacy stub */
+if (!function_exists('bitmomo_mailpoet_modal_footer')) {
+    function bitmomo_mailpoet_modal_footer() {
+        Bitmomo_Performance_Optimizer::getInstance()->render_mailpoet_modal();
+    }
+}
+
+/* Health endpoints */
+add_action('wp_ajax_nopriv_bitmomo_health', function(){ wp_send_json(['status'=>'ok','version'=>BM_VERSION]); });
+add_action('wp_ajax_bitmomo_health',        function(){ wp_send_json(['status'=>'ok','version'=>BM_VERSION]); });
