@@ -1,44 +1,9 @@
 <?php
 /** Bitmomo — Home (Latest Posts) v4.0 */
+get_header();
 ?>
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-  <meta charset="<?php bloginfo('charset'); ?>">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <?php wp_head(); ?>
-</head>
-<body <?php body_class(); ?>>
-
-<header class="bm-header">
-  <div class="bm-container">
-    
-    <!-- BRAND/LOGO + MOBILE MENU -->
-    <?php bitmomo_render_brand(); ?>
-    <?php bitmomo_render_menu_toggle(); ?>
-    
-    <!-- NAVIGATION -->
-    <nav class="bm-nav" id="bm-nav">
-      <?php
-      wp_nav_menu([
-        'theme_location' => 'primary',
-        'container'      => false,
-        'menu_class'     => 'bm-nav-list',
-        'items_wrap'     => '<ul class="%2$s">%3$s</ul>',
-        'fallback_cb'    => false,
-        'depth'          => 1,
-      ]);
-      ?>
-    </nav>
-    
-    <!-- SUBSCRIBE BUTTON (Desktop) -->
-    <a class="bm-cta js-open-subscribe" href="#subscribe">SUBSCRIBE</a>
-    
-  </div>
-</header>
 
 <main>
-  <!-- HERO -->
   <section class="bm-hero">
     <div class="bm-container">
       <h1 class="bm-hero-title">Informasi AI &amp; <span class="teal">Crypto</span> Terdepan</h1>
@@ -47,7 +12,6 @@
     </div>
   </section>
 
-  <!-- LIST POSTS -->
   <section class="bm-section">
     <div class="bm-container">
       <?php if (have_posts()) : ?>
@@ -85,13 +49,4 @@
   </section>
 </main>
 
-<footer class="bm-footer">
-  <div class="bm-container">
-    <p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>.</p>
-  </div>
-</footer>
-
-<?php wp_footer(); ?>
-
-</body>
-</html>
+<?php get_footer(); ?>
