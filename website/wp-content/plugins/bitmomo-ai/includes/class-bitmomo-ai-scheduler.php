@@ -1,0 +1,189 @@
+<?php
+if (!defined('ABSPATH')) exit;
+
+final class Bitmomo_AI_Scheduler {
+    const HOOK = 'bitmomo_ai_daily_generation';
+
+    public static function register() {
+        add_action(self::HOOK, [__CLASS__, 'run']);
+        add_action('admin_menu', [__CLASS__, 'admin_menu']);
+        add_action('admin_post_bitmomo_ai_run_now', [__CLASS__, 'run_now']);
+        add_action('admin_post_bitmomo_ai_create_preview', [__CLASS__, 'create_preview_page']);
+        add_action('init', [__CLASS__, 'ensure_schedule']);
+    }
+
+    public static function ensure_schedule() {
+        if (!wp_next_scheduled(self::HOOK)) self::schedule();
+    }
+
+    public static function schedule() {
+        if (wp_next_scheduled(self::HOOK)) return;
+        $timezone = new DateTimeZone('Asia/Jakarta');
+        $now = new DateTimeImmutable('now', $timezone);
+        $next = $now->setTime(19, 10);
+        if ($next <= $now) $next = $next->modify('+1 day');
+        wp_schedule_event($next->getTimestamp(), 'daily', self::HOOK);
+    }
+
+    public static function unschedule() {
+        wp_clear_scheduled_hook(self::HOOK);
+    }
+
+    public static function automation_health() {
+        $timezone = new DateTimeZone('Asia/Jakarta');
+        $now = new DateTimeImmutable('now', $timezone);
+        $next = wp_next_scheduled(self::HOOK);
+        $last = (array) get_option('bitmomo_ai_last_run', []);
+        $last_timestamp = strtotime((string) ($last['time'] ?? '')) ?: 0;
+        $last_local = $last_timestamp ? (new DateTimeImmutable('@' . $last_timestamp))->setTimezone($timezone) : null;
+        $last_in_release_window = $last_local
+            && $last_local->format('Y-m-d') === $now->format('Y-m-d')
+            && (int) $last_local->format('Hi') >= 1900;
+        $cutoff = $now->setTime(19, 30);
+        $wp_cron_disabled = defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
+
+        if (!$next) {
+            $state = 'not_scheduled';
+            $message = __('Jadwal harian tidak ditemukan.', 'bitmomo-ai');
+        } elseif ($now > $cutoff && !$last_in_release_window) {
+            $state = 'overdue';
+            $message = __('Analisis hari ini belum berjalan setelah batas 19:30 WIB.', 'bitmomo-ai');
+        } elseif ($last_in_release_window && ($last['status'] ?? '') === 'success') {
+            $state = 'healthy';
+            $message = __('Eksekusi pada jendela rilis hari ini berhasil.', 'bitmomo-ai');
+        } elseif ($last_in_release_window && in_array(($last['status'] ?? ''), ['error', 'blocked'], true)) {
+            $state = 'failed';
+            $message = __('Eksekusi pada jendela rilis hari ini gagal atau diblokir.', 'bitmomo-ai');
+        } else {
+            $state = 'scheduled';
+            $message = __('Jadwal hari ini masih menunggu pukul 19:10 WIB.', 'bitmomo-ai');
+        }
+
+        return [
+            'state' => $state,
+            'message' => $message,
+            'next_timestamp' => $next ?: 0,
+            'next_label' => $next ? wp_date('d M Y, H:i:s', $next, $timezone) . ' WIB' : __('tidak terjadwal', 'bitmomo-ai'),
+            'last_timestamp' => $last_timestamp,
+            'last_label' => $last_local ? $last_local->format('d M Y, H:i:s') . ' WIB' : __('belum pernah', 'bitmomo-ai'),
+            'last_status' => (string) ($last['status'] ?? 'unknown'),
+            'wp_cron_disabled' => $wp_cron_disabled,
+            'trigger_label' => $wp_cron_disabled
+                ? __('WP-Cron internal dinonaktifkan; pemicu cron hosting wajib aktif.', 'bitmomo-ai')
+                : __('WP-Cron internal aktif; cron hosting setiap 5 menit tetap disarankan untuk ketepatan waktu.', 'bitmomo-ai'),
+        ];
+    }
+
+    public static function run() {
+        $data = Bitmomo_AI_Binance::snapshot();
+        if (is_wp_error($data)) {
+            self::record('error', $data->get_error_message());
+            return $data;
+        }
+        $evaluation = Bitmomo_AI_Signal_Engine::evaluate($data);
+        $gate = Bitmomo_AI_Quality_Gate::check($data, $evaluation);
+        if (is_wp_error($gate)) {
+            self::record('blocked', $gate->get_error_message());
+            return $gate;
+        }
+        Bitmomo_AI_Performance::settle($data);
+        update_option('bitmomo_ai_latest_preview', ['data' => $data, 'evaluation' => $evaluation, 'time' => gmdate('c')], false);
+        $analysis_date = wp_date('Y-m-d', strtotime($data['timestamp']), new DateTimeZone('Asia/Jakarta'));
+        $fingerprint = hash('sha256', 'binance-public|' . $analysis_date);
+        $post_id = Bitmomo_AI_Webhook::create_draft($data, $evaluation, $fingerprint);
+        if (is_wp_error($post_id)) {
+            self::record('error', $post_id->get_error_message());
+            return $post_id;
+        }
+        update_post_meta($post_id, '_bm_model', 'binance-public-five-axis-v2');
+        self::record('success', sprintf('Daily draft %d created or refreshed.', $post_id), $post_id);
+        return $post_id;
+    }
+
+    private static function record($status, $message, $post_id = 0) {
+        update_option('bitmomo_ai_last_run', ['status' => sanitize_key($status), 'message' => sanitize_text_field($message), 'post_id' => absint($post_id), 'time' => gmdate('c')], false);
+    }
+
+    public static function admin_menu() {
+        add_management_page(__('Bitmomo AI Diagnostics', 'bitmomo-ai'), __('Bitmomo AI', 'bitmomo-ai'), 'manage_options', 'bitmomo-ai', [__CLASS__, 'admin_page']);
+    }
+
+    public static function admin_page() {
+        if (!current_user_can('manage_options')) return;
+        $last = get_option('bitmomo_ai_last_run', []);
+        $last_webhook = get_option('bitmomo_ai_last_webhook', []);
+        $preview = get_option('bitmomo_ai_latest_preview', []);
+        $gate = get_option('bitmomo_ai_latest_quality_gate', []);
+        $next = wp_next_scheduled(self::HOOK);
+        $webhook_configured = defined('BITMOMO_AI_WEBHOOK_TOKEN') && strlen((string) BITMOMO_AI_WEBHOOK_TOKEN) >= 32;
+        echo '<div class="wrap"><h1>' . esc_html__('Bitmomo AI Diagnostics', 'bitmomo-ai') . '</h1>';
+        $automation = self::automation_health();
+        echo '<h2>' . esc_html__('Kesehatan otomasi', 'bitmomo-ai') . '</h2>';
+        echo '<p><strong>' . esc_html(ucfirst((string) $automation['state'])) . '</strong> — ' . esc_html($automation['message']) . '</p>';
+        echo '<p><strong>' . esc_html__('Jadwal berikutnya:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['next_label']) . '<br><strong>' . esc_html__('Eksekusi terakhir:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['last_label'] . ' · ' . $automation['last_status']) . '<br><strong>' . esc_html__('Pemicu:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['trigger_label']) . '</p>';
+        echo '<p><strong>' . esc_html__('TradingView webhook:', 'bitmomo-ai') . '</strong> ' . esc_html($webhook_configured ? 'configured' : 'not configured') . '</p>';
+        if ($last_webhook) echo '<p><strong>' . esc_html__('Last TradingView payload:', 'bitmomo-ai') . '</strong> ' . esc_html(($last_webhook['status'] ?? '') . ' — ' . ($last_webhook['message'] ?? '') . ' — ' . ($last_webhook['time'] ?? '')) . '</p>';
+        if ($last) echo '<p><strong>' . esc_html__('Last run:', 'bitmomo-ai') . '</strong> ' . esc_html(($last['status'] ?? '') . ' — ' . ($last['message'] ?? '') . ' — ' . ($last['time'] ?? '')) . '</p>';
+        $release_status = Bitmomo_AI_Admin_Notices::latest_status();
+        echo '<h2>' . esc_html__('Status rilis terbaru', 'bitmomo-ai') . '</h2>';
+        echo '<p><strong>' . esc_html(ucfirst((string) ($release_status['state'] ?? 'empty'))) . '</strong> — ' . esc_html((string) ($release_status['message'] ?? __('Belum ada analisis.', 'bitmomo-ai'))) . '</p>';
+        if (!empty($release_status['post_id'])) {
+            echo '<p><a class="button" href="' . esc_url(get_edit_post_link($release_status['post_id'])) . '">' . esc_html__('Tinjau draft terbaru', 'bitmomo-ai') . '</a></p>';
+        }
+        if ($gate) {
+            $passed = array_filter((array) ($gate['checks'] ?? []), function ($check) { return !empty($check['passed']); });
+            $total = count((array) ($gate['checks'] ?? []));
+            echo '<p><strong>' . esc_html__('Quality gate:', 'bitmomo-ai') . '</strong> ' . esc_html(sprintf('%s — %d/%d checks passed — %s', $gate['status'] ?? 'unknown', count($passed), $total, $gate['checked_at'] ?? '')) . '</p>';
+            if (($gate['status'] ?? '') === 'blocked') {
+                echo '<ul>';
+                foreach ((array) ($gate['errors'] ?? []) as $error) echo '<li>' . esc_html($error) . '</li>';
+                echo '</ul>';
+            }
+        }
+        $performance = Bitmomo_AI_Performance::summary();
+        echo '<h2>' . esc_html__('Forward validation', 'bitmomo-ai') . '</h2>';
+        if ($performance['total'] > 0) {
+            $accuracy = $performance['accuracy_pct'] === null ? 'belum tersedia' : number_format_i18n($performance['accuracy_pct'], 1) . '%';
+            echo '<p>' . esc_html(sprintf('%d hasil 24 jam — %d benar — %d salah — %d belum meyakinkan — akurasi hasil yang sudah jelas: %s — level risiko tersentuh: %d', $performance['total'], $performance['correct'], $performance['incorrect'], $performance['inconclusive'], $accuracy, $performance['risk_triggered'])) . '</p>';
+        } else {
+            echo '<p>' . esc_html__('Belum ada hasil 24 jam. Analisis pertama akan dievaluasi otomatis pada jadwal harian berikutnya, dalam rentang 22–27 jam.', 'bitmomo-ai') . '</p>';
+        }
+        if (!empty($preview['data']) && !empty($preview['evaluation'])) {
+            $summary = Bitmomo_AI_Report::summary($preview['data'], $preview['evaluation']);
+            $quality = $preview['evaluation']['quality'] ?? [];
+            echo '<h2>' . esc_html__('Latest five-axis preview', 'bitmomo-ai') . '</h2>';
+            echo '<p><strong>' . esc_html($summary['headline']) . '</strong> ' . esc_html($summary['context']) . '</p><ul>';
+            foreach ($preview['evaluation']['axes'] as $name => $axis) echo '<li><strong>' . esc_html(ucfirst($name)) . ':</strong> ' . esc_html((string) ($axis['score'] ?? 0)) . ' — ' . esc_html((string) ($axis['reason'] ?? '')) . '</li>';
+            echo '</ul><p><strong>' . esc_html__('Data quality:', 'bitmomo-ai') . '</strong> ' . esc_html(sprintf('%s — %d%% complete — %d minutes old — %s', $quality['status'] ?? 'unknown', (int) ($quality['completeness_pct'] ?? 0), (int) ($quality['data_age_minutes'] ?? 0), $quality['source'] ?? 'unknown')) . '</p><p>' . esc_html($summary['invalidation']) . '</p>';
+        }
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="bitmomo_ai_run_now">';
+        wp_nonce_field('bitmomo_ai_run_now');
+        submit_button(__('Run staging data test now', 'bitmomo-ai'));
+        echo '</form><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="bitmomo_ai_create_preview">';
+        wp_nonce_field('bitmomo_ai_create_preview');
+        submit_button(__('Create or update public staging preview', 'bitmomo-ai'), 'secondary');
+        echo '</form></div>';
+    }
+
+    public static function run_now() {
+        if (!current_user_can('manage_options')) wp_die(esc_html__('Permission denied.', 'bitmomo-ai'));
+        check_admin_referer('bitmomo_ai_run_now');
+        self::run();
+        wp_safe_redirect(admin_url('tools.php?page=bitmomo-ai'));
+        exit;
+    }
+
+    public static function create_preview_page() {
+        if (!current_user_can('manage_options')) wp_die(esc_html__('Permission denied.', 'bitmomo-ai'));
+        check_admin_referer('bitmomo_ai_create_preview');
+        $host = (string) wp_parse_url(home_url('/'), PHP_URL_HOST);
+        if ($host !== 'seagreen-snail-158456.hostingersite.com') wp_die(esc_html__('Preview page is restricted to the staging host.', 'bitmomo-ai'));
+        $existing = get_page_by_path('bitmomo-ai-preview', OBJECT, 'page');
+        $postarr = ['post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Bitmomo AI Market Preview', 'post_name' => 'bitmomo-ai-preview', 'post_content' => '[bitmomo_ai_dashboard]'];
+        if ($existing) $postarr['ID'] = $existing->ID;
+        $page_id = wp_insert_post($postarr, true);
+        if (is_wp_error($page_id)) wp_die(esc_html($page_id->get_error_message()));
+        wp_safe_redirect(get_permalink($page_id));
+        exit;
+    }
+}
