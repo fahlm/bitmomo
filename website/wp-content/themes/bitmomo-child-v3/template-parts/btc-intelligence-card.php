@@ -136,6 +136,27 @@ $timestamp_display = $timestamp_int ? wp_date( 'd M Y, H:i', $timestamp_int ) . 
         <?php endif; ?>
       </div>
 
+      <?php
+      $bitmomo_cta     = function_exists( 'bitmomo_get_cta' ) ? bitmomo_get_cta( 'btc_intelligence' ) : null;
+      $bitmomo_cta_url = function_exists( 'bitmomo_get_cta_url' ) ? bitmomo_get_cta_url( 'btc_intelligence' ) : '';
+      ?>
+      <?php if ( $bitmomo_cta && $bitmomo_cta_url ) : ?>
+        <div class="bm-btc-cta-wrap">
+          <a
+            class="bm-btc-cta"
+            href="<?php echo esc_url( $bitmomo_cta_url ); ?>"
+            target="_blank"
+            rel="<?php echo esc_attr( $bitmomo_cta['rel'] ?? 'sponsored nofollow noopener' ); ?>"
+            data-bm-cta="btc_intelligence"
+          >
+            <?php echo esc_html( $bitmomo_cta['label'] ); ?> &rarr;
+          </a>
+          <?php if ( ! empty( $bitmomo_cta['disclosure'] ) ) : ?>
+            <p class="bm-btc-cta-disclosure"><?php echo esc_html( $bitmomo_cta['disclosure'] ); ?></p>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+
       <p class="bm-btc-disclaimer">
         Bitmomo Intelligence adalah alat bantu keputusan, bukan sinyal beli/jual otomatis. Data saat ini masih tahap manual/contoh -- belum ada rekam jejak akurasi historis yang ditampilkan.
       </p>
@@ -148,5 +169,6 @@ unset(
     $direction, $direction_map, $direction_info, $confidence,
     $price, $expected_low, $expected_high, $expected_move,
     $consensus, $key_drivers, $invalidation, $risk_level,
-    $timestamp_raw, $timestamp_int, $updated_label, $timestamp_display
+    $timestamp_raw, $timestamp_int, $updated_label, $timestamp_display,
+    $bitmomo_cta, $bitmomo_cta_url
 );

@@ -24,6 +24,7 @@ $bitmomo_modules = [
     'inc/trait-bitmomo-images.php',
     'inc/trait-bitmomo-content.php',
     'inc/trait-bitmomo-frontend.php',
+    'inc/bitmomo-cta-config.php',
 ];
 
 foreach ($bitmomo_modules as $bitmomo_module) {

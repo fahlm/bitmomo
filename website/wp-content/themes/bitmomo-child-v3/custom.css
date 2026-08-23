@@ -827,3 +827,35 @@ button.bm-hamburger span,
 @media (max-width: 640px) {
   .bm-btc-range { grid-template-columns: 1fr; text-align: left; }
 }
+
+/* ============= BTC INTELLIGENCE — CTA ============= */
+.bm-btc-cta-wrap {
+  text-align: center;
+  padding-top: 4px;
+}
+
+.bm-btc-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--pill);
+  background: var(--cta);
+  color: #1a1206;
+  font-weight: 800;
+  font-size: 15px;
+  transition: background 0.18s, transform 0.18s;
+}
+
+.bm-btc-cta:hover {
+  background: var(--cta-hover);
+  color: #1a1206;
+  transform: translateY(-2px);
+}
+
+.bm-btc-cta-disclosure {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+  opacity: .7;
+}

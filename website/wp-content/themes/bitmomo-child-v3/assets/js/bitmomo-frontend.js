@@ -102,4 +102,25 @@
   });
 
   if (/#(subscribe|newsletter)$/i.test(window.location.hash || '')) openModal();
+
+  /* ---------- CTA outbound click tracking ---------- */
+  document.addEventListener('click', function (event) {
+    var link = event.target && event.target.closest ? event.target.closest('[data-bm-cta]') : null;
+    if (!link) return;
+
+    var config = window.bitmomoConfig;
+    if (!config || !config.ajaxUrl || !config.ctaNonce) return;
+
+    var payload = new URLSearchParams({
+      action: 'bitmomo_cta_click',
+      cta: link.getAttribute('data-bm-cta') || '',
+      nonce: config.ctaNonce
+    });
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(config.ajaxUrl, payload);
+    } else {
+      fetch(config.ajaxUrl, { method: 'POST', body: payload, keepalive: true });
+    }
+  }, true);
 }());
