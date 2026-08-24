@@ -53,6 +53,10 @@ trait Bitmomo_Assets_Trait {
             $this->get_file_version($frontend_js_path),
             true
         );
+        wp_localize_script('bitmomo-frontend', 'bitmomoConfig', [
+            'ajaxUrl'  => admin_url('admin-ajax.php'),
+            'ctaNonce' => wp_create_nonce('bitmomo_cta_click'),
+        ]);
     }
 
     /* ---------- Bloat / Assets ---------- */

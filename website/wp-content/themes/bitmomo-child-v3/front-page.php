@@ -17,6 +17,8 @@ get_header();
     </div>
   </section>
 
+  <?php get_template_part( 'template-parts/btc-intelligence', 'card' ); ?>
+
   <section class="bm-section bm-section--stories">
     <div class="bm-container">
       <h2 class="bm-section-title">BIG STORIES</h2>
