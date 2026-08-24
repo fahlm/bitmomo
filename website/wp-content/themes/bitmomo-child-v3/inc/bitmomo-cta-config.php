@@ -18,13 +18,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 function bitmomo_get_cta( $key ) {
     $ctas = [
         'btc_intelligence' => [
-            'label'        => 'Explore Trading Platform',
-            // TODO: replace with the real affiliate/referral URL once available.
-            'url'          => 'https://example.com/ref/bitmomo',
+            'label'        => 'Explore RedotPay Card',
+            // Resolved from the url.hk short link to the direct RedotPay referral URL
+            // (avoids an extra redirect hop and guarantees our UTM params survive).
+            'url'          => 'https://wap.redotpay.com/en/invite/?referralId=88bh7',
             'utm_source'   => 'bitmomo',
             'utm_medium'   => 'btc_intelligence_card',
             'utm_campaign' => 'btc_daily',
-            'disclosure'   => 'Bitmomo dapat menerima komisi jika Anda mendaftar melalui tautan ini. Ini bukan nasihat finansial -- selalu lakukan riset Anda sendiri.',
+            'disclosure'   => 'Bitmomo dapat menerima komisi jika Anda mendaftar RedotPay melalui tautan referral ini. Ini bukan nasihat finansial -- selalu lakukan riset Anda sendiri.',
             'rel'          => 'sponsored nofollow noopener',
         ],
     ];
