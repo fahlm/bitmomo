@@ -74,6 +74,7 @@ img { max-width: 100%; height: auto; display: block; }
 .bm-nav-list {
   list-style: none;
   display: flex;
+  align-items: center;
   gap: 36px;
   margin: 0;
   padding: 0;
@@ -87,6 +88,8 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: 15px;
   padding: 8px 4px;
   opacity: 0.9;
+  text-decoration: none;
+  white-space: nowrap;
   transition: opacity 0.2s, color 0.2s;
 }
 
@@ -208,7 +211,10 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* ============= HERO ============= */
 .bm-hero {
-  padding: clamp(80px, 10vw, 140px) 0 clamp(60px, 8vw, 100px);
+  /* Bottom padding trimmed: it used to stack with the next section's own
+     top padding (.bm-section), compounding into ~150-170px of blank
+     space between the hero and whatever follows it. */
+  padding: clamp(80px, 10vw, 140px) 0 clamp(24px, 3vw, 40px);
   text-align: center;
   background:
     radial-gradient(1200px 520px at 72% -12%, rgba(38,208,198,.20), transparent 62%),
@@ -349,21 +355,6 @@ img { max-width: 100%; height: auto; display: block; }
   color: #08222a;
 }
 
-/* ============= PAGE HEADER ============= */
-.bm-page-head {
-  text-align: center;
-  padding: clamp(28px, 5vw, 48px) 20px;
-  background: linear-gradient(180deg, #0f2233 0%, #0c1c2a 100%);
-  border-bottom: 1px solid var(--stroke);
-}
-
-.bm-page-title {
-  margin: 0;
-  font-weight: 800;
-  font-size: clamp(24px, 3.5vw, 38px);
-  color: #f2f7fa;
-}
-
 /* ============= ARTICLE ============= */
 .bm-article {
   background: var(--bg);
@@ -452,6 +443,22 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .bm-footer p { margin: 0; font-size: 14px; }
+
+.bm-footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 14px;
+}
+
+.bm-footer-links a {
+  color: var(--muted);
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.bm-footer-links a:hover { color: var(--teal); opacity: 1; }
 
 /* ============= SUBSCRIBE CTA ============= */
 .bm-subscribe-cta {
@@ -614,13 +621,6 @@ button.bm-hamburger span,
     display: flex !important;
   }
 }
-/* Remove nav underline */
-.bm-nav-list a,
-.bm-nav-list a:hover,
-.bm-nav-list a:visited {
-  text-decoration: none !important;
-}
-
 /* Mobile logo size fix */
 @media (max-width: 768px) {
   .bm-brand img,
@@ -628,15 +628,6 @@ button.bm-hamburger span,
   .bm-brand .custom-logo-link img {
     height: 28px !important;
   }
-}
-/* Prevent nav items from wrapping */
-.bm-nav-list a {
-  white-space: nowrap !important;
-}
-
-/* Also ensure vertical alignment is centered */
-.bm-nav-list {
-  align-items: center !important;
 }
 
 /* ============= CATEGORY ARCHIVE ============= */
