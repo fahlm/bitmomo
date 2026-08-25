@@ -105,8 +105,15 @@ self-contained and only loaded when a template calls
 
 ## Known open items (not yet done, not currently blocking)
 
-1. **Deploy PR #9's and PR #10's changes to Hostinger.** GitHub `main` is
-   ahead of the live site. Nothing here auto-deploys — see Git workflow above.
+1. **Deploy pending merged changes to Hostinger.** Nothing here
+   auto-deploys — see Git workflow above. As of PR #12 (merged, not yet
+   deployed): a one-file fix to `inc/trait-bitmomo-images.php` (homepage
+   image preload now matches the actual `big-stories`-tagged query instead
+   of "latest post site-wide"). Low-impact perf-only change -- by agreement
+   with the founder, small low-impact fixes like this are intentionally
+   batched and deployed together with the next deploy that has real
+   cash-flow impact, rather than triggering a one-off manual Hostinger
+   upload each time. Update/clear this note once actually deployed.
 2. **Formal staging environment** — still just a plan
    (`docs/staging-rollback-runbook.md`), not provisioned. Deferred on purpose
    per the founder's cash-flow priority (branch + PR review has been
