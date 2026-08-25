@@ -7,7 +7,7 @@ get_header();
   <article class="bm-article"><div class="bm-container">
     <header class="bm-article-head">
       <h1 class="bm-article-title"><?php the_title(); ?></h1>
-      <div class="bm-article-meta"><span><?php echo esc_html(get_the_date()); ?></span>
+      <div class="bm-article-meta"><span><time datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date()); ?></time></span>
       <?php $cats = get_the_category(); if ($cats) : ?><span class="sep">•</span><span><?php echo esc_html($cats[0]->name); ?></span><?php endif; ?>
       </div>
     </header>
