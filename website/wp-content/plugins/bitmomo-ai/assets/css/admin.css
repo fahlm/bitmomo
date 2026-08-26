@@ -1,0 +1,70 @@
+.bm-release-gate {
+    max-width: 760px;
+}
+
+.bm-release-state {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.bm-release-state.is-ready {
+    color: #0a4b2e;
+    background: #d9f3e5;
+}
+
+.bm-release-state.is-waiting {
+    color: #6b3d00;
+    background: #fff0c2;
+}
+
+.bm-release-check {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 8px 0;
+    padding: 10px 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.bm-release-icon {
+    display: inline-flex;
+    flex: 0 0 22px;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 700;
+}
+
+.bm-release-check.is-passed .bm-release-icon { background: #16824b; }
+.bm-release-check.is-warning .bm-release-icon { background: #b26200; }
+.bm-release-check.is-failed .bm-release-icon { background: #b32d2e; }
+.bm-release-check span:last-child { color: #50575e; }
+
+.bm-release-warning,
+.bm-release-reasons {
+    padding: 10px 12px;
+    border-left: 4px solid #dba617;
+    background: #fff8e5;
+}
+
+.bm-release-reasons {
+    border-left-color: #d63638;
+    background: #fcf0f1;
+}
+
+.bm-release-confirm {
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid #8c8f94;
+    border-radius: 6px;
+    background: #f6f7f7;
+}

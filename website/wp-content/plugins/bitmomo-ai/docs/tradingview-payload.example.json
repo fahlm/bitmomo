@@ -1,0 +1,19 @@
+{
+  "symbol": "BTCUSDT",
+  "exchange": "BINANCE",
+  "timeframe": "4H",
+  "timestamp": "2026-08-20T12:00:00Z",
+  "close": 68125.5,
+  "volatility": {"atr_pct_4h": 2.4, "atr_percentile_1d": 61, "regime": "normal"},
+  "direction": {
+    "plus_di": 28.1,
+    "minus_di": 17.6,
+    "adx": 24.8,
+    "bias_1h": "bullish",
+    "bias_4h": "bullish",
+    "bias_1d": "neutral"
+  },
+  "carry": {"funding_rate": 0.0001, "funding_7d": 0.00008, "basis_pct": 0.12},
+  "structure": {"last_swing_high": 69500, "last_swing_low": 65200, "state": "hh_hl", "state_1d": "range"},
+  "crowding": {"oi_change_24h_pct": 3.2, "oi_zscore": 1.4, "price_change_24h_pct": 1.8}
+}

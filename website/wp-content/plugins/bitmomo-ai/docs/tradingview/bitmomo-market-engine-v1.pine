@@ -1,0 +1,92 @@
+//@version=6
+indicator("Bitmomo Market Engine v1", overlay = true, dynamic_requests = true)
+
+string TZ = "Asia/Jakarta"
+
+string spotSymbol = input.symbol("BINANCE:BTCUSDT", "BTC spot symbol")
+bool useFunding = input.bool(false, "Use TradingView funding-rate series")
+string fundingSymbol = input.symbol("", "Funding-rate service symbol", active = useFunding)
+float fundingScale = input.float(0.01, "Funding value to decimal multiplier", active = useFunding)
+bool useOi = input.bool(false, "Use TradingView open-interest series")
+string oiSymbol = input.symbol("", "Open-interest service symbol", active = useOi)
+
+int diLength = input.int(14, "DMI length", minval = 2)
+int adxSmoothing = input.int(14, "ADX smoothing", minval = 2)
+int atrLength = input.int(14, "ATR length", minval = 2)
+int structureLength = input.int(20, "Structure lookback", minval = 5)
+
+f_bias(float plusDi, float minusDi, float adx) =>
+    adx < 20 ? "neutral" : plusDi > minusDi ? "bullish" : "bearish"
+
+f_direction() =>
+    [plusDi, minusDi, adx] = ta.dmi(diLength, adxSmoothing)
+    [plusDi, minusDi, adx, f_bias(plusDi, minusDi, adx)]
+
+f_previousDirection() =>
+    [plusDi, minusDi, adx] = ta.dmi(diLength, adxSmoothing)
+    [plusDi[1], minusDi[1], adx[1], f_bias(plusDi[1], minusDi[1], adx[1])]
+
+f_structure() =>
+    float fast = ta.ema(close, 20)
+    float slow = ta.ema(close, 50)
+    bool breakoutUp = close > ta.highest(high[1], structureLength)
+    bool breakoutDown = close < ta.lowest(low[1], structureLength)
+    string state = breakoutUp ? "breakout_up" : breakoutDown ? "breakout_down" : fast > slow and close > fast ? "hh_hl" : fast < slow and close < fast ? "lh_ll" : "range"
+    [ta.highest(high[1], structureLength), ta.lowest(low[1], structureLength), state]
+
+f_previousStructure() =>
+    [swingHigh, swingLow, state] = f_structure()
+    [swingHigh[1], swingLow[1], state[1]]
+
+f_atrPct() => ta.atr(atrLength) / close * 100
+
+[plus1h, minus1h, adx1h, bias1h] = f_direction()
+[plus4h, minus4h, adx4h, bias4h] = request.security(syminfo.tickerid, "240", f_direction(), lookahead = barmerge.lookahead_off)
+[plus1d, minus1d, adx1d, bias1d] = request.security(syminfo.tickerid, "1D", f_previousDirection(), lookahead = barmerge.lookahead_on)
+[swingHigh4h, swingLow4h, structure4h] = request.security(syminfo.tickerid, "240", f_structure(), lookahead = barmerge.lookahead_off)
+[swingHigh1d, swingLow1d, structure1d] = request.security(syminfo.tickerid, "1D", f_previousStructure(), lookahead = barmerge.lookahead_on)
+float atrPct4h = request.security(syminfo.tickerid, "240", f_atrPct(), lookahead = barmerge.lookahead_off)
+float atrPercentile1d = request.security(syminfo.tickerid, "1D", ta.percentrank(f_atrPct(), 252)[1], lookahead = barmerge.lookahead_on)
+
+string volatilityRegime = atrPercentile1d >= 95 ? "extreme" : atrPercentile1d >= 75 ? "high" : atrPercentile1d <= 25 ? "low" : "normal"
+
+float spotClose4h = request.security(spotSymbol, "240", close[1], lookahead = barmerge.lookahead_on)
+float basisPct = spotClose4h == 0 ? 0 : (close - spotClose4h) / spotClose4h * 100
+
+float fundingRate = 0.0
+if useFunding and fundingSymbol != ""
+    float rawFunding = request.security(fundingSymbol, "60", close, ignore_invalid_symbol = true)
+    fundingRate := nz(rawFunding) * fundingScale
+
+float oiNow = 0.0
+float oi24hAgo = 0.0
+if useOi and oiSymbol != ""
+    oiNow := nz(request.security(oiSymbol, "60", close, ignore_invalid_symbol = true))
+    oi24hAgo := nz(request.security(oiSymbol, "60", close[24], ignore_invalid_symbol = true))
+
+float oiChange24hPct = oi24hAgo == 0 ? 0 : (oiNow - oi24hAgo) / oi24hAgo * 100
+float priceChange24hPct = close[24] == 0 ? 0 : (close - close[24]) / close[24] * 100
+
+f_num(float value) => str.tostring(value, "#.########")
+f_jsonString(string value) => '"' + value + '"'
+
+string payload = ("{" +
+    '"symbol":' + f_jsonString(syminfo.ticker) + "," +
+    '"exchange":' + f_jsonString(syminfo.prefix) + "," +
+    '"timeframe":"4H",' +
+    '"timestamp":' + f_jsonString(str.format_time(time_close, "yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC")) + "," +
+    '"close":' + f_num(close) + "," +
+    '"volatility":{"atr_pct_4h":' + f_num(atrPct4h) + ',"atr_percentile_1d":' + f_num(atrPercentile1d) + ',"regime":' + f_jsonString(volatilityRegime) + "}," +
+    '"direction":{"plus_di":' + f_num(plus4h) + ',"minus_di":' + f_num(minus4h) + ',"adx":' + f_num(adx4h) + ',"bias_1h":' + f_jsonString(bias1h) + ',"bias_4h":' + f_jsonString(bias4h) + ',"bias_1d":' + f_jsonString(bias1d) + "}," +
+    '"carry":{"funding_rate":' + f_num(fundingRate) + ',"funding_7d":0,"basis_pct":' + f_num(basisPct) + ',"data_status":' + f_jsonString(useFunding ? "selected" : "unavailable") + "}," +
+    '"structure":{"last_swing_high":' + f_num(swingHigh4h) + ',"last_swing_low":' + f_num(swingLow4h) + ',"state":' + f_jsonString(structure4h) + ',"state_1d":' + f_jsonString(structure1d) + "}," +
+    '"crowding":{"oi_change_24h_pct":' + f_num(oiChange24hPct) + ',"oi_zscore":0,"price_change_24h_pct":' + f_num(priceChange24hPct) + ',"data_status":' + f_jsonString(useOi ? "selected" : "unavailable") + "}" +
+    "}")
+
+bool isDailyRelease = barstate.isconfirmed and hour(time_close, TZ) == 19 and minute(time_close, TZ) == 0
+if isDailyRelease
+    alert(payload, alert.freq_once_per_bar_close)
+
+plotchar(isDailyRelease, "Daily Bitmomo payload", "●", location.top, color = color.aqua)
+plot(ta.ema(close, 20), "EMA 20", color = color.aqua)
+plot(ta.ema(close, 50), "EMA 50", color = color.orange)
