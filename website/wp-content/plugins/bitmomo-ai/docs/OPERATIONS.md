@@ -16,6 +16,9 @@
 - Runtime validation: WordPress activated version `1.0.26` without a fatal error and diagnostics reported auto-publish disabled by the safe default.
 - Shadow cycle: 27 August 2026 at 00:06 WIB created or refreshed post `2425` as a draft; quality passed and the audit log recorded publishing as disabled.
 - Public verification: the production homepage returned HTTP 200 and the unauthenticated URL for draft `2425` returned HTTP 404.
+- Hosting cron: separate staging and production jobs are configured every five minutes; the production job targets the `bitmomo.id` WordPress cron entry point without replacing the staging job.
+- Freshness gate: the two files reviewed in PR #16 were deployed to the active production child theme and verified byte-for-byte against GitHub after WordPress accepted both edits.
+- Freshness verification: the production homepage returned HTTP 200, retained its normal editorial content, omitted the expired BTC Daily Intelligence card, and produced no browser console errors.
 - Auto-publish remains disabled until the remaining production observations pass and explicit approval is recorded.
 
 ## Daily schedule
