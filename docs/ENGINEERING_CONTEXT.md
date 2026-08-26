@@ -21,11 +21,10 @@ needing to open every file again.
 - CI: `.github/workflows/theme-safety.yml` runs PHP syntax + baseline-file
   checks on PRs and pushes to `main`/`feature/**`/`fix/**`/`chore/**`. It is
   **not** a deploy pipeline — merging to `main` does not touch the live site.
-- **Deployment is manual** (no staging/CI-CD provisioned yet — Phase 0 in
-  `docs/staging-rollback-runbook.md` was drafted but never executed, and per
-  the cash-flow priority brief this is intentionally deferred, not an
-  oversight). The founder copies changed theme files to Hostinger by hand
-  after merging.
+- **Deployment is manual.** Staging is provisioned at
+  `seagreen-snail-158456.hostingersite.com`; there is still no CI/CD. Theme
+  releases are packaged from a reviewed commit, backed up, uploaded to
+  staging, smoke-tested, and only then considered for production.
 - Local git note: the connected device's sandboxed shell blocks file deletion,
   which can leave stray `*.lock` files under `.git/`. If git commands start
   failing with "Unable to create .../index.lock: File exists" or similar,
@@ -105,19 +104,18 @@ self-contained and only loaded when a template calls
 
 ## Known open items (not yet done, not currently blocking)
 
-1. **Deploy pending merged changes to Hostinger.** Nothing here
-   auto-deploys — see Git workflow above. As of PR #12 (merged, not yet
-   deployed): a one-file fix to `inc/trait-bitmomo-images.php` (homepage
-   image preload now matches the actual `big-stories`-tagged query instead
-   of "latest post site-wide"). Low-impact perf-only change -- by agreement
-   with the founder, small low-impact fixes like this are intentionally
-   batched and deployed together with the next deploy that has real
-   cash-flow impact, rather than triggering a one-off manual Hostinger
-   upload each time. Update/clear this note once actually deployed.
-2. **Formal staging environment** — still just a plan
-   (`docs/staging-rollback-runbook.md`), not provisioned. Deferred on purpose
-   per the founder's cash-flow priority (branch + PR review has been
-   sufficient risk control so far).
+1. **Production promotion is pending.** Commit `85492ad` (through PR #14) was
+   deployed to staging on 2026-08-26 after a server-side theme backup. It has
+   not been promoted to production. The staging smoke test passed for the
+   homepage, single post, real category, tag, pagination, 404, AI preview,
+   noindex, desktop width, and a 390px mobile viewport.
+2. **Complete staging acceptance before production.** The three footer Pages
+   (`tentang-kami`, `kebijakan-privasi`, and `disclaimer`) were created and
+   verified on staging on 2026-08-26. All return 200 and remain protected by
+   staging noindex. The privacy Page intentionally notes that a verified
+   privacy contact channel must be added before production. Broader
+   accessibility, SEO/social-image, performance, and restore-drill evidence
+   remains to be completed per `docs/staging-rollback-runbook.md`.
 3. **"5 production gates"** mentioned in the founder's brief were never found
    documented anywhere in this repo — do not invent them if asked again;
    confirm with the founder what they mean, if it matters.
@@ -130,7 +128,9 @@ self-contained and only loaded when a template calls
 
 ## Suggested next steps (engineering, not business decisions)
 
-- After the founder confirms P1–P3 are live: revisit the audit findings in
+- After the founder confirms P1–P3 are production-ready: create and review
+  the three required trust/legal Pages on staging, then revisit the audit
+  findings in
   `docs/technical-audit-v1.md` (Phase 4 — SEO/mobile/performance) — many are
   already resolved by the phase-0–4 refactor merged before this session
   started (shared header/footer, deduped hamburger menu, trait-based
