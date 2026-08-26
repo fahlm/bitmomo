@@ -2,11 +2,11 @@
 
 ## Current rollout status
 
-- Version: `1.0.24`
+- Version: `1.0.25`
 - Environment validated: staging only
-- Publishing mode: draft-first; the plugin never auto-publishes
+- Publishing mode: conditional auto-publish for scheduled Binance runs; manual and TradingView inputs remain draft-first
 - Production status: not deployed
-- Required before production rollout: one successful automatic 19:10 WIB run and one completed 24-hour forward-validation observation
+- Required before production rollout: one successful 1.0.25 staging simulation and a current production backup
 
 ## Daily schedule
 
@@ -17,25 +17,23 @@
 
 ## Daily editorial workflow
 
-1. Confirm the automatic run completed and generated or refreshed a draft.
-2. Open **Tools → Bitmomo AI** and inspect automation health, data freshness, and the quality-gate result.
-3. Review the conclusion, support/resistance zones, invalidation level, scenarios, and five-axis evidence.
-4. Confirm the analysis is no more than 180 minutes old.
-5. Complete the editor confirmation checkbox only after the review is finished.
-6. Publish manually. If any gate fails, keep the post as a draft and investigate the diagnostic message.
+1. Confirm the automatic run completed.
+2. Open **Tools → Bitmomo AI** when the run reports `blocked` or `error`.
+3. Review the audit log and quality result during routine evaluation, not as a daily pre-publication requirement.
+4. Improve scoring and copy from forward-validation evidence rather than manually publishing each edition.
 
 ## Release gates
 
-Production publishing is allowed only when all of the following are true:
+Scheduled auto-publishing is allowed only when all of the following are true:
 
-- The seven-check quality gate passes.
+- At least six of the seven quality checks pass.
+- No critical check fails: freshness, completeness, reference price, zone ordering, bias/score consistency, and invalidation consistency.
 - Required Binance public-data inputs are complete and fresh.
 - The generated analysis is at most 180 minutes old.
-- Support, resistance, and invalidation are logically consistent and within the configured distance guard.
-- An editor explicitly confirms the review.
-- The post is published manually.
+- Support, resistance, and invalidation are logically consistent. The distance guard is the single non-critical check that may produce a safe 6/7 result.
+- `BITMOMO_AI_AUTO_PUBLISH` is not set to `false`.
 
-The plugin intentionally does not provide automated publishing.
+The scheduler publishes automatically after these conditions pass. A 6/7 result is marked `degraded` and is auditable. TradingView and manual content remain draft-only.
 
 ## Data sources and graceful degradation
 
@@ -59,8 +57,8 @@ For a missed run, first verify the hosting cron is active and that WordPress rep
 ## Staging acceptance checklist
 
 - Automatic 19:10 WIB run completes without manual intervention.
-- A new draft is created or refreshed, never auto-published.
-- All seven quality checks pass on current market data.
+- A 7/7 or safe 6/7 result publishes automatically.
+- A critical failure or score below 6/7 remains blocked and unpublished.
 - Desktop and mobile preview remain readable.
 - The first forward-validation record is evaluated inside its 22–27 hour observation window.
 - No PHP errors, repeated drafts, or administrator-notice loops are observed.
@@ -68,11 +66,10 @@ For a missed run, first verify the hosting cron is active and that WordPress rep
 ## Production shadow rollout
 
 1. Take a production backup and record the active theme/plugin versions.
-2. Install the reviewed plugin artifact without activating public output.
-3. Keep all generated posts as drafts and restrict preview output to administrators.
-4. Run at least one scheduled cycle in shadow mode and compare its draft with staging.
-5. Confirm cron health, data freshness, quality gates, and mobile rendering.
-6. Enable public presentation only after explicit approval.
+2. Install the reviewed plugin artifact with `BITMOMO_AI_AUTO_PUBLISH` set to `false`.
+3. Restrict preview output to administrators and run one production shadow cycle.
+4. Confirm cron health, data freshness, quality gates, and mobile rendering.
+5. Remove or set the kill switch to `true` only after explicit approval.
 
 ## Rollback
 
@@ -83,6 +80,8 @@ For a missed run, first verify the hosting cron is active and that WordPress rep
 5. Verify the public site and administrator screens.
 
 Deactivation does not intentionally delete generated posts or validation metadata. Do not delete database content during routine rollback.
+
+For a non-destructive emergency stop, set `define('BITMOMO_AI_AUTO_PUBLISH', false);` in `wp-config.php`. Scheduled analysis continues as drafts while public auto-publishing stops.
 
 ## Security rules
 

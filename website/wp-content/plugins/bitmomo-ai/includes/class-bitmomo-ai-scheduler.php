@@ -3,6 +3,11 @@ if (!defined('ABSPATH')) exit;
 
 final class Bitmomo_AI_Scheduler {
     const HOOK = 'bitmomo_ai_daily_generation';
+    const PUBLISH_LOG_OPTION = 'bitmomo_ai_publish_log';
+
+    public static function auto_publish_enabled() {
+        return !defined('BITMOMO_AI_AUTO_PUBLISH') || (bool) BITMOMO_AI_AUTO_PUBLISH;
+    }
 
     public static function register() {
         add_action(self::HOOK, [__CLASS__, 'run']);
@@ -48,7 +53,7 @@ final class Bitmomo_AI_Scheduler {
         } elseif ($now > $cutoff && !$last_in_release_window) {
             $state = 'overdue';
             $message = __('Analisis hari ini belum berjalan setelah batas 19:30 WIB.', 'bitmomo-ai');
-        } elseif ($last_in_release_window && ($last['status'] ?? '') === 'success') {
+        } elseif ($last_in_release_window && in_array(($last['status'] ?? ''), ['success', 'published'], true)) {
             $state = 'healthy';
             $message = __('Eksekusi pada jendela rilis hari ini berhasil.', 'bitmomo-ai');
         } elseif ($last_in_release_window && in_array(($last['status'] ?? ''), ['error', 'blocked'], true)) {
@@ -96,12 +101,51 @@ final class Bitmomo_AI_Scheduler {
             return $post_id;
         }
         update_post_meta($post_id, '_bm_model', 'binance-public-five-axis-v2');
-        self::record('success', sprintf('Daily draft %d created or refreshed.', $post_id), $post_id);
+
+        if (!self::auto_publish_enabled()) {
+            self::record('success', sprintf('Daily draft %d created or refreshed; auto-publish is disabled by the kill switch.', $post_id), $post_id);
+            self::record_publication('disabled', 'Auto-publish is disabled by BITMOMO_AI_AUTO_PUBLISH.', $post_id);
+            return $post_id;
+        }
+
+        update_post_meta($post_id, '_bm_auto_publish_eligible', 'yes');
+        $published_id = wp_update_post(['ID' => $post_id, 'post_status' => 'publish'], true);
+        if (is_wp_error($published_id)) {
+            update_post_meta($post_id, '_bm_auto_publish_eligible', 'no');
+            self::record('error', $published_id->get_error_message(), $post_id);
+            self::record_publication('error', $published_id->get_error_message(), $post_id);
+            return $published_id;
+        }
+        if (get_post_status($post_id) !== 'publish') {
+            update_post_meta($post_id, '_bm_auto_publish_eligible', 'no');
+            $error = new WP_Error('bitmomo_auto_publish_blocked', __('Auto-publish was blocked by the release gate.', 'bitmomo-ai'));
+            self::record('blocked', $error->get_error_message(), $post_id);
+            self::record_publication('blocked', $error->get_error_message(), $post_id);
+            return $error;
+        }
+
+        update_post_meta($post_id, '_bm_auto_publish_eligible', 'no');
+        update_post_meta($post_id, '_bm_auto_published_at', gmdate('c'));
+        self::record('published', sprintf('Daily analysis %d passed the conditional gate and was published automatically.', $post_id), $post_id);
+        self::record_publication('published', 'Conditional auto-publish completed.', $post_id);
         return $post_id;
     }
 
     private static function record($status, $message, $post_id = 0) {
         update_option('bitmomo_ai_last_run', ['status' => sanitize_key($status), 'message' => sanitize_text_field($message), 'post_id' => absint($post_id), 'time' => gmdate('c')], false);
+    }
+
+    private static function record_publication($status, $message, $post_id = 0) {
+        $log = get_option(self::PUBLISH_LOG_OPTION, []);
+        if (!is_array($log)) $log = [];
+        array_unshift($log, [
+            'status' => sanitize_key($status),
+            'message' => sanitize_text_field($message),
+            'post_id' => absint($post_id),
+            'quality_status' => sanitize_key((string) (get_post_meta($post_id, '_bm_quality_gate_status', true) ?: 'unknown')),
+            'time' => gmdate('c'),
+        ]);
+        update_option(self::PUBLISH_LOG_OPTION, array_slice($log, 0, 30), false);
     }
 
     public static function admin_menu() {
@@ -122,23 +166,36 @@ final class Bitmomo_AI_Scheduler {
         echo '<p><strong>' . esc_html(ucfirst((string) $automation['state'])) . '</strong> — ' . esc_html($automation['message']) . '</p>';
         echo '<p><strong>' . esc_html__('Jadwal berikutnya:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['next_label']) . '<br><strong>' . esc_html__('Eksekusi terakhir:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['last_label'] . ' · ' . $automation['last_status']) . '<br><strong>' . esc_html__('Pemicu:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['trigger_label']) . '</p>';
         echo '<p><strong>' . esc_html__('TradingView webhook:', 'bitmomo-ai') . '</strong> ' . esc_html($webhook_configured ? 'configured' : 'not configured') . '</p>';
+        echo '<p><strong>' . esc_html__('Conditional auto-publish:', 'bitmomo-ai') . '</strong> ' . esc_html(self::auto_publish_enabled() ? 'enabled (minimum 6/7; critical failures still block)' : 'disabled by kill switch') . '</p>';
         if ($last_webhook) echo '<p><strong>' . esc_html__('Last TradingView payload:', 'bitmomo-ai') . '</strong> ' . esc_html(($last_webhook['status'] ?? '') . ' — ' . ($last_webhook['message'] ?? '') . ' — ' . ($last_webhook['time'] ?? '')) . '</p>';
         if ($last) echo '<p><strong>' . esc_html__('Last run:', 'bitmomo-ai') . '</strong> ' . esc_html(($last['status'] ?? '') . ' — ' . ($last['message'] ?? '') . ' — ' . ($last['time'] ?? '')) . '</p>';
         $release_status = Bitmomo_AI_Admin_Notices::latest_status();
         echo '<h2>' . esc_html__('Status rilis terbaru', 'bitmomo-ai') . '</h2>';
         echo '<p><strong>' . esc_html(ucfirst((string) ($release_status['state'] ?? 'empty'))) . '</strong> — ' . esc_html((string) ($release_status['message'] ?? __('Belum ada analisis.', 'bitmomo-ai'))) . '</p>';
         if (!empty($release_status['post_id'])) {
-            echo '<p><a class="button" href="' . esc_url(get_edit_post_link($release_status['post_id'])) . '">' . esc_html__('Tinjau draft terbaru', 'bitmomo-ai') . '</a></p>';
+            $post_link_label = ($release_status['state'] ?? '') === 'published' ? __('Tinjau analisis terbaru', 'bitmomo-ai') : __('Tinjau draft terbaru', 'bitmomo-ai');
+            echo '<p><a class="button" href="' . esc_url(get_edit_post_link($release_status['post_id'])) . '">' . esc_html($post_link_label) . '</a></p>';
         }
         if ($gate) {
             $passed = array_filter((array) ($gate['checks'] ?? []), function ($check) { return !empty($check['passed']); });
             $total = count((array) ($gate['checks'] ?? []));
             echo '<p><strong>' . esc_html__('Quality gate:', 'bitmomo-ai') . '</strong> ' . esc_html(sprintf('%s — %d/%d checks passed — %s', $gate['status'] ?? 'unknown', count($passed), $total, $gate['checked_at'] ?? '')) . '</p>';
-            if (($gate['status'] ?? '') === 'blocked') {
+            if (($gate['status'] ?? '') !== 'passed') {
                 echo '<ul>';
                 foreach ((array) ($gate['errors'] ?? []) as $error) echo '<li>' . esc_html($error) . '</li>';
                 echo '</ul>';
             }
+        }
+        $publish_log = get_option(self::PUBLISH_LOG_OPTION, []);
+        echo '<h2>' . esc_html__('Auto-publish audit log', 'bitmomo-ai') . '</h2>';
+        if ($publish_log && is_array($publish_log)) {
+            echo '<ol>';
+            foreach (array_slice($publish_log, 0, 10) as $entry) {
+                echo '<li>' . esc_html(sprintf('%s — %s — post %d — quality %s — %s', $entry['time'] ?? '', $entry['status'] ?? '', (int) ($entry['post_id'] ?? 0), $entry['quality_status'] ?? 'unknown', $entry['message'] ?? '')) . '</li>';
+            }
+            echo '</ol>';
+        } else {
+            echo '<p>' . esc_html__('Belum ada percobaan auto-publish.', 'bitmomo-ai') . '</p>';
         }
         $performance = Bitmomo_AI_Performance::summary();
         echo '<h2>' . esc_html__('Forward validation', 'bitmomo-ai') . '</h2>';

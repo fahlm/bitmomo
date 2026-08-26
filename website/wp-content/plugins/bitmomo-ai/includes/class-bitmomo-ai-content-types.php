@@ -56,7 +56,7 @@ final class Bitmomo_AI_Content_Types {
             $value = get_post_meta($post->ID, '_bm_' . $key, true);
             printf('<p><label for="bm-%1$s"><strong>%2$s</strong></label><br><input class="widefat" id="bm-%1$s" name="bm_%1$s" value="%3$s"></p>', esc_attr($key), esc_html($label), esc_attr($value));
         }
-        echo '<p><em>' . esc_html__('Signals remain drafts until an editor reviews and publishes them.', 'bitmomo-ai') . '</em></p>';
+        echo '<p><em>' . esc_html__('Analisis harian dapat terbit otomatis setelah memenuhi quality gate bersyarat. Editor tetap dapat meninjau atau menerbitkan draft yang ditahan.', 'bitmomo-ai') . '</em></p>';
         $outcome_status = get_post_meta($post->ID, '_bm_outcome_status', true);
         if ($outcome_status === 'evaluated') {
             $result = get_post_meta($post->ID, '_bm_outcome_direction', true);
@@ -75,12 +75,12 @@ final class Bitmomo_AI_Content_Types {
         }
 
         echo '<hr><div class="bm-release-gate">';
-        echo '<h3>' . esc_html__('Checklist sebelum rilis', 'bitmomo-ai') . '</h3>';
+        echo '<h3>' . esc_html__('Status kelayakan rilis', 'bitmomo-ai') . '</h3>';
         echo '<p><span class="bm-release-state ' . esc_attr($release['ready'] ? 'is-ready' : 'is-waiting') . '">' . esc_html($release['ready'] ? __('SIAP DIRILIS', 'bitmomo-ai') : __('BELUM SIAP DIRILIS', 'bitmomo-ai')) . '</span></p>';
         self::render_check_item(
             $release['quality_passed'],
             __('Pemeriksaan otomatis', 'bitmomo-ai'),
-            $release['quality_passed'] ? __('Semua pemeriksaan kualitas lulus.', 'bitmomo-ai') : __('Perbarui analisis sampai quality gate lulus.', 'bitmomo-ai')
+            $release['quality_passed'] ? __('Minimal 6 dari 7 pemeriksaan lulus dan tidak ada kegagalan kritis.', 'bitmomo-ai') : __('Analisis ditahan karena ambang kualitas atau pemeriksaan kritis belum terpenuhi.', 'bitmomo-ai')
         );
         self::render_check_item(
             $release['fresh'],
@@ -95,15 +95,17 @@ final class Bitmomo_AI_Content_Types {
         );
         self::render_check_item(
             $release['approved'],
-            __('Pemeriksaan editor', 'bitmomo-ai'),
-            $release['approved'] ? __('Sudah dikonfirmasi.', 'bitmomo-ai') : __('Menunggu konfirmasi editor.', 'bitmomo-ai')
+            __('Izin publikasi', 'bitmomo-ai'),
+            $release['auto_eligible']
+                ? __('Memenuhi syarat auto-publish.', 'bitmomo-ai')
+                : ($release['editor_approved'] ? __('Disetujui editor.', 'bitmomo-ai') : __('Belum memenuhi auto-publish atau persetujuan editor.', 'bitmomo-ai'))
         );
         if ($release['near_expiry']) {
             echo '<p class="bm-release-warning"><strong>' . esc_html__('Perhatian:', 'bitmomo-ai') . '</strong> ' . esc_html__('Data akan segera kedaluwarsa. Periksa kembali harga terkini sebelum merilis.', 'bitmomo-ai') . '</p>';
         }
         if ($release['reasons']) echo '<p class="bm-release-reasons">' . esc_html(implode(' ', $release['reasons'])) . '</p>';
-        echo '<p class="bm-release-confirm"><label><input type="checkbox" name="bm_editor_approved" value="yes" ' . checked($release['approved'], true, false) . '> <strong>' . esc_html__('Saya telah memeriksa kesimpulan, support, resistance, risiko, dan sumber data.', 'bitmomo-ai') . '</strong></label></p>';
-        echo '<p><em>' . esc_html__('Setelah dicentang, simpan draft terlebih dahulu. Publikasi tetap dilakukan secara manual.', 'bitmomo-ai') . '</em></p>';
+        echo '<p class="bm-release-confirm"><label><input type="checkbox" name="bm_editor_approved" value="yes" ' . checked($release['editor_approved'], true, false) . '> <strong>' . esc_html__('Persetujuan manual: saya telah memeriksa kesimpulan, support, resistance, risiko, dan sumber data.', 'bitmomo-ai') . '</strong></label></p>';
+        echo '<p><em>' . esc_html__('Kotak ini hanya diperlukan untuk menerbitkan draft secara manual. Jalur harian otomatis memakai quality gate dan hard blocker.', 'bitmomo-ai') . '</em></p>';
         echo '</div>';
     }
 
