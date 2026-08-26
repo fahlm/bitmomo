@@ -66,6 +66,9 @@ final class Bitmomo_AI_Content_Types {
             echo '<hr><p><strong>' . esc_html__('24-hour validation:', 'bitmomo-ai') . '</strong> ' . esc_html__('pending', 'bitmomo-ai') . '</p>';
         }
         $release = Bitmomo_AI_Editorial_Gate::status($post->ID);
+        $is_published = get_post_status($post->ID) === 'publish';
+        $was_auto_published = (string) get_post_meta($post->ID, '_bm_auto_published_at', true) !== '';
+        $display_ready = $is_published || $release['ready'];
         $levels_complete = self::levels_complete($post->ID);
         $age_label = $release['age_minutes'] === null
             ? __('Waktu data tidak valid', 'bitmomo-ai')
@@ -73,10 +76,22 @@ final class Bitmomo_AI_Content_Types {
         if ($release['fresh']) {
             $age_label .= ' · ' . sprintf(__('berlaku %d menit lagi', 'bitmomo-ai'), $release['expires_in_minutes']);
         }
+        if ($was_auto_published) {
+            $permission_message = __('Sudah diterbitkan otomatis dan izin satu kali telah dicabut.', 'bitmomo-ai');
+        } elseif ($release['auto_eligible']) {
+            $permission_message = __('Memenuhi syarat auto-publish.', 'bitmomo-ai');
+        } elseif ($release['editor_approved']) {
+            $permission_message = __('Disetujui editor.', 'bitmomo-ai');
+        } elseif ($is_published) {
+            $permission_message = __('Sudah diterbitkan.', 'bitmomo-ai');
+        } else {
+            $permission_message = __('Belum memenuhi auto-publish atau persetujuan editor.', 'bitmomo-ai');
+        }
 
         echo '<hr><div class="bm-release-gate">';
         echo '<h3>' . esc_html__('Status kelayakan rilis', 'bitmomo-ai') . '</h3>';
-        echo '<p><span class="bm-release-state ' . esc_attr($release['ready'] ? 'is-ready' : 'is-waiting') . '">' . esc_html($release['ready'] ? __('SIAP DIRILIS', 'bitmomo-ai') : __('BELUM SIAP DIRILIS', 'bitmomo-ai')) . '</span></p>';
+        $release_label = $is_published ? __('SUDAH TERBIT', 'bitmomo-ai') : ($release['ready'] ? __('SIAP DIRILIS', 'bitmomo-ai') : __('BELUM SIAP DIRILIS', 'bitmomo-ai'));
+        echo '<p><span class="bm-release-state ' . esc_attr($display_ready ? 'is-ready' : 'is-waiting') . '">' . esc_html($release_label) . '</span></p>';
         self::render_check_item(
             $release['quality_passed'],
             __('Pemeriksaan otomatis', 'bitmomo-ai'),
@@ -94,16 +109,14 @@ final class Bitmomo_AI_Content_Types {
             $levels_complete ? __('Support, resistance, dan batas risiko tersedia.', 'bitmomo-ai') : __('Satu atau lebih level harga belum tersedia.', 'bitmomo-ai')
         );
         self::render_check_item(
-            $release['approved'],
+            $release['approved'] || $is_published,
             __('Izin publikasi', 'bitmomo-ai'),
-            $release['auto_eligible']
-                ? __('Memenuhi syarat auto-publish.', 'bitmomo-ai')
-                : ($release['editor_approved'] ? __('Disetujui editor.', 'bitmomo-ai') : __('Belum memenuhi auto-publish atau persetujuan editor.', 'bitmomo-ai'))
+            $permission_message
         );
         if ($release['near_expiry']) {
             echo '<p class="bm-release-warning"><strong>' . esc_html__('Perhatian:', 'bitmomo-ai') . '</strong> ' . esc_html__('Data akan segera kedaluwarsa. Periksa kembali harga terkini sebelum merilis.', 'bitmomo-ai') . '</p>';
         }
-        if ($release['reasons']) echo '<p class="bm-release-reasons">' . esc_html(implode(' ', $release['reasons'])) . '</p>';
+        if (!$is_published && $release['reasons']) echo '<p class="bm-release-reasons">' . esc_html(implode(' ', $release['reasons'])) . '</p>';
         echo '<p class="bm-release-confirm"><label><input type="checkbox" name="bm_editor_approved" value="yes" ' . checked($release['editor_approved'], true, false) . '> <strong>' . esc_html__('Persetujuan manual: saya telah memeriksa kesimpulan, support, resistance, risiko, dan sumber data.', 'bitmomo-ai') . '</strong></label></p>';
         echo '<p><em>' . esc_html__('Kotak ini hanya diperlukan untuk menerbitkan draft secara manual. Jalur harian otomatis memakai quality gate dan hard blocker.', 'bitmomo-ai') . '</em></p>';
         echo '</div>';
