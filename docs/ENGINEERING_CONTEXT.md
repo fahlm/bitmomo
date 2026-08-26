@@ -112,8 +112,8 @@ self-contained and only loaded when a template calls
 2. **Complete staging acceptance before production.** The three footer Pages
    (`tentang-kami`, `kebijakan-privasi`, and `disclaimer`) were created and
    verified on staging on 2026-08-26. All return 200 and remain protected by
-   staging noindex. The privacy Page intentionally notes that a verified
-   privacy contact channel must be added before production. Broader
+   staging noindex. The privacy Page now lists the verified contact channel
+   `hi@bitmomo.id`. Broader
    accessibility, SEO/social-image, performance, and restore-drill evidence
    remains to be completed per `docs/staging-rollback-runbook.md`.
 3. **"5 production gates"** mentioned in the founder's brief were never found

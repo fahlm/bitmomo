@@ -171,7 +171,7 @@ A source rollback does not replace database/uploads backups.
 | Package SHA-256 | `2e7ab20279edcd9ea305e7df2cce3aa7f8118853aedadbf830523476aa477689` |
 | Backup identifier | `bitmomo-child-v3-backup-before-85492ad-20260826.zip` |
 | Tests passed | Homepage, single, category, tag, pagination, 404, AI preview, three footer trust/legal Pages, staging noindex, desktop 1280px, mobile 390px, console warnings/errors, horizontal overflow |
-| Known limitation | Add and verify a privacy contact channel before production; full acceptance checklist and restore drill remain open |
+| Known limitation | Privacy contact `hi@bitmomo.id` is verified on staging; full acceptance checklist and restore drill remain open |
 | Production status | Not deployed |
 
 ## Phase 0 exit criteria
