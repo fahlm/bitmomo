@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-08-23T07:00:00+07:00",
-  "btc_reference_price": 65420.50,
+  "timestamp": "2026-08-26T19:10:00+07:00",
+  "btc_reference_price": 78539.14,
   "direction": "BULLISH",
   "confidence": 62,
-  "expected_low": 63800,
-  "expected_high": 67200,
+  "expected_low": 76600,
+  "expected_high": 80700,
   "expected_move_pct": 2.6,
   "consensus": {
     "bullish": 6,
@@ -14,9 +14,9 @@
   "key_drivers": [
     "ETF inflows tetap positif minggu ini",
     "Funding rate netral, tidak overheated",
-    "Support kuat di area $63.5K"
+    "Area support di kisaran $75.500 (low 3 hari terakhir)"
   ],
-  "invalidation": "Break di bawah $62,800 (4H close) membatalkan skenario bullish.",
+  "invalidation": "Break di bawah $75,400 (4H close) membatalkan skenario bullish.",
   "risk_level": "MEDIUM",
   "analysts": []
 }
