@@ -2,7 +2,7 @@
 
 ## Current rollout status
 
-- Version: `1.0.25`
+- Version: `1.0.26`
 - Environment validated: staging only
 - Publishing mode: conditional auto-publish for scheduled Binance runs; manual and TradingView inputs remain draft-first
 - Production status: not deployed
@@ -31,7 +31,7 @@ Scheduled auto-publishing is allowed only when all of the following are true:
 - Required Binance public-data inputs are complete and fresh.
 - The generated analysis is at most 180 minutes old.
 - Support, resistance, and invalidation are logically consistent. The distance guard is the single non-critical check that may produce a safe 6/7 result.
-- `BITMOMO_AI_AUTO_PUBLISH` is not set to `false`.
+- `BITMOMO_AI_AUTO_PUBLISH` is explicitly set to `true`.
 
 The scheduler publishes automatically after these conditions pass. A 6/7 result is marked `degraded` and is auditable. TradingView and manual content remain draft-only.
 
@@ -66,10 +66,10 @@ For a missed run, first verify the hosting cron is active and that WordPress rep
 ## Production shadow rollout
 
 1. Take a production backup and record the active theme/plugin versions.
-2. Install the reviewed plugin artifact with `BITMOMO_AI_AUTO_PUBLISH` set to `false`.
+2. Install the reviewed plugin artifact. Auto-publish remains disabled by default; an explicit `false` value may still be added as a visible kill switch.
 3. Restrict preview output to administrators and run one production shadow cycle.
 4. Confirm cron health, data freshness, quality gates, and mobile rendering.
-5. Remove or set the kill switch to `true` only after explicit approval.
+5. Set `BITMOMO_AI_AUTO_PUBLISH` to `true` only after explicit approval.
 
 ## Rollback
 
@@ -81,7 +81,7 @@ For a missed run, first verify the hosting cron is active and that WordPress rep
 
 Deactivation does not intentionally delete generated posts or validation metadata. Do not delete database content during routine rollback.
 
-For a non-destructive emergency stop, set `define('BITMOMO_AI_AUTO_PUBLISH', false);` in `wp-config.php`. Scheduled analysis continues as drafts while public auto-publishing stops.
+Auto-publish is fail-closed: if `BITMOMO_AI_AUTO_PUBLISH` is absent, scheduled analysis remains a draft. To enable publishing, set `define('BITMOMO_AI_AUTO_PUBLISH', true);` in `wp-config.php` only after approval. For a non-destructive emergency stop, set it to `false`; scheduled analysis continues as drafts while public auto-publishing stops.
 
 ## Security rules
 

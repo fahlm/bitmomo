@@ -6,7 +6,7 @@ final class Bitmomo_AI_Scheduler {
     const PUBLISH_LOG_OPTION = 'bitmomo_ai_publish_log';
 
     public static function auto_publish_enabled() {
-        return !defined('BITMOMO_AI_AUTO_PUBLISH') || (bool) BITMOMO_AI_AUTO_PUBLISH;
+        return defined('BITMOMO_AI_AUTO_PUBLISH') && (bool) BITMOMO_AI_AUTO_PUBLISH;
     }
 
     public static function register() {
@@ -103,8 +103,8 @@ final class Bitmomo_AI_Scheduler {
         update_post_meta($post_id, '_bm_model', 'binance-public-five-axis-v2');
 
         if (!self::auto_publish_enabled()) {
-            self::record('success', sprintf('Daily draft %d created or refreshed; auto-publish is disabled by the kill switch.', $post_id), $post_id);
-            self::record_publication('disabled', 'Auto-publish is disabled by BITMOMO_AI_AUTO_PUBLISH.', $post_id);
+            self::record('success', sprintf('Daily draft %d created or refreshed; auto-publish is disabled by the safe default or kill switch.', $post_id), $post_id);
+            self::record_publication('disabled', 'Auto-publish requires BITMOMO_AI_AUTO_PUBLISH to be explicitly set to true.', $post_id);
             return $post_id;
         }
 
@@ -166,7 +166,7 @@ final class Bitmomo_AI_Scheduler {
         echo '<p><strong>' . esc_html(ucfirst((string) $automation['state'])) . '</strong> — ' . esc_html($automation['message']) . '</p>';
         echo '<p><strong>' . esc_html__('Jadwal berikutnya:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['next_label']) . '<br><strong>' . esc_html__('Eksekusi terakhir:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['last_label'] . ' · ' . $automation['last_status']) . '<br><strong>' . esc_html__('Pemicu:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['trigger_label']) . '</p>';
         echo '<p><strong>' . esc_html__('TradingView webhook:', 'bitmomo-ai') . '</strong> ' . esc_html($webhook_configured ? 'configured' : 'not configured') . '</p>';
-        echo '<p><strong>' . esc_html__('Conditional auto-publish:', 'bitmomo-ai') . '</strong> ' . esc_html(self::auto_publish_enabled() ? 'enabled (minimum 6/7; critical failures still block)' : 'disabled by kill switch') . '</p>';
+        echo '<p><strong>' . esc_html__('Conditional auto-publish:', 'bitmomo-ai') . '</strong> ' . esc_html(self::auto_publish_enabled() ? 'enabled explicitly (minimum 6/7; critical failures still block)' : 'disabled by safe default or kill switch') . '</p>';
         if ($last_webhook) echo '<p><strong>' . esc_html__('Last TradingView payload:', 'bitmomo-ai') . '</strong> ' . esc_html(($last_webhook['status'] ?? '') . ' — ' . ($last_webhook['message'] ?? '') . ' — ' . ($last_webhook['time'] ?? '')) . '</p>';
         if ($last) echo '<p><strong>' . esc_html__('Last run:', 'bitmomo-ai') . '</strong> ' . esc_html(($last['status'] ?? '') . ' — ' . ($last['message'] ?? '') . ' — ' . ($last['time'] ?? '')) . '</p>';
         $release_status = Bitmomo_AI_Admin_Notices::latest_status();

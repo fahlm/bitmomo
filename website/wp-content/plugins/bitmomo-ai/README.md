@@ -8,7 +8,7 @@ Conditional automated publishing foundation for AI Market Insight and Bitcoin Si
 - Freshness, completeness, reference price, zone ordering, bias/score consistency, and invalidation consistency are hard blockers; they can never be waived by the 6/7 threshold.
 - The only currently tolerated soft failure is excessive operational-level distance, which produces a `degraded` quality status and remains visible in diagnostics.
 - Every publication attempt is recorded in a bounded 30-entry audit log.
-- Define `BITMOMO_AI_AUTO_PUBLISH` as `false` in `wp-config.php` for an immediate kill switch. The default is enabled.
+- Auto-publish is disabled by default. Define `BITMOMO_AI_AUTO_PUBLISH` as `true` in `wp-config.php` only after production shadow validation and explicit approval; set it to `false` for an immediate kill switch.
 - TradingView webhook submissions remain draft-only; conditional auto-publish is limited to the scheduled Binance pipeline.
 
 ## Phase AI-1
@@ -88,7 +88,7 @@ Conditional automated publishing foundation for AI Market Insight and Bitcoin Si
 - Normal edition: use the fully closed 4H candle at 19:00 WIB and target draft readiness at 19:10 WIB.
 - Major US macro days during daylight saving time: keep the normal pre-release edition and optionally create a short reaction update at 19:40-19:50 WIB.
 - Major US macro days during standard time: the normal edition remains a pre-release scenario because common 08:30 ET data arrives at 20:30 WIB.
-- Scheduled Binance content publishes automatically only after the conditional release gate. Manual and TradingView-generated content remain drafts by default.
+- Scheduled Binance content publishes automatically only when explicitly enabled and after the conditional release gate. Manual and TradingView-generated content remain drafts by default.
 
 ## TradingView webhook
 
