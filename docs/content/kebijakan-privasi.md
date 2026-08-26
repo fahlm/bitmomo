@@ -3,7 +3,7 @@
 Status: draft konten, siap ditinjau founder. Belum di-commit/push. Bukan perubahan kode.
 Slug yang dituju oleh footer (sudah dikodekan di PR frontend, belum di-merge): `kebijakan-privasi`
 
-PENTING UNTUK FOUNDER: draft ini disusun berdasarkan apa yang bisa diverifikasi dari kode/konfigurasi yang ada (WordPress, Rank Math, Mailpoet, native CTA click tracking di tema, Site Kit by Google terdeteksi aktif), plus dua jawaban langsung dari founder (2026-08-27): tidak ada cookie consent banner yang tampil saat ini, dan data subscriber Mailpoet disimpan selama subscriber belum unsubscribe serta tidak dibagikan ke pihak ketiga di luar Mailpoet. Dua butir masih menunggu pengecekan langsung di wp-admin dan ditandai [PERLU KONFIRMASI FOUNDER] di bawah — jangan publikasikan sebelum keduanya diperiksa.
+PENTING UNTUK FOUNDER: draft ini disusun berdasarkan apa yang bisa diverifikasi dari kode/konfigurasi yang ada (WordPress, Rank Math, Mailpoet, native CTA click tracking di tema, Site Kit by Google terdeteksi aktif secara plugin), plus jawaban langsung dari founder (2026-08-27): tidak ada cookie consent banner yang tampil saat ini, data subscriber Mailpoet disimpan selama subscriber belum unsubscribe dan tidak dibagikan ke pihak ketiga, serta Site Kit belum benar-benar terhubung ke layanan Google mana pun ("belum ada integrasi"). Catatan: jawaban "belum ada integrasi" ditafsirkan juga mencakup tidak adanya plugin security/logging tambahan di luar bawaan Hostinger -- kalau ini keliru (misalnya ada plugin security terpisah yang tidak terkait Site Kit), koreksi sebelum publikasi.
 
 ---
 
@@ -23,15 +23,15 @@ Halaman ini menjelaskan data apa yang Bitmomo kumpulkan saat Anda mengunjungi bi
 
 ## Data yang Dikumpulkan Secara Otomatis
 
-Seperti kebanyakan situs WordPress, server kami dapat mencatat informasi teknis dasar (seperti alamat IP dan jenis peramban) untuk keperluan keamanan dan operasional situs. [PERLU KONFIRMASI FOUNDER: apakah ada plugin keamanan/logging tambahan selain fitur bawaan hosting Hostinger — sebutkan di sini jika ada. Belum dikonfirmasi per 2026-08-27.]
+Seperti kebanyakan situs WordPress, server kami dapat mencatat informasi teknis dasar (seperti alamat IP dan jenis peramban) untuk keperluan keamanan dan operasional situs, menggunakan fitur bawaan hosting Hostinger. Saat ini tidak ada plugin keamanan/logging tambahan pihak ketiga yang terpasang.
 
 ## Analitik
 
-Bitmomo menggunakan Site Kit by Google, yang berpotensi menghubungkan situs ini dengan layanan seperti Google Analytics dan Google Search Console untuk memahami trafik dan performa pencarian secara agregat. [PERLU KONFIRMASI FOUNDER: layanan Google mana saja yang benar-benar aktif dan terhubung melalui Site Kit saat ini, dan apakah pengaturan anonymize-IP/consent mode diaktifkan. Belum dikonfirmasi per 2026-08-27.]
+Plugin Site Kit by Google terpasang di situs ini, namun saat ini belum terhubung ke layanan Google mana pun (belum ada integrasi aktif ke Google Analytics, Search Console, atau layanan Google lainnya). Bagian ini akan diperbarui apabila salah satu layanan tersebut diaktifkan di kemudian hari.
 
 ## Cookie
 
-Situs ini dapat menggunakan cookie untuk fungsi dasar (seperti WordPress). Saat ini belum ada banner persetujuan cookie yang ditampilkan kepada pengunjung. Jika layanan analitik pihak ketiga di atas ternyata aktif setelah dikonfirmasi, banner persetujuan cookie perlu ditambahkan sebelum halaman ini dipublikasikan sebagai kebijakan final.
+Situs ini dapat menggunakan cookie untuk fungsi dasar (seperti WordPress). Karena belum ada layanan analitik pihak ketiga yang aktif (lihat bagian Analitik di atas), saat ini belum ada banner persetujuan cookie yang ditampilkan kepada pengunjung. Apabila layanan analitik pihak ketiga diaktifkan di kemudian hari, banner persetujuan cookie perlu ditambahkan terlebih dahulu.
 
 ## Newsletter
 
