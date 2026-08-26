@@ -109,9 +109,11 @@ self-contained and only loaded when a template calls
    not been promoted to production. The staging smoke test passed for the
    homepage, single post, real category, tag, pagination, 404, AI preview,
    noindex, desktop width, and a 390px mobile viewport.
-2. **Complete staging acceptance before production.** The three new footer
-   links (`tentang-kami`, `kebijakan-privasi`, and `disclaimer`) currently
-   return 404 until the corresponding WordPress Pages are created. Broader
+2. **Complete staging acceptance before production.** The three footer Pages
+   (`tentang-kami`, `kebijakan-privasi`, and `disclaimer`) were created and
+   verified on staging on 2026-08-26. All return 200 and remain protected by
+   staging noindex. The privacy Page intentionally notes that a verified
+   privacy contact channel must be added before production. Broader
    accessibility, SEO/social-image, performance, and restore-drill evidence
    remains to be completed per `docs/staging-rollback-runbook.md`.
 3. **"5 production gates"** mentioned in the founder's brief were never found
