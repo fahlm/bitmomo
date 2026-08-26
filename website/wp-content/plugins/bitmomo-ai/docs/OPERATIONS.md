@@ -3,10 +3,20 @@
 ## Current rollout status
 
 - Version: `1.0.26`
-- Environment validated: staging only
-- Publishing mode: conditional auto-publish for scheduled Binance runs; manual and TradingView inputs remain draft-first
-- Production status: not deployed
-- Required before production rollout: one successful 1.0.25 staging simulation and a current production backup
+- Environments validated: staging and production shadow
+- Publishing mode: production auto-publish is disabled by the safe default; manual, TradingView, and scheduled production-shadow inputs remain draft-first
+- Production status: version `1.0.26` active in shadow mode
+- Required before enabling production auto-publish: observe a successful scheduled production run, confirm mobile rendering, and obtain explicit approval
+
+## Production shadow evidence
+
+- Production backup verified before installation: complete UpdraftPlus backup from 25 August 2026, including database, plugins, themes, uploads, must-use plugins, and other files.
+- Reviewed source: merged commit `0fb0e3fc0a119ce1183f62f720347f207b3368db` from PR #18.
+- Installed artifact SHA-256: `6b92d5af81a175b2d39d2eb032a2a15c44ce6c69d364aac8707b8fc5d0f7e8a4`.
+- Runtime validation: WordPress activated version `1.0.26` without a fatal error and diagnostics reported auto-publish disabled by the safe default.
+- Shadow cycle: 27 August 2026 at 00:06 WIB created or refreshed post `2425` as a draft; quality passed and the audit log recorded publishing as disabled.
+- Public verification: the production homepage returned HTTP 200 and the unauthenticated URL for draft `2425` returned HTTP 404.
+- Auto-publish remains disabled until the remaining production observations pass and explicit approval is recorded.
 
 ## Daily schedule
 
