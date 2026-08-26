@@ -27,6 +27,13 @@ if ( ! is_array( $bitmomo_btc ) || empty( $bitmomo_btc['timestamp'] ) ) {
     return;
 }
 
+if (
+    ! function_exists( 'bitmomo_btc_record_is_fresh' ) ||
+    ! bitmomo_btc_record_is_fresh( $bitmomo_btc )
+) {
+    return;
+}
+
 $direction_map = [
     'BULLISH' => [ 'label' => 'BULLISH', 'class' => 'is-bullish' ],
     'BEARISH' => [ 'label' => 'BEARISH', 'class' => 'is-bearish' ],

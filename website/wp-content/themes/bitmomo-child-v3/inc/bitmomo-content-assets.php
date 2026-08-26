@@ -15,6 +15,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Returns whether a BTC Intelligence record is recent enough for public use.
+ *
+ * The manual MVP feed is expected to be refreshed daily. A small grace period
+ * keeps the previous edition visible until the next publishing window, while
+ * preventing old sample data from being presented as a current outlook.
+ */
+function bitmomo_btc_record_is_fresh( array $record, $max_age_seconds = 36 * HOUR_IN_SECONDS ) {
+    $timestamp = strtotime( (string) ( $record['timestamp'] ?? '' ) );
+
+    if ( ! $timestamp || $timestamp > time() + ( 5 * MINUTE_IN_SECONDS ) ) {
+        return false;
+    }
+
+    return ( time() - $timestamp ) <= max( HOUR_IN_SECONDS, (int) $max_age_seconds );
+}
+
+/**
  * Builds X post / Shorts script outline / newsletter blurb from one
  * BTC Daily Intelligence record (same shape as data/btc-daily-sample.json).
  */
@@ -140,7 +157,11 @@ function bitmomo_render_content_assets_page() {
         $raw     = file_get_contents( $file );
         $decoded = $raw ? json_decode( $raw, true ) : null;
 
-        if ( is_array( $decoded ) && ! empty( $decoded['timestamp'] ) ) {
+        if (
+            is_array( $decoded ) &&
+            ! empty( $decoded['timestamp'] ) &&
+            bitmomo_btc_record_is_fresh( $decoded )
+        ) {
             $record = $decoded;
         }
     }
@@ -149,7 +170,7 @@ function bitmomo_render_content_assets_page() {
         <h1><?php esc_html_e( 'BTC Daily Intelligence — Content Assets', 'bitmomo' ); ?></h1>
 
         <?php if ( ! $record ) : ?>
-            <p><?php esc_html_e( 'Belum ada data BTC Intelligence yang valid (data/btc-daily-sample.json).', 'bitmomo' ); ?></p>
+            <p><?php esc_html_e( 'Belum ada data BTC Intelligence yang valid dan terbaru (data/btc-daily-sample.json).', 'bitmomo' ); ?></p>
         <?php else :
             $assets = bitmomo_build_btc_content_assets( $record );
             $fields = [
