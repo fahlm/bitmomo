@@ -1,12 +1,21 @@
 # Bitmomo AI
 
-Editorial foundation for AI Market Insight and Bitcoin Signal.
+Conditional automated publishing foundation for AI Market Insight and Bitcoin Signal.
+
+## Phase AI-2j
+
+- The daily Binance scheduler publishes automatically when at least six of the seven quality checks pass.
+- Freshness, completeness, reference price, zone ordering, bias/score consistency, and invalidation consistency are hard blockers; they can never be waived by the 6/7 threshold.
+- The only currently tolerated soft failure is excessive operational-level distance, which produces a `degraded` quality status and remains visible in diagnostics.
+- Every publication attempt is recorded in a bounded 30-entry audit log.
+- Define `BITMOMO_AI_AUTO_PUBLISH` as `false` in `wp-config.php` for an immediate kill switch. The default is enabled.
+- TradingView webhook submissions remain draft-only; conditional auto-publish is limited to the scheduled Binance pipeline.
 
 ## Phase AI-1
 
 - Custom post types for insights and signals.
 - REST-visible structured signal metadata.
-- Draft-first editorial workflow; nothing auto-publishes.
+- Draft-first editorial workflow for manual and TradingView inputs.
 - Shortcodes: `[bitmomo_market_insights limit="3"]` and `[bitmomo_bitcoin_signal]`.
 - No API keys or provider credentials stored in the repository.
 
@@ -20,7 +29,7 @@ Editorial foundation for AI Market Insight and Bitcoin Signal.
 
 - Free, read-only Binance public-data adapter; no Binance account or API key required.
 - Fetches 1H/4H/1D futures candles, mark/index basis, funding history, and open-interest history.
-- WordPress daily schedule targets 19:10 WIB and creates drafts only.
+- WordPress daily schedule targets 19:10 WIB and conditionally auto-publishes the Binance edition.
 - Manual staging test is available under **Tools → Bitmomo AI**.
 - For reliable timing, configure the hosting cron to call WordPress cron every five minutes.
 
@@ -38,9 +47,9 @@ Editorial foundation for AI Market Insight and Bitcoin Signal.
 
 - Indonesian editorial report with a headline, multi-timeframe context, five responsive axis cards, bull/bear scenarios, and bias invalidation.
 - Diagnostics retain a fresh five-axis preview even when daily draft deduplication correctly prevents another post.
-- A seven-check quality gate blocks stale or incomplete data, overlapping or distant operational levels, and bias/invalidation contradictions before a preview or draft can be refreshed.
+- A seven-check quality gate blocks stale or incomplete data, overlapping operational levels, and bias/invalidation contradictions. A distant operational level is the only non-critical check eligible for the later 6/7 policy.
 - A forward-validation ledger evaluates each daily bias against the following 24-hour close, high, low, support/resistance tests, and risk-level event; only outcomes observed in the 22–27 hour window are scored.
-- An editorial release gate keeps signals in draft unless the quality gate passed, the generated analysis is no more than 180 minutes old, and an editor explicitly confirms review; automated scheduling is intentionally disabled.
+- The editorial release gate requires acceptable quality and analysis no more than 180 minutes old. Manual and TradingView submissions require editor approval; the scheduled Binance path may use a one-time internal auto-publish authorization.
 - The editor now shows an Indonesian pre-release checklist, a visible expiry countdown, and a warning during the final 60 minutes before data becomes too old to publish.
 - WordPress administrators receive an internal notice when a new draft needs review, is nearing expiry, has expired, is blocked, or is ready for manual release; no email or external notification is sent.
 - Audience copy now follows the actual volatility score, uses explicit breakout language for support/resistance, and includes the approved neutral caution: “Hati-hati jika ingin mengejar pergerakan harga.”
@@ -79,7 +88,7 @@ Editorial foundation for AI Market Insight and Bitcoin Signal.
 - Normal edition: use the fully closed 4H candle at 19:00 WIB and target draft readiness at 19:10 WIB.
 - Major US macro days during daylight saving time: keep the normal pre-release edition and optionally create a short reaction update at 19:40-19:50 WIB.
 - Major US macro days during standard time: the normal edition remains a pre-release scenario because common 08:30 ET data arrives at 20:30 WIB.
-- All generated content requires editorial review and remains unpublished by default.
+- Scheduled Binance content publishes automatically only after the conditional release gate. Manual and TradingView-generated content remain drafts by default.
 
 ## TradingView webhook
 
@@ -91,6 +100,6 @@ Send JSON to:
 
 `https://example.com/wp-json/bitmomo-ai/v1/tradingview/TOKEN`
 
-The endpoint validates freshness and required axes, rejects duplicates, evaluates deterministic multi-timeframe rules, and creates a Bitcoin Signal draft. It never publishes automatically.
+The endpoint validates freshness and required axes, rejects duplicates, evaluates deterministic multi-timeframe rules, and creates a Bitcoin Signal draft. Webhook content never publishes automatically.
 
 TradingView source and setup instructions are in `docs/tradingview/`.

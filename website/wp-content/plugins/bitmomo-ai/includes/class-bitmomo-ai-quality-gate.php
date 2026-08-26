@@ -5,11 +5,13 @@ final class Bitmomo_AI_Quality_Gate {
     const MAX_AGE_MINUTES = 90;
     const MIN_COMPLETENESS_PCT = 80;
     const MAX_LEVEL_DISTANCE_PCT = 12;
+    const MIN_PASSED_CHECKS = 6;
+    const CRITICAL_CHECKS = ['freshness', 'completeness', 'price', 'zones', 'bias_score', 'invalidation'];
 
     public static function check(array $data, array $evaluation) {
         $result = self::inspect($data, $evaluation);
         update_option('bitmomo_ai_latest_quality_gate', $result, false);
-        if ($result['status'] === 'passed') return true;
+        if (in_array($result['status'], ['passed', 'degraded'], true)) return true;
         return new WP_Error('bitmomo_quality_gate_failed', implode(' ', $result['errors']), ['status' => 422]);
     }
 
@@ -77,12 +79,28 @@ final class Bitmomo_AI_Quality_Gate {
             'Level risiko konsisten dengan bias utama.',
             'Pembaruan ditahan: level risiko bertentangan dengan bias utama.');
 
+        $passed_count = count(array_filter($checks, function ($check) { return !empty($check['passed']); }));
+        $failed_keys = array_values(array_map(function ($check) { return $check['key']; }, array_filter($checks, function ($check) { return empty($check['passed']); })));
+        $critical_failures = array_values(array_intersect($failed_keys, self::CRITICAL_CHECKS));
+        $hard_blocked = !empty($critical_failures) || $passed_count < self::MIN_PASSED_CHECKS;
+        $status = $hard_blocked ? 'blocked' : ($passed_count === count($checks) ? 'passed' : 'degraded');
+
         return [
-            'status' => $errors ? 'blocked' : 'passed',
+            'status' => $status,
             'checked_at' => gmdate('c'),
             'checks' => $checks,
             'errors' => $errors,
-            'summary' => $errors ? implode(' ', $errors) : sprintf('%d pemeriksaan lulus.', count($checks)),
+            'passed_count' => $passed_count,
+            'total_count' => count($checks),
+            'minimum_passed' => self::MIN_PASSED_CHECKS,
+            'failed_keys' => $failed_keys,
+            'critical_failures' => $critical_failures,
+            'hard_blocked' => $hard_blocked,
+            'summary' => $status === 'passed'
+                ? sprintf('%d pemeriksaan lulus.', count($checks))
+                : ($status === 'degraded'
+                    ? sprintf('%d/%d pemeriksaan lulus; kegagalan non-kritis diizinkan.', $passed_count, count($checks))
+                    : implode(' ', $errors)),
         ];
     }
 }

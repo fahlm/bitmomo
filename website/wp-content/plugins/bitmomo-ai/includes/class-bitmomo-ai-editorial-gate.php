@@ -11,16 +11,19 @@ final class Bitmomo_AI_Editorial_Gate {
     }
 
     public static function status($post_id, $submitted_approval = null) {
-        $quality_passed = get_post_meta($post_id, '_bm_quality_gate_status', true) === 'passed';
+        $quality_status = (string) get_post_meta($post_id, '_bm_quality_gate_status', true);
+        $quality_passed = in_array($quality_status, ['passed', 'degraded'], true);
         $generated = strtotime((string) get_post_meta($post_id, '_bm_generated_at', true));
         $timestamp_valid = $generated && $generated <= time() + (5 * MINUTE_IN_SECONDS);
         $age_minutes = $timestamp_valid ? max(0, (int) floor((time() - $generated) / 60)) : null;
         $fresh = $timestamp_valid && $age_minutes <= self::MAX_PUBLISH_AGE_MINUTES;
         $expires_in_minutes = $fresh ? self::MAX_PUBLISH_AGE_MINUTES - $age_minutes : 0;
         $near_expiry = $fresh && $expires_in_minutes <= self::EXPIRY_WARNING_MINUTES;
-        $approved = $submitted_approval === null
+        $editor_approved = $submitted_approval === null
             ? get_post_meta($post_id, '_bm_editor_approved', true) === 'yes'
             : (bool) $submitted_approval;
+        $auto_eligible = get_post_meta($post_id, '_bm_auto_publish_eligible', true) === 'yes';
+        $approved = $editor_approved || $auto_eligible;
         $reasons = [];
         if (!$quality_passed) $reasons[] = 'Quality gate belum lulus.';
         if (!$timestamp_valid) {
@@ -28,15 +31,18 @@ final class Bitmomo_AI_Editorial_Gate {
         } elseif (!$fresh) {
             $reasons[] = sprintf('Data analisis sudah berusia %d menit; batas publikasi %d menit.', $age_minutes, self::MAX_PUBLISH_AGE_MINUTES);
         }
-        if (!$approved) $reasons[] = 'Analisis belum dikonfirmasi oleh editor.';
+        if (!$approved) $reasons[] = 'Analisis belum mendapat izin auto-publish atau persetujuan editor.';
         return [
             'ready' => $quality_passed && $fresh && $approved,
             'quality_passed' => $quality_passed,
+            'quality_status' => $quality_status,
             'fresh' => $fresh,
             'age_minutes' => $age_minutes,
             'expires_in_minutes' => $expires_in_minutes,
             'near_expiry' => $near_expiry,
             'approved' => $approved,
+            'editor_approved' => $editor_approved,
+            'auto_eligible' => $auto_eligible,
             'reasons' => $reasons,
         ];
     }

@@ -149,6 +149,7 @@ final class Bitmomo_AI_Webhook {
         update_post_meta($post_id, '_bm_quality_gate_status', (string) ($quality_gate['status'] ?? 'unknown'));
         update_post_meta($post_id, '_bm_quality_checked_at', (string) ($quality_gate['checked_at'] ?? gmdate('c')));
         update_post_meta($post_id, '_bm_editor_approved', 'no');
+        update_post_meta($post_id, '_bm_auto_publish_eligible', 'no');
         return $post_id;
     }
 }
