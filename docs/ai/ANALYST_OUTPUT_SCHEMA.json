@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bitmomo/analyst-output",
+  "title": "Bitmomo BTC Intelligence — Standardized Analyst Output (Reconciled V1)",
+  "description": "Every one of the 11 analysts must emit exactly this shape so the consensus layer (docs/ai/CONSENSUS_DESIGN.md) can combine them mechanically. Reconciled 2026-08-26: added invalidation_price so per-analyst outcomes can be settled the same mechanical way class-bitmomo-ai-performance.php already settles the existing single signal's risk level (see docs/ai/VALIDATION_PLAN.md).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "analyst_id",
+    "package_id",
+    "generated_at",
+    "direction",
+    "confidence",
+    "expected_range",
+    "key_drivers",
+    "invalidation",
+    "risk_flags",
+    "data_quality_flag",
+    "reasoning_summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "examples": ["1.1.0"]
+    },
+    "analyst_id": {
+      "type": "string",
+      "description": "One of the 11 role ids from docs/ai/11_ANALYST_ROLES.md.",
+      "enum": [
+        "trend_direction",
+        "volatility",
+        "momentum",
+        "market_structure",
+        "derivatives_positioning",
+        "basis_carry",
+        "crowding_sentiment",
+        "spot_perp_flow",
+        "cross_market_context",
+        "historical_pattern",
+        "event_narrative"
+      ]
+    },
+    "package_id": {
+      "type": "string",
+      "description": "The input package_id this output was generated from -- links every output back to its exact input snapshot for historical replay."
+    },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "direction": {
+      "type": "string",
+      "enum": ["BULLISH", "NEUTRAL", "BEARISH"]
+    },
+    "confidence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Analyst's own self-reported confidence. Not adjusted for historical accuracy -- that adjustment happens in the consensus layer, not here."
+    },
+    "expected_range": {
+      "type": "object",
+      "required": ["low", "high"],
+      "properties": {
+        "low": { "type": "number" },
+        "high": { "type": "number" }
+      }
+    },
+    "key_drivers": {
+      "type": "array",
+      "description": "Short, specific reasons -- not generic filler. 1-4 items expected.",
+      "items": { "type": "string" },
+      "maxItems": 4
+    },
+    "invalidation": {
+      "type": "string",
+      "description": "The specific condition that would prove this call wrong, in plain language. Required -- an analyst that can't state an invalidation condition shouldn't emit high confidence."
+    },
+    "invalidation_price": {
+      "type": ["number", "null"],
+      "description": "Added by the 2026-08-26 reconciliation. Numeric price level matching the plain-language 'invalidation' field, so a per-analyst outcome tracker can mechanically check whether the level was breached -- the same pattern class-bitmomo-ai-performance.php already uses for the existing single signal's '_bm_outcome_risk_triggered' field. Null only when direction is NEUTRAL and no directional invalidation level applies."
+    },
+    "risk_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["stale_data", "thin_data", "high_disagreement_expected", "event_risk", "low_liquidity", "regime_uncertain"]
+      }
+    },
+    "data_quality_flag": {
+      "type": "string",
+      "enum": ["good", "degraded", "insufficient"],
+      "description": "Self-assessment of whether this analyst's specific input slice was complete and fresh enough to trust. An analyst running on the Bybit derivatives fallback (see derivatives.data_status in ANALYST_INPUT_SCHEMA.json) should generally report 'degraded', not 'good' -- the fallback exists precisely because the primary source failed for this run. \"insufficient\" should suppress this output's weight in the consensus layer almost entirely."
+    },
+    "reasoning_summary": {
+      "type": "string",
+      "maxLength": 400,
+      "description": "Short plain-language reasoning, capped in length deliberately."
+    }
+  }
+}

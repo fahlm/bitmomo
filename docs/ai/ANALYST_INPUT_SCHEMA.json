@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bitmomo/analyst-input-package",
+  "title": "Bitmomo BTC Intelligence — Analyst Input Package (Reconciled V1)",
+  "description": "One package built once per run, filtered per-analyst before being sent to any of the 11 analysts. Reconciled 2026-08-26 against the real, merged source of class-bitmomo-ai-binance.php: most fields below now map directly to that live snapshot rather than a from-scratch fetch. See docs/ai/DATA_ARCHITECTURE.md for the full field-by-field EXISTING/REUSE vs MISSING/ADD classification.",
+  "x_reconciliation_note": "Fields marked '(existing)' in their description are already computed live by Bitmomo_AI_Binance::snapshot(). Fields marked '(missing/add)' are confirmed absent from PR #7 and require new work, with cost noted. Nothing marked 'existing' should be re-fetched or re-derived independently -- reuse the live snapshot output.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "package_id",
+    "generated_at",
+    "reference_price",
+    "freshness",
+    "timeframes",
+    "direction",
+    "structure",
+    "derivatives",
+    "flow",
+    "cross_market",
+    "event_context",
+    "source_metadata",
+    "missing_data_flags"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Semver of this schema, e.g. \"1.1.0\". Bumped from 1.0.0 for this reconciliation pass (fields added/split).",
+      "examples": ["1.1.0"]
+    },
+    "package_id": {
+      "type": "string",
+      "description": "Unique id for this snapshot, used as the storage key for historical validation.",
+      "examples": ["2026-08-26T19:10:00+07:00-run1"]
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "(existing) Maps directly to snapshot() 'timestamp'."
+    },
+    "reference_price": {
+      "type": "number",
+      "description": "(existing) Maps directly to snapshot() 'close'."
+    },
+    "freshness": {
+      "type": "object",
+      "description": "(existing, needs normalization) The live engine reports one combined 'quality' block (status/completeness_pct/data_age_minutes/optional_missing), not three separately-aged fields as originally drafted. Normalize by using the single data_age_minutes value for all three below unless/until the engine is extended to age-track derivatives and flow independently.",
+      "required": ["price_age_seconds", "derivatives_age_seconds", "flow_age_seconds"],
+      "properties": {
+        "price_age_seconds": { "type": "integer", "minimum": 0 },
+        "derivatives_age_seconds": { "type": "integer", "minimum": 0 },
+        "flow_age_seconds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "timeframes": {
+      "type": "object",
+      "description": "Price/structure data per timeframe. 'trend_state' here is the EMA20/EMA50 + breakout signal (existing: structure.state / structure.state_1d) -- deliberately kept separate from the ADX-based 'direction' block below; see 'Duplication removed' in DATA_ARCHITECTURE.md for why these were not merged into one field.",
+      "required": ["1h", "4h", "1d"],
+      "properties": {
+        "1h": { "$ref": "#/definitions/timeframe_block" },
+        "4h": { "$ref": "#/definitions/timeframe_block" },
+        "1d": { "$ref": "#/definitions/timeframe_block" }
+      }
+    },
+    "direction": {
+      "type": "object",
+      "description": "(existing) Maps directly to snapshot() 'direction' block -- ADX/DI-based, distinct from timeframes[*].trend_state. New top-level block added by this reconciliation; the original schema had no place for this real, live field.",
+      "required": ["adx", "plus_di", "minus_di", "bias_1h", "bias_4h", "bias_1d"],
+      "properties": {
+        "adx": { "type": "number" },
+        "plus_di": { "type": "number" },
+        "minus_di": { "type": "number" },
+        "bias_1h": { "type": "string", "enum": ["bullish", "neutral", "bearish"] },
+        "bias_4h": { "type": "string", "enum": ["bullish", "neutral", "bearish"] },
+        "bias_1d": { "type": "string", "enum": ["bullish", "neutral", "bearish"] }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "description": "(existing, richer than originally designed) Maps to snapshot() 'structure' block, including the operational support/resistance system (confirmed-pivot + ATR-guarded) not present in the original design. New top-level block added by this reconciliation.",
+      "required": ["last_swing_high", "last_swing_low", "state", "state_1d", "operational_support_1h", "operational_resistance_1h", "resistance_status_1h", "support_status_1h"],
+      "properties": {
+        "last_swing_high": { "type": "number" },
+        "last_swing_low": { "type": "number" },
+        "state": { "type": "string", "enum": ["breakout_up", "breakout_down", "hh_hl", "lh_ll", "range"] },
+        "state_1d": { "type": "string", "enum": ["breakout_up", "breakout_down", "hh_hl", "lh_ll", "range"] },
+        "operational_support_1h": { "type": "number" },
+        "operational_resistance_1h": { "type": "number" },
+        "resistance_status_1h": { "type": "string", "enum": ["confirmed_breakout", "rejected_breakout", "awaiting_confirmation", "testing", "untested"] },
+        "support_status_1h": { "type": "string", "enum": ["confirmed_breakdown", "rejected_breakdown", "awaiting_confirmation", "testing", "untested"] },
+        "recent_high_1h": { "type": "number" },
+        "recent_low_1h": { "type": "number" }
+      }
+    },
+    "derivatives": {
+      "type": "object",
+      "required": ["funding_rate_current", "funding_rate_recent_avg", "open_interest_change_pct_24h", "basis_pct"],
+      "properties": {
+        "funding_rate_current": { "type": "number", "description": "(existing) carry.funding_rate" },
+        "funding_rate_recent_avg": { "type": "number", "description": "(existing, renamed) carry.funding_7d -- actually the mean of the last 21 8-hour prints (~7 days), not a distinct '8h avg'. Renamed from the original 'funding_rate_8h_avg' to avoid implying a second window that doesn't exist." },
+        "open_interest_change_pct_24h": { "type": "number", "description": "(existing) crowding.oi_change_24h_pct" },
+        "oi_zscore": { "type": "number", "description": "(existing, not in original design) crowding.oi_zscore -- adopted because it's already computed live." },
+        "basis_pct": { "type": "number", "description": "(existing) carry.basis_pct" },
+        "global_long_short_ratio": { "type": "number", "description": "(existing, not in original design) crowding.global_long_short_ratio -- adopted because it's already computed live, Bybit fallback included." },
+        "data_status": { "type": "string", "enum": ["binance_public", "bybit_public", "unavailable"], "description": "(existing) carry.data_status -- records whether Binance or the Bybit fallback actually served this run's derivatives data." },
+        "liquidation_data": {
+          "type": "null",
+          "description": "Deliberately null for V1. Confirmed: neither Binance nor Bybit (checked during this reconciliation) offers a reliable free historical REST liquidation endpoint -- both are websocket-only. See DATA_ARCHITECTURE.md."
+        }
+      }
+    },
+    "flow": {
+      "type": "object",
+      "required": ["perp_volume_24h", "taker_buy_ratio_perp"],
+      "properties": {
+        "perp_volume_24h": { "type": "number", "description": "(existing) derivable from the already-fetched futures klines volume field." },
+        "taker_buy_ratio_perp": { "type": "number", "minimum": 0, "maximum": 1, "description": "(existing) crowding.taker_buy_sell_ratio" },
+        "spot_volume_24h": { "type": "number", "description": "(MISSING/ADD) Spot klines are currently fetched only as a failover when the futures call errors, not in parallel every run -- so this field is not reliably available today. Requires one additional standing Binance spot klines call per run (same free/no-key tier already in use). Not required until that fetch is added." },
+        "taker_buy_ratio_spot": { "type": "number", "minimum": 0, "maximum": 1, "description": "(MISSING/ADD) Depends on the parallel spot-klines fetch above; once added, this is pure computation from the existing 'taker buy base asset volume' kline field, no new endpoint. Not required until that fetch is added." }
+      }
+    },
+    "cross_market": {
+      "type": "object",
+      "description": "(MISSING/ADD, unchanged) Confirmed absent from PR #7 -- no CoinGecko or market-cap source anywhere in the plugin.",
+      "required": ["btc_dominance_pct", "total_market_cap_usd", "fear_greed_index"],
+      "properties": {
+        "btc_dominance_pct": { "type": "number" },
+        "total_market_cap_usd": { "type": "number" },
+        "fear_greed_index": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "dxy": { "type": "null", "description": "Deliberately null for V1 -- no reliable free source. See DATA_ARCHITECTURE.md." }
+      }
+    },
+    "event_context": {
+      "type": "array",
+      "description": "(MISSING/ADD, unchanged) Text entries from a manually-curated event calendar. Confirmed nothing like this exists in PR #7.",
+      "items": {
+        "type": "object",
+        "required": ["date", "label", "category"],
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "label": { "type": "string" },
+          "category": { "type": "string", "enum": ["macro", "crypto"] }
+        }
+      }
+    },
+    "source_metadata": {
+      "type": "object",
+      "description": "Which real source fed each block. 'derivatives' should record carry.data_status (binance_public vs bybit_public) rather than a fixed string, since the live engine genuinely switches sources on failure.",
+      "properties": {
+        "price_structure": { "type": "string", "examples": ["binance_public_klines"] },
+        "derivatives": { "type": "string", "examples": ["binance_futures_public", "bybit_linear_perpetual_fallback"] },
+        "flow": { "type": "string", "examples": ["binance_public_klines"] },
+        "cross_market": { "type": "string", "examples": ["coingecko_global", "alternative.me_fng"] }
+      }
+    },
+    "missing_data_flags": {
+      "type": "array",
+      "description": "(existing pattern) Maps to snapshot() 'quality.optional_missing' -- the live engine already produces this exact concept (list of optional fields that failed to fetch this run), reuse it directly rather than inventing a new flagging mechanism.",
+      "items": { "type": "string" }
+    }
+  },
+  "definitions": {
+    "timeframe_block": {
+      "type": "object",
+      "required": ["open", "high", "low", "close", "volume", "atr_pct", "trend_state"],
+      "properties": {
+        "open": { "type": "number" },
+        "high": { "type": "number" },
+        "low": { "type": "number" },
+        "close": { "type": "number" },
+        "volume": { "type": "number" },
+        "return_pct": { "type": "number", "description": "(existing at 24h only, needs normalization) crowding.price_change_24h_pct covers 24h; 1h/4h/7d are trivial derivations from already-fetched closes, no new fetch." },
+        "atr_pct": { "type": "number", "description": "(existing, renamed from atr14) The live engine stores ATR as a percentage of price (atr_pct_1h / atr_pct_4h), not an absolute value. Renamed to match reality rather than re-deriving an absolute figure that isn't otherwise needed." },
+        "realized_vol": { "type": "number", "description": "(existing, reuse instead of recomputing) Use volatility.atr_percentile_1d + volatility.bb_width_pct_4h together rather than a separately-computed stdev-of-log-returns -- see 'Duplication removed' in DATA_ARCHITECTURE.md." },
+        "trend_state": { "type": "string", "enum": ["breakout_up", "breakout_down", "hh_hl", "lh_ll", "range"], "description": "(existing, enum corrected) EMA20/EMA50 + breakout based, matches structure.state / structure.state_1d exactly. Enum values corrected from the original uptrend/downtrend/range placeholder to the real live values." },
+        "structural_levels": {
+          "type": "object",
+          "description": "Superseded for 4h/1d by the richer top-level 'structure' block above (which includes operational support/resistance, not just swing points). Kept here only for symmetry across timeframes where the top-level block doesn't apply (e.g. 1h-only fields).",
+          "properties": {
+            "swing_high": { "type": "number" },
+            "swing_low": { "type": "number" },
+            "prior_period_high": { "type": "number" },
+            "prior_period_low": { "type": "number" }
+          }
+        }
+      }
+    }
+  }
+}
