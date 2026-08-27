@@ -255,6 +255,16 @@ class Bitmomo_Pro_Brief_Prefill {
 	}
 
 	/**
+	 * Public wrapper around find_existing_by_source_id() so other classes
+	 * (e.g. Bitmomo_Pro_Daily) can check for an existing draft/pending/
+	 * publish/future post for a given canonical source_record_id without
+	 * re-implementing this lookup with their own get_posts() query.
+	 */
+	public function find_draft_by_source_record_id( $source_record_id ) {
+		return $this->find_existing_by_source_id( $source_record_id );
+	}
+
+	/**
 	 * Renders a one-click "create draft" admin notice on the Pro Briefs
 	 * screens, but ONLY when something has hooked
 	 * apply_filters( self::AVAILABILITY_FILTER, null ) to return a real

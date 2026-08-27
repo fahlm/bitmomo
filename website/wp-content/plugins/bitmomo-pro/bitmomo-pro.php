@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.8.0
+ * Version: 0.9.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.8.0' );
+define( 'BITMOMO_PRO_VERSION', '0.9.0' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -32,6 +32,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-email-service.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-usage.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-activation.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-account.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-daily.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -63,6 +64,13 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-account.php';
  *   duplicating their logic.
  * - Account: the customer-facing [bitmomo_pro_account] status page —
  *   always the current logged-in user only, never any other user's data.
+ * - Daily: the "Daily Pro" founder/editor orchestration screen (PR #35)
+ *   — one-click prefill via the existing Brief Prefill service, a
+ *   deterministic (non-LLM) comparison against the previous published
+ *   brief, an editorial "What Changed" suggestion the founder must
+ *   explicitly apply, and a workflow-stage overview. Reads existing
+ *   state only; never bypasses Brief Readiness and never auto-sends
+ *   email.
  *
  * This plugin is the paid-product/access layer, not the intelligence engine.
  * bitmomo-ai creates/validates intelligence; bitmomo-pro packages, protects,
@@ -84,6 +92,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Usage::instance();
 	Bitmomo_Pro_Activation::instance();
 	Bitmomo_Pro_Account::instance();
+	Bitmomo_Pro_Daily::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 
