@@ -1,11 +1,17 @@
 (function () {
   'use strict';
 
-  var hamburger = document.getElementById('bm-hamburger');
-  var nav = document.getElementById('bm-nav') || document.querySelector('.bm-nav');
+  var hamburger = null;
+  var nav = null;
+
+  function resolveMenu() {
+    hamburger = document.getElementById('bm-hamburger');
+    nav = document.getElementById('bm-nav') || document.querySelector('.bm-nav');
+    return Boolean(hamburger && nav);
+  }
 
   function setMenuOpen(isOpen, returnFocus) {
-    if (!hamburger || !nav) return;
+    if (!resolveMenu()) return;
     nav.classList.toggle('open', isOpen);
     hamburger.classList.toggle('active', isOpen);
     document.body.classList.toggle('menu-open', isOpen);
@@ -13,16 +19,31 @@
     if (!isOpen && returnFocus) hamburger.focus();
   }
 
-  if (hamburger && nav) {
-    hamburger.addEventListener('click', function () {
+  /*
+   * Delegate menu interaction from document so it remains functional when an
+   * optimizer defers this file or the cached header markup is replaced.
+   */
+  document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('#bm-hamburger');
+    if (trigger) {
+      hamburger = trigger;
+      nav = document.getElementById('bm-nav') || document.querySelector('.bm-nav');
+      if (!nav) return;
+      event.preventDefault();
       setMenuOpen(hamburger.getAttribute('aria-expanded') !== 'true', false);
-    });
-    nav.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () { setMenuOpen(false, false); });
-    });
-    window.addEventListener('resize', function () {
-      if (window.innerWidth > 768) setMenuOpen(false, false);
-    });
+      return;
+    }
+
+    var navLink = event.target.closest('#bm-nav a, .bm-nav a');
+    if (navLink) setMenuOpen(false, false);
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 768) setMenuOpen(false, false);
+  });
+
+  if (resolveMenu() && !hamburger.hasAttribute('aria-expanded')) {
+    hamburger.setAttribute('aria-expanded', 'false');
   }
 
   var modal = document.getElementById('bm-subscribe-modal');
