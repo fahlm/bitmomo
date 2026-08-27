@@ -105,7 +105,15 @@ class Bitmomo_Performance_Optimizer {
 /* ---------- Helpers ---------- */
     private function should_optimize_content(){ return !is_admin() && in_the_loop() && is_main_query(); }
     private function should_load_modal(){ return is_single() || is_page() || is_home() || is_front_page() || is_archive(); }
-    private function get_file_version($file){ try{ return file_exists($file)? filemtime($file): BM_VERSION; }catch(Exception $e){ return BM_VERSION; } }
+    private function get_file_version($file){
+        try {
+            if (!file_exists($file)) return BM_VERSION;
+            $hash = hash_file('sha256', $file);
+            return $hash ? substr($hash, 0, 12) : filemtime($file);
+        } catch (Exception $e) {
+            return BM_VERSION;
+        }
+    }
 }
 
 function bitmomo_is_pro_request() {
