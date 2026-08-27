@@ -7,11 +7,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Bitmomo Pro entitlement model.
  *
  * Storage: plain WordPress user meta on standard WP users. No custom
- * authentication system, no custom tables. This is intentionally the ONLY
- * place entitlement is written from (the admin profile screen below) or
- * read against (bitmomo_user_has_pro_access(), at the bottom of this file).
- * A future payment webhook should write these same meta keys and call the
- * same helper — not invent a parallel access check.
+ * authentication system, no custom tables.
+ *
+ * As of PR #29, this class no longer writes user meta directly — every
+ * write goes through Bitmomo_Pro_Entitlement_Service (grant/extend/revoke),
+ * the canonical write boundary. This class still owns rendering the admin
+ * profile UI and reading/validating that form's POST data before handing
+ * it to the service. bitmomo_user_has_pro_access(), at the bottom of this
+ * file, remains the canonical READ gate — everything that gates Pro
+ * content must call it rather than reading user meta directly.
  */
 class Bitmomo_Pro_Entitlements {
 
@@ -49,6 +53,15 @@ class Bitmomo_Pro_Entitlements {
 		return current_user_can( 'manage_options' );
 	}
 
+	private function type_labels() {
+		return array(
+			Bitmomo_Pro_Entitlement_Service::TYPE_FOUNDING => __( 'Founding Beta member', 'bitmomo-pro' ),
+			Bitmomo_Pro_Entitlement_Service::TYPE_STANDARD => __( 'Standard/future member', 'bitmomo-pro' ),
+			Bitmomo_Pro_Entitlement_Service::TYPE_TEST      => __( 'Internal/test account', 'bitmomo-pro' ),
+			Bitmomo_Pro_Entitlement_Service::TYPE_MANUAL    => __( 'Manual (unspecified)', 'bitmomo-pro' ),
+		);
+	}
+
 	public function render_fields( $user ) {
 		if ( ! $this->can_manage_entitlements() ) {
 			return;
@@ -59,15 +72,35 @@ class Bitmomo_Pro_Entitlements {
 		$started_at = get_user_meta( $user->ID, self::META_STARTED_AT, true );
 		$source     = get_user_meta( $user->ID, self::META_SOURCE, true );
 		$note       = get_user_meta( $user->ID, self::META_NOTE, true );
+		$live_status = Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user->ID );
 
 		if ( '' === $status ) {
 			$status = 'inactive';
 		}
 		if ( '' === $source ) {
-			$source = 'manual';
+			$source = Bitmomo_Pro_Entitlement_Service::TYPE_MANUAL;
 		}
+
+		$founding_count = Bitmomo_Pro_Entitlement_Service::instance()->count_active_founding_members();
+		$founding_cap   = Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP;
 		?>
 		<h2><?php esc_html_e( 'Bitmomo Pro', 'bitmomo-pro' ); ?></h2>
+		<p>
+			<strong><?php esc_html_e( 'Live status:', 'bitmomo-pro' ); ?></strong>
+			<?php echo esc_html( ucfirst( $live_status ) ); ?>
+			&mdash;
+			<?php
+			printf(
+				/* translators: 1: active founding member count, 2: founding seat cap */
+				esc_html__( 'Founding members currently active: %1$d / %2$d', 'bitmomo-pro' ),
+				(int) $founding_count,
+				(int) $founding_cap
+			);
+			?>
+			<?php if ( $founding_count >= $founding_cap ) : ?>
+				<br /><span style="color:#b32d2e;"><?php esc_html_e( 'Founding cap reached — consider carefully before granting another "Founding Beta member" source.', 'bitmomo-pro' ); ?></span>
+			<?php endif; ?>
+		</p>
 		<table class="form-table" role="presentation">
 			<tr>
 				<th><label for="bitmomo_pro_status"><?php esc_html_e( 'Status', 'bitmomo-pro' ); ?></label></th>
@@ -86,14 +119,18 @@ class Bitmomo_Pro_Entitlements {
 				<th><label for="bitmomo_pro_expires_at"><?php esc_html_e( 'Access expiry', 'bitmomo-pro' ); ?></label></th>
 				<td>
 					<input type="date" name="bitmomo_pro_expires_at" id="bitmomo_pro_expires_at" value="<?php echo esc_attr( $expires_at ); ?>" />
-					<p class="description"><?php esc_html_e( 'Leave blank for no expiry.', 'bitmomo-pro' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Leave blank for no expiry. Not auto-filled — billing period is a manual decision during Founding Beta.', 'bitmomo-pro' ); ?></p>
 				</td>
 			</tr>
 			<tr>
-				<th><label for="bitmomo_pro_source"><?php esc_html_e( 'Source', 'bitmomo-pro' ); ?></label></th>
+				<th><label for="bitmomo_pro_source"><?php esc_html_e( 'Type / source', 'bitmomo-pro' ); ?></label></th>
 				<td>
-					<input type="text" name="bitmomo_pro_source" id="bitmomo_pro_source" value="<?php echo esc_attr( $source ); ?>" class="regular-text" />
-					<p class="description"><?php esc_html_e( '"manual" for founder-granted access. A future payment provider can write its own identifier here.', 'bitmomo-pro' ); ?></p>
+					<select name="bitmomo_pro_source" id="bitmomo_pro_source">
+						<?php foreach ( $this->type_labels() as $value => $label ) : ?>
+							<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $source, $value ); ?>><?php echo esc_html( $label ); ?></option>
+						<?php endforeach; ?>
+					</select>
+					<p class="description"><?php esc_html_e( 'Operational/accountability label only — does not change pricing or access logic. Use "Internal/test account" for your own test grants so they never count toward the Founding cap above.', 'bitmomo-pro' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -119,48 +156,45 @@ class Bitmomo_Pro_Entitlements {
 			return;
 		}
 
-		$status = ( isset( $_POST['bitmomo_pro_status'] ) && 'active' === $_POST['bitmomo_pro_status'] ) ? 'active' : 'inactive';
-		update_user_meta( $user_id, self::META_STATUS, $status );
-
+		$status     = ( isset( $_POST['bitmomo_pro_status'] ) && 'active' === $_POST['bitmomo_pro_status'] ) ? 'active' : 'inactive';
 		$started_at = isset( $_POST['bitmomo_pro_started_at'] ) ? sanitize_text_field( wp_unslash( $_POST['bitmomo_pro_started_at'] ) ) : '';
-		$started_at = $this->sanitize_date( $started_at );
-		if ( 'active' === $status && '' === $started_at ) {
-			$started_at = current_time( 'Y-m-d' );
-		}
-		update_user_meta( $user_id, self::META_STARTED_AT, $started_at );
-
 		$expires_at = isset( $_POST['bitmomo_pro_expires_at'] ) ? sanitize_text_field( wp_unslash( $_POST['bitmomo_pro_expires_at'] ) ) : '';
-		update_user_meta( $user_id, self::META_EXPIRES_AT, $this->sanitize_date( $expires_at ) );
+		$source     = isset( $_POST['bitmomo_pro_source'] ) ? sanitize_text_field( wp_unslash( $_POST['bitmomo_pro_source'] ) ) : Bitmomo_Pro_Entitlement_Service::TYPE_MANUAL;
+		$note       = isset( $_POST['bitmomo_pro_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['bitmomo_pro_note'] ) ) : '';
 
-		$source = isset( $_POST['bitmomo_pro_source'] ) ? sanitize_text_field( wp_unslash( $_POST['bitmomo_pro_source'] ) ) : 'manual';
-		update_user_meta( $user_id, self::META_SOURCE, '' !== $source ? $source : 'manual' );
+		$service = Bitmomo_Pro_Entitlement_Service::instance();
 
-		$note = isset( $_POST['bitmomo_pro_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['bitmomo_pro_note'] ) ) : '';
-		update_user_meta( $user_id, self::META_NOTE, $note );
-	}
-
-	/**
-	 * Accepts only a strict YYYY-MM-DD date or an empty string. Anything
-	 * else is discarded rather than stored, so a malformed value can never
-	 * silently break the expiry comparison in bitmomo_user_has_pro_access().
-	 */
-	private function sanitize_date( $value ) {
-		$value = trim( (string) $value );
-		if ( '' === $value ) {
-			return '';
+		if ( 'active' === $status ) {
+			$service->grant_access(
+				$user_id,
+				array(
+					'source'     => $source,
+					'started_at' => $started_at,
+					'expires_at' => $expires_at,
+					'note'       => $note,
+				)
+			);
+		} else {
+			$service->update_meta_fields(
+				$user_id,
+				array(
+					'source'     => $source,
+					'started_at' => $started_at,
+					'expires_at' => $expires_at,
+				)
+			);
+			$service->revoke_access( $user_id, $note );
 		}
-		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) ) {
-			return '';
-		}
-		return $value;
 	}
 }
 
 /**
- * Canonical entitlement check. Everything that gates Pro content — the
- * dashboard shortcode today, a payment webhook later — must call this one
+ * Canonical entitlement READ check. Everything that gates Pro content — the
+ * dashboard shortcode, a payment webhook later — must call this one
  * function rather than reading user meta directly. Do not duplicate this
- * logic in templates.
+ * logic in templates. Delegates its expiry logic to
+ * Bitmomo_Pro_Entitlement_Service::get_status() so there is exactly one
+ * implementation of "is this grant still valid".
  *
  * @param int $user_id 0 = current logged-in user.
  * @return bool
@@ -174,18 +208,5 @@ function bitmomo_user_has_pro_access( $user_id = 0 ) {
 		return false; // Not logged in.
 	}
 
-	$status = get_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_STATUS, true );
-	if ( 'active' !== $status ) {
-		return false;
-	}
-
-	$expires_at = get_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_EXPIRES_AT, true );
-	if ( ! empty( $expires_at ) ) {
-		$expires_ts = strtotime( $expires_at . ' 23:59:59' );
-		if ( false !== $expires_ts && current_time( 'timestamp' ) > $expires_ts ) {
-			return false; // Expiry date has fully elapsed.
-		}
-	}
-
-	return true;
+	return 'active' === Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user_id );
 }
