@@ -108,6 +108,60 @@ class Bitmomo_Performance_Optimizer {
     private function get_file_version($file){ try{ return file_exists($file)? filemtime($file): BM_VERSION; }catch(Exception $e){ return BM_VERSION; } }
 }
 
+function bitmomo_is_pro_request() {
+    return trim((string) wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/') === 'pro';
+}
+
+function bitmomo_prepare_pro_route() {
+    if (!bitmomo_is_pro_request()) return;
+
+    global $wp_query;
+    if ($wp_query instanceof WP_Query) {
+        $wp_query->is_404 = false;
+        $wp_query->is_page = true;
+        $wp_query->is_singular = true;
+    }
+
+    add_filter('pre_get_document_title', function () {
+        return __('Bitmomo Pro', 'bitmomo');
+    }, PHP_INT_MAX);
+    add_filter('document_title_parts', function ($parts) {
+        $parts['title'] = __('Bitmomo Pro', 'bitmomo');
+        unset($parts['tagline']);
+        return $parts;
+    }, PHP_INT_MAX);
+    add_filter('rank_math/frontend/title', function () {
+        return __('Bitmomo Pro', 'bitmomo');
+    }, PHP_INT_MAX);
+    add_filter('wp_title', function () {
+        return __('Bitmomo Pro', 'bitmomo');
+    }, PHP_INT_MAX);
+}
+add_action('wp', 'bitmomo_prepare_pro_route', 0);
+
+function bitmomo_render_pro_placeholder() {
+    if (!bitmomo_is_pro_request()) return;
+
+    status_header(200);
+    nocache_headers();
+    get_header();
+    ?>
+    <main class="bm-pro-page">
+      <section class="bm-pro-page-hero">
+        <div class="bm-container">
+          <span class="bm-pro-eyebrow">BITMOMO PRO</span>
+          <h1>Intelligence yang menunjukkan kapan thesis pasar berubah.</h1>
+          <p>Halaman lengkap Bitmomo Pro sedang disiapkan. Belum ada pembayaran atau langganan yang diproses di halaman ini.</p>
+          <a class="bm-pro-page-back" href="<?php echo esc_url(home_url('/#bitmomo-pro')); ?>">Kembali ke BTC Daily Intelligence</a>
+        </div>
+      </section>
+    </main>
+    <?php
+    get_footer();
+    exit;
+}
+add_action('template_redirect', 'bitmomo_render_pro_placeholder', 1);
+
 /* Boot */
 Bitmomo_Performance_Optimizer::getInstance();
 
