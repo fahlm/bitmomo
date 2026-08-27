@@ -5,7 +5,8 @@ if (!defined('ABSPATH')) exit;
 
 if (!function_exists('bitmomo_render_brand')) {
     function bitmomo_render_brand() {
-        $logo_url = get_stylesheet_directory_uri() . '/assets/images/bitmomo-logo.png';
+        $fallback_logo_url = get_stylesheet_directory_uri() . '/assets/images/bitmomo-logo.png';
+        $logo_url = get_site_icon_url(96, $fallback_logo_url);
 
         printf(
             '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s"><img class="bm-brand-mark" src="%s" width="48" height="48" alt="%s" decoding="async"></a></div>',
