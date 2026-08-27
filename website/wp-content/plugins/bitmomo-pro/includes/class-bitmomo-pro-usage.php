@@ -249,11 +249,19 @@ class Bitmomo_Pro_Usage {
 	// ==================================================================
 
 	/**
+	 * Canonical query for "users whose entitlement status is currently
+	 * active" — the get_users() meta lookup plus the authoritative
+	 * Bitmomo_Pro_Entitlement_Service::get_status() re-check (a raw
+	 * meta_value match alone can be stale relative to expiry). Shared by
+	 * count_activated(), counts_by_validation_class(), and
+	 * render_admin_summary() so the three definitions can never drift
+	 * apart from each other (PR #36 integration audit).
+	 *
 	 * Deliberately simple queries suitable for ~dozens of users, matching
 	 * the style of Bitmomo_Pro_Entitlement_Service::count_active_founding_members() —
 	 * not cached/optimized metrics, just operational numbers for the founder.
 	 */
-	public function count_activated() {
+	private function get_active_pro_user_ids() {
 		$users = get_users(
 			array(
 				'meta_key'   => Bitmomo_Pro_Entitlements::META_STATUS,
@@ -262,8 +270,19 @@ class Bitmomo_Pro_Usage {
 			)
 		);
 
-		$count = 0;
+		$active = array();
 		foreach ( $users as $user_id ) {
+			if ( 'active' === Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user_id ) ) {
+				$active[] = (int) $user_id;
+			}
+		}
+
+		return $active;
+	}
+
+	public function count_activated() {
+		$count = 0;
+		foreach ( $this->get_active_pro_user_ids() as $user_id ) {
 			if ( $this->is_activated( $user_id ) ) {
 				$count++;
 			}
@@ -273,22 +292,10 @@ class Bitmomo_Pro_Usage {
 	}
 
 	public function counts_by_validation_class() {
-		$users = get_users(
-			array(
-				'meta_key'   => Bitmomo_Pro_Entitlements::META_STATUS,
-				'meta_value' => 'active',
-				'fields'     => 'ID',
-			)
-		);
-
 		$counts                 = array_fill_keys( self::VALIDATION_CLASSES, 0 );
 		$counts['unclassified'] = 0;
 
-		foreach ( $users as $user_id ) {
-			if ( 'active' !== Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user_id ) ) {
-				continue;
-			}
-
+		foreach ( $this->get_active_pro_user_ids() as $user_id ) {
 			$class = get_user_meta( $user_id, self::META_VALIDATION_CLASS, true );
 			if ( in_array( $class, self::VALIDATION_CLASSES, true ) ) {
 				$counts[ $class ]++;
@@ -306,19 +313,7 @@ class Bitmomo_Pro_Usage {
 	 * responsible for the manage_options capability check.
 	 */
 	public function render_admin_summary() {
-		$active_total = 0;
-		$active_users = get_users(
-			array(
-				'meta_key'   => Bitmomo_Pro_Entitlements::META_STATUS,
-				'meta_value' => 'active',
-				'fields'     => 'ID',
-			)
-		);
-		foreach ( $active_users as $user_id ) {
-			if ( 'active' === Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user_id ) ) {
-				$active_total++;
-			}
-		}
+		$active_total = count( $this->get_active_pro_user_ids() );
 
 		$activated = $this->count_activated();
 		$by_class  = $this->counts_by_validation_class();

@@ -124,6 +124,17 @@ class Bitmomo_Pro_Briefs {
 		);
 	}
 
+	/**
+	 * Public accessor for the exact V1 field-key list (PR #36 integration
+	 * audit) — lets other classes that need just the key list (e.g.
+	 * Bitmomo_Pro_Brief_Readiness, Bitmomo_Pro_Daily) read it from this
+	 * single canonical definition instead of maintaining their own copy
+	 * that could drift out of sync with fields() above.
+	 */
+	public static function field_keys() {
+		return array_keys( self::instance()->fields() );
+	}
+
 	public function render_meta_box( $post ) {
 		wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
 		echo '<table class="form-table" role="presentation">';

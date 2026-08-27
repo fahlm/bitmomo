@@ -21,29 +21,6 @@ class Bitmomo_Pro_Daily {
 	const APPLY_SUGGESTION_NONCE_ACTION = 'bitmomo_pro_apply_what_changed';
 	const APPLY_SUGGESTION_NONCE_FIELD  = 'bitmomo_pro_apply_what_changed_nonce';
 
-	/**
-	 * The closed V1 field set, same keys used throughout the plugin
-	 * (Bitmomo_Pro_Brief_Readiness::evaluate_post(), the meta box). Kept
-	 * here as a single list rather than re-deriving it, since
-	 * Bitmomo_Pro_Briefs::fields() is private to that class.
-	 */
-	const FIELD_KEYS = array(
-		'market_state',
-		'btc_reference_price',
-		'confidence',
-		'confidence_explanation',
-		'expected_range_low',
-		'expected_range_high',
-		'base_scenario',
-		'bull_scenario',
-		'bear_scenario',
-		'invalidation',
-		'what_changed',
-		'data_timestamp',
-		'data_freshness_status',
-		'source_record_id',
-	);
-
 	private static $instance = null;
 
 	public static function instance() {
@@ -76,7 +53,9 @@ class Bitmomo_Pro_Daily {
 
 	private function read_fields( $post_id ) {
 		$fields = array();
-		foreach ( self::FIELD_KEYS as $key ) {
+		// Uses the canonical V1 field-key list from Bitmomo_Pro_Briefs (PR
+		// #36 integration audit) instead of a separately maintained copy.
+		foreach ( Bitmomo_Pro_Briefs::field_keys() as $key ) {
 			$fields[ $key ] = get_post_meta( $post_id, '_bitmomo_pro_' . $key, true );
 		}
 		return $fields;

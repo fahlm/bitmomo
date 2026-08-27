@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.9.0
+ * Version: 0.10.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.9.0' );
+define( 'BITMOMO_PRO_VERSION', '0.10.0' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -33,6 +33,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-usage.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-activation.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-account.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-daily.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-launch-readiness.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -71,6 +72,14 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-daily.php';
  *   explicitly apply, and a workflow-stage overview. Reads existing
  *   state only; never bypasses Brief Readiness and never auto-sends
  *   email.
+ * - Launch Readiness: the "Bitmomo Pro Launch Readiness" founder/admin
+ *   screen (PR #36) — a deployment/integration checklist generated from
+ *   actual WordPress/plugin state. Never fabricates a PASS for anything
+ *   it cannot verify from inside the plugin (real mail deliverability,
+ *   hosting cache behavior, SSL, payment success, or Codex's live
+ *   canonical adapter output all show explicitly as "RUNTIME
+ *   VERIFICATION REQUIRED"), and its overall status is only ever "NOT
+ *   READY" or "STAGING-READY CANDIDATE" — never "PRODUCTION READY".
  *
  * This plugin is the paid-product/access layer, not the intelligence engine.
  * bitmomo-ai creates/validates intelligence; bitmomo-pro packages, protects,
@@ -93,6 +102,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Activation::instance();
 	Bitmomo_Pro_Account::instance();
 	Bitmomo_Pro_Daily::instance();
+	Bitmomo_Pro_Launch_Readiness::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 

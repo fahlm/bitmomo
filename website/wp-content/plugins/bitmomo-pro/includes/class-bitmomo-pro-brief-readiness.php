@@ -125,7 +125,10 @@ class Bitmomo_Pro_Brief_Readiness {
 	 */
 	public function evaluate_post( $post_id ) {
 		$fields = array();
-		foreach ( array( 'market_state', 'btc_reference_price', 'confidence', 'confidence_explanation', 'expected_range_low', 'expected_range_high', 'base_scenario', 'bull_scenario', 'bear_scenario', 'invalidation', 'what_changed', 'data_timestamp', 'data_freshness_status' ) as $key ) {
+		// Reads the canonical V1 field-key list from Bitmomo_Pro_Briefs (PR #36
+		// integration audit) instead of a separately maintained copy — extra
+		// keys not used by evaluate() (e.g. source_record_id) are harmless here.
+		foreach ( Bitmomo_Pro_Briefs::field_keys() as $key ) {
 			$fields[ $key ] = get_post_meta( $post_id, '_bitmomo_pro_' . $key, true );
 		}
 		return $this->evaluate( $fields );
