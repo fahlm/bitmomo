@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.5.0
+ * Version: 0.6.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.5.0' );
+define( 'BITMOMO_PRO_VERSION', '0.6.0' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -28,6 +28,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-sales.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-cache.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-setup.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-users-list.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-email-service.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -64,6 +65,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Cache::instance();
 	Bitmomo_Pro_Setup::instance();
 	Bitmomo_Pro_Users_List::instance();
+	Bitmomo_Pro_Email_Service::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 
@@ -130,5 +132,62 @@ function bitmomo_pro_render_checkout_url_field() {
 		<p class="description">%s</p>',
 		esc_attr( $value ),
 		esc_html__( 'Where the Bitmomo Pro CTA points. Leave blank until a payment path is finalized — the CTA hides gracefully and shows a manual/coming-soon note instead.', 'bitmomo-pro' )
+	);
+}
+
+/**
+ * The Pro dashboard URL used in welcome/daily-brief emails.
+ *
+ * Priority: BITMOMO_PRO_DASHBOARD_URL constant > bitmomo_pro_dashboard_url
+ * option (Settings > General) > auto-detected Page with slug
+ * "pro-dashboard" (the slug Bitmomo_Pro_Setup offers to create) > empty
+ * string. Filterable via 'bitmomo_pro_dashboard_url'. Callers must fail
+ * gracefully (omit the line) when this is empty rather than emailing a
+ * broken link — see Bitmomo_Pro_Email_Service.
+ */
+function bitmomo_pro_get_dashboard_url() {
+	if ( defined( 'BITMOMO_PRO_DASHBOARD_URL' ) && BITMOMO_PRO_DASHBOARD_URL ) {
+		$url = BITMOMO_PRO_DASHBOARD_URL;
+	} else {
+		$url = get_option( 'bitmomo_pro_dashboard_url', '' );
+	}
+
+	if ( empty( $url ) ) {
+		$page = get_page_by_path( 'pro-dashboard', OBJECT, 'page' );
+		if ( $page && 'publish' === $page->post_status ) {
+			$url = get_permalink( $page );
+		}
+	}
+
+	return apply_filters( 'bitmomo_pro_dashboard_url', $url );
+}
+
+function bitmomo_pro_register_dashboard_url_setting() {
+	register_setting(
+		'general',
+		'bitmomo_pro_dashboard_url',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'esc_url_raw',
+			'default'           => '',
+		)
+	);
+
+	add_settings_field(
+		'bitmomo_pro_dashboard_url',
+		__( 'Bitmomo Pro Dashboard URL', 'bitmomo-pro' ),
+		'bitmomo_pro_render_dashboard_url_field',
+		'general'
+	);
+}
+add_action( 'admin_init', 'bitmomo_pro_register_dashboard_url_setting' );
+
+function bitmomo_pro_render_dashboard_url_field() {
+	$value = get_option( 'bitmomo_pro_dashboard_url', '' );
+	printf(
+		'<input type="url" class="regular-text" name="bitmomo_pro_dashboard_url" value="%s" placeholder="https://.../pro-dashboard" />
+		<p class="description">%s</p>',
+		esc_attr( $value ),
+		esc_html__( 'Used in welcome/daily-brief emails. Leave blank to auto-detect a Page at the "pro-dashboard" slug.', 'bitmomo-pro' )
 	);
 }
