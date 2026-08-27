@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.7.0
+ * Version: 0.8.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.7.0' );
+define( 'BITMOMO_PRO_VERSION', '0.8.0' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -30,6 +30,8 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-setup.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-users-list.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-email-service.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-usage.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-activation.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-account.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -54,6 +56,13 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-usage.php';
  *   Not anonymous analytics — nothing is recorded for logged-out or
  *   non-entitled visitors. See that file's docblock for the privacy
  *   contract and the exact "Activated" definition.
+ * - Activation: founder-only "Activate Pro Member" console (PR #34) —
+ *   manual post-payment activation for the first ~25 customers. Not a
+ *   CRM, not a payment integration. Orchestrates the existing
+ *   Entitlement Service / Usage setters / Email Service rather than
+ *   duplicating their logic.
+ * - Account: the customer-facing [bitmomo_pro_account] status page —
+ *   always the current logged-in user only, never any other user's data.
  *
  * This plugin is the paid-product/access layer, not the intelligence engine.
  * bitmomo-ai creates/validates intelligence; bitmomo-pro packages, protects,
@@ -73,6 +82,8 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Users_List::instance();
 	Bitmomo_Pro_Email_Service::instance();
 	Bitmomo_Pro_Usage::instance();
+	Bitmomo_Pro_Activation::instance();
+	Bitmomo_Pro_Account::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 
@@ -198,3 +209,4 @@ function bitmomo_pro_render_dashboard_url_field() {
 		esc_html__( 'Used in welcome/daily-brief emails. Leave blank to auto-detect a Page at the "pro-dashboard" slug.', 'bitmomo-pro' )
 	);
 }
+

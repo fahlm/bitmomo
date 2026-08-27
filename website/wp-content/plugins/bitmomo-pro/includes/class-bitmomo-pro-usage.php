@@ -153,14 +153,52 @@ class Bitmomo_Pro_Usage {
 		}
 
 		$validation_class = isset( $_POST['bitmomo_pro_validation_class'] ) ? sanitize_key( wp_unslash( $_POST['bitmomo_pro_validation_class'] ) ) : '';
-		if ( '' !== $validation_class && ! in_array( $validation_class, self::VALIDATION_CLASSES, true ) ) {
-			$validation_class = '';
-		}
-		update_user_meta( $user_id, self::META_VALIDATION_CLASS, $validation_class );
+		$this->set_validation_class( $user_id, $validation_class );
 
 		$acquisition = isset( $_POST['bitmomo_pro_acquisition_channel'] ) ? sanitize_text_field( wp_unslash( $_POST['bitmomo_pro_acquisition_channel'] ) ) : '';
-		$acquisition = substr( $acquisition, 0, 100 );
-		update_user_meta( $user_id, self::META_ACQUISITION_CHANNEL, $acquisition );
+		$this->set_acquisition_channel( $user_id, $acquisition );
+	}
+
+	// ==================================================================
+	// CANONICAL SETTERS (PR #34: used by both the profile form above and
+	// the Activate Pro Member console, so validation-class/acquisition-
+	// channel writes never happen through a second ad-hoc implementation)
+	// ==================================================================
+
+	/**
+	 * Sanitizes and stores the validation class. An empty string clears
+	 * classification; any value not in VALIDATION_CLASSES is normalized to
+	 * empty rather than rejected outright (defensive default, matches the
+	 * prior inline behavior this replaces).
+	 */
+	public function set_validation_class( $user_id, $class ) {
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$class = sanitize_key( (string) $class );
+		if ( '' !== $class && ! in_array( $class, self::VALIDATION_CLASSES, true ) ) {
+			$class = '';
+		}
+
+		update_user_meta( $user_id, self::META_VALIDATION_CLASS, $class );
+		return true;
+	}
+
+	/**
+	 * Sanitizes and stores the acquisition channel. Plain free text,
+	 * capped at 100 characters — deliberately not a closed taxonomy.
+	 */
+	public function set_acquisition_channel( $user_id, $channel ) {
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$channel = sanitize_text_field( (string) $channel );
+		$channel = substr( $channel, 0, 100 );
+
+		update_user_meta( $user_id, self::META_ACQUISITION_CHANNEL, $channel );
+		return true;
 	}
 
 	// ==================================================================
@@ -312,3 +350,4 @@ class Bitmomo_Pro_Usage {
 		);
 	}
 }
+
