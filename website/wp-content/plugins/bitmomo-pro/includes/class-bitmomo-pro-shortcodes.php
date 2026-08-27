@@ -11,6 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * placed in markup for a visitor who isn't entitled; nothing is hidden
  * with CSS. Does not require any theme modification.
  *
+ * As of PR #31: which brief (if any) counts as "current" is decided by
+ * Bitmomo_Pro_Briefs::get_current_brief_for_display(), which applies both
+ * the release-readiness gate and the freshness gate. This class no longer
+ * makes that decision itself — it only renders whatever tier/brief comes
+ * back, including the safe "belum tersedia" state and the "delayed, but
+ * still shown" state.
+ *
  * Known integration point: if the site later adds full-page HTML caching
  * in front of pages that render this shortcode, that cache must exclude
  * (or bypass for) logged-in/entitled visitors, otherwise a cached
@@ -108,12 +115,21 @@ class Bitmomo_Pro_Shortcodes {
 		echo '</div>';
 	}
 
+	/**
+	 * The only place "no eligible current brief" is decided is
+	 * Bitmomo_Pro_Briefs::get_current_brief_for_display(). Whatever tier
+	 * it returns — including 'unavailable' for a stale/invalid/never-
+	 * published brief — is rendered as-is. This method never falls back
+	 * to stale numbers and never fabricates a value.
+	 */
 	private function render_active() {
-		$brief = Bitmomo_Pro_Briefs::get_latest_brief();
+		$result = Bitmomo_Pro_Briefs::get_current_brief_for_display();
+		$tier   = $result['tier'];
+		$brief  = $result['brief'];
 
-		if ( null === $brief ) {
+		if ( Bitmomo_Pro_Brief_Readiness::TIER_UNAVAILABLE === $tier || null === $brief ) {
 			echo '<div class="bm-pro__gate">';
-			echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief Bitmomo Pro terbaru belum tersedia.', 'bitmomo-pro' ) . '</p>';
+			echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief Bitmomo Pro terbaru belum tersedia.', 'bitmomo-pro' ) . '<br />' . esc_html__( 'Sistem sedang menunggu data yang memenuhi standar kualitas.', 'bitmomo-pro' ) . '</p>';
 			echo '</div>';
 			return;
 		}
@@ -124,15 +140,11 @@ class Bitmomo_Pro_Shortcodes {
 			'bearish' => __( 'Bearish', 'bitmomo-pro' ),
 		);
 		$freshness_label = array(
-			'fresh'       => __( 'Data terkini', 'bitmomo-pro' ),
-			'delayed'     => __( 'Data tertunda', 'bitmomo-pro' ),
-			'unavailable' => __( 'Data belum tersedia', 'bitmomo-pro' ),
+			Bitmomo_Pro_Brief_Readiness::TIER_FRESH   => __( 'Data terkini', 'bitmomo-pro' ),
+			Bitmomo_Pro_Brief_Readiness::TIER_DELAYED => __( 'Data tertunda', 'bitmomo-pro' ),
 		);
 
-		$state      = isset( $brief['market_state'] ) ? $brief['market_state'] : '';
-		$freshness  = isset( $brief['data_freshness_status'] ) && isset( $freshness_label[ $brief['data_freshness_status'] ] )
-			? $brief['data_freshness_status']
-			: 'unavailable';
+		$state = isset( $brief['market_state'] ) ? $brief['market_state'] : '';
 		?>
 		<div class="bm-pro__dashboard">
 			<div class="bm-pro__header bm-pro__state--<?php echo esc_attr( $state ? $state : 'unknown' ); ?>">
@@ -192,10 +204,12 @@ class Bitmomo_Pro_Shortcodes {
 			<?php endif; ?>
 
 			<div class="bm-pro__footer">
-				<span class="bm-pro__freshness bm-pro__freshness--<?php echo esc_attr( $freshness ); ?>">
-					<?php echo esc_html( $freshness_label[ $freshness ] ); ?>
+				<span class="bm-pro__freshness bm-pro__freshness--<?php echo esc_attr( $tier ); ?>">
+					<?php echo esc_html( isset( $freshness_label[ $tier ] ) ? $freshness_label[ $tier ] : $tier ); ?>
 				</span>
-				<?php if ( ! empty( $brief['data_timestamp'] ) ) : ?>
+				<?php if ( Bitmomo_Pro_Brief_Readiness::TIER_DELAYED === $tier ) : ?>
+					<span class="bm-pro__timestamp"><?php echo esc_html( Bitmomo_Pro_Brief_Readiness::instance()->format_age_label( $brief['data_timestamp'] ) ); ?></span>
+				<?php elseif ( ! empty( $brief['data_timestamp'] ) ) : ?>
 					<span class="bm-pro__timestamp"><?php echo esc_html( $brief['data_timestamp'] ); ?></span>
 				<?php endif; ?>
 			</div>

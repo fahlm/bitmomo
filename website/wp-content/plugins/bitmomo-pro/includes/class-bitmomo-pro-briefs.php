@@ -17,6 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Once published, a brief represents what was actually shown to
  * subscribers that day and must be preserved, not overwritten — create a
  * new brief for a new day instead of editing an old one after publish.
+ *
+ * As of PR #31: publishing an incomplete brief is actively prevented by
+ * Bitmomo_Pro_Brief_Readiness (it gets reverted to draft, nothing is
+ * deleted). get_current_brief_for_display(), below, is what the dashboard
+ * shortcode should call — it applies both the readiness and freshness
+ * gate to the single latest published brief and never falls back to an
+ * older post if that one fails either check.
  */
 class Bitmomo_Pro_Briefs {
 
@@ -144,7 +151,7 @@ class Bitmomo_Pro_Briefs {
 			echo '</td></tr>';
 		}
 		echo '</table>';
-		echo '<p class="description">' . esc_html__( 'Publishing this brief preserves it permanently as the record of what subscribers received that day. Create a new brief for a new day rather than editing an old one after publish.', 'bitmomo-pro' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Publishing this brief preserves it permanently as the record of what subscribers received that day. Create a new brief for a new day rather than editing an old one after publish. If required fields are missing, publishing will be blocked and reverted to draft — see the Status Rilis box.', 'bitmomo-pro' ) . '</p>';
 	}
 
 	public function save_meta( $post_id ) {
@@ -194,9 +201,9 @@ class Bitmomo_Pro_Briefs {
 
 	/**
 	 * Returns the latest published Pro brief as an associative array, or
-	 * null if none has been published yet. This is the only read path the
-	 * front end should use — it never fabricates or falls back to stale
-	 * values when nothing is published.
+	 * null if none has been published yet. Raw fetch only — does NOT apply
+	 * readiness or freshness gating. Prefer get_current_brief_for_display()
+	 * for anything user-facing (PR #31).
 	 */
 	public static function get_latest_brief() {
 		$posts = get_posts(
@@ -216,6 +223,7 @@ class Bitmomo_Pro_Briefs {
 
 		$post = $posts[0];
 		$data = array(
+			'id'    => $post->ID,
 			'title' => get_the_title( $post ),
 			'date'  => get_the_date( 'Y-m-d H:i', $post ),
 		);
@@ -226,5 +234,39 @@ class Bitmomo_Pro_Briefs {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * The method the dashboard should call. Applies readiness AND
+	 * freshness to the single latest published brief only — it never
+	 * looks past that one post to an older, still-published brief, even
+	 * if an older one happens to still pass both checks. A newer brief
+	 * that fails either check means "no current brief", full stop; older
+	 * briefs remain visible in wp-admin history but are never surfaced to
+	 * subscribers as a silent fallback.
+	 *
+	 * @return array{tier:string,brief:?array} tier is one of
+	 *         'fresh'|'delayed'|'unavailable'; brief is null whenever
+	 *         tier is 'unavailable' (including "nothing published yet").
+	 */
+	public static function get_current_brief_for_display() {
+		$brief = self::get_latest_brief();
+		if ( null === $brief ) {
+			return array( 'tier' => Bitmomo_Pro_Brief_Readiness::TIER_UNAVAILABLE, 'brief' => null );
+		}
+
+		$readiness = Bitmomo_Pro_Brief_Readiness::instance();
+
+		$eval = $readiness->evaluate( $brief );
+		if ( ! $eval['ready'] ) {
+			return array( 'tier' => Bitmomo_Pro_Brief_Readiness::TIER_UNAVAILABLE, 'brief' => null );
+		}
+
+		$tier = $readiness->compute_freshness_tier( $brief['data_timestamp'], $brief['data_freshness_status'] );
+		if ( Bitmomo_Pro_Brief_Readiness::TIER_UNAVAILABLE === $tier ) {
+			return array( 'tier' => $tier, 'brief' => null );
+		}
+
+		return array( 'tier' => $tier, 'brief' => $brief );
 	}
 }

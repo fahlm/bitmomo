@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.4.0
+ * Version: 0.5.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,13 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.4.0' );
+define( 'BITMOMO_PRO_VERSION', '0.5.0' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-entitlement-service.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-entitlements.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-briefs.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-brief-readiness.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-brief-prefill.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-shortcodes.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-sales.php';
@@ -56,6 +57,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Entitlement_Service::instance();
 	Bitmomo_Pro_Entitlements::instance();
 	Bitmomo_Pro_Briefs::instance();
+	Bitmomo_Pro_Brief_Readiness::instance();
 	Bitmomo_Pro_Brief_Prefill::instance();
 	Bitmomo_Pro_Shortcodes::instance();
 	Bitmomo_Pro_Sales::instance();
