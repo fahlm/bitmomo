@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.6.0
+ * Version: 0.7.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.6.0' );
+define( 'BITMOMO_PRO_VERSION', '0.7.0' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -29,6 +29,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-cache.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-setup.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-users-list.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-email-service.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-usage.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -48,6 +49,11 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-email-service.php';
  * - Cache: application-level no-cache signaling for the protected route.
  * - Setup: optional, idempotent draft-page provisioning for founders/Codex.
  * - Users List: operational Pro columns + filter on the normal Users screen.
+ * - Usage: PMF/usage signals (validation class, acquisition channel,
+ *   lightweight per-user Pro-view tracking) for the first ~25 customers.
+ *   Not anonymous analytics — nothing is recorded for logged-out or
+ *   non-entitled visitors. See that file's docblock for the privacy
+ *   contract and the exact "Activated" definition.
  *
  * This plugin is the paid-product/access layer, not the intelligence engine.
  * bitmomo-ai creates/validates intelligence; bitmomo-pro packages, protects,
@@ -66,6 +72,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Setup::instance();
 	Bitmomo_Pro_Users_List::instance();
 	Bitmomo_Pro_Email_Service::instance();
+	Bitmomo_Pro_Usage::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 

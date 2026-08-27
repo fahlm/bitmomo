@@ -7,10 +7,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Minimal operational visibility on the normal wp-admin Users list —
  * enough to run the first ~25 customers without a separate CRM.
  *
- * Adds four columns (Pro, Started, Expires, Source) and a simple
- * All / Active Pro / Expired-or-Inactive filter. No charts, no MRR, no
- * cohort system — just enough for the founder to see membership state at
- * a glance on a screen WordPress already gives them.
+ * Adds six columns (Pro, Started, Expires, Source, Validation, Last Pro
+ * Use) and a simple All / Active Pro / Expired-or-Inactive filter. No
+ * charts, no MRR, no cohort system — just enough for the founder to see
+ * membership state and PMF signal at a glance on a screen WordPress
+ * already gives them.
+ *
+ * As of PR #33: Validation and Last Pro Use are minimal additions reading
+ * from Bitmomo_Pro_Usage (PR #33) — a manually-set lead-quality label and
+ * a read-only last-view timestamp, both distinct from the operational
+ * Pro/Started/Expires/Source columns above them.
  */
 class Bitmomo_Pro_Users_List {
 
@@ -33,10 +39,12 @@ class Bitmomo_Pro_Users_List {
 	}
 
 	public function add_columns( $columns ) {
-		$columns['bitmomo_pro_status']  = __( 'Pro', 'bitmomo-pro' );
-		$columns['bitmomo_pro_started'] = __( 'Started', 'bitmomo-pro' );
-		$columns['bitmomo_pro_expires'] = __( 'Expires', 'bitmomo-pro' );
-		$columns['bitmomo_pro_source']  = __( 'Source', 'bitmomo-pro' );
+		$columns['bitmomo_pro_status']     = __( 'Pro', 'bitmomo-pro' );
+		$columns['bitmomo_pro_started']    = __( 'Started', 'bitmomo-pro' );
+		$columns['bitmomo_pro_expires']    = __( 'Expires', 'bitmomo-pro' );
+		$columns['bitmomo_pro_source']     = __( 'Source', 'bitmomo-pro' );
+		$columns['bitmomo_pro_validation'] = __( 'Validation', 'bitmomo-pro' );
+		$columns['bitmomo_pro_last_use']   = __( 'Last Pro Use', 'bitmomo-pro' );
 		return $columns;
 	}
 
@@ -57,6 +65,14 @@ class Bitmomo_Pro_Users_List {
 			case 'bitmomo_pro_source':
 				$value = get_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_SOURCE, true );
 				return $value ? esc_html( $value ) : '&#8212;';
+
+			case 'bitmomo_pro_validation':
+				$value = get_user_meta( $user_id, Bitmomo_Pro_Usage::META_VALIDATION_CLASS, true );
+				return $value ? esc_html( $value ) : '&#8212;';
+
+			case 'bitmomo_pro_last_use':
+				$value = get_user_meta( $user_id, Bitmomo_Pro_Usage::META_LAST_VIEW_AT, true );
+				return $value ? esc_html( $value ) : esc_html__( 'never', 'bitmomo-pro' );
 		}
 
 		return $output;
@@ -82,6 +98,10 @@ class Bitmomo_Pro_Users_List {
 				)
 			)
 		);
+
+		if ( class_exists( 'Bitmomo_Pro_Usage' ) ) {
+			Bitmomo_Pro_Usage::instance()->render_admin_summary();
+		}
 		?>
 		<select name="<?php echo esc_attr( self::FILTER_PARAM ); ?>">
 			<option value="" <?php selected( $current, '' ); ?>><?php esc_html_e( 'All Bitmomo Pro states', 'bitmomo-pro' ); ?></option>

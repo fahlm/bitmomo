@@ -18,6 +18,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * back, including the safe "belum tersedia" state and the "delayed, but
  * still shown" state.
  *
+ * As of PR #33: render_active() fires 'bitmomo_pro_brief_viewed' exactly
+ * once, and only in the branch where a real, current brief is actually
+ * about to be rendered for this already-authenticated, already-entitled
+ * user (render_dashboard() only reaches render_active() after both the
+ * login and entitlement checks). Bitmomo_Pro_Usage listens to that action
+ * to record lightweight PMF usage signals — see that class for the full
+ * privacy contract (no IP, no cookies, no fingerprinting).
+ *
  * Known integration point: if the site later adds full-page HTML caching
  * in front of pages that render this shortcode, that cache must exclude
  * (or bypass for) logged-in/entitled visitors, otherwise a cached
@@ -132,6 +140,13 @@ class Bitmomo_Pro_Shortcodes {
 			echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief Bitmomo Pro terbaru belum tersedia.', 'bitmomo-pro' ) . '<br />' . esc_html__( 'Sistem sedang menunggu data yang memenuhi standar kualitas.', 'bitmomo-pro' ) . '</p>';
 			echo '</div>';
 			return;
+		}
+
+		// PMF usage signal: fired only here, i.e. only when a real, current
+		// brief is actually about to be shown to an already-authenticated,
+		// already-entitled user. See Bitmomo_Pro_Usage::record_view().
+		if ( isset( $brief['id'] ) ) {
+			do_action( 'bitmomo_pro_brief_viewed', get_current_user_id(), (int) $brief['id'] );
 		}
 
 		$state_label = array(
