@@ -127,7 +127,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ============= HAMBURGER (CLEAN DESIGN) ============= */
-.bm-header .bm-hamburger {
+.bm-header button.bm-hamburger {
   display: none;
   position: relative;
   z-index: 1001;
@@ -136,9 +136,17 @@ img { max-width: 100%; height: auto; display: block; }
   max-width: 40px;
   width: 40px;
   height: 40px;
-  background: transparent;
-  border: none;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--teal);
   cursor: pointer;
+  line-height: 1;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -146,18 +154,29 @@ img { max-width: 100%; height: auto; display: block; }
   padding: 0;
 }
 
-.bm-header .bm-hamburger > span {
+.bm-header button.bm-hamburger > span {
   display: block;
-  width: 24px;
-  height: 2px;
-  background: var(--teal);
+  flex: 0 0 2px;
+  width: 24px !important;
+  min-width: 24px;
+  max-width: 24px;
+  height: 2px !important;
+  min-height: 2px;
+  max-height: 2px;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background-color: var(--teal) !important;
+  background-image: none !important;
   border-radius: 2px;
+  box-shadow: none !important;
+  font-size: 0;
   transition: all 0.25s ease;
 }
 
-.bm-header .bm-hamburger.active > span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
-.bm-header .bm-hamburger.active > span:nth-child(2) { opacity: 0; }
-.bm-header .bm-hamburger.active > span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+.bm-header button.bm-hamburger.active > span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+.bm-header button.bm-hamburger.active > span:nth-child(2) { opacity: 0; }
+.bm-header button.bm-hamburger.active > span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
 
 /* ============= TABLET (< 1000px) ============= */
 @media (max-width: 1000px) {
@@ -188,7 +207,7 @@ img { max-width: 100%; height: auto; display: block; }
   .bm-header .bm-brand-logo { flex-basis: 36px; width: 36px; height: 36px; }
   .bm-header .bm-brand-logo > img { width: 36px !important; height: 36px !important; }
   
-  .bm-header .bm-hamburger { display: flex; }
+  .bm-header button.bm-hamburger { display: flex; }
   .bm-cta { display: none; }
   
   .bm-nav {
