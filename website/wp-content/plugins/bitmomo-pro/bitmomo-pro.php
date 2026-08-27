@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,13 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.3.0' );
+define( 'BITMOMO_PRO_VERSION', '0.4.0' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-entitlement-service.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-entitlements.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-briefs.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-brief-prefill.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-shortcodes.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-sales.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-cache.php';
@@ -36,6 +37,10 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-users-list.php';
  *   it to the service. Also still hosts bitmomo_user_has_pro_access(), the
  *   canonical READ gate.
  * - Briefs: the versioned, private daily Pro decision-view content type.
+ * - Brief Prefill: the receiving-side boundary that turns a normalized
+ *   canonical-source payload into a new Pro brief DRAFT. Does not fetch
+ *   anything and does not call bitmomo-ai — see that file's docblock for
+ *   the full Codex handoff contract.
  * - Shortcodes: the protected dashboard rendering surface, gated server-side.
  * - Sales: the public, unprotected sales surface ([bitmomo_pro_sales]).
  * - Cache: application-level no-cache signaling for the protected route.
@@ -51,6 +56,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Entitlement_Service::instance();
 	Bitmomo_Pro_Entitlements::instance();
 	Bitmomo_Pro_Briefs::instance();
+	Bitmomo_Pro_Brief_Prefill::instance();
 	Bitmomo_Pro_Shortcodes::instance();
 	Bitmomo_Pro_Sales::instance();
 	Bitmomo_Pro_Cache::instance();
