@@ -62,7 +62,21 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .bm-brand .custom-logo-link { display: flex; align-items: center; }
-.bm-brand img, .bm-brand .custom-logo, .bm-brand .custom-logo-link img { height: 48px; width: auto; }
+
+/* Keep the header mark independent from source-image metadata and optimizer rewrites. */
+.bm-header .bm-brand-logo {
+  display: block;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.bm-header .bm-brand-logo > .bm-brand-mark {
+  width: 48px !important;
+  height: 48px !important;
+  max-width: none;
+  object-fit: contain;
+}
 
 /* Navigation */
 .bm-nav {
@@ -143,7 +157,8 @@ img { max-width: 100%; height: auto; display: block; }
 /* ============= TABLET (< 1000px) ============= */
 @media (max-width: 1000px) {
   .bm-header .bm-container { height: 68px; gap: 20px; }
-  .bm-brand img, .bm-brand .custom-logo-link img { height: 44px; }
+  .bm-header .bm-brand-logo { flex-basis: 44px; width: 44px; height: 44px; }
+  .bm-header .bm-brand-logo > .bm-brand-mark { width: 44px !important; height: 44px !important; }
   .bm-nav-list { gap: 24px; }
   .bm-nav-list a { font-size: 14px; }
   .bm-cta { padding: 9px 18px; font-size: 13px; }
@@ -165,9 +180,8 @@ img { max-width: 100%; height: auto; display: block; }
     margin-right: auto;
   }
   
-  .bm-brand img, 
-  .bm-brand .custom-logo,
-  .bm-brand .custom-logo-link img { height: 36px; }
+  .bm-header .bm-brand-logo { flex-basis: 36px; width: 36px; height: 36px; }
+  .bm-header .bm-brand-logo > .bm-brand-mark { width: 36px !important; height: 36px !important; }
   
   .bm-hamburger { display: flex; }
   .bm-cta { display: none; }
@@ -621,15 +635,6 @@ button.bm-hamburger span,
     display: flex !important;
   }
 }
-/* Mobile logo size fix */
-@media (max-width: 768px) {
-  .bm-brand img,
-  .bm-brand .custom-logo,
-  .bm-brand .custom-logo-link img {
-    height: 28px !important;
-  }
-}
-
 /* ============= CATEGORY ARCHIVE ============= */
 .bm-page-head {
   text-align: center;
