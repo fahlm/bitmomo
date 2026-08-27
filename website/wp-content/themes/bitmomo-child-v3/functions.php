@@ -112,6 +112,17 @@ function bitmomo_render_pro_placeholder() {
     $path = trim((string) wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     if ($path !== 'pro') return;
 
+    global $wp_query;
+    if ($wp_query instanceof WP_Query) {
+        $wp_query->is_404 = false;
+        $wp_query->is_page = true;
+        $wp_query->is_singular = true;
+    }
+
+    add_filter('pre_get_document_title', function () {
+        return __('Bitmomo Pro', 'bitmomo');
+    });
+
     status_header(200);
     nocache_headers();
     get_header();
