@@ -1,0 +1,273 @@
+/*
+ * Bitmomo Pro — scoped dashboard styles.
+ * Every selector is namespaced under .bm-pro so this never leaks into or
+ * is affected by the active theme's global styles.
+ * Mobile-first: base rules target narrow screens; a single breakpoint
+ * widens the scenario layout on tablet/desktop.
+ */
+
+.bm-pro {
+	--bm-pro-bg: #0b1220;
+	--bm-pro-surface: #101a2c;
+	--bm-pro-border: #1e2c42;
+	--bm-pro-text: #e6edf5;
+	--bm-pro-text-muted: #93a4bd;
+	--bm-pro-teal: #2dd4bf;
+	--bm-pro-teal-dark: #0f766e;
+	--bm-pro-bull: #34d399;
+	--bm-pro-bear: #f87171;
+	--bm-pro-neutral: #93a4bd;
+	--bm-pro-radius: 12px;
+
+	max-width: 640px;
+	margin: 0 auto;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	color: var( --bm-pro-text );
+	box-sizing: border-box;
+}
+
+.bm-pro *,
+.bm-pro *::before,
+.bm-pro *::after {
+	box-sizing: inherit;
+}
+
+.bm-pro__gate {
+	background: var( --bm-pro-surface );
+	border: 1px solid var( --bm-pro-border );
+	border-radius: var( --bm-pro-radius );
+	padding: 24px 20px;
+	text-align: center;
+}
+
+.bm-pro__gate-title {
+	margin: 0 0 8px;
+	font-size: 1.1rem;
+	color: var( --bm-pro-text );
+}
+
+.bm-pro__gate-text {
+	margin: 0 0 16px;
+	color: var( --bm-pro-text-muted );
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+
+.bm-pro__login-form {
+	margin-bottom: 16px;
+	text-align: left;
+}
+
+.bm-pro__login-form form p {
+	margin: 0 0 10px;
+}
+
+.bm-pro__login-form label {
+	display: block;
+	font-size: 0.85rem;
+	color: var( --bm-pro-text-muted );
+	margin-bottom: 4px;
+}
+
+.bm-pro__login-form input[type="text"],
+.bm-pro__login-form input[type="password"] {
+	width: 100%;
+	padding: 10px 12px;
+	background: var( --bm-pro-bg );
+	border: 1px solid var( --bm-pro-border );
+	border-radius: 8px;
+	color: var( --bm-pro-text );
+}
+
+.bm-pro__login-form input[type="submit"] {
+	width: 100%;
+	padding: 10px 12px;
+	background: var( --bm-pro-teal );
+	border: none;
+	border-radius: 8px;
+	color: #06201c;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.bm-pro__cta {
+	display: inline-block;
+	padding: 12px 22px;
+	background: var( --bm-pro-teal );
+	color: #06201c;
+	border-radius: 8px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.bm-pro__cta:hover {
+	background: var( --bm-pro-teal-dark );
+	color: #eafffb;
+}
+
+.bm-pro__contact-note {
+	color: var( --bm-pro-text-muted );
+	font-size: 0.9rem;
+	margin: 0;
+}
+
+.bm-pro__dashboard {
+	background: var( --bm-pro-surface );
+	border: 1px solid var( --bm-pro-border );
+	border-radius: var( --bm-pro-radius );
+	padding: 20px;
+}
+
+.bm-pro__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	padding-bottom: 16px;
+	margin-bottom: 16px;
+	border-bottom: 1px solid var( --bm-pro-border );
+}
+
+.bm-pro__state-label {
+	font-size: 1rem;
+	font-weight: 700;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: rgba( 147, 164, 189, 0.15 );
+	color: var( --bm-pro-neutral );
+}
+
+.bm-pro__state--bullish .bm-pro__state-label {
+	background: rgba( 52, 211, 153, 0.15 );
+	color: var( --bm-pro-bull );
+}
+
+.bm-pro__state--bearish .bm-pro__state-label {
+	background: rgba( 248, 113, 113, 0.15 );
+	color: var( --bm-pro-bear );
+}
+
+.bm-pro__confidence {
+	font-size: 0.9rem;
+	color: var( --bm-pro-text-muted );
+}
+
+.bm-pro__price {
+	margin-left: auto;
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: var( --bm-pro-text );
+}
+
+.bm-pro__confidence-explain {
+	font-size: 0.9rem;
+	color: var( --bm-pro-text-muted );
+	line-height: 1.5;
+	margin: 0 0 16px;
+}
+
+.bm-pro__section {
+	margin-bottom: 16px;
+}
+
+.bm-pro__section h4 {
+	margin: 0 0 6px;
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var( --bm-pro-text-muted );
+}
+
+.bm-pro__section p {
+	margin: 0;
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+
+.bm-pro__range {
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.bm-pro__scenarios {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.bm-pro__scenario {
+	background: var( --bm-pro-bg );
+	border: 1px solid var( --bm-pro-border );
+	border-radius: 8px;
+	padding: 12px 14px;
+}
+
+.bm-pro__scenario--bull {
+	border-left: 3px solid var( --bm-pro-bull );
+}
+
+.bm-pro__scenario--bear {
+	border-left: 3px solid var( --bm-pro-bear );
+}
+
+.bm-pro__scenario--base {
+	border-left: 3px solid var( --bm-pro-teal );
+}
+
+.bm-pro__scenario h4 {
+	margin: 0 0 4px;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var( --bm-pro-text-muted );
+}
+
+.bm-pro__scenario p {
+	margin: 0;
+	font-size: 0.9rem;
+	line-height: 1.45;
+}
+
+.bm-pro__invalidation p {
+	color: var( --bm-pro-bear );
+}
+
+.bm-pro__footer {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	padding-top: 14px;
+	border-top: 1px solid var( --bm-pro-border );
+	font-size: 0.8rem;
+	color: var( --bm-pro-text-muted );
+}
+
+.bm-pro__freshness {
+	padding: 3px 10px;
+	border-radius: 999px;
+	background: rgba( 147, 164, 189, 0.15 );
+}
+
+.bm-pro__freshness--fresh {
+	background: rgba( 52, 211, 153, 0.15 );
+	color: var( --bm-pro-bull );
+}
+
+.bm-pro__freshness--delayed {
+	background: rgba( 250, 204, 21, 0.15 );
+	color: #facc15;
+}
+
+.bm-pro__freshness--unavailable {
+	background: rgba( 248, 113, 113, 0.15 );
+	color: var( --bm-pro-bear );
+}
+
+@media ( min-width: 700px ) {
+	.bm-pro__scenarios {
+		grid-template-columns: repeat( 3, 1fr );
+	}
+}
