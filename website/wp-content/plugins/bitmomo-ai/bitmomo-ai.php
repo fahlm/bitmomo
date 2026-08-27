@@ -14,9 +14,6 @@ define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
 
-<?php
-if (!defined('ABSPATH')) exit;
-
 /**
  * Canonical access layer for public and paid intelligence projections.
  *
