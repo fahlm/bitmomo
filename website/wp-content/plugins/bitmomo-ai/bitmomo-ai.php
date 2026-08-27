@@ -2,19 +2,20 @@
 /**
  * Plugin Name: Bitmomo AI
  * Description: Editorial foundation for AI Market Insight and Bitcoin Signal.
- * Version: 1.0.26
+ * Version: 1.0.27
  * Author: Bitmomo
  * Text Domain: bitmomo-ai
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BITMOMO_AI_VERSION', '1.0.26');
+define('BITMOMO_AI_VERSION', '1.0.27');
 define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
 
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-content-types.php';
+require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-intelligence.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-shortcodes.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-signal-engine.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-quality-gate.php';
