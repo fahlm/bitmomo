@@ -71,7 +71,7 @@ img { max-width: 100%; height: auto; display: block; }
   height: 48px;
 }
 
-.bm-header .bm-brand-logo > .bm-brand-mark {
+.bm-header .bm-brand-logo > img {
   width: 48px !important;
   height: 48px !important;
   max-width: none;
@@ -158,7 +158,7 @@ img { max-width: 100%; height: auto; display: block; }
 @media (max-width: 1000px) {
   .bm-header .bm-container { height: 68px; gap: 20px; }
   .bm-header .bm-brand-logo { flex-basis: 44px; width: 44px; height: 44px; }
-  .bm-header .bm-brand-logo > .bm-brand-mark { width: 44px !important; height: 44px !important; }
+  .bm-header .bm-brand-logo > img { width: 44px !important; height: 44px !important; }
   .bm-nav-list { gap: 24px; }
   .bm-nav-list a { font-size: 14px; }
   .bm-cta { padding: 9px 18px; font-size: 13px; }
@@ -181,7 +181,7 @@ img { max-width: 100%; height: auto; display: block; }
   }
   
   .bm-header .bm-brand-logo { flex-basis: 36px; width: 36px; height: 36px; }
-  .bm-header .bm-brand-logo > .bm-brand-mark { width: 36px !important; height: 36px !important; }
+  .bm-header .bm-brand-logo > img { width: 36px !important; height: 36px !important; }
   
   .bm-hamburger { display: flex; }
   .bm-cta { display: none; }
