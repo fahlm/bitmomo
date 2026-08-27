@@ -8,7 +8,7 @@ if (!function_exists('bitmomo_render_brand')) {
         $logo_url = get_stylesheet_directory_uri() . '/assets/images/bitmomo-logo.png';
 
         printf(
-            '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s"><img src="%s" width="1254" height="1254" alt="%s" decoding="async"></a></div>',
+            '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s"><img class="bm-brand-mark" src="%s" width="48" height="48" alt="%s" decoding="async"></a></div>',
             esc_url(home_url('/')),
             esc_attr__('Bitmomo home', 'bitmomo'),
             esc_url($logo_url),
