@@ -1,0 +1,238 @@
+/*
+ * Bitmomo Pro — sales surface styles.
+ * Every selector is namespaced under .bm-pro-sales so this never leaks
+ * into or is affected by the active theme's global styles.
+ * Mobile-first, readable at 360px; a single breakpoint widens the
+ * free-vs-pro comparison and example scenario grid on tablet/desktop.
+ */
+
+/* The shortcode owns the sales-page hero, so suppress the theme's duplicate title. */
+.bm-pro-sales-page .page-header {
+	display: none;
+}
+
+.bm-pro-sales {
+	--bms-bg: #0b1220;
+	--bms-surface: #101a2c;
+	--bms-border: #1e2c42;
+	--bms-text: #e6edf5;
+	--bms-text-muted: #93a4bd;
+	--bms-teal: #2dd4bf;
+	--bms-teal-dark: #0f766e;
+	--bms-bull: #34d399;
+	--bms-bear: #f87171;
+
+	max-width: 720px;
+	margin: 0 auto;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	color: var( --bms-text );
+	box-sizing: border-box;
+	padding: 0 4px;
+}
+
+.bm-pro-sales *,
+.bm-pro-sales *::before,
+.bm-pro-sales *::after {
+	box-sizing: inherit;
+}
+
+.bm-pro-sales__hero {
+	text-align: center;
+	padding: 28px 16px 20px;
+}
+
+.bm-pro-sales__hero-title {
+	margin: 0 0 8px;
+	font-size: 1.8rem;
+	font-weight: 800;
+}
+
+.bm-pro-sales__hero-sub {
+	margin: 0;
+	color: var( --bms-text-muted );
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+.bm-pro-sales__section {
+	background: var( --bms-surface );
+	border: 1px solid var( --bms-border );
+	border-radius: 12px;
+	padding: 18px 16px;
+	margin-bottom: 14px;
+}
+
+.bm-pro-sales__section-title {
+	margin: 0 0 10px;
+	font-size: 1rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var( --bms-text-muted );
+}
+
+.bm-pro-sales__section p {
+	margin: 0;
+	line-height: 1.55;
+	font-size: 0.95rem;
+}
+
+.bm-pro-sales__list {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.95rem;
+}
+
+.bm-pro-sales__compare {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+}
+
+.bm-pro-sales__compare-col {
+	background: var( --bms-bg );
+	border: 1px solid var( --bms-border );
+	border-radius: 10px;
+	padding: 12px 14px;
+}
+
+.bm-pro-sales__compare-col h3 {
+	margin: 0 0 8px;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var( --bms-text-muted );
+}
+
+.bm-pro-sales__compare-col--pro {
+	border-left: 3px solid var( --bms-teal );
+}
+
+.bm-pro-sales__compare-col ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	font-size: 0.9rem;
+	line-height: 1.55;
+}
+
+.bm-pro-sales__example-label {
+	font-size: 0.8rem;
+	color: var( --bms-text-muted );
+	margin: 0 0 10px !important;
+	font-style: italic;
+}
+
+.bm-pro-sales__example {
+	background: var( --bms-bg );
+	border: 1px dashed var( --bms-border );
+	border-radius: 10px;
+	padding: 14px;
+}
+
+.bm-pro-sales__example-header {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+	font-size: 0.85rem;
+	color: var( --bms-text-muted );
+}
+
+.bm-pro-sales__example-range {
+	font-size: 1.1rem;
+	font-weight: 700;
+	margin: 0 0 12px !important;
+}
+
+.bm-pro-sales__example-scenarios {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+}
+
+.bm-pro-sales__example-scenarios h4 {
+	margin: 0 0 2px;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	color: var( --bms-text-muted );
+}
+
+.bm-pro-sales__example-scenarios p {
+	margin: 0;
+	font-size: 0.85rem;
+	color: var( --bms-text-muted );
+}
+
+.bm-pro-sales__price {
+	text-align: center;
+}
+
+.bm-pro-sales__price-amount {
+	font-size: 1.6rem;
+	font-weight: 800;
+	margin: 0 0 6px !important;
+}
+
+.bm-pro-sales__price-sub {
+	color: var( --bms-text-muted );
+	font-size: 0.9rem;
+	margin: 0 0 10px !important;
+}
+
+.bm-pro-sales__price-terms {
+	color: var( --bms-text-muted );
+	font-size: 0.85rem;
+	margin: 0 0 4px !important;
+}
+
+.bm-pro-sales__cta-section {
+	text-align: center;
+	padding: 10px 0 20px;
+}
+
+.bm-pro-sales__cta {
+	display: inline-block;
+	padding: 14px 28px;
+	background: var( --bms-teal );
+	color: #06201c;
+	border-radius: 8px;
+	font-weight: 700;
+	font-size: 1rem;
+	text-decoration: none;
+}
+
+.bm-pro-sales__cta:hover {
+	background: var( --bms-teal-dark );
+	color: #eafffb;
+}
+
+.bm-pro-sales__cta--pending {
+	background: transparent;
+	border: 1px dashed var( --bms-border );
+	color: var( --bms-text-muted );
+	font-weight: 600;
+	cursor: default;
+}
+
+.bm-pro-sales__disclaimer {
+	text-align: center;
+	padding: 4px 12px 24px;
+}
+
+.bm-pro-sales__disclaimer p {
+	margin: 0;
+	font-size: 0.78rem;
+	color: var( --bms-text-muted );
+	line-height: 1.5;
+}
+
+@media ( min-width: 640px ) {
+	.bm-pro-sales__compare {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.bm-pro-sales__example-scenarios {
+		grid-template-columns: repeat( 3, 1fr );
+	}
+}
