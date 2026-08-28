@@ -48,6 +48,15 @@ class Bitmomo_Pro_Shortcodes {
 	private function __construct() {
 		add_shortcode( 'bitmomo_pro_dashboard', array( $this, 'render_dashboard' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+	}
+
+	public function add_body_class( $classes ) {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'bitmomo_pro_dashboard' ) ) {
+			$classes[] = 'bitmomo-pro-dashboard-page';
+		}
+		return $classes;
 	}
 
 	public function enqueue_assets() {
@@ -232,4 +241,3 @@ class Bitmomo_Pro_Shortcodes {
 		<?php
 	}
 }
-
