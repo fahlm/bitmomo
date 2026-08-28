@@ -1,0 +1,66 @@
+name: Regime safety checks
+
+on:
+  pull_request:
+    paths:
+      - "website/wp-content/plugins/bitmomo-regime/**"
+      - ".github/workflows/regime-safety.yml"
+  push:
+    branches:
+      - main
+      - "feature/bitmomo-regime-**"
+    paths:
+      - "website/wp-content/plugins/bitmomo-regime/**"
+      - ".github/workflows/regime-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regime-safety-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php-regime:
+    name: PHP syntax and deterministic suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Show PHP version
+        run: php --version
+
+      - name: Lint plugin PHP
+        shell: bash
+        run: |
+          set -euo pipefail
+          plugin_dir="website/wp-content/plugins/bitmomo-regime"
+          test -d "${plugin_dir}"
+          find "${plugin_dir}" -type f -name '*.php' -print0 \
+            | xargs -0 -n1 php -l
+
+      - name: Run deterministic classifier suite
+        working-directory: website/wp-content/plugins/bitmomo-regime
+        run: php tests/test-bitmomo-regime-classifier.php
+
+      - name: Run deterministic hysteresis suite when present
+        working-directory: website/wp-content/plugins/bitmomo-regime
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f tests/test-bitmomo-regime-hysteresis.php; then
+            php tests/test-bitmomo-regime-hysteresis.php
+          fi
+
+      - name: Run deterministic history suite when present
+        working-directory: website/wp-content/plugins/bitmomo-regime
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f tests/test-bitmomo-regime-history.php; then
+            php tests/test-bitmomo-regime-history.php
+          fi
