@@ -37,6 +37,15 @@ class Bitmomo_Pro_Account {
 	private function __construct() {
 		add_shortcode( 'bitmomo_pro_account', array( $this, 'render' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+	}
+
+	public function add_body_class( $classes ) {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'bitmomo_pro_account' ) ) {
+			$classes[] = 'bitmomo-pro-account-page';
+		}
+		return $classes;
 	}
 
 	public function enqueue_assets() {
@@ -163,4 +172,3 @@ class Bitmomo_Pro_Account {
 		<?php
 	}
 }
-
