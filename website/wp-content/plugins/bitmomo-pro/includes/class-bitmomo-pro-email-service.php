@@ -152,12 +152,14 @@ class Bitmomo_Pro_Email_Service {
 			echo '<p>' . esc_html__( 'Belum pernah dikirim.', 'bitmomo-pro' ) . '</p>';
 		}
 
-		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( self::WELCOME_NONCE_ACTION, self::WELCOME_NONCE_FIELD );
-		echo '<input type="hidden" name="action" value="' . esc_attr( self::WELCOME_ACTION ) . '" />';
 		echo '<input type="hidden" name="user_id" value="' . esc_attr( $user->ID ) . '" />';
-		echo '<button type="submit" class="button button-secondary">' . esc_html( $last_sent ? __( 'Kirim ulang welcome email', 'bitmomo-pro' ) : __( 'Kirim welcome email', 'bitmomo-pro' ) ) . '</button>';
-		echo '</form>';
+		printf(
+			'<button type="submit" class="button button-secondary" name="action" value="%1$s" formaction="%2$s" formmethod="post">%3$s</button>',
+			esc_attr( self::WELCOME_ACTION ),
+			esc_url( admin_url( 'admin-post.php' ) ),
+			esc_html( $last_sent ? __( 'Kirim ulang welcome email', 'bitmomo-pro' ) : __( 'Kirim welcome email', 'bitmomo-pro' ) )
+		);
 	}
 
 	public function handle_send_welcome_email() {
@@ -372,9 +374,7 @@ class Bitmomo_Pro_Email_Service {
 		$real_count = count( $this->get_daily_recipients( false ) );
 		$test_count = count( $this->get_daily_recipients( true ) );
 
-		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( self::DAILY_NONCE_ACTION, self::DAILY_NONCE_FIELD );
-		echo '<input type="hidden" name="action" value="' . esc_attr( self::DAILY_ACTION ) . '" />';
 		echo '<input type="hidden" name="post_id" value="' . esc_attr( $post->ID ) . '" />';
 
 		printf( '<p style="font-size:12px;">%s</p>', esc_html( sprintf( __( 'Penerima real saat ini: %1$d. Akun test/internal: %2$d.', 'bitmomo-pro' ), $real_count, $test_count ) ) );
@@ -385,8 +385,12 @@ class Bitmomo_Pro_Email_Service {
 			echo '<label style="display:block;margin-bottom:6px;"><input type="checkbox" name="force_resend" value="1" required /> ' . esc_html__( 'Ya, kirim ulang meskipun sudah pernah dikirim', 'bitmomo-pro' ) . '</label>';
 		}
 
-		echo '<button type="submit" class="button button-primary">' . esc_html__( 'Kirim email harian', 'bitmomo-pro' ) . '</button>';
-		echo '</form>';
+		printf(
+			'<button type="submit" class="button button-primary" name="action" value="%1$s" formaction="%2$s" formmethod="post">%3$s</button>',
+			esc_attr( self::DAILY_ACTION ),
+			esc_url( admin_url( 'admin-post.php' ) ),
+			esc_html__( 'Kirim email harian', 'bitmomo-pro' )
+		);
 	}
 
 	public function handle_send_daily_email() {
@@ -451,4 +455,3 @@ class Bitmomo_Pro_Email_Service {
 		}
 	}
 }
-
