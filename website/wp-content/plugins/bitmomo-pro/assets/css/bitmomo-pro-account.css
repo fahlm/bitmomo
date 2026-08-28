@@ -1,5 +1,9 @@
 /* Bitmomo Pro — Account/status page. Scoped under .bm-pro-account only. */
 
+.bitmomo-pro-account-page .page-header {
+	padding-top: 88px;
+}
+
 .bm-pro-account {
 	max-width: 480px;
 	margin: 0 auto;
@@ -81,4 +85,3 @@
 .bm-pro-account__support a {
 	color: #4fd1a5;
 }
-
