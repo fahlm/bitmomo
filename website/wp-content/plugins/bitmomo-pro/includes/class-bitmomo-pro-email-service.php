@@ -247,7 +247,7 @@ class Bitmomo_Pro_Email_Service {
 		$dashboard_url = function_exists( 'bitmomo_pro_get_dashboard_url' ) ? bitmomo_pro_get_dashboard_url() : '';
 
 		$lines   = array();
-		$lines[] = __( 'Brief Bitmomo Pro hari ini:', 'bitmomo-pro' );
+		$lines[] = __( 'Brief Bitmomo Pro Hari Ini:', 'bitmomo-pro' );
 		$lines[] = '';
 		/* translators: %s: market state label */
 		$lines[] = sprintf( __( 'Market State: %s', 'bitmomo-pro' ), isset( $state_label[ $market_state ] ) ? $state_label[ $market_state ] : $market_state );
@@ -272,7 +272,7 @@ class Bitmomo_Pro_Email_Service {
 		}
 
 		return array(
-			'subject' => __( 'Brief Bitmomo Pro hari ini', 'bitmomo-pro' ),
+			'subject' => __( 'Brief Bitmomo Pro Hari Ini', 'bitmomo-pro' ),
 			'body'    => implode( "\n", $lines ),
 		);
 	}
