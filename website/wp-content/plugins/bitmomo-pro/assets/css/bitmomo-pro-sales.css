@@ -6,6 +6,11 @@
  * free-vs-pro comparison and example scenario grid on tablet/desktop.
  */
 
+/* The shortcode owns the sales-page hero, so suppress the theme's duplicate title. */
+.bm-pro-sales-page .page-header {
+	display: none;
+}
+
 .bm-pro-sales {
 	--bms-bg: #0b1220;
 	--bms-surface: #101a2c;
@@ -231,4 +236,3 @@
 		grid-template-columns: repeat( 3, 1fr );
 	}
 }
-
