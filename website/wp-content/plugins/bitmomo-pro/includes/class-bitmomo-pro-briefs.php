@@ -155,7 +155,8 @@ class Bitmomo_Pro_Briefs {
 			} elseif ( 'number' === $field['type'] ) {
 				echo '<input type="number" step="any" name="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="regular-text" />';
 			} elseif ( 'datetime-local' === $field['type'] ) {
-				$timestamp     = strtotime( (string) $value );
+				$has_timezone  = (bool) preg_match( '/(?:Z|[+-]\\d{2}:?\\d{2})$/i', (string) $value );
+				$timestamp     = $has_timezone ? strtotime( (string) $value ) : false;
 				$display_value = $timestamp ? wp_date( 'Y-m-d\\TH:i', $timestamp, wp_timezone() ) : $value;
 				echo '<input type="datetime-local" name="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" value="' . esc_attr( $display_value ) . '" />';
 			} else {
