@@ -55,4 +55,15 @@ class Bitmomo_Watchtower_Config {
 	const BAND_NOISE_MAX              = 39;
 	const BAND_INTERESTING_MAX        = 59;
 	const BAND_MATERIAL_CANDIDATE_MAX = 74;
+
+	// --- Deduplication / clustering (WATCHTOWER PR 2) ---------------------
+	// Two candidates of the SAME event_type cluster together when they
+	// occur within this many minutes of one another. The window is
+	// ROLLING, not fixed: it is measured from each cluster's current
+	// last_seen timestamp, not its first_seen — so a steady drip of
+	// same-type events each within the window of the previous one will
+	// keep extending a single cluster (this is intentional: it is exactly
+	// what "no N-articles-to-N-alerts" is meant to prevent). See
+	// Bitmomo_Watchtower_Deduplicator::cluster().
+	const CLUSTER_WINDOW_MINUTES = 30;
 }

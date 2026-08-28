@@ -134,4 +134,43 @@ class Bitmomo_Watchtower_Taxonomy {
 	public static function domain_for_event_type( $event_type ) {
 		return isset( self::EVENT_TYPE_DOMAIN_MAP[ $event_type ] ) ? self::EVENT_TYPE_DOMAIN_MAP[ $event_type ] : null;
 	}
+
+	/**
+	 * WATCHTOWER PR 2 — the current-thesis vocabulary
+	 * (Bitmomo_Watchtower_Thesis). These deliberately DUPLICATE the same
+	 * five regimes and three biases bitmomo-regime uses, rather than
+	 * importing Bitmomo_Regime_Taxonomy — the architecture rule is that
+	 * bitmomo-watchtower has ZERO dependency on bitmomo-regime (or any
+	 * other Bitmomo plugin). If Codex's runtime happens to feed Product
+	 * A's regime output into a Watchtower thesis, that is a data-level
+	 * choice made outside this codebase, not a code dependency between
+	 * the two plugins.
+	 */
+	const THESIS_REGIME_ACCUMULATION = 'accumulation';
+	const THESIS_REGIME_EXPANSION    = 'expansion';
+	const THESIS_REGIME_DISTRIBUTION = 'distribution';
+	const THESIS_REGIME_CAPITULATION = 'capitulation';
+	const THESIS_REGIME_TRANSITION   = 'transition';
+
+	const THESIS_REGIMES = array(
+		self::THESIS_REGIME_ACCUMULATION,
+		self::THESIS_REGIME_EXPANSION,
+		self::THESIS_REGIME_DISTRIBUTION,
+		self::THESIS_REGIME_CAPITULATION,
+		self::THESIS_REGIME_TRANSITION,
+	);
+
+	const THESIS_BIAS_BULLISH = 'bullish';
+	const THESIS_BIAS_NEUTRAL = 'neutral';
+	const THESIS_BIAS_BEARISH = 'bearish';
+
+	const THESIS_BIASES = array( self::THESIS_BIAS_BULLISH, self::THESIS_BIAS_NEUTRAL, self::THESIS_BIAS_BEARISH );
+
+	public static function is_valid_thesis_regime( $value ) {
+		return in_array( $value, self::THESIS_REGIMES, true );
+	}
+
+	public static function is_valid_thesis_bias( $value ) {
+		return in_array( $value, self::THESIS_BIASES, true );
+	}
 }
