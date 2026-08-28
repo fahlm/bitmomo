@@ -155,7 +155,9 @@ class Bitmomo_Pro_Briefs {
 			} elseif ( 'number' === $field['type'] ) {
 				echo '<input type="number" step="any" name="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="regular-text" />';
 			} elseif ( 'datetime-local' === $field['type'] ) {
-				echo '<input type="datetime-local" name="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
+				$timestamp     = strtotime( (string) $value );
+				$display_value = $timestamp ? wp_date( 'Y-m-d\\TH:i', $timestamp, wp_timezone() ) : $value;
+				echo '<input type="datetime-local" name="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" value="' . esc_attr( $display_value ) . '" />';
 			} else {
 				echo '<input type="text" name="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="regular-text" />';
 			}
@@ -281,4 +283,3 @@ class Bitmomo_Pro_Briefs {
 		return array( 'tier' => $tier, 'brief' => $brief );
 	}
 }
-
