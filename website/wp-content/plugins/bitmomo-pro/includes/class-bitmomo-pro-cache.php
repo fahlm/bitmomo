@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Cache hardening for the protected Pro dashboard route.
+ * Cache hardening for protected, user-dependent Pro routes.
  *
  * PR #27 flagged that full-page caching in front of a page rendering
  * [bitmomo_pro_dashboard] could serve one visitor's authenticated/paid
@@ -15,8 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * production — that verification is Codex's runtime QA job (see PR body).
  *
  * Deliberately scoped to pages/posts containing [bitmomo_pro_dashboard]
- * only. [bitmomo_pro_sales] renders identical generic content for every
- * visitor and is safe to cache, so it is left untouched.
+ * or [bitmomo_pro_account]. Both vary by the current user's identity and
+ * entitlement. [bitmomo_pro_sales] is identical for every visitor and is
+ * safe to cache, so it is left untouched.
  */
 class Bitmomo_Pro_Cache {
 
@@ -44,7 +45,16 @@ class Bitmomo_Pro_Cache {
 			return;
 		}
 
-		if ( ! has_shortcode( $post->post_content, 'bitmomo_pro_dashboard' ) ) {
+		$protected_shortcodes = array( 'bitmomo_pro_dashboard', 'bitmomo_pro_account' );
+		$is_protected         = false;
+		foreach ( $protected_shortcodes as $shortcode ) {
+			if ( has_shortcode( $post->post_content, $shortcode ) ) {
+				$is_protected = true;
+				break;
+			}
+		}
+
+		if ( ! $is_protected ) {
 			return;
 		}
 
@@ -81,4 +91,3 @@ class Bitmomo_Pro_Cache {
 		}
 	}
 }
-
