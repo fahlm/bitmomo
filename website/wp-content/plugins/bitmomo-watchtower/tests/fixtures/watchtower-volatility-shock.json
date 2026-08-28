@@ -1,0 +1,258 @@
+{
+  "fixture_id": "watchtower-volatility-shock-01",
+  "event_type": "VOLATILITY_SHOCK",
+  "domain": "market",
+  "description": "Realized volatility percentile jumps from 45 to 90 within 4 hours with no directional break \u2014 a critical-candidate event precisely because it is high-magnitude and novel without yet being confirmed by other signals.",
+  "materiality_engine_version": "materiality-v1",
+  "how_this_was_generated": "Computed by actually running Bitmomo_Watchtower_Event_Input::validate(), Bitmomo_Watchtower_Materiality_Engine::evaluate(), Bitmomo_Watchtower_Deduplicator::cluster(), Bitmomo_Watchtower_State_Transition_Engine::evaluate(), Bitmomo_Watchtower_Alert_Policy::evaluate(), and Bitmomo_Watchtower_Analyst_Router::route() against the inputs below \u2014 not hand-derived. Re-run any time these classes or their config thresholds change.",
+  "raw_event_candidate": {
+    "event_type": "VOLATILITY_SHOCK",
+    "occurred_at": "2026-08-21T09:10:00Z",
+    "magnitude_score": 85,
+    "novelty_score": 70,
+    "btc_relevance_score": 95,
+    "cross_confirmation_score": 55,
+    "thesis_impact_score": 60,
+    "source_quality_score": 75,
+    "headline": "Realized volatility spikes to the 90th percentile within 4 hours",
+    "source_id": "bitmomo-ai:vol-monitor:2026-08-21T09:10:00Z",
+    "source_name": "Bitmomo AI volatility monitor",
+    "description": "4-hour realized volatility percentile jumped from 45 to 90 without a corresponding directional break."
+  },
+  "expected_normalized_event": {
+    "event_type": "VOLATILITY_SHOCK",
+    "domain": "market",
+    "occurred_at": "2026-08-21T09:10:00Z",
+    "magnitude_score": 85,
+    "novelty_score": 70,
+    "btc_relevance_score": 95,
+    "cross_confirmation_score": 55,
+    "thesis_impact_score": 60,
+    "source_quality_score": 75,
+    "headline": "Realized volatility spikes to the 90th percentile within 4 hours",
+    "source_id": "bitmomo-ai:vol-monitor:2026-08-21T09:10:00Z",
+    "source_name": "Bitmomo AI volatility monitor",
+    "description": "4-hour realized volatility percentile jumped from 45 to 90 without a corresponding directional break.",
+    "raw_metrics": []
+  },
+  "expected_materiality": {
+    "score": 76,
+    "band": "critical_candidate",
+    "dimension_scores": {
+      "magnitude": 85,
+      "novelty": 70,
+      "btc_relevance": 95,
+      "cross_confirmation": 55,
+      "thesis_impact": 60,
+      "source_quality": 75
+    },
+    "reason_breakdown": [
+      {
+        "dimension": "magnitude",
+        "label": "Magnitude",
+        "raw_score": 85,
+        "weight_pct": 25,
+        "contribution": 21.25
+      },
+      {
+        "dimension": "novelty",
+        "label": "Novelty",
+        "raw_score": 70,
+        "weight_pct": 15,
+        "contribution": 10.5
+      },
+      {
+        "dimension": "btc_relevance",
+        "label": "BTC Relevance",
+        "raw_score": 95,
+        "weight_pct": 20,
+        "contribution": 19
+      },
+      {
+        "dimension": "cross_confirmation",
+        "label": "Cross Confirmation",
+        "raw_score": 55,
+        "weight_pct": 15,
+        "contribution": 8.25
+      },
+      {
+        "dimension": "thesis_impact",
+        "label": "Thesis Impact",
+        "raw_score": 60,
+        "weight_pct": 15,
+        "contribution": 9
+      },
+      {
+        "dimension": "source_quality",
+        "label": "Source Quality",
+        "raw_score": 75,
+        "weight_pct": 10,
+        "contribution": 7.5
+      }
+    ],
+    "engine_version": "materiality-v1"
+  },
+  "expected_dedup_behavior": {
+    "description": "Three candidates of this event_type: #1 at occurred_at, #2 ten minutes later (same cluster \u2014 within CLUSTER_WINDOW_MINUTES=30 of #1's last_seen), #3 fifty-five minutes after #1 / forty-five minutes after #2's last_seen (a NEW cluster \u2014 45 > 30-minute rolling window). Demonstrates both same-cluster and new-cluster behavior in one batch.",
+    "batch_inputs_summary": [
+      {
+        "occurred_at": "2026-08-21T09:10:00Z",
+        "headline": "Realized volatility spikes to the 90th percentile within 4 hours"
+      },
+      {
+        "occurred_at": "2026-08-21T09:20:00Z",
+        "headline": "Realized volatility spikes to the 90th percentile within 4 hours (follow-up report)"
+      },
+      {
+        "occurred_at": "2026-08-21T10:05:00Z",
+        "headline": "Realized volatility spikes to the 90th percentile within 4 hours (second wave)"
+      }
+    ],
+    "expected_clusters": [
+      {
+        "cluster_key": "VOLATILITY_SHOCK@2026-08-21T09:10:00Z",
+        "event_type": "VOLATILITY_SHOCK",
+        "domain": "market",
+        "first_seen": "2026-08-21T09:10:00Z",
+        "first_seen_ts": 1787303400,
+        "last_seen": "2026-08-21T09:20:00Z",
+        "last_seen_ts": 1787304000,
+        "member_count": 2,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:vol-monitor:2026-08-21T09:10:00Z",
+            "headline": "Realized volatility spikes to the 90th percentile within 4 hours",
+            "occurred_at": "2026-08-21T09:10:00Z",
+            "score": 76,
+            "band": "critical_candidate"
+          },
+          {
+            "source_id": "bitmomo-ai:vol-monitor:2026-08-21T09:10:00Z:follow-up",
+            "headline": "Realized volatility spikes to the 90th percentile within 4 hours (follow-up report)",
+            "occurred_at": "2026-08-21T09:20:00Z",
+            "score": 76,
+            "band": "critical_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:vol-monitor:2026-08-21T09:10:00Z",
+          "headline": "Realized volatility spikes to the 90th percentile within 4 hours",
+          "occurred_at": "2026-08-21T09:10:00Z",
+          "score": 76,
+          "band": "critical_candidate"
+        },
+        "highest_score": 76,
+        "highest_band": "critical_candidate"
+      },
+      {
+        "cluster_key": "VOLATILITY_SHOCK@2026-08-21T10:05:00Z",
+        "event_type": "VOLATILITY_SHOCK",
+        "domain": "market",
+        "first_seen": "2026-08-21T10:05:00Z",
+        "first_seen_ts": 1787306700,
+        "last_seen": "2026-08-21T10:05:00Z",
+        "last_seen_ts": 1787306700,
+        "member_count": 1,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:vol-monitor:2026-08-21T09:10:00Z:second-wave",
+            "headline": "Realized volatility spikes to the 90th percentile within 4 hours (second wave)",
+            "occurred_at": "2026-08-21T10:05:00Z",
+            "score": 76,
+            "band": "critical_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:vol-monitor:2026-08-21T09:10:00Z:second-wave",
+          "headline": "Realized volatility spikes to the 90th percentile within 4 hours (second wave)",
+          "occurred_at": "2026-08-21T10:05:00Z",
+          "score": 76,
+          "band": "critical_candidate"
+        },
+        "highest_score": 76,
+        "highest_band": "critical_candidate"
+      }
+    ],
+    "expected_cluster_count": 2,
+    "expected_member_counts": [
+      2,
+      1
+    ]
+  },
+  "expected_alert_transition_outcome": {
+    "is_illustrative": true,
+    "previous_thesis": {
+      "regime": "accumulation",
+      "directional_bias": "neutral",
+      "confidence": 70,
+      "expected_range_low": 108000,
+      "expected_range_high": 116000,
+      "invalidation": "Daily close below 104000.",
+      "major_driver": "Low-volatility range-bound accumulation.",
+      "source_record_id": "prev-thesis-002"
+    },
+    "new_thesis": {
+      "regime": "accumulation",
+      "directional_bias": "neutral",
+      "confidence": 50,
+      "expected_range_low": 108000,
+      "expected_range_high": 116000,
+      "invalidation": "Daily close below 104000.",
+      "major_driver": "Low-volatility range-bound accumulation.",
+      "source_record_id": "illustrative-volatility-shock"
+    },
+    "context": {
+      "domain": "market"
+    },
+    "expected_transition": {
+      "transition_type": "CONFIDENCE_CHANGE",
+      "reason": "Confidence moved by 20.0 points (threshold 15.0), with regime and bias unchanged.",
+      "diff": {
+        "previous": {
+          "regime": "accumulation",
+          "directional_bias": "neutral",
+          "confidence": 70,
+          "expected_range_low": 108000,
+          "expected_range_high": 116000,
+          "invalidation": "Daily close below 104000.",
+          "major_driver": "Low-volatility range-bound accumulation.",
+          "source_record_id": "prev-thesis-002"
+        },
+        "new": {
+          "regime": "accumulation",
+          "directional_bias": "neutral",
+          "confidence": 50,
+          "expected_range_low": 108000,
+          "expected_range_high": 116000,
+          "invalidation": "Daily close below 104000.",
+          "major_driver": "Low-volatility range-bound accumulation.",
+          "source_record_id": "illustrative-volatility-shock"
+        },
+        "changed_fields": [
+          "confidence"
+        ]
+      }
+    },
+    "expected_alert_scenarios": {
+      "single_scenario": {
+        "alert_class": "CONFIDENCE_SHIFT",
+        "should_alert": true,
+        "reason": "CONFIDENCE_SHIFT is outside any cooldown window (or has never alerted before)."
+      }
+    },
+    "alert_scenario_inputs": {
+      "single_scenario": {
+        "last_alert_at_for_class": null,
+        "now": null
+      }
+    },
+    "expected_routing": {
+      "track": "market_structure_analyst",
+      "reason": "Routed by domain (market)."
+    }
+  },
+  "notes": [
+    "Same illustrative-transition caveat as PRICE_RANGE_BREAK \u2014 no code wires this event to the thesis pair shown automatically.",
+    "This scenario deliberately keeps regime and directional_bias unchanged (still accumulation/neutral) so the transition falls through to the CONFIDENCE_CHANGE check: confidence moved from 70 to 50, a 20-point swing >= CONFIDENCE_CHANGE_THRESHOLD (15.0), classified CONFIDENCE_CHANGE rather than MATERIAL_CONTEXT_UPDATE or NO_CHANGE."
+  ]
+}

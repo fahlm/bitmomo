@@ -1,0 +1,270 @@
+{
+  "fixture_id": "watchtower-open-interest-shock-01",
+  "event_type": "OPEN_INTEREST_SHOCK",
+  "domain": "derivatives",
+  "description": "Aggregate BTC perpetual open interest rises 12% in 2 hours across three major venues \u2014 a derivatives-domain event corroborating (not contradicting) an already-bullish thesis.",
+  "materiality_engine_version": "materiality-v1",
+  "how_this_was_generated": "Computed by actually running Bitmomo_Watchtower_Event_Input::validate(), Bitmomo_Watchtower_Materiality_Engine::evaluate(), Bitmomo_Watchtower_Deduplicator::cluster(), Bitmomo_Watchtower_State_Transition_Engine::evaluate(), Bitmomo_Watchtower_Alert_Policy::evaluate(), and Bitmomo_Watchtower_Analyst_Router::route() against the inputs below \u2014 not hand-derived. Re-run any time these classes or their config thresholds change.",
+  "raw_event_candidate": {
+    "event_type": "OPEN_INTEREST_SHOCK",
+    "occurred_at": "2026-08-21T18:00:00Z",
+    "magnitude_score": 70,
+    "novelty_score": 60,
+    "btc_relevance_score": 90,
+    "cross_confirmation_score": 50,
+    "thesis_impact_score": 55,
+    "source_quality_score": 70,
+    "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues",
+    "source_id": "bitmomo-ai:oi-monitor:2026-08-21T18:00:00Z",
+    "source_name": "Bitmomo AI derivatives monitor",
+    "description": "Aggregate BTC perpetual OI rose 12% across Binance, OKX, and Bybit within a 2-hour window."
+  },
+  "expected_normalized_event": {
+    "event_type": "OPEN_INTEREST_SHOCK",
+    "domain": "derivatives",
+    "occurred_at": "2026-08-21T18:00:00Z",
+    "magnitude_score": 70,
+    "novelty_score": 60,
+    "btc_relevance_score": 90,
+    "cross_confirmation_score": 50,
+    "thesis_impact_score": 55,
+    "source_quality_score": 70,
+    "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues",
+    "source_id": "bitmomo-ai:oi-monitor:2026-08-21T18:00:00Z",
+    "source_name": "Bitmomo AI derivatives monitor",
+    "description": "Aggregate BTC perpetual OI rose 12% across Binance, OKX, and Bybit within a 2-hour window.",
+    "raw_metrics": []
+  },
+  "expected_materiality": {
+    "score": 67,
+    "band": "material_candidate",
+    "dimension_scores": {
+      "magnitude": 70,
+      "novelty": 60,
+      "btc_relevance": 90,
+      "cross_confirmation": 50,
+      "thesis_impact": 55,
+      "source_quality": 70
+    },
+    "reason_breakdown": [
+      {
+        "dimension": "magnitude",
+        "label": "Magnitude",
+        "raw_score": 70,
+        "weight_pct": 25,
+        "contribution": 17.5
+      },
+      {
+        "dimension": "novelty",
+        "label": "Novelty",
+        "raw_score": 60,
+        "weight_pct": 15,
+        "contribution": 9
+      },
+      {
+        "dimension": "btc_relevance",
+        "label": "BTC Relevance",
+        "raw_score": 90,
+        "weight_pct": 20,
+        "contribution": 18
+      },
+      {
+        "dimension": "cross_confirmation",
+        "label": "Cross Confirmation",
+        "raw_score": 50,
+        "weight_pct": 15,
+        "contribution": 7.5
+      },
+      {
+        "dimension": "thesis_impact",
+        "label": "Thesis Impact",
+        "raw_score": 55,
+        "weight_pct": 15,
+        "contribution": 8.25
+      },
+      {
+        "dimension": "source_quality",
+        "label": "Source Quality",
+        "raw_score": 70,
+        "weight_pct": 10,
+        "contribution": 7
+      }
+    ],
+    "engine_version": "materiality-v1"
+  },
+  "expected_dedup_behavior": {
+    "description": "Three candidates of this event_type: #1 at occurred_at, #2 ten minutes later (same cluster \u2014 within CLUSTER_WINDOW_MINUTES=30 of #1's last_seen), #3 fifty-five minutes after #1 / forty-five minutes after #2's last_seen (a NEW cluster \u2014 45 > 30-minute rolling window). Demonstrates both same-cluster and new-cluster behavior in one batch.",
+    "batch_inputs_summary": [
+      {
+        "occurred_at": "2026-08-21T18:00:00Z",
+        "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues"
+      },
+      {
+        "occurred_at": "2026-08-21T18:10:00Z",
+        "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues (follow-up report)"
+      },
+      {
+        "occurred_at": "2026-08-21T18:55:00Z",
+        "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues (second wave)"
+      }
+    ],
+    "expected_clusters": [
+      {
+        "cluster_key": "OPEN_INTEREST_SHOCK@2026-08-21T18:00:00Z",
+        "event_type": "OPEN_INTEREST_SHOCK",
+        "domain": "derivatives",
+        "first_seen": "2026-08-21T18:00:00Z",
+        "first_seen_ts": 1787335200,
+        "last_seen": "2026-08-21T18:10:00Z",
+        "last_seen_ts": 1787335800,
+        "member_count": 2,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:oi-monitor:2026-08-21T18:00:00Z",
+            "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues",
+            "occurred_at": "2026-08-21T18:00:00Z",
+            "score": 67,
+            "band": "material_candidate"
+          },
+          {
+            "source_id": "bitmomo-ai:oi-monitor:2026-08-21T18:00:00Z:follow-up",
+            "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues (follow-up report)",
+            "occurred_at": "2026-08-21T18:10:00Z",
+            "score": 67,
+            "band": "material_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:oi-monitor:2026-08-21T18:00:00Z",
+          "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues",
+          "occurred_at": "2026-08-21T18:00:00Z",
+          "score": 67,
+          "band": "material_candidate"
+        },
+        "highest_score": 67,
+        "highest_band": "material_candidate"
+      },
+      {
+        "cluster_key": "OPEN_INTEREST_SHOCK@2026-08-21T18:55:00Z",
+        "event_type": "OPEN_INTEREST_SHOCK",
+        "domain": "derivatives",
+        "first_seen": "2026-08-21T18:55:00Z",
+        "first_seen_ts": 1787338500,
+        "last_seen": "2026-08-21T18:55:00Z",
+        "last_seen_ts": 1787338500,
+        "member_count": 1,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:oi-monitor:2026-08-21T18:00:00Z:second-wave",
+            "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues (second wave)",
+            "occurred_at": "2026-08-21T18:55:00Z",
+            "score": 67,
+            "band": "material_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:oi-monitor:2026-08-21T18:00:00Z:second-wave",
+          "headline": "BTC perpetual open interest jumps 12% in 2 hours across major venues (second wave)",
+          "occurred_at": "2026-08-21T18:55:00Z",
+          "score": 67,
+          "band": "material_candidate"
+        },
+        "highest_score": 67,
+        "highest_band": "material_candidate"
+      }
+    ],
+    "expected_cluster_count": 2,
+    "expected_member_counts": [
+      2,
+      1
+    ]
+  },
+  "expected_alert_transition_outcome": {
+    "is_illustrative": true,
+    "previous_thesis": {
+      "regime": "expansion",
+      "directional_bias": "bullish",
+      "confidence": 65,
+      "expected_range_low": 116000,
+      "expected_range_high": 128000,
+      "invalidation": "Daily close back below 116000.",
+      "major_driver": "Confirmed breakout above 30-day range high.",
+      "source_record_id": "prev-thesis-003"
+    },
+    "new_thesis": {
+      "regime": "expansion",
+      "directional_bias": "bullish",
+      "confidence": 68,
+      "expected_range_low": 116000,
+      "expected_range_high": 136000,
+      "invalidation": "Daily close back below 116000.",
+      "major_driver": "Breakout confirmed by a sharp rise in open interest, not just price.",
+      "source_record_id": "illustrative-open-interest-shock"
+    },
+    "context": {
+      "domain": "derivatives"
+    },
+    "expected_transition": {
+      "transition_type": "MATERIAL_CONTEXT_UPDATE",
+      "reason": "Regime, bias, and confidence are unchanged, but supporting context (expected range, invalidation, or major driver) shifted materially.",
+      "diff": {
+        "previous": {
+          "regime": "expansion",
+          "directional_bias": "bullish",
+          "confidence": 65,
+          "expected_range_low": 116000,
+          "expected_range_high": 128000,
+          "invalidation": "Daily close back below 116000.",
+          "major_driver": "Confirmed breakout above 30-day range high.",
+          "source_record_id": "prev-thesis-003"
+        },
+        "new": {
+          "regime": "expansion",
+          "directional_bias": "bullish",
+          "confidence": 68,
+          "expected_range_low": 116000,
+          "expected_range_high": 136000,
+          "invalidation": "Daily close back below 116000.",
+          "major_driver": "Breakout confirmed by a sharp rise in open interest, not just price.",
+          "source_record_id": "illustrative-open-interest-shock"
+        },
+        "changed_fields": [
+          "confidence",
+          "expected_range_high",
+          "major_driver"
+        ]
+      }
+    },
+    "expected_alert_scenarios": {
+      "never_alerted_before": {
+        "alert_class": "MATERIAL_CHANGE",
+        "should_alert": true,
+        "reason": "MATERIAL_CHANGE is outside any cooldown window (or has never alerted before)."
+      },
+      "recent_alert_within_cooldown": {
+        "alert_class": "MATERIAL_CHANGE",
+        "should_alert": false,
+        "reason": "Cooldown active for MATERIAL_CHANGE: last alerted 15.0 minutes ago (cooldown 60 minutes)."
+      }
+    },
+    "alert_scenario_inputs": {
+      "never_alerted_before": {
+        "last_alert_at_for_class": null,
+        "now": "2026-08-21T18:05:00Z"
+      },
+      "recent_alert_within_cooldown": {
+        "last_alert_at_for_class": "2026-08-21T17:50:00Z",
+        "now": "2026-08-21T18:05:00Z"
+      }
+    },
+    "expected_routing": {
+      "track": "derivatives_analyst",
+      "reason": "Routed by domain (derivatives)."
+    }
+  },
+  "notes": [
+    "Same illustrative-transition caveat.",
+    "This is the one fixture in the set that demonstrates the ALERT_COOLDOWN_MINUTES=60 policy directly: 'never_alerted_before' (no prior MATERIAL_CHANGE alert) correctly alerts; 'recent_alert_within_cooldown' (a MATERIAL_CHANGE alert sent 15 minutes earlier, per Bitmomo_Watchtower_Config::ALERT_COOLDOWN_MINUTES=60) correctly suppresses \u2014 same transition_type, same alert_class, different outcome purely from cooldown state. See Task 7's alert-policy tests for the full cooldown matrix.",
+    "expected_range_high moved from 128000 to 136000, a (136000-128000)/128000 = 6.25% change, which is >= EXPECTED_RANGE_CHANGE_PCT (5.0) and is what actually triggers MATERIAL_CONTEXT_UPDATE here (regime, bias, and confidence are all unchanged or below their own thresholds)."
+  ]
+}

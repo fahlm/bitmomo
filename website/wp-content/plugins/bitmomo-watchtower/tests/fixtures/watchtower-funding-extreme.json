@@ -1,0 +1,259 @@
+{
+  "fixture_id": "watchtower-funding-extreme-01",
+  "event_type": "FUNDING_EXTREME",
+  "domain": "derivatives",
+  "description": "Perpetual funding spikes to +0.08%/8h, the most crowded long since March \u2014 material on its own, but in this fixture's illustrative scenario it does not move the thesis enough to cross any transition threshold.",
+  "materiality_engine_version": "materiality-v1",
+  "how_this_was_generated": "Computed by actually running Bitmomo_Watchtower_Event_Input::validate(), Bitmomo_Watchtower_Materiality_Engine::evaluate(), Bitmomo_Watchtower_Deduplicator::cluster(), Bitmomo_Watchtower_State_Transition_Engine::evaluate(), Bitmomo_Watchtower_Alert_Policy::evaluate(), and Bitmomo_Watchtower_Analyst_Router::route() against the inputs below \u2014 not hand-derived. Re-run any time these classes or their config thresholds change.",
+  "raw_event_candidate": {
+    "event_type": "FUNDING_EXTREME",
+    "occurred_at": "2026-08-22T02:00:00Z",
+    "magnitude_score": 65,
+    "novelty_score": 50,
+    "btc_relevance_score": 90,
+    "cross_confirmation_score": 65,
+    "thesis_impact_score": 60,
+    "source_quality_score": 75,
+    "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March",
+    "source_id": "bitmomo-ai:funding-monitor:2026-08-22T02:00:00Z",
+    "source_name": "Bitmomo AI derivatives monitor",
+    "description": "Average perpetual funding rate across major venues reached +0.08% per 8h period."
+  },
+  "expected_normalized_event": {
+    "event_type": "FUNDING_EXTREME",
+    "domain": "derivatives",
+    "occurred_at": "2026-08-22T02:00:00Z",
+    "magnitude_score": 65,
+    "novelty_score": 50,
+    "btc_relevance_score": 90,
+    "cross_confirmation_score": 65,
+    "thesis_impact_score": 60,
+    "source_quality_score": 75,
+    "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March",
+    "source_id": "bitmomo-ai:funding-monitor:2026-08-22T02:00:00Z",
+    "source_name": "Bitmomo AI derivatives monitor",
+    "description": "Average perpetual funding rate across major venues reached +0.08% per 8h period.",
+    "raw_metrics": []
+  },
+  "expected_materiality": {
+    "score": 68,
+    "band": "material_candidate",
+    "dimension_scores": {
+      "magnitude": 65,
+      "novelty": 50,
+      "btc_relevance": 90,
+      "cross_confirmation": 65,
+      "thesis_impact": 60,
+      "source_quality": 75
+    },
+    "reason_breakdown": [
+      {
+        "dimension": "magnitude",
+        "label": "Magnitude",
+        "raw_score": 65,
+        "weight_pct": 25,
+        "contribution": 16.25
+      },
+      {
+        "dimension": "novelty",
+        "label": "Novelty",
+        "raw_score": 50,
+        "weight_pct": 15,
+        "contribution": 7.5
+      },
+      {
+        "dimension": "btc_relevance",
+        "label": "BTC Relevance",
+        "raw_score": 90,
+        "weight_pct": 20,
+        "contribution": 18
+      },
+      {
+        "dimension": "cross_confirmation",
+        "label": "Cross Confirmation",
+        "raw_score": 65,
+        "weight_pct": 15,
+        "contribution": 9.75
+      },
+      {
+        "dimension": "thesis_impact",
+        "label": "Thesis Impact",
+        "raw_score": 60,
+        "weight_pct": 15,
+        "contribution": 9
+      },
+      {
+        "dimension": "source_quality",
+        "label": "Source Quality",
+        "raw_score": 75,
+        "weight_pct": 10,
+        "contribution": 7.5
+      }
+    ],
+    "engine_version": "materiality-v1"
+  },
+  "expected_dedup_behavior": {
+    "description": "Three candidates of this event_type: #1 at occurred_at, #2 ten minutes later (same cluster \u2014 within CLUSTER_WINDOW_MINUTES=30 of #1's last_seen), #3 fifty-five minutes after #1 / forty-five minutes after #2's last_seen (a NEW cluster \u2014 45 > 30-minute rolling window). Demonstrates both same-cluster and new-cluster behavior in one batch.",
+    "batch_inputs_summary": [
+      {
+        "occurred_at": "2026-08-22T02:00:00Z",
+        "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March"
+      },
+      {
+        "occurred_at": "2026-08-22T02:10:00Z",
+        "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March (follow-up report)"
+      },
+      {
+        "occurred_at": "2026-08-22T02:55:00Z",
+        "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March (second wave)"
+      }
+    ],
+    "expected_clusters": [
+      {
+        "cluster_key": "FUNDING_EXTREME@2026-08-22T02:00:00Z",
+        "event_type": "FUNDING_EXTREME",
+        "domain": "derivatives",
+        "first_seen": "2026-08-22T02:00:00Z",
+        "first_seen_ts": 1787364000,
+        "last_seen": "2026-08-22T02:10:00Z",
+        "last_seen_ts": 1787364600,
+        "member_count": 2,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:funding-monitor:2026-08-22T02:00:00Z",
+            "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March",
+            "occurred_at": "2026-08-22T02:00:00Z",
+            "score": 68,
+            "band": "material_candidate"
+          },
+          {
+            "source_id": "bitmomo-ai:funding-monitor:2026-08-22T02:00:00Z:follow-up",
+            "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March (follow-up report)",
+            "occurred_at": "2026-08-22T02:10:00Z",
+            "score": 68,
+            "band": "material_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:funding-monitor:2026-08-22T02:00:00Z",
+          "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March",
+          "occurred_at": "2026-08-22T02:00:00Z",
+          "score": 68,
+          "band": "material_candidate"
+        },
+        "highest_score": 68,
+        "highest_band": "material_candidate"
+      },
+      {
+        "cluster_key": "FUNDING_EXTREME@2026-08-22T02:55:00Z",
+        "event_type": "FUNDING_EXTREME",
+        "domain": "derivatives",
+        "first_seen": "2026-08-22T02:55:00Z",
+        "first_seen_ts": 1787367300,
+        "last_seen": "2026-08-22T02:55:00Z",
+        "last_seen_ts": 1787367300,
+        "member_count": 1,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:funding-monitor:2026-08-22T02:00:00Z:second-wave",
+            "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March (second wave)",
+            "occurred_at": "2026-08-22T02:55:00Z",
+            "score": 68,
+            "band": "material_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:funding-monitor:2026-08-22T02:00:00Z:second-wave",
+          "headline": "Perpetual funding rate spikes to +0.08%/8h, most crowded long since March (second wave)",
+          "occurred_at": "2026-08-22T02:55:00Z",
+          "score": 68,
+          "band": "material_candidate"
+        },
+        "highest_score": 68,
+        "highest_band": "material_candidate"
+      }
+    ],
+    "expected_cluster_count": 2,
+    "expected_member_counts": [
+      2,
+      1
+    ]
+  },
+  "expected_alert_transition_outcome": {
+    "is_illustrative": true,
+    "previous_thesis": {
+      "regime": "expansion",
+      "directional_bias": "bullish",
+      "confidence": 68,
+      "expected_range_low": 116000,
+      "expected_range_high": 136000,
+      "invalidation": "Daily close back below 116000.",
+      "major_driver": "Breakout confirmed by a sharp rise in open interest.",
+      "source_record_id": "prev-thesis-004"
+    },
+    "new_thesis": {
+      "regime": "expansion",
+      "directional_bias": "bullish",
+      "confidence": 70,
+      "expected_range_low": 116000,
+      "expected_range_high": 136000,
+      "invalidation": "Daily close back below 116000.",
+      "major_driver": "Breakout confirmed by a sharp rise in open interest.",
+      "source_record_id": "illustrative-funding-extreme"
+    },
+    "context": {
+      "domain": "derivatives"
+    },
+    "expected_transition": {
+      "transition_type": "NO_CHANGE",
+      "reason": "No material difference from the current thesis.",
+      "diff": {
+        "previous": {
+          "regime": "expansion",
+          "directional_bias": "bullish",
+          "confidence": 68,
+          "expected_range_low": 116000,
+          "expected_range_high": 136000,
+          "invalidation": "Daily close back below 116000.",
+          "major_driver": "Breakout confirmed by a sharp rise in open interest.",
+          "source_record_id": "prev-thesis-004"
+        },
+        "new": {
+          "regime": "expansion",
+          "directional_bias": "bullish",
+          "confidence": 70,
+          "expected_range_low": 116000,
+          "expected_range_high": 136000,
+          "invalidation": "Daily close back below 116000.",
+          "major_driver": "Breakout confirmed by a sharp rise in open interest.",
+          "source_record_id": "illustrative-funding-extreme"
+        },
+        "changed_fields": [
+          "confidence"
+        ]
+      }
+    },
+    "expected_alert_scenarios": {
+      "single_scenario": {
+        "alert_class": null,
+        "should_alert": false,
+        "reason": "This transition type never produces an alert (NO_CHANGE, or an unrecognized type treated the same way)."
+      }
+    },
+    "alert_scenario_inputs": {
+      "single_scenario": {
+        "last_alert_at_for_class": null,
+        "now": null
+      }
+    },
+    "expected_routing": {
+      "track": null,
+      "reason": "NO_CHANGE transitions are not routed to any analyst track."
+    }
+  },
+  "notes": [
+    "Same illustrative-transition caveat.",
+    "This scenario is deliberately the 'nothing crosses a threshold' case: regime/bias unchanged, confidence moved only 2 points (well under the 15-point CONFIDENCE_CHANGE_THRESHOLD), and expected_range/invalidation/major_driver are byte-identical to the previous thesis \u2014 so the transition engine correctly falls all the way through to NO_CHANGE. Per Bitmomo_Watchtower_Alert_Policy::TRANSITION_ALERT_CLASS_MAP, NO_CHANGE has no entry at all (not merely mapped to 'don't alert') so alert_class is null and should_alert is false \u2014 and per Bitmomo_Watchtower_Analyst_Router, NO_CHANGE routes to no analyst track (track: null). This is the concrete demonstration of Task 7's 'NO_CHANGE never alerts' requirement.",
+    "A real FUNDING_EXTREME event this material (score 68, material_candidate band) would still be worth surfacing SOMEWHERE even if it doesn't move the thesis enough to alert \u2014 Product B's current design has no mechanism for that ('interesting but thesis-neutral' events are simply not visible past the materiality score itself, since only a thesis-changing transition ever reaches the alert outbox or admin diagnostics screen's alert list). Flagged as a documented gap, not fixed here \u2014 see the Task 11 audit and CODEX_HANDOFF update."
+  ]
+}

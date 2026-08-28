@@ -1,0 +1,54 @@
+{
+  "fixture_id": "regime-distribution-01",
+  "regime_label": "distribution",
+  "description": "Price near the top of its recent range, momentum decelerating despite elevated price, high volume with a stalling 7D return, extremely positive (crowded-long) funding, high crowding score, range-bound structure near the highs. A textbook distribution day — every distribution rule clears.",
+  "classifier_version": "regime-v1",
+  "how_this_was_generated": "Computed by actually running Bitmomo_Regime_Input::validate() and Bitmomo_Regime_Classifier::evaluate() against normalized_input below — not hand-derived. Re-run any time the classifier or config changes.",
+  "normalized_input": {
+    "return_1d": 0.5,
+    "return_7d": 1.0,
+    "return_30d": 18.0,
+    "volatility_percentile": 45,
+    "volatility_change": 3.0,
+    "volume_percentile": 72,
+    "momentum_score": 5,
+    "range_position_pct": 85,
+    "structure_state": "range",
+    "directional_bias": "neutral",
+    "open_interest_change_pct": null,
+    "funding_rate_pct": 0.07,
+    "basis_pct": null,
+    "liquidation_pressure": null,
+    "crowding_score": 80,
+    "directional_confidence": 55,
+    "source_record_id": "bitmomo-ai:btcusdt:2026-08-22T00:00:00Z",
+    "as_of": "2026-08-22T00:00:00Z"
+  },
+  "expected": {
+    "regime": "distribution",
+    "confidence_exact": 97,
+    "confidence_range": [90, 97],
+    "confidence_range_note": "Score is 100/100 (max), clamped at CONFIDENCE_CEILING=97. Weaker real payloads will legitimately score lower — assert 'within confidence_range', not an exact number.",
+    "evidence": [
+      "Price near the top of its recent range (85 pctl).",
+      "Momentum decelerating despite elevated price (5).",
+      "High volume (72 pctl) with a stalling 7D return (1%).",
+      "Funding rate extremely positive — crowded long (0.1%).",
+      "Crowding score high (80).",
+      "Structure state is range-bound near the highs."
+    ],
+    "conflicts": [],
+    "scores": {
+      "accumulation": 15,
+      "expansion": 25,
+      "distribution": 100,
+      "capitulation": 0
+    },
+    "directional_bias": "neutral",
+    "directional_confidence": 55
+  },
+  "notes": [
+    "The funding-rate evidence line reads '(0.1%)' even though funding_rate_pct is 0.07 (i.e. 7%). Same root cause as the accumulation fixture's note: Bitmomo_Regime_Classifier::fmt() rounds the RAW fraction to 1 decimal without multiplying by 100. Any funding_rate_pct >= 0.05 (the DIST_EXTREME_FUNDING_POS threshold) will render as '0.1%' in evidence text regardless of how far above 0.05 it actually is. Do not parse the evidence string for the real funding magnitude — read normalized_input.funding_rate_pct instead. See FIELD_SEMANTICS.md and the security/defect audit for the full note.",
+    "This fixture's structure_state is 'range', not a distribution-specific state — Product A has no distinct 'distribution' structure_state value (STRUCTURE_STATES = range/breakout_up/breakout_down/breakdown/unknown). Distribution is a range_position_pct + momentum + volume + funding/crowding pattern, not a structure_state value on its own; do not expect the classifier to ever require structure_state to equal something like 'distribution'."
+  ]
+}

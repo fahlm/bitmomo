@@ -1,0 +1,266 @@
+{
+  "fixture_id": "watchtower-liquidation-cascade-01",
+  "event_type": "LIQUIDATION_CASCADE",
+  "domain": "derivatives",
+  "description": "$620M in long liquidations across major venues in 90 minutes \u2014 the highest-magnitude, highest-cross-confirmation event in this fixture set, and the one most directly tied to an existing thesis's invalidation condition.",
+  "materiality_engine_version": "materiality-v1",
+  "how_this_was_generated": "Computed by actually running Bitmomo_Watchtower_Event_Input::validate(), Bitmomo_Watchtower_Materiality_Engine::evaluate(), Bitmomo_Watchtower_Deduplicator::cluster(), Bitmomo_Watchtower_State_Transition_Engine::evaluate(), Bitmomo_Watchtower_Alert_Policy::evaluate(), and Bitmomo_Watchtower_Analyst_Router::route() against the inputs below \u2014 not hand-derived. Re-run any time these classes or their config thresholds change.",
+  "raw_event_candidate": {
+    "event_type": "LIQUIDATION_CASCADE",
+    "occurred_at": "2026-08-23T05:45:00Z",
+    "magnitude_score": 92,
+    "novelty_score": 80,
+    "btc_relevance_score": 95,
+    "cross_confirmation_score": 85,
+    "thesis_impact_score": 85,
+    "source_quality_score": 85,
+    "headline": "$620M in long liquidations across major venues in 90 minutes",
+    "source_id": "bitmomo-ai:liq-monitor:2026-08-23T05:45:00Z",
+    "source_name": "Bitmomo AI derivatives monitor",
+    "description": "Aggregate long liquidations across Binance, OKX, and Bybit totaled roughly $620M within a 90-minute window."
+  },
+  "expected_normalized_event": {
+    "event_type": "LIQUIDATION_CASCADE",
+    "domain": "derivatives",
+    "occurred_at": "2026-08-23T05:45:00Z",
+    "magnitude_score": 92,
+    "novelty_score": 80,
+    "btc_relevance_score": 95,
+    "cross_confirmation_score": 85,
+    "thesis_impact_score": 85,
+    "source_quality_score": 85,
+    "headline": "$620M in long liquidations across major venues in 90 minutes",
+    "source_id": "bitmomo-ai:liq-monitor:2026-08-23T05:45:00Z",
+    "source_name": "Bitmomo AI derivatives monitor",
+    "description": "Aggregate long liquidations across Binance, OKX, and Bybit totaled roughly $620M within a 90-minute window.",
+    "raw_metrics": []
+  },
+  "expected_materiality": {
+    "score": 88,
+    "band": "critical_candidate",
+    "dimension_scores": {
+      "magnitude": 92,
+      "novelty": 80,
+      "btc_relevance": 95,
+      "cross_confirmation": 85,
+      "thesis_impact": 85,
+      "source_quality": 85
+    },
+    "reason_breakdown": [
+      {
+        "dimension": "magnitude",
+        "label": "Magnitude",
+        "raw_score": 92,
+        "weight_pct": 25,
+        "contribution": 23
+      },
+      {
+        "dimension": "novelty",
+        "label": "Novelty",
+        "raw_score": 80,
+        "weight_pct": 15,
+        "contribution": 12
+      },
+      {
+        "dimension": "btc_relevance",
+        "label": "BTC Relevance",
+        "raw_score": 95,
+        "weight_pct": 20,
+        "contribution": 19
+      },
+      {
+        "dimension": "cross_confirmation",
+        "label": "Cross Confirmation",
+        "raw_score": 85,
+        "weight_pct": 15,
+        "contribution": 12.75
+      },
+      {
+        "dimension": "thesis_impact",
+        "label": "Thesis Impact",
+        "raw_score": 85,
+        "weight_pct": 15,
+        "contribution": 12.75
+      },
+      {
+        "dimension": "source_quality",
+        "label": "Source Quality",
+        "raw_score": 85,
+        "weight_pct": 10,
+        "contribution": 8.5
+      }
+    ],
+    "engine_version": "materiality-v1"
+  },
+  "expected_dedup_behavior": {
+    "description": "Three candidates of this event_type: #1 at occurred_at, #2 ten minutes later (same cluster \u2014 within CLUSTER_WINDOW_MINUTES=30 of #1's last_seen), #3 fifty-five minutes after #1 / forty-five minutes after #2's last_seen (a NEW cluster \u2014 45 > 30-minute rolling window). Demonstrates both same-cluster and new-cluster behavior in one batch.",
+    "batch_inputs_summary": [
+      {
+        "occurred_at": "2026-08-23T05:45:00Z",
+        "headline": "$620M in long liquidations across major venues in 90 minutes"
+      },
+      {
+        "occurred_at": "2026-08-23T05:55:00Z",
+        "headline": "$620M in long liquidations across major venues in 90 minutes (follow-up report)"
+      },
+      {
+        "occurred_at": "2026-08-23T06:40:00Z",
+        "headline": "$620M in long liquidations across major venues in 90 minutes (second wave)"
+      }
+    ],
+    "expected_clusters": [
+      {
+        "cluster_key": "LIQUIDATION_CASCADE@2026-08-23T05:45:00Z",
+        "event_type": "LIQUIDATION_CASCADE",
+        "domain": "derivatives",
+        "first_seen": "2026-08-23T05:45:00Z",
+        "first_seen_ts": 1787463900,
+        "last_seen": "2026-08-23T05:55:00Z",
+        "last_seen_ts": 1787464500,
+        "member_count": 2,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:liq-monitor:2026-08-23T05:45:00Z",
+            "headline": "$620M in long liquidations across major venues in 90 minutes",
+            "occurred_at": "2026-08-23T05:45:00Z",
+            "score": 88,
+            "band": "critical_candidate"
+          },
+          {
+            "source_id": "bitmomo-ai:liq-monitor:2026-08-23T05:45:00Z:follow-up",
+            "headline": "$620M in long liquidations across major venues in 90 minutes (follow-up report)",
+            "occurred_at": "2026-08-23T05:55:00Z",
+            "score": 88,
+            "band": "critical_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:liq-monitor:2026-08-23T05:45:00Z",
+          "headline": "$620M in long liquidations across major venues in 90 minutes",
+          "occurred_at": "2026-08-23T05:45:00Z",
+          "score": 88,
+          "band": "critical_candidate"
+        },
+        "highest_score": 88,
+        "highest_band": "critical_candidate"
+      },
+      {
+        "cluster_key": "LIQUIDATION_CASCADE@2026-08-23T06:40:00Z",
+        "event_type": "LIQUIDATION_CASCADE",
+        "domain": "derivatives",
+        "first_seen": "2026-08-23T06:40:00Z",
+        "first_seen_ts": 1787467200,
+        "last_seen": "2026-08-23T06:40:00Z",
+        "last_seen_ts": 1787467200,
+        "member_count": 1,
+        "members": [
+          {
+            "source_id": "bitmomo-ai:liq-monitor:2026-08-23T05:45:00Z:second-wave",
+            "headline": "$620M in long liquidations across major venues in 90 minutes (second wave)",
+            "occurred_at": "2026-08-23T06:40:00Z",
+            "score": 88,
+            "band": "critical_candidate"
+          }
+        ],
+        "representative": {
+          "source_id": "bitmomo-ai:liq-monitor:2026-08-23T05:45:00Z:second-wave",
+          "headline": "$620M in long liquidations across major venues in 90 minutes (second wave)",
+          "occurred_at": "2026-08-23T06:40:00Z",
+          "score": 88,
+          "band": "critical_candidate"
+        },
+        "highest_score": 88,
+        "highest_band": "critical_candidate"
+      }
+    ],
+    "expected_cluster_count": 2,
+    "expected_member_counts": [
+      2,
+      1
+    ]
+  },
+  "expected_alert_transition_outcome": {
+    "is_illustrative": true,
+    "previous_thesis": {
+      "regime": "expansion",
+      "directional_bias": "bullish",
+      "confidence": 70,
+      "expected_range_low": 116000,
+      "expected_range_high": 136000,
+      "invalidation": "Daily close back below 116000.",
+      "major_driver": "Breakout confirmed by a sharp rise in open interest.",
+      "source_record_id": "prev-thesis-005"
+    },
+    "new_thesis": {
+      "regime": "capitulation",
+      "directional_bias": "bearish",
+      "confidence": 75,
+      "expected_range_low": 98000,
+      "expected_range_high": 114000,
+      "invalidation": "Daily close back above 116000.",
+      "major_driver": "Sharp long-liquidation cascade broke the prior breakout structure.",
+      "source_record_id": "illustrative-liquidation-cascade"
+    },
+    "context": {
+      "domain": "derivatives",
+      "invalidation_triggered": true
+    },
+    "expected_transition": {
+      "transition_type": "THESIS_INVALIDATED",
+      "reason": "The previous thesis's invalidation condition was triggered: Daily close back below 116000.",
+      "diff": {
+        "previous": {
+          "regime": "expansion",
+          "directional_bias": "bullish",
+          "confidence": 70,
+          "expected_range_low": 116000,
+          "expected_range_high": 136000,
+          "invalidation": "Daily close back below 116000.",
+          "major_driver": "Breakout confirmed by a sharp rise in open interest.",
+          "source_record_id": "prev-thesis-005"
+        },
+        "new": {
+          "regime": "capitulation",
+          "directional_bias": "bearish",
+          "confidence": 75,
+          "expected_range_low": 98000,
+          "expected_range_high": 114000,
+          "invalidation": "Daily close back above 116000.",
+          "major_driver": "Sharp long-liquidation cascade broke the prior breakout structure.",
+          "source_record_id": "illustrative-liquidation-cascade"
+        },
+        "changed_fields": [
+          "regime",
+          "directional_bias",
+          "confidence",
+          "expected_range_low",
+          "expected_range_high",
+          "invalidation",
+          "major_driver"
+        ]
+      }
+    },
+    "expected_alert_scenarios": {
+      "single_scenario": {
+        "alert_class": "THESIS_INVALIDATED",
+        "should_alert": true,
+        "reason": "THESIS_INVALIDATED is cooldown-exempt \u2014 always alerts immediately."
+      }
+    },
+    "alert_scenario_inputs": {
+      "single_scenario": {
+        "last_alert_at_for_class": "2026-08-23T05:30:00Z",
+        "now": "2026-08-23T05:46:00Z"
+      }
+    },
+    "expected_routing": {
+      "track": "derivatives_analyst",
+      "reason": "Routed by domain (derivatives)."
+    }
+  },
+  "notes": [
+    "Same illustrative-transition caveat.",
+    "This scenario sets context['invalidation_triggered'] = true (an upstream, live-data judgment call that Bitmomo_Watchtower_State_Transition_Engine explicitly does not make itself \u2014 see its docblock) to demonstrate THESIS_INVALIDATED. Note THESIS_INVALIDATED is checked at priority step 3, BEFORE the regime/bias diff check \u2014 so even though this scenario's new_thesis also differs in regime and bias from the previous one (which would independently trigger THESIS_CHANGE), invalidation_triggered wins by priority order and the result is THESIS_INVALIDATED, not THESIS_CHANGE.",
+    "alert_scenarios.single_scenario uses a last_alert_at_for_class only 15 minutes before 'now' \u2014 inside the 60-minute cooldown window \u2014 yet should_alert is still true, because THESIS_INVALIDATED maps to ALERT_CLASS_THESIS_INVALIDATED, which is in Bitmomo_Watchtower_Alert_Policy::COOLDOWN_EXEMPT_ALERT_CLASSES. This is the concrete demonstration of Task 7's 'invalidation during cooldown' requirement: invalidation alerts are never suppressed by cooldown, unlike the OPEN_INTEREST_SHOCK fixture's MATERIAL_CHANGE alert."
+  ]
+}

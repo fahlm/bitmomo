@@ -1,0 +1,53 @@
+{
+  "fixture_id": "regime-transition-01",
+  "regime_label": "transition",
+  "description": "Deliberately ambiguous mixed signal: partial accumulation evidence (low volatility, range-bound 30D return) AND partial expansion evidence (elevated volume, strong 7D return, expanding open interest) at the same time, with structure_state='unknown' and range_position_pct in the middle of its range so neither regime's structural rules fire. Demonstrates the 'too close to call' TRANSITION path (margin < TRANSITION_MARGIN), not the 'insufficient evidence' path (top score < MIN_CLASSIFICATION_SCORE) — both are valid ways to reach TRANSITION; this fixture covers the more common real-world case where two regimes are both plausible.",
+  "classifier_version": "regime-v1",
+  "how_this_was_generated": "Computed by actually running Bitmomo_Regime_Input::validate() and Bitmomo_Regime_Classifier::evaluate() against normalized_input below — not hand-derived. Re-run any time the classifier or config changes.",
+  "normalized_input": {
+    "return_1d": 1.0,
+    "return_7d": 9.0,
+    "return_30d": 4.0,
+    "volatility_percentile": 30,
+    "volatility_change": 1.0,
+    "volume_percentile": 68,
+    "momentum_score": 18,
+    "range_position_pct": 55,
+    "structure_state": "unknown",
+    "directional_bias": "neutral",
+    "open_interest_change_pct": 6.0,
+    "funding_rate_pct": 0.03,
+    "basis_pct": null,
+    "liquidation_pressure": null,
+    "crowding_score": null,
+    "directional_confidence": 45,
+    "source_record_id": "bitmomo-ai:btcusdt:2026-08-24T00:00:00Z",
+    "as_of": "2026-08-24T00:00:00Z"
+  },
+  "expected": {
+    "regime": "transition",
+    "confidence_exact": 40,
+    "confidence_range": [25, 45],
+    "confidence_range_note": "TRANSITION confidence uses transition_confidence(), a DIFFERENT and deliberately lower-ceiling formula (TRANSITION_CONFIDENCE_CEILING=65, vs 97 for a clear regime) — it reflects certainty that the state IS ambiguous, not certainty about a specific regime. Do not compare a TRANSITION confidence value against a clear-regime confidence value; they are not on the same scale in practice even though both are integers 10-97.",
+    "evidence": [
+      "Leading candidates too close to call: Accumulation (45) vs Expansion (40), margin 5 < 15."
+    ],
+    "conflicts": [
+      "Accumulation also scored 45: Realized volatility percentile low (30 <= 35). 30D return is range-bound (4%, within +/-8%).",
+      "Expansion also scored 40: Volume percentile elevated (68 >= 65). 7D return strong (9% >= 8%). Open interest expanding (6%)."
+    ],
+    "scores": {
+      "accumulation": 45,
+      "expansion": 40,
+      "distribution": 20,
+      "capitulation": 0
+    },
+    "directional_bias": "neutral",
+    "directional_confidence": 45
+  },
+  "notes": [
+    "TRANSITION is the only regime value where 'evidence' is a single sentence about WHY no regime was chosen, not a list of rules that fired for the winning regime — Codex's adapter/UI must not assume evidence[0] describes 'transition' the same way it would describe an accumulation/expansion/distribution/capitulation call.",
+    "conflicts is non-empty here specifically because the winner is 'transition' (not one of the four SCORED_REGIMES) — build_conflicts() only excludes the winning regime from its own conflicts list, and 'transition' is never a key in $scores, so nothing is excluded. Every regime that independently cleared MIN_CLASSIFICATION_SCORE (35) is surfaced: accumulation (45) and expansion (40) both qualify; distribution (20) and capitulation (0) do not.",
+    "A second, distinct way to reach TRANSITION is top_score < MIN_CLASSIFICATION_SCORE (35) — 'insufficient evidence' rather than 'too close to call'. That path produces a single-regime evidence sentence naming only the top scorer and an empty or near-empty conflicts list (nothing else likely cleared 35 either, by definition of the top being under 35). Both TRANSITION sub-cases route through the same transition_confidence() formula; this fixture intentionally covers the margin-based sub-case since it is the more instructive one for adapter testing, but Codex's contract test should not assume TRANSITION always has a two-item conflicts list — 'insufficient evidence' TRANSITION calls typically have zero."
+  ]
+}

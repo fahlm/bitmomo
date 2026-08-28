@@ -1,0 +1,53 @@
+{
+  "fixture_id": "regime-accumulation-01",
+  "regime_label": "accumulation",
+  "description": "Low realized volatility, range-bound 30D return, price in the lower part of its recent range, range-bound structure, subdued volume, neutral funding. A textbook accumulation day — every accumulation rule clears.",
+  "classifier_version": "regime-v1",
+  "how_this_was_generated": "Computed by actually running Bitmomo_Regime_Input::validate() and Bitmomo_Regime_Classifier::evaluate() against normalized_input below (see website/wp-content/plugins/bitmomo-regime/ source) — not hand-derived. Re-run any time the classifier or config changes to confirm this fixture is still current; a diff means either the fixture or CLASSIFIER_VERSION needs updating.",
+  "normalized_input": {
+    "return_1d": 0.3,
+    "return_7d": 1.0,
+    "return_30d": 2.0,
+    "volatility_percentile": 28,
+    "volatility_change": -2.0,
+    "volume_percentile": 42,
+    "momentum_score": 3,
+    "range_position_pct": 30,
+    "structure_state": "range",
+    "directional_bias": "neutral",
+    "open_interest_change_pct": null,
+    "funding_rate_pct": 0.01,
+    "basis_pct": null,
+    "liquidation_pressure": null,
+    "crowding_score": null,
+    "directional_confidence": 40,
+    "source_record_id": "bitmomo-ai:btcusdt:2026-08-20T00:00:00Z",
+    "as_of": "2026-08-20T00:00:00Z"
+  },
+  "expected": {
+    "regime": "accumulation",
+    "confidence_exact": 97,
+    "confidence_range": [90, 97],
+    "confidence_range_note": "This fixture's signal is intentionally clean/strong (near-maximum accumulation score, 100/100), which the clear_confidence() formula clamps at CONFIDENCE_CEILING=97 for any margin this wide. A real-world payload with the same regime but weaker/partial signal will legitimately score lower — an adapter contract test should assert regime + evidence content exactly, and confidence only as 'within confidence_range', never as a single brittle number.",
+    "evidence": [
+      "Realized volatility percentile low (28 <= 35).",
+      "30D return is range-bound (2%, within +/-8%).",
+      "Price sits in the lower part of its recent range (30 pctl).",
+      "Structure state is range-bound.",
+      "Volume percentile subdued (42).",
+      "Funding rate neutral (0%)."
+    ],
+    "conflicts": [],
+    "scores": {
+      "accumulation": 100,
+      "expansion": 0,
+      "distribution": 20,
+      "capitulation": 0
+    },
+    "directional_bias": "neutral",
+    "directional_confidence": 40
+  },
+  "notes": [
+    "The last evidence line reads 'Funding rate neutral (0%)' even though funding_rate_pct is 0.01 (i.e. 1%, per the field's own doc-comment convention). This is not a fixture error — Bitmomo_Regime_Classifier::fmt() formats the RAW fractional value to 1 decimal place without multiplying by 100, so any funding_rate_pct with |value| < 0.05 always renders as '0%' or '0.0%' in evidence text. Flagged as a real ambiguity in FIELD_SEMANTICS.md and the Task 11 security/defect audit; not fixed here per the 'no aesthetic refactor' instruction — Codex should not infer funding_rate_pct's actual magnitude from this evidence string, only from the normalized_input field itself."
+  ]
+}
