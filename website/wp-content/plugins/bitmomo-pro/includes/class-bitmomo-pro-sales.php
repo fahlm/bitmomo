@@ -35,6 +35,15 @@ class Bitmomo_Pro_Sales {
 	private function __construct() {
 		add_shortcode( 'bitmomo_pro_sales', array( $this, 'render_sales' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+	}
+
+	public function add_body_class( $classes ) {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ) {
+			$classes[] = 'bm-pro-sales-page';
+		}
+		return $classes;
 	}
 
 	public function enqueue_assets() {
@@ -196,4 +205,3 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 }
-
