@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Market Regime
  * Plugin URI: https://bitmomo.id
  * Description: Deterministic BTC market regime classification engine (Product A). Normalized market inputs in; a regime/confidence/evidence-backed classification and persisted daily history out. Isolated from bitmomo-pro, bitmomo-ai, and the active theme — see the architecture note in includes/class-bitmomo-regime-classifier.php.
- * Version: 0.2.0
+ * Version: 0.3.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_REGIME_VERSION', '0.2.0' );
+define( 'BITMOMO_REGIME_VERSION', '0.3.0' );
 define( 'BITMOMO_REGIME_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_REGIME_URL', plugin_dir_url( __FILE__ ) );
 
@@ -24,6 +24,9 @@ require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-input.php';
 require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-classifier.php';
 require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-hysteresis.php';
 require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-state-store.php';
+require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-history.php';
+require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-shortcodes.php';
+require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-admin.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -37,17 +40,25 @@ require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-state-store.php
  * - Classifier (PR1): deterministic, evidence-producing, no LLM, no I/O.
  * - Hysteresis (PR2): prevents regime flip-flopping on tiny daily
  *   fluctuations — pure decision logic, no I/O, no WordPress dependency.
- * - State Store (PR2): the ONLY class here that touches WordPress state.
- *   A private `bm_regime_state` custom post type, one post per
+ * - State Store (PR2): the ONLY class that touches WordPress state for
+ *   writes. A private `bm_regime_state` custom post type, one post per
  *   evaluation, APPEND-ONLY (a later evaluation never overwrites an
- *   earlier record's classification) — this is the versioned history
- *   REGIME PR 3's 30-day frontend projection will read from.
+ *   earlier record's classification).
+ * - History (PR3): pure projection of already-fetched records into the
+ *   narrow, frontend-safe field set — no WordPress dependency, no I/O.
+ * - Shortcodes (PR3): `[bitmomo_market_regime]` (current state) and
+ *   `[bitmomo_market_regime_history]` (up to 30-day history, `days`
+ *   attribute of 1/7/14/30). Read-only, mobile-first, no chart library,
+ *   no theme file touched — all markup/CSS is self-contained here.
+ * - Admin Diagnostics (PR3): a `manage_options`-gated debug/trust screen
+ *   (current + candidate + pending state, evidence, conflicts, previous
+ *   state, history count, classifier version) — not an analytics
+ *   dashboard, and never writes state.
  *
- * Deliberately NOT in this PR (see PR3 in the same stack): no
- * shortcodes, no admin diagnostics screen, no 30-day read API shaped for
- * a frontend, and no cron of any kind — evaluate_and_record() exists for
- * a future scheduled job (Codex's runtime work) to call; nothing here
- * fetches market data or runs automatically.
+ * Deliberately NOT in this PR (or any PR so far): no cron of any kind —
+ * evaluate_and_record() exists for a future scheduled job (Codex's
+ * runtime work) to call; nothing here fetches market data or runs
+ * automatically.
  *
  * No dependency on bitmomo-pro, and none should ever be added —
  * DATA/EVENTS -> intelligence engines (here) -> canonical state ->
@@ -55,6 +66,8 @@ require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-state-store.php
  */
 function bitmomo_regime_init() {
 	Bitmomo_Regime_State_Store::instance();
+	Bitmomo_Regime_Shortcodes::instance();
+	Bitmomo_Regime_Admin_Diagnostics::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_regime_init' );
 
