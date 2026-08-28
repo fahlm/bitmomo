@@ -66,4 +66,21 @@ class Bitmomo_Regime_Config {
 	const CONFIDENCE_FLOOR             = 10;
 	const CONFIDENCE_CEILING           = 97;
 	const TRANSITION_CONFIDENCE_CEILING = 65;
+
+	// --- Hysteresis (REGIME PR 2) -----------------------------------------
+	// A candidate classification this confident switches the OFFICIAL
+	// regime immediately, bypassing the confirmation streak below — an
+	// obvious, severe move (e.g. a clear capitulation day) must not be
+	// delayed just to guard against flip-flopping on ordinary noise.
+	const HYSTERESIS_OVERRIDE_CONFIDENCE = 85;
+
+	// Otherwise, a candidate regime different from the current official
+	// one must be proposed by this many CONSECUTIVE evaluations before it
+	// becomes official — this is what prevents
+	// Accumulation -> Expansion -> Accumulation -> Expansion flip-flopping
+	// on tiny daily fluctuations. A candidate of TRANSITION is exempt from
+	// this streak requirement entirely (see Bitmomo_Regime_Hysteresis) —
+	// it is a non-committal, low-certainty state, so reflecting it
+	// immediately carries no flip-flop risk.
+	const HYSTERESIS_CONFIRMATION_STREAK = 2;
 }
