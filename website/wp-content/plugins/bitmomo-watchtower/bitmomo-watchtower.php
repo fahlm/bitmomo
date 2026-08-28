@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Watchtower
  * Plugin URI: https://bitmomo.id
  * Description: Deterministic 24/7 material-change detection engine (Product B). Canonical event candidate schema and a deterministic, no-LLM materiality engine in this PR; dedup/clustering, current-thesis state, state transitions, a selective analyst router, and a provider-neutral alert outbox follow in later PRs. Isolated from bitmomo-regime, bitmomo-pro, bitmomo-ai, and the active theme.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_WATCHTOWER_VERSION', '0.3.0' );
+define( 'BITMOMO_WATCHTOWER_VERSION', '0.4.0' );
 define( 'BITMOMO_WATCHTOWER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_WATCHTOWER_URL', plugin_dir_url( __FILE__ ) );
 
@@ -30,6 +30,7 @@ require_once BITMOMO_WATCHTOWER_DIR . 'includes/class-bitmomo-watchtower-analyst
 require_once BITMOMO_WATCHTOWER_DIR . 'includes/class-bitmomo-watchtower-alert-policy.php';
 require_once BITMOMO_WATCHTOWER_DIR . 'includes/class-bitmomo-watchtower-alert-outbox.php';
 require_once BITMOMO_WATCHTOWER_DIR . 'includes/class-bitmomo-watchtower-orchestrator.php';
+require_once BITMOMO_WATCHTOWER_DIR . 'includes/class-bitmomo-watchtower-admin.php';
 
 /**
  * WATCHTOWER PR 1 scope, exactly:
@@ -79,11 +80,25 @@ require_once BITMOMO_WATCHTOWER_DIR . 'includes/class-bitmomo-watchtower-orchest
  *   -> alert enqueue) into one callable, `process()`, mirroring
  *   Bitmomo_Regime_State_Store::evaluate_and_record()'s role in Product A.
  *
- * Deliberately NOT in this PR (see the suggested WATCHTOWER PR 4
- * structure): no live data fetchers of any kind (no market/derivatives/
- * macro/news/sentiment feed, no cron), no admin diagnostics UI, no
- * Telegram adapter, no full multi-agent analyst system, no LLM call
- * anywhere in this plugin.
+ * WATCHTOWER PR 4 adds:
+ * - Admin Diagnostics: a `manage_options`-gated debug/trust screen
+ *   (current thesis, recent thesis history, recent alerts with their
+ *   transition context, outbox queue count, engine versions) — not an
+ *   analytics dashboard, mirrors bitmomo-regime's diagnostics screen.
+ * - Alert Outbox gains mark_status(): the documented method a future
+ *   Telegram adapter calls to move a queued alert to 'sent'/'failed'.
+ *   Nothing in this plugin calls it — no send logic exists here.
+ * - tests/run-all.sh: aggregates every standalone test-*.php suite in
+ *   one command.
+ * - CODEX_INTEGRATION_CONTRACT.md: the full handoff for Product B.
+ *
+ * This closes out Product B's core PR sequence (WATCHTOWER PR 1-4),
+ * mirroring Product A's REGIME PR 1-3 sequence.
+ *
+ * Still deliberately NOT in this plugin, anywhere: no live data
+ * fetchers of any kind (no market/derivatives/macro/news/sentiment
+ * feed), no cron, no Telegram send logic, no full multi-agent analyst
+ * system, no LLM call.
  *
  * No dependency on bitmomo-regime, bitmomo-pro, or bitmomo-ai, and none
  * should ever be added. This plugin is a fully isolated intelligence
@@ -93,5 +108,6 @@ require_once BITMOMO_WATCHTOWER_DIR . 'includes/class-bitmomo-watchtower-orchest
 function bitmomo_watchtower_init() {
 	Bitmomo_Watchtower_Thesis_Store::instance();
 	Bitmomo_Watchtower_Alert_Outbox::instance();
+	Bitmomo_Watchtower_Admin_Diagnostics::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_watchtower_init' );

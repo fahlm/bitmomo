@@ -28,16 +28,24 @@ class Bitmomo_Watchtower_Alert_Outbox {
 		'domain',
 		'payload',
 		'status',
+		'status_note',
 	);
 
 	const JSON_META_KEYS = array( 'payload' );
 
 	/**
-	 * The ONLY status this plugin ever writes. A future Telegram adapter
-	 * (Codex's runtime work, not part of this plugin) is what would move
-	 * an entry to 'sent' or 'failed' after this plugin hands it off.
+	 * The status enqueue() always writes. 'sent'/'failed' exist as named
+	 * targets for mark_status() below, but nothing in THIS plugin ever
+	 * calls mark_status() itself — that call is Codex's future Telegram
+	 * adapter's responsibility, once it actually exists (WATCHTOWER PR 4
+	 * only completes the write contract so that adapter has a clean,
+	 * documented method to call instead of touching post meta directly).
 	 */
 	const STATUS_QUEUED = 'queued';
+	const STATUS_SENT   = 'sent';
+	const STATUS_FAILED = 'failed';
+
+	const STATUSES = array( self::STATUS_QUEUED, self::STATUS_SENT, self::STATUS_FAILED );
 
 	private static $instance = null;
 
@@ -146,6 +154,36 @@ class Bitmomo_Watchtower_Alert_Outbox {
 		}
 
 		return (int) $post_id;
+	}
+
+	/**
+	 * Transitions an already-enqueued alert to 'sent' or 'failed'
+	 * (never back to 'queued' — that only happens via enqueue()). This
+	 * plugin never calls this itself; it exists as the documented method
+	 * a future Telegram adapter calls after actually attempting delivery,
+	 * so that adapter never needs to touch `_bitmomo_watchtower_alert_*`
+	 * post meta directly.
+	 *
+	 * @param int    $alert_id Post ID from a prior enqueue()'s record['id'].
+	 * @param string $status   self::STATUS_SENT or self::STATUS_FAILED.
+	 * @param string $note     Optional free-text detail (e.g. a provider error message).
+	 *
+	 * @return bool
+	 */
+	public function mark_status( $alert_id, $status, $note = '' ) {
+		if ( ! in_array( $status, array( self::STATUS_SENT, self::STATUS_FAILED ), true ) ) {
+			return false;
+		}
+		$post = get_post( $alert_id );
+		if ( ! $post || self::POST_TYPE !== $post->post_type ) {
+			return false;
+		}
+
+		update_post_meta( $alert_id, '_bitmomo_watchtower_alert_status', $status );
+		if ( '' !== $note ) {
+			update_post_meta( $alert_id, '_bitmomo_watchtower_alert_status_note', $note );
+		}
+		return true;
 	}
 
 	/**
