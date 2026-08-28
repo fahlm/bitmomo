@@ -6,6 +6,10 @@
  * widens the scenario layout on tablet/desktop.
  */
 
+.bitmomo-pro-dashboard-page .page-header {
+	padding-top: 88px;
+}
+
 .bm-pro {
 	--bm-pro-bg: #0b1220;
 	--bm-pro-surface: #101a2c;
@@ -271,4 +275,3 @@
 		grid-template-columns: repeat( 3, 1fr );
 	}
 }
-
