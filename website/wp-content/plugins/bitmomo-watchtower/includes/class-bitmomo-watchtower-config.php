@@ -66,4 +66,23 @@ class Bitmomo_Watchtower_Config {
 	// what "no N-articles-to-N-alerts" is meant to prevent). See
 	// Bitmomo_Watchtower_Deduplicator::cluster().
 	const CLUSTER_WINDOW_MINUTES = 30;
+
+	// --- State transitions (WATCHTOWER PR 3) ------------------------------
+	// A confidence move of at least this many points (with regime and
+	// directional_bias both unchanged) is classified CONFIDENCE_CHANGE
+	// rather than NO_CHANGE/MATERIAL_CONTEXT_UPDATE.
+	const CONFIDENCE_CHANGE_THRESHOLD = 15.0;
+
+	// A relative change of at least this percent in either bound of the
+	// expected price range counts as a material context shift. Applied
+	// per-bound (low and high checked independently), not to the range's
+	// width or midpoint.
+	const EXPECTED_RANGE_CHANGE_PCT = 5.0;
+
+	// --- Alert policy / cooldown (WATCHTOWER PR 3) -------------------------
+	// After an alert of a given class is sent, another alert of the SAME
+	// class is suppressed until this many minutes have passed — see
+	// Bitmomo_Watchtower_Alert_Policy::COOLDOWN_EXEMPT_ALERT_CLASSES for
+	// the two alert classes that bypass this entirely.
+	const ALERT_COOLDOWN_MINUTES = 60;
 }
