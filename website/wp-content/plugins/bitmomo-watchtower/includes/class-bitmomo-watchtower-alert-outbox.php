@@ -88,6 +88,13 @@ class Bitmomo_Watchtower_Alert_Outbox {
 	 *                      — the caller (Bitmomo_Watchtower_Orchestrator) is expected to have
 	 *                      already decided should_alert=true via Bitmomo_Watchtower_Alert_Policy
 	 *                      before calling this; this method does not re-check cooldown itself.
+	 *                      alert_class and transition_type are validated against the same
+	 *                      registered enums Bitmomo_Watchtower_Alert_Policy and
+	 *                      Bitmomo_Watchtower_State_Transition_Engine use, so that any future
+	 *                      caller (including a Codex-built one) cannot silently persist a
+	 *                      garbage/misspelled class or type into the outbox — fail closed here,
+	 *                      the same way Bitmomo_Watchtower_Event_Input::validate() and
+	 *                      Bitmomo_Watchtower_Thesis::validate() already do for their inputs.
 	 *
 	 * @return array{success:bool,errors:string[],record:?array}
 	 */
@@ -96,6 +103,22 @@ class Bitmomo_Watchtower_Alert_Outbox {
 			return array(
 				'success' => false,
 				'errors'  => array( 'alert_class and transition_type are required to enqueue an alert.' ),
+				'record'  => null,
+			);
+		}
+
+		if ( ! in_array( $alert['alert_class'], Bitmomo_Watchtower_Alert_Policy::ALERT_CLASSES, true ) ) {
+			return array(
+				'success' => false,
+				'errors'  => array( 'alert_class must be one of Bitmomo_Watchtower_Alert_Policy::ALERT_CLASSES.' ),
+				'record'  => null,
+			);
+		}
+
+		if ( ! in_array( $alert['transition_type'], Bitmomo_Watchtower_State_Transition_Engine::TYPES, true ) ) {
+			return array(
+				'success' => false,
+				'errors'  => array( 'transition_type must be one of Bitmomo_Watchtower_State_Transition_Engine::TYPES.' ),
 				'record'  => null,
 			);
 		}
