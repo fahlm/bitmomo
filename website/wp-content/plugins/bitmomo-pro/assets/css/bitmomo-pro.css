@@ -7,7 +7,19 @@
  */
 
 .bitmomo-pro-dashboard-page .page-header {
-	padding-top: 88px;
+	width: calc( 100% - 32px );
+	max-width: 640px;
+	margin: 0 auto;
+	padding: 48px 0 20px;
+}
+
+.bitmomo-pro-dashboard-page .page-header h1,
+.bitmomo-pro-dashboard-page .page-header .page-title,
+.bitmomo-pro-dashboard-page .page-header .entry-title {
+	margin: 0;
+	font-size: clamp( 1.75rem, 5vw, 2.5rem );
+	line-height: 1.15;
+	letter-spacing: -0.025em;
 }
 
 .bm-pro {
@@ -24,7 +36,7 @@
 	--bm-pro-radius: 12px;
 
 	max-width: 640px;
-	margin: 0 auto;
+	margin: 0 auto 56px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	color: var( --bm-pro-text );
 	box-sizing: border-box;
@@ -271,6 +283,10 @@
 }
 
 @media ( min-width: 700px ) {
+	.bitmomo-pro-dashboard-page .page-header {
+		padding-top: 64px;
+	}
+
 	.bm-pro__scenarios {
 		grid-template-columns: repeat( 3, 1fr );
 	}
