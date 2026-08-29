@@ -255,9 +255,12 @@ final class Bitmomo_AI_Scheduler {
             foreach ($preview['evaluation']['axes'] as $name => $axis) echo '<li><strong>' . esc_html(ucfirst($name)) . ':</strong> ' . esc_html((string) ($axis['score'] ?? 0)) . ' — ' . esc_html((string) ($axis['reason'] ?? '')) . '</li>';
             echo '</ul><p><strong>' . esc_html__('Data quality:', 'bitmomo-ai') . '</strong> ' . esc_html(sprintf('%s — %d%% complete — %d minutes old — %s', $quality['status'] ?? 'unknown', (int) ($quality['completeness_pct'] ?? 0), (int) ($quality['data_age_minutes'] ?? 0), $quality['source'] ?? 'unknown')) . '</p><p>' . esc_html($summary['invalidation']) . '</p>';
         }
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="bitmomo_ai_run_now">';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="bitmomo_ai_run_now"><input type="hidden" name="edition" value="morning">';
         wp_nonce_field('bitmomo_ai_run_now');
-        submit_button(__('Run staging data test now', 'bitmomo-ai'));
+        submit_button(__('Run Morning staging test now', 'bitmomo-ai'));
+        echo '</form><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="bitmomo_ai_run_now"><input type="hidden" name="edition" value="us_session">';
+        wp_nonce_field('bitmomo_ai_run_now');
+        submit_button(__('Run US Session staging test now', 'bitmomo-ai'), 'secondary');
         echo '</form><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="bitmomo_ai_create_preview">';
         wp_nonce_field('bitmomo_ai_create_preview');
         submit_button(__('Create or update public staging preview', 'bitmomo-ai'), 'secondary');
@@ -267,7 +270,8 @@ final class Bitmomo_AI_Scheduler {
     public static function run_now() {
         if (!current_user_can('manage_options')) wp_die(esc_html__('Permission denied.', 'bitmomo-ai'));
         check_admin_referer('bitmomo_ai_run_now');
-        self::run_us_session();
+        $edition = isset($_POST['edition']) ? sanitize_key(wp_unslash($_POST['edition'])) : 'us_session';
+        self::run($edition);
         wp_safe_redirect(admin_url('tools.php?page=bitmomo-ai'));
         exit;
     }
