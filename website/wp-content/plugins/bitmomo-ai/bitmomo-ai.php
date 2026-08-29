@@ -88,9 +88,11 @@ final class Bitmomo_AI_Intelligence {
         if (!$source || empty($source['data']['regime_metrics'])) return null;
         $evaluation = $source['evaluation'];
         $axes = is_array($evaluation['axes'] ?? null) ? $evaluation['axes'] : [];
+        $source_timestamp = strtotime((string) ($source['data']['quality']['last_closed_candle'] ?? ($source['data']['timestamp'] ?? ''))) ?: (int) $source['timestamp'];
+        $analysis_date = wp_date('Y-m-d', $source_timestamp, new DateTimeZone('Asia/Jakarta'));
         return [
-            'source_record_id' => 'bitmomo-ai:' . (int) $source['timestamp'],
-            'timestamp_iso' => gmdate('c', (int) $source['timestamp']),
+            'source_record_id' => 'bitmomo-ai:regime:' . $analysis_date,
+            'timestamp_iso' => gmdate('c', $source_timestamp),
             'metrics' => $source['data']['regime_metrics'],
             'directional_bias' => (string) ($evaluation['bias'] ?? 'neutral'),
             'directional_confidence' => (float) ($evaluation['confidence'] ?? 0),
