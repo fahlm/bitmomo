@@ -54,6 +54,8 @@ class Bitmomo_Regime_State_Store {
 		'transition_reason',
 		'pending_regime',
 		'pending_streak',
+		'edition',
+		'provenance',
 	);
 
 	/**
@@ -157,6 +159,8 @@ class Bitmomo_Regime_State_Store {
 			'transition_reason'      => $decision['transition_reason'],
 			'pending_regime'         => $decision['pending_regime'],
 			'pending_streak'         => $decision['pending_streak'],
+			'edition'                => in_array( ( $raw_input['edition'] ?? '' ), array( 'morning', 'us_session' ), true ) ? $raw_input['edition'] : 'us_session',
+			'provenance'             => ( $raw_input['provenance'] ?? '' ) === 'historical_reconstruction' ? 'historical_reconstruction' : 'recorded_live',
 		);
 
 		$post_id = $this->record( $state );
@@ -261,7 +265,7 @@ class Bitmomo_Regime_State_Store {
 			array(
 				'post_type'      => self::POST_TYPE,
 				'post_status'    => 'publish',
-				'posts_per_page' => max( 1, (int) $limit ),
+				'posts_per_page' => max( 1, (int) $limit * 2 ),
 				'orderby'        => 'date',
 				'order'          => 'DESC',
 				'no_found_rows'  => true,

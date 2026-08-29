@@ -50,6 +50,8 @@ class Bitmomo_Regime_Input {
 		'directional_confidence',    // 0-100: confidence of the passthrough directional_bias, if supplied.
 		'source_record_id',          // string, for traceability once persisted (PR2).
 		'as_of',                     // string timestamp, for traceability once persisted (PR2).
+		'edition',
+		'provenance',
 	);
 
 	const STRUCTURE_STATES = array( 'range', 'breakout_up', 'breakout_down', 'breakdown', 'unknown' );
@@ -69,7 +71,7 @@ class Bitmomo_Regime_Input {
 		'range_position_pct',
 	);
 
-	const STRING_OPTIONAL_FIELDS = array( 'liquidation_pressure', 'source_record_id', 'as_of' );
+	const STRING_OPTIONAL_FIELDS = array( 'liquidation_pressure', 'source_record_id', 'as_of', 'edition', 'provenance' );
 
 	/**
 	 * Validates + normalizes a raw input array. Never fabricates a partial

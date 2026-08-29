@@ -3,6 +3,7 @@ if (!defined('ABSPATH')) exit;
 
 final class Bitmomo_AI_Scheduler {
     const HOOK = 'bitmomo_ai_daily_generation';
+    const MORNING_HOOK = 'bitmomo_ai_morning_generation';
     const PUBLISH_LOG_OPTION = 'bitmomo_ai_publish_log';
 
     public static function auto_publish_enabled() {
@@ -10,7 +11,8 @@ final class Bitmomo_AI_Scheduler {
     }
 
     public static function register() {
-        add_action(self::HOOK, [__CLASS__, 'run']);
+        add_action(self::HOOK, [__CLASS__, 'run_us_session']);
+        add_action(self::MORNING_HOOK, [__CLASS__, 'run_morning']);
         add_action('admin_menu', [__CLASS__, 'admin_menu']);
         add_action('admin_post_bitmomo_ai_run_now', [__CLASS__, 'run_now']);
         add_action('admin_post_bitmomo_ai_create_preview', [__CLASS__, 'create_preview_page']);
@@ -18,21 +20,27 @@ final class Bitmomo_AI_Scheduler {
     }
 
     public static function ensure_schedule() {
-        if (!wp_next_scheduled(self::HOOK)) self::schedule();
+        if (!wp_next_scheduled(self::HOOK) || !wp_next_scheduled(self::MORNING_HOOK)) self::schedule();
     }
 
     public static function schedule() {
-        if (wp_next_scheduled(self::HOOK)) return;
         $timezone = new DateTimeZone('Asia/Jakarta');
         $now = new DateTimeImmutable('now', $timezone);
-        $next = $now->setTime(19, 10);
-        if ($next <= $now) $next = $next->modify('+1 day');
-        wp_schedule_event($next->getTimestamp(), 'daily', self::HOOK);
+        foreach ([[self::MORNING_HOOK, 7, 10], [self::HOOK, 19, 10]] as $slot) {
+            if (wp_next_scheduled($slot[0])) continue;
+            $next = $now->setTime($slot[1], $slot[2]);
+            if ($next <= $now) $next = $next->modify('+1 day');
+            wp_schedule_event($next->getTimestamp(), 'daily', $slot[0]);
+        }
     }
 
     public static function unschedule() {
         wp_clear_scheduled_hook(self::HOOK);
+        wp_clear_scheduled_hook(self::MORNING_HOOK);
     }
+
+    public static function run_morning() { return self::run('morning'); }
+    public static function run_us_session() { return self::run('us_session'); }
 
     public static function automation_health() {
         $timezone = new DateTimeZone('Asia/Jakarta');
@@ -79,7 +87,8 @@ final class Bitmomo_AI_Scheduler {
         ];
     }
 
-    public static function run() {
+    public static function run($edition = 'us_session') {
+        $edition = in_array($edition, ['morning', 'us_session'], true) ? $edition : 'us_session';
         $data = Bitmomo_AI_Binance::snapshot();
         if (is_wp_error($data)) {
             self::record('error', $data->get_error_message());
@@ -92,15 +101,36 @@ final class Bitmomo_AI_Scheduler {
             return $gate;
         }
         Bitmomo_AI_Performance::settle($data);
-        update_option('bitmomo_ai_latest_preview', ['data' => $data, 'evaluation' => $evaluation, 'time' => gmdate('c')], false);
+        $generated_at = gmdate('c');
         $analysis_date = wp_date('Y-m-d', strtotime($data['timestamp']), new DateTimeZone('Asia/Jakarta'));
-        $fingerprint = hash('sha256', 'binance-public|' . $analysis_date);
+        $source_record_id = 'bitmomo-ai:' . $analysis_date . ':' . $edition;
+        $editions = get_option('bitmomo_ai_editions', []);
+        if (!is_array($editions)) $editions = [];
+        $comparison_key = $edition === 'morning'
+            ? self::previous_valid_key($editions, $analysis_date, 'us_session')
+            : $analysis_date . ':morning';
+        if (!isset($editions[$comparison_key])) $comparison_key = '';
+        $record = [
+            'data' => $data, 'evaluation' => $evaluation, 'time' => $generated_at,
+            'generated_at' => $generated_at, 'edition' => $edition,
+            'source_record_id' => $source_record_id,
+            'comparison_source_record_id' => $comparison_key ? ($editions[$comparison_key]['source_record_id'] ?? '') : '',
+            'quality' => $evaluation['quality'] ?? [], 'provenance' => 'recorded_live',
+        ];
+        $editions[$analysis_date . ':' . $edition] = $record;
+        update_option('bitmomo_ai_editions', array_slice($editions, -90, null, true), false);
+        update_option('bitmomo_ai_latest_preview', $record, false);
+        $fingerprint = hash('sha256', 'binance-public|' . $analysis_date . '|' . $edition);
         $post_id = Bitmomo_AI_Webhook::create_draft($data, $evaluation, $fingerprint);
         if (is_wp_error($post_id)) {
             self::record('error', $post_id->get_error_message());
             return $post_id;
         }
         update_post_meta($post_id, '_bm_model', 'binance-public-five-axis-v2');
+        update_post_meta($post_id, '_bm_edition', $edition);
+        update_post_meta($post_id, '_bm_source_record_id', $source_record_id);
+        update_post_meta($post_id, '_bm_comparison_source_record_id', $record['comparison_source_record_id']);
+        do_action('bitmomo_ai_edition_recorded', $edition, $record);
 
         if (!self::auto_publish_enabled()) {
             self::record('success', sprintf('Daily draft %d created or refreshed; auto-publish is disabled by the safe default or kill switch.', $post_id), $post_id);
@@ -129,6 +159,18 @@ final class Bitmomo_AI_Scheduler {
         self::record('published', sprintf('Daily analysis %d passed the conditional gate and was published automatically.', $post_id), $post_id);
         self::record_publication('published', 'Conditional auto-publish completed.', $post_id);
         return $post_id;
+    }
+
+    private static function previous_valid_key(array $editions, $analysis_date, $edition) {
+        $keys = array_keys($editions);
+        rsort($keys);
+        foreach ($keys as $key) {
+            $record = $editions[$key];
+            if (($record['edition'] ?? '') !== $edition) continue;
+            if (substr($key, 0, 10) >= $analysis_date) continue;
+            return $key;
+        }
+        return '';
     }
 
     private static function record($status, $message, $post_id = 0) {
@@ -225,7 +267,7 @@ final class Bitmomo_AI_Scheduler {
     public static function run_now() {
         if (!current_user_can('manage_options')) wp_die(esc_html__('Permission denied.', 'bitmomo-ai'));
         check_admin_referer('bitmomo_ai_run_now');
-        self::run();
+        self::run_us_session();
         wp_safe_redirect(admin_url('tools.php?page=bitmomo-ai'));
         exit;
     }
