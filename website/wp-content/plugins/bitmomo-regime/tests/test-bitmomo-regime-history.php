@@ -32,8 +32,8 @@ function check( $label, $condition ) {
  * source_record_id, input_hash) so the whitelist test can prove they
  * never leak into the frontend projection.
  */
-function fixture_record( $as_of, $regime, $bias, $confidence ) {
-	return array(
+function fixture_record( $as_of, $regime, $bias, $confidence, $edition = '' ) {
+	$record = array(
 		'id'                     => 0,
 		'date'                   => $as_of,
 		'as_of'                  => $as_of,
@@ -53,6 +53,8 @@ function fixture_record( $as_of, $regime, $bias, $confidence ) {
 		'pending_regime'         => null,
 		'pending_streak'         => 0,
 	);
+	if ( '' !== $edition ) $record['edition'] = $edition;
+	return $record;
 }
 
 // Newest-first, matching Bitmomo_Regime_State_Store::get_recent()'s contract.
@@ -138,6 +140,24 @@ check( 'Case 7: regime_label_en is the English label', 'Capitulation' === $day['
 $run1 = Bitmomo_Regime_History::for_frontend( $records_5, 14 );
 $run2 = Bitmomo_Regime_History::for_frontend( $records_5, 14 );
 check( 'Case 8: repeated evaluation is idempotent', serialize( $run1 ) === serialize( $run2 ) );
+
+// Newest-first same-date records: an older US Session must never replace
+// the already-selected newer US Session; Morning remains lower priority.
+$same_date = array(
+	fixture_record( '2026-08-29 19:10:00', 'expansion', 'bullish', 81, 'us_session' ),
+	fixture_record( '2026-08-29 19:05:00', 'distribution', 'neutral', 62, 'us_session' ),
+	fixture_record( '2026-08-29 07:10:00', 'accumulation', 'neutral', 55, 'morning' ),
+);
+$same_date_result = Bitmomo_Regime_History::for_frontend( $same_date, 30 );
+check( 'Case 9: same date collapses to one official bar', 1 === count( $same_date_result['days'] ) );
+check( 'Case 9: newest US Session wins over older US Session and Morning', 'expansion' === $same_date_result['days'][0]['regime'] );
+
+$morning_then_us = array(
+	fixture_record( '2026-08-30 07:10:00', 'accumulation', 'neutral', 70, 'morning' ),
+	fixture_record( '2026-08-30 00:10:00', 'capitulation', 'bearish', 78, 'us_session' ),
+);
+$morning_then_us_result = Bitmomo_Regime_History::for_frontend( $morning_then_us, 30 );
+check( 'Case 10: older US Session remains preferred over newer Morning', 'capitulation' === $morning_then_us_result['days'][0]['regime'] );
 
 // ---------------------------------------------------------------------
 // Case 9: a full 30-day window, requesting 14 — proves the slicing math
