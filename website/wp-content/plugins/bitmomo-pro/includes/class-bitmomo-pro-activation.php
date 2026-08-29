@@ -102,6 +102,10 @@ class Bitmomo_Pro_Activation {
 
 				<table class="form-table" role="presentation">
 					<tr>
+						<th><label for="bitmomo_pro_activate_billing"><?php esc_html_e( 'Billing period', 'bitmomo-pro' ); ?></label></th>
+						<td><select name="billing_period" id="bitmomo_pro_activate_billing"><option value="monthly"><?php esc_html_e( 'Monthly — Rp149.000', 'bitmomo-pro' ); ?></option><option value="annual"><?php esc_html_e( 'Annual — Rp1.490.000', 'bitmomo-pro' ); ?></option></select></td>
+					</tr>
+					<tr>
 						<th><label for="bitmomo_pro_activate_email"><?php esc_html_e( 'Customer email', 'bitmomo-pro' ); ?></label></th>
 						<td><input type="email" required class="regular-text" name="email" id="bitmomo_pro_activate_email" /></td>
 					</tr>
@@ -143,7 +147,7 @@ class Bitmomo_Pro_Activation {
 						<th><label for="bitmomo_pro_activate_expiry"><?php esc_html_e( 'Access expiry', 'bitmomo-pro' ); ?></label></th>
 						<td>
 							<input type="date" name="expires_at" id="bitmomo_pro_activate_expiry" />
-							<p class="description"><?php esc_html_e( 'Leave blank for no expiry.', 'bitmomo-pro' ); ?></p>
+							<p class="description"><?php esc_html_e( 'For Founding memberships this is calculated automatically from the billing period using calendar-safe arithmetic.', 'bitmomo-pro' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -200,6 +204,7 @@ class Bitmomo_Pro_Activation {
 
 		$started_at = isset( $_POST['started_at'] ) ? sanitize_text_field( wp_unslash( $_POST['started_at'] ) ) : '';
 		$expires_at = isset( $_POST['expires_at'] ) ? sanitize_text_field( wp_unslash( $_POST['expires_at'] ) ) : '';
+		$billing_period = isset( $_POST['billing_period'] ) ? sanitize_key( wp_unslash( $_POST['billing_period'] ) ) : Bitmomo_Pro_Entitlement_Service::BILLING_MONTHLY;
 		$note       = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : '';
 		$send_welcome = ! empty( $_POST['send_welcome'] );
 
@@ -225,6 +230,7 @@ class Bitmomo_Pro_Activation {
 				'started_at' => $started_at,
 				'expires_at' => $expires_at,
 				'note'       => $note,
+				'billing_period' => $billing_period,
 			)
 		);
 
@@ -342,4 +348,3 @@ class Bitmomo_Pro_Activation {
 		echo '<div class="notice ' . esc_attr( $class ) . '"><p>' . esc_html( implode( ' ', $lines ) ) . '</p></div>';
 	}
 }
-

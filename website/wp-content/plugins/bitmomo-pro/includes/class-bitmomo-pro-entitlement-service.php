@@ -26,7 +26,12 @@ class Bitmomo_Pro_Entitlement_Service {
 
 	const TYPES = array( self::TYPE_FOUNDING, self::TYPE_STANDARD, self::TYPE_TEST, self::TYPE_MANUAL );
 
-	const FOUNDING_SEAT_CAP = 25;
+	const FOUNDING_SEAT_CAP = 149;
+	const FOUNDING_OPERATIONAL_BATCH = 25;
+	const BILLING_MONTHLY = 'monthly';
+	const BILLING_ANNUAL = 'annual';
+	const FOUNDING_MONTHLY_PRICE = 149000;
+	const FOUNDING_ANNUAL_PRICE = 1490000;
 
 	private static $instance = null;
 
@@ -60,11 +65,23 @@ class Bitmomo_Pro_Entitlement_Service {
 			$started_at = current_time( 'Y-m-d' );
 		}
 		$expires_at = $this->sanitize_date( isset( $args['expires_at'] ) ? $args['expires_at'] : '' );
+		$billing_period = in_array( ( $args['billing_period'] ?? '' ), array( self::BILLING_MONTHLY, self::BILLING_ANNUAL ), true ) ? $args['billing_period'] : '';
+		if ( self::TYPE_FOUNDING === $source ) {
+			$was_founding = self::TYPE_FOUNDING === get_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_SOURCE, true );
+			if ( ! $was_founding && $this->count_active_founding_members() >= self::FOUNDING_SEAT_CAP ) return false;
+			if ( '' === $billing_period ) $billing_period = self::BILLING_MONTHLY;
+			$expires_at = self::calendar_safe_expiry( $started_at, $billing_period );
+		}
 
 		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_STATUS, 'active' );
 		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_STARTED_AT, $started_at );
 		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_EXPIRES_AT, $expires_at );
 		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_SOURCE, $source );
+		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_MEMBERSHIP_TYPE, $source );
+		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_BILLING_PERIOD, $billing_period );
+		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_RENEWAL_STATUS, 'active' );
+		delete_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_CANCELED_AT );
+		if ( self::TYPE_FOUNDING === $source ) update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_FOUNDING_PRICE, $billing_period === self::BILLING_ANNUAL ? self::FOUNDING_ANNUAL_PRICE : self::FOUNDING_MONTHLY_PRICE );
 		if ( isset( $args['note'] ) ) {
 			update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_NOTE, sanitize_textarea_field( $args['note'] ) );
 		}
@@ -78,6 +95,28 @@ class Bitmomo_Pro_Entitlement_Service {
 		do_action( 'bitmomo_pro_activated', $user_id, compact( 'source', 'started_at', 'expires_at' ) );
 
 		return true;
+	}
+
+	public function cancel_renewal( $user_id, $note = '' ) {
+		if ( ! $user_id || 'active' !== $this->get_status( $user_id ) ) return false;
+		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_RENEWAL_STATUS, 'canceled' );
+		update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_CANCELED_AT, gmdate( 'c' ) );
+		if ( '' !== $note ) update_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_NOTE, sanitize_textarea_field( $note ) );
+		do_action( 'bitmomo_pro_renewal_canceled', $user_id );
+		return true;
+	}
+
+	public static function calendar_safe_expiry( $started_at, $billing_period ) {
+		$start = DateTimeImmutable::createFromFormat( '!Y-m-d', (string) $started_at );
+		if ( ! $start ) return '';
+		$months = self::BILLING_ANNUAL === $billing_period ? 12 : 1;
+		$month_index = ( (int) $start->format( 'Y' ) * 12 + (int) $start->format( 'n' ) - 1 ) + $months;
+		$year = intdiv( $month_index, 12 );
+		$month = $month_index % 12 + 1;
+		$target_month = DateTimeImmutable::createFromFormat( '!Y-n-j', $year . '-' . $month . '-1' );
+		$last_day = (int) $target_month->modify( 'last day of this month' )->format( 'j' );
+		$anniversary = $start->setDate( $year, $month, min( (int) $start->format( 'j' ), $last_day ) );
+		return $anniversary->modify( '-1 day' )->format( 'Y-m-d' );
 	}
 
 	/**
@@ -238,4 +277,3 @@ class Bitmomo_Pro_Entitlement_Service {
 		return $value;
 	}
 }
-

@@ -181,8 +181,11 @@
 }
 
 .bm-pro-sales__price-terms {
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 1.45;
+	opacity: .72;
 	color: var( --bms-text-muted );
-	font-size: 0.85rem;
 	margin: 0 0 4px !important;
 }
 

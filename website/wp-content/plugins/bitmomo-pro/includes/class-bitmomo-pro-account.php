@@ -166,7 +166,7 @@ class Bitmomo_Pro_Account {
 				<a href="mailto:<?php echo esc_attr( $this->support_email() ); ?>"><?php echo esc_html( $this->support_email() ); ?></a>
 			</p>
 			<p class="bm-pro-account__terms">
-				<?php esc_html_e( 'Selama Founding Beta, pembatalan dan refund dapat diproses melalui email.', 'bitmomo-pro' ); ?>
+				<?php esc_html_e( 'Batalkan kapan saja melalui email. Akses tetap aktif sampai akhir periode yang sudah dibayar; pembayaran final setelah aktivasi kecuali pembayaran ganda, kesalahan transaksi, kegagalan layanan/akses, atau ketentuan hukum/penyedia pembayaran.', 'bitmomo-pro' ); ?>
 			</p>
 		</div>
 		<?php

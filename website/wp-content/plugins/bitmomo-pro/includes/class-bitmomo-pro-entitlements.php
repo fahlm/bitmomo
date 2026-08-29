@@ -24,6 +24,11 @@ class Bitmomo_Pro_Entitlements {
 	const META_STARTED_AT = 'bitmomo_pro_started_at';
 	const META_SOURCE     = 'bitmomo_pro_source';
 	const META_NOTE       = 'bitmomo_pro_note';
+	const META_BILLING_PERIOD = 'bitmomo_pro_billing_period';
+	const META_MEMBERSHIP_TYPE = 'bitmomo_pro_membership_type';
+	const META_FOUNDING_PRICE = 'bitmomo_pro_founding_price';
+	const META_RENEWAL_STATUS = 'bitmomo_pro_renewal_status';
+	const META_CANCELED_AT = 'bitmomo_pro_canceled_at';
 
 	const NONCE_ACTION = 'bitmomo_pro_save_entitlement';
 	const NONCE_FIELD  = 'bitmomo_pro_entitlement_nonce';
@@ -210,4 +215,3 @@ function bitmomo_user_has_pro_access( $user_id = 0 ) {
 
 	return 'active' === Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user_id );
 }
-

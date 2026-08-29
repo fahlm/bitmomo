@@ -20,8 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Bitmomo_Pro_Sales {
 
-	const PRICE_LABEL = 'Rp149.000 / bulan';
-	const SEAT_CAP    = 25;
+	const PRICE_LABEL = 'Rp149.000 / bulan atau Rp1.490.000 / tahun';
+	const SEAT_CAP    = 149;
 
 	private static $instance = null;
 
@@ -166,6 +166,7 @@ class Bitmomo_Pro_Sales {
 				<li><?php esc_html_e( 'Sebagian proses operasional (aktivasi, pembatalan) masih dilakukan manual selama Founding Beta.', 'bitmomo-pro' ); ?></li>
 				<li><?php esc_html_e( 'Produk akan terus disempurnakan selama periode beta.', 'bitmomo-pro' ); ?></li>
 				<li><?php esc_html_e( 'Member yang bergabung sekarang mengunci harga Founding Beta selama langganan tidak terputus.', 'bitmomo-pro' ); ?></li>
+				<li><?php esc_html_e( 'Watchtower termasuk dalam Bitmomo Pro ketika tersedia. Produk standalone lain di masa depan tidak otomatis termasuk.', 'bitmomo-pro' ); ?></li>
 			</ul>
 		</section>
 		<?php
@@ -175,9 +176,9 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section class="bm-pro-sales__section bm-pro-sales__price">
 			<p class="bm-pro-sales__price-amount"><?php echo esc_html( self::PRICE_LABEL ); ?></p>
-			<p class="bm-pro-sales__price-sub"><?php echo esc_html( sprintf( __( '%d Founding Members — harga tetap Rp149.000 selama langganan tidak terputus.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
-			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Refund 7 hari untuk pembayaran pertama.', 'bitmomo-pro' ); ?></p>
-			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Selama Founding Beta, pembatalan dan refund dapat diproses melalui email.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__price-sub"><?php echo esc_html( sprintf( __( 'Maksimal %d Founding Members. Paket bulanan dan tahunan mendapat fitur yang sama; satu akun untuk satu pengguna.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
+			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Batalkan kapan saja. Akses tetap aktif sampai akhir periode yang sudah dibayar dan harga Founding berlaku selama keanggotaan tidak terputus.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Pembayaran bersifat final setelah akses diaktifkan, kecuali pembayaran ganda, kesalahan transaksi, kegagalan layanan/akses, atau jika diwajibkan hukum maupun aturan penyedia pembayaran.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
 	}
