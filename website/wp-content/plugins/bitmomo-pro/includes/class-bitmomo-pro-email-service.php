@@ -95,7 +95,7 @@ class Bitmomo_Pro_Email_Service {
 		$lines[] = __( 'Ini adalah bagian dari Bitmomo Pro Founding Beta — sebagian proses (termasuk aktivasi dan pembatalan) masih dilakukan manual selama kami menyempurnakan produk di masa beta.', 'bitmomo-pro' );
 		$lines[] = '';
 		/* translators: %s: support email address */
-		$lines[] = sprintf( __( 'Butuh bantuan, ingin membatalkan, atau mengajukan refund? Balas email ini atau hubungi %s.', 'bitmomo-pro' ), $support_email );
+		$lines[] = sprintf( __( 'Butuh bantuan atau ingin membatalkan perpanjangan? Balas email ini atau hubungi %s. Akses tetap aktif sampai akhir periode yang sudah dibayar.', 'bitmomo-pro' ), $support_email );
 		$lines[] = '';
 		$lines[] = __( 'Salam,', 'bitmomo-pro' );
 		$lines[] = __( 'Tim Bitmomo', 'bitmomo-pro' );
