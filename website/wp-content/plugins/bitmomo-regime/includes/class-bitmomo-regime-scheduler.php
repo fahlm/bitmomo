@@ -7,8 +7,13 @@ final class Bitmomo_Regime_Scheduler {
 
     public static function register() {
         add_action( self::HOOK, array( __CLASS__, 'run' ) );
+        add_action( 'bitmomo_ai_edition_recorded', array( __CLASS__, 'run_after_edition' ), 10, 2 );
         add_action( 'init', array( __CLASS__, 'ensure_schedule' ) );
         add_action( 'admin_post_bitmomo_regime_run_now', array( __CLASS__, 'run_now' ) );
+    }
+
+    public static function run_after_edition( $edition, $record ) {
+        return self::run();
     }
 
     public static function run_now() {
