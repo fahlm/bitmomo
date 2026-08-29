@@ -72,6 +72,7 @@ final class Bitmomo_AI_Binance {
         $last_close_time = isset($last_1h[6]) ? (int) floor(((int) $last_1h[6]) / 1000) : time();
         $data_age_minutes = max(0, (int) floor((time() - $last_close_time) / 60));
         $completeness = 60 + ($funding_ok ? 10 : 0) + ($premium_ok ? 10 : 0) + ($oi_ok ? 10 : 0) + ($long_short_ok ? 5 : 0) + ($taker_ok ? 5 : 0);
+        $regime_metrics = Bitmomo_AI_Regime_Metrics::from_candles($h1, $d1, $structure_4h['state']);
 
         return [
             'symbol' => 'BTCUSDT',
@@ -136,6 +137,7 @@ final class Bitmomo_AI_Binance {
                 'taker_buy_sell_ratio' => $taker_ok ? (float) ($taker_last['buySellRatio'] ?? 1) : null,
                 'data_status' => ($oi_ok && $long_short_ok) ? ($taker_ok ? 'complete' : 'partial') : 'unavailable',
             ],
+            'regime_metrics' => $regime_metrics,
         ];
     }
 
