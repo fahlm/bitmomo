@@ -23,6 +23,8 @@ final class Bitmomo_Regime_Runtime_Adapter {
             'crowding_score' => null,
             'source_record_id' => (string) ( $source['source_record_id'] ?? '' ),
             'as_of' => (string) ( $source['timestamp_iso'] ?? '' ),
+            'edition' => (string) ( $source['edition'] ?? 'us_session' ),
+            'provenance' => (string) ( $source['provenance'] ?? 'recorded_live' ),
         ));
         return array( 'success' => true, 'errors' => array(), 'input' => $input );
     }
