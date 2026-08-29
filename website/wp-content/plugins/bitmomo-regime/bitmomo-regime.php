@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Market Regime
  * Plugin URI: https://bitmomo.id
  * Description: Deterministic BTC market regime classification engine (Product A). Normalized market inputs in; a regime/confidence/evidence-backed classification and persisted daily history out. Isolated from bitmomo-pro, bitmomo-ai, and the active theme — see the architecture note in includes/class-bitmomo-regime-classifier.php.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_REGIME_VERSION', '0.3.0' );
+define( 'BITMOMO_REGIME_VERSION', '0.4.0' );
 define( 'BITMOMO_REGIME_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_REGIME_URL', plugin_dir_url( __FILE__ ) );
 
@@ -27,6 +27,8 @@ require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-state-store.php
 require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-history.php';
 require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-shortcodes.php';
 require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-admin.php';
+require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-runtime-adapter.php';
+require_once BITMOMO_REGIME_DIR . 'includes/class-bitmomo-regime-scheduler.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -68,6 +70,7 @@ function bitmomo_regime_init() {
 	Bitmomo_Regime_State_Store::instance();
 	Bitmomo_Regime_Shortcodes::instance();
 	Bitmomo_Regime_Admin_Diagnostics::instance();
+	Bitmomo_Regime_Scheduler::register();
 }
 add_action( 'plugins_loaded', 'bitmomo_regime_init' );
 
@@ -81,6 +84,7 @@ function bitmomo_regime_activate() {
 register_activation_hook( __FILE__, 'bitmomo_regime_activate' );
 
 function bitmomo_regime_deactivate() {
+	wp_clear_scheduled_hook( Bitmomo_Regime_Scheduler::HOOK );
 	flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'bitmomo_regime_deactivate' );

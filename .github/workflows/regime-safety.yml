@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "website/wp-content/plugins/bitmomo-regime/**"
+      - "website/wp-content/plugins/bitmomo-ai/**"
       - ".github/workflows/regime-safety.yml"
   push:
     branches:
@@ -11,6 +12,7 @@ on:
       - "feature/bitmomo-regime-**"
     paths:
       - "website/wp-content/plugins/bitmomo-regime/**"
+      - "website/wp-content/plugins/bitmomo-ai/**"
       - ".github/workflows/regime-safety.yml"
   workflow_dispatch:
 
@@ -64,3 +66,11 @@ jobs:
           if test -f tests/test-bitmomo-regime-history.php; then
             php tests/test-bitmomo-regime-history.php
           fi
+
+      - name: Run canonical Regime metrics suite
+        working-directory: website/wp-content/plugins/bitmomo-ai
+        run: php tests/test-bitmomo-ai-regime-metrics.php
+
+      - name: Run runtime adapter suite
+        working-directory: website/wp-content/plugins/bitmomo-regime
+        run: php tests/test-bitmomo-regime-runtime-adapter.php
