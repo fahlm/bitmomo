@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Bitmomo AI
  * Description: Editorial foundation for AI Market Insight and Bitcoin Signal.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Bitmomo
  * Text Domain: bitmomo-ai
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BITMOMO_AI_VERSION', '1.1.0');
+define('BITMOMO_AI_VERSION', '1.2.0');
 define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
@@ -50,6 +50,8 @@ final class Bitmomo_AI_Intelligence {
             'timestamp' => $timestamp,
             'timestamp_iso' => gmdate('c', $timestamp),
             'freshness_label' => self::freshness_label($timestamp, $state),
+            'edition' => $source['edition'],
+            'source_record_id' => $source['source_record_id'],
         ];
     }
 
@@ -80,6 +82,9 @@ final class Bitmomo_AI_Intelligence {
             ],
             'invalidation' => (float) ($risk['invalidation'] ?? 0),
             'risk' => $risk,
+            'edition' => $source['edition'],
+            'source_record_id' => $source['source_record_id'],
+            'comparison_source_record_id' => $source['comparison_source_record_id'],
         ];
     }
 
@@ -91,8 +96,10 @@ final class Bitmomo_AI_Intelligence {
         $source_timestamp = strtotime((string) ($source['data']['quality']['last_closed_candle'] ?? ($source['data']['timestamp'] ?? ''))) ?: (int) $source['timestamp'];
         $analysis_date = wp_date('Y-m-d', $source_timestamp, new DateTimeZone('Asia/Jakarta'));
         return [
-            'source_record_id' => 'bitmomo-ai:regime:' . $analysis_date,
+            'source_record_id' => 'bitmomo-ai:regime:' . $analysis_date . ':' . $source['edition'],
             'timestamp_iso' => gmdate('c', $source_timestamp),
+            'edition' => $source['edition'],
+            'provenance' => 'recorded_live',
             'metrics' => $source['data']['regime_metrics'],
             'directional_bias' => (string) ($evaluation['bias'] ?? 'neutral'),
             'directional_confidence' => (float) ($evaluation['confidence'] ?? 0),
@@ -123,6 +130,9 @@ final class Bitmomo_AI_Intelligence {
             'data' => $data,
             'evaluation' => $evaluation,
             'timestamp' => $timestamp,
+            'edition' => in_array(($preview['edition'] ?? ''), ['morning', 'us_session'], true) ? $preview['edition'] : 'us_session',
+            'source_record_id' => sanitize_text_field((string) ($preview['source_record_id'] ?? '')),
+            'comparison_source_record_id' => sanitize_text_field((string) ($preview['comparison_source_record_id'] ?? '')),
         ];
     }
 
