@@ -8,6 +8,16 @@ final class Bitmomo_Regime_Scheduler {
     public static function register() {
         add_action( self::HOOK, array( __CLASS__, 'run' ) );
         add_action( 'init', array( __CLASS__, 'ensure_schedule' ) );
+        add_action( 'admin_post_bitmomo_regime_run_now', array( __CLASS__, 'run_now' ) );
+    }
+
+    public static function run_now() {
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'You are not allowed to run this evaluation.', 'bitmomo-regime' ) );
+        check_admin_referer( 'bitmomo_regime_run_now' );
+        $result = self::run();
+        $status = sanitize_key( (string) ( $result['status'] ?? 'unknown' ) );
+        wp_safe_redirect( add_query_arg( 'bitmomo_regime_run', $status, admin_url( 'admin.php?page=bitmomo-regime-diagnostics' ) ) );
+        exit;
     }
 
     public static function ensure_schedule() {
