@@ -28,6 +28,9 @@ class Bitmomo_Pro_Activation {
 	const NONCE_ACTION = 'bitmomo_pro_activate_member';
 	const NONCE_FIELD  = 'bitmomo_pro_activate_nonce';
 	const ACTION       = 'bitmomo_pro_activate_member_submit';
+	const CANCEL_ACTION = 'bitmomo_pro_cancel_renewal';
+	const CANCEL_NONCE_ACTION = 'bitmomo_pro_cancel_renewal';
+	const CANCEL_NONCE_FIELD = 'bitmomo_pro_cancel_renewal_nonce';
 
 	private static $instance = null;
 
@@ -41,6 +44,7 @@ class Bitmomo_Pro_Activation {
 	private function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'handle_submit' ) );
+		add_action( 'admin_post_' . self::CANCEL_ACTION, array( $this, 'handle_cancel_renewal' ) );
 		add_action( 'admin_notices', array( $this, 'render_result_notice' ) );
 	}
 
@@ -164,8 +168,38 @@ class Bitmomo_Pro_Activation {
 
 				<?php submit_button( __( 'Activate', 'bitmomo-pro' ) ); ?>
 			</form>
+
+			<hr />
+			<h2><?php esc_html_e( 'Batalkan Perpanjangan', 'bitmomo-pro' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Catat permintaan pembatalan tanpa menghentikan akses pada periode yang sudah dibayar.', 'bitmomo-pro' ); ?></p>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<?php wp_nonce_field( self::CANCEL_NONCE_ACTION, self::CANCEL_NONCE_FIELD ); ?>
+				<input type="hidden" name="action" value="<?php echo esc_attr( self::CANCEL_ACTION ); ?>" />
+				<label for="bitmomo_pro_cancel_email"><?php esc_html_e( 'Customer email', 'bitmomo-pro' ); ?></label>
+				<input type="email" required class="regular-text" name="email" id="bitmomo_pro_cancel_email" />
+				<?php submit_button( __( 'Batalkan Perpanjangan', 'bitmomo-pro' ), 'secondary' ); ?>
+			</form>
 		</div>
 		<?php
+	}
+
+	public function handle_cancel_renewal() {
+		if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Not allowed.', 'bitmomo-pro' ) );
+		if ( ! isset( $_POST[ self::CANCEL_NONCE_FIELD ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::CANCEL_NONCE_FIELD ] ) ), self::CANCEL_NONCE_ACTION ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'bitmomo-pro' ) );
+		}
+		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$user = $email ? get_user_by( 'email', $email ) : false;
+		$result = array( 'ok' => false, 'error' => __( 'Active Pro member not found.', 'bitmomo-pro' ) );
+		if ( $user ) {
+			$expires_at = get_user_meta( $user->ID, Bitmomo_Pro_Entitlements::META_EXPIRES_AT, true );
+			if ( Bitmomo_Pro_Entitlement_Service::instance()->cancel_renewal( $user->ID ) ) {
+				$result = array( 'ok' => true, 'email' => $email, 'expires_at' => $expires_at ? $expires_at : __( 'no expiry recorded', 'bitmomo-pro' ) );
+			}
+		}
+		set_transient( 'bitmomo_pro_cancel_result_' . get_current_user_id(), $result, MINUTE_IN_SECONDS );
+		wp_safe_redirect( add_query_arg( 'bitmomo_pro_cancel_result', '1', admin_url( 'edit.php?post_type=' . Bitmomo_Pro_Briefs::POST_TYPE . '&page=bitmomo-pro-activate' ) ) );
+		exit;
 	}
 
 	public function handle_submit() {
@@ -309,6 +343,16 @@ class Bitmomo_Pro_Activation {
 	}
 
 	public function render_result_notice() {
+		if ( isset( $_GET['bitmomo_pro_cancel_result'] ) ) {
+			$result = get_transient( 'bitmomo_pro_cancel_result_' . get_current_user_id() );
+			delete_transient( 'bitmomo_pro_cancel_result_' . get_current_user_id() );
+			if ( is_array( $result ) && ! empty( $result['ok'] ) ) {
+				echo '<div class="notice notice-success"><p>' . esc_html( sprintf( __( 'Perpanjangan %1$s dibatalkan. Akses tetap aktif sampai %2$s.', 'bitmomo-pro' ), $result['email'], $result['expires_at'] ) ) . '</p></div>';
+			} else {
+				echo '<div class="notice notice-error"><p>' . esc_html( is_array( $result ) ? $result['error'] : __( 'Cancellation could not be recorded.', 'bitmomo-pro' ) ) . '</p></div>';
+			}
+			return;
+		}
 		if ( ! isset( $_GET['bitmomo_pro_activate_result'] ) ) {
 			return;
 		}
