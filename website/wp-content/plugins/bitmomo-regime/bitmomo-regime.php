@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Market Regime
  * Plugin URI: https://bitmomo.id
  * Description: Deterministic BTC market regime classification engine (Product A). Normalized market inputs in; a regime/confidence/evidence-backed classification and persisted daily history out. Isolated from bitmomo-pro, bitmomo-ai, and the active theme — see the architecture note in includes/class-bitmomo-regime-classifier.php.
- * Version: 0.4.0
+ * Version: 0.4.1
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_REGIME_VERSION', '0.4.0' );
+define( 'BITMOMO_REGIME_VERSION', '0.4.1' );
 define( 'BITMOMO_REGIME_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_REGIME_URL', plugin_dir_url( __FILE__ ) );
 
