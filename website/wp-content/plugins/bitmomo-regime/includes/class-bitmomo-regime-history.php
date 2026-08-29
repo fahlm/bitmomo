@@ -73,7 +73,7 @@ class Bitmomo_Regime_History {
 			$raw_date = isset( $record['as_of'] ) ? $record['as_of'] : ( $record['date'] ?? '' );
 			$date_key = substr( (string) $raw_date, 0, 10 );
 			if ( '' === $date_key ) continue;
-			if ( ! isset( $official[ $date_key ] ) || ( $record['edition'] ?? '' ) === 'us_session' ) {
+			if ( ! isset( $official[ $date_key ] ) || ( ( $record['edition'] ?? '' ) === 'us_session' && ( $official[ $date_key ]['edition'] ?? '' ) !== 'us_session' ) ) {
 				$official[ $date_key ] = $record;
 			}
 		}
