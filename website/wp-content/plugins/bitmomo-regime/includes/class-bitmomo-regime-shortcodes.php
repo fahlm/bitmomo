@@ -39,6 +39,15 @@ class Bitmomo_Regime_Shortcodes {
 
 	private function __construct() {
 		add_action( 'init', array( $this, 'register' ) );
+		add_filter( 'body_class', array( $this, 'body_class' ) );
+	}
+
+	public function body_class( $classes ) {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && ( has_shortcode( $post->post_content, 'bitmomo_market_regime' ) || has_shortcode( $post->post_content, 'bitmomo_market_regime_history' ) ) ) {
+			$classes[] = 'bm-regime-page';
+		}
+		return $classes;
 	}
 
 	public function register() {
@@ -143,7 +152,7 @@ class Bitmomo_Regime_Shortcodes {
 			. '.bmreg-history-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.4em;}'
 			. '.bmreg-history-item{display:flex;flex-wrap:wrap;gap:.6em;border:1px solid #eee;border-radius:6px;padding:.5em .75em;font-size:.9em;}'
 			. '.bmreg-history-date{opacity:.6;min-width:6.5em;}'
-			. '@media (max-width:480px){.bmreg-history-item{flex-direction:column;gap:.15em;}}'
+			. '@media (max-width:480px){body.bm-regime-page main.site-main{padding-top:32px;}.bmreg-history-item{flex-direction:column;gap:.15em;}}'
 			. '</style>';
 	}
 }
