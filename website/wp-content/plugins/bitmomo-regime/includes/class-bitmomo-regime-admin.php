@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * founder) uses this to sanity-check that the engine is behaving, not to
  * analyze market trends.
  *
- * Read-only: this screen never writes state. `manage_options` gated, not
- * public, no REST route — same trust boundary as bitmomo-pro's launch
+ * Read-only except for the explicit nonce-protected manual evaluation
+ * control. `manage_options` gated, not public, no REST route — same trust boundary as bitmomo-pro's launch
  * readiness screen (Bitmomo_Pro_Launch_Readiness), which this file's
  * table-rendering style deliberately mirrors for consistency across the
  * Bitmomo plugin family.
@@ -59,6 +59,15 @@ class Bitmomo_Regime_Admin_Diagnostics {
 
 		echo '<div class="wrap"><h1>' . esc_html__( 'Bitmomo Market Regime — Diagnostics', 'bitmomo-regime' ) . '</h1>';
 		echo '<p>' . esc_html__( 'Debug/trust view of the regime engine\'s current and historical state. Not an analytics dashboard.', 'bitmomo-regime' ) . '</p>';
+		if ( isset( $_GET['bitmomo_regime_run'] ) ) {
+			$status = sanitize_key( wp_unslash( $_GET['bitmomo_regime_run'] ) );
+			echo '<div class="notice notice-' . ( 'success' === $status ? 'success' : 'warning' ) . '"><p>' . esc_html( sprintf( __( 'Manual evaluation result: %s', 'bitmomo-regime' ), $status ) ) . '</p></div>';
+		}
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo '<input type="hidden" name="action" value="bitmomo_regime_run_now">';
+		wp_nonce_field( 'bitmomo_regime_run_now' );
+		submit_button( __( 'Run Regime evaluation now', 'bitmomo-regime' ), 'secondary', 'submit', false );
+		echo '</form>';
 
 		if ( null === $latest ) {
 			echo '<p><strong>' . esc_html__( 'No regime state has been recorded yet.', 'bitmomo-regime' ) . '</strong> ';
