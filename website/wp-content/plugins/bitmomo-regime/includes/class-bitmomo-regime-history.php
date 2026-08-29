@@ -64,7 +64,22 @@ class Bitmomo_Regime_History {
 		// (oldest -> newest) for a natural left-to-right time axis, then
 		// keep only the most recent $requested_days of that — never more
 		// than what actually exists.
-		$chronological = array_reverse( array_values( $records ) );
+		// Collapse multiple live evaluations onto one official calendar day.
+		// Records arrive newest-first; US Session is the official daily bar
+		// whenever it exists, otherwise Morning is used. Append-only storage
+		// remains untouched; this is only a public projection rule.
+		$official = array();
+		foreach ( $records as $record ) {
+			$raw_date = isset( $record['as_of'] ) ? $record['as_of'] : ( $record['date'] ?? '' );
+			$date_key = substr( (string) $raw_date, 0, 10 );
+			if ( '' === $date_key ) continue;
+			if ( ! isset( $official[ $date_key ] ) || ( $record['edition'] ?? '' ) === 'us_session' ) {
+				$official[ $date_key ] = $record;
+			}
+		}
+		krsort( $official );
+		$official = array_slice( $official, 0, self::TARGET_DAYS, true );
+		$chronological = array_reverse( array_values( $official ) );
 		$available     = count( $chronological );
 
 		$slice = ( $requested_days >= $available )
