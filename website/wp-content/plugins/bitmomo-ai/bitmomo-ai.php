@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Bitmomo AI
  * Description: Editorial foundation for AI Market Insight and Bitcoin Signal.
- * Version: 1.0.27
+ * Version: 1.1.0
  * Author: Bitmomo
  * Text Domain: bitmomo-ai
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BITMOMO_AI_VERSION', '1.0.27');
+define('BITMOMO_AI_VERSION', '1.1.0');
 define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
@@ -80,6 +80,24 @@ final class Bitmomo_AI_Intelligence {
             ],
             'invalidation' => (float) ($risk['invalidation'] ?? 0),
             'risk' => $risk,
+        ];
+    }
+
+    public static function regime_projection() {
+        $source = self::validated_source();
+        if (!$source || empty($source['data']['regime_metrics'])) return null;
+        $evaluation = $source['evaluation'];
+        $axes = is_array($evaluation['axes'] ?? null) ? $evaluation['axes'] : [];
+        return [
+            'source_record_id' => 'bitmomo-ai:' . (int) $source['timestamp'],
+            'timestamp_iso' => gmdate('c', (int) $source['timestamp']),
+            'metrics' => $source['data']['regime_metrics'],
+            'directional_bias' => (string) ($evaluation['bias'] ?? 'neutral'),
+            'directional_confidence' => (float) ($evaluation['confidence'] ?? 0),
+            'direction_score' => (float) ($axes['direction']['score'] ?? 0),
+            'open_interest_change_pct' => $axes['crowding']['oi_change_24h_pct'] ?? null,
+            'funding_rate' => $axes['carry']['funding_rate'] ?? null,
+            'basis_pct' => $axes['carry']['basis_pct'] ?? null,
         ];
     }
 
@@ -183,6 +201,7 @@ require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-admin-notices.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-report.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-webhook.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-binance.php';
+require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-regime-metrics.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-scheduler.php';
 
 final class Bitmomo_AI_Plugin {
