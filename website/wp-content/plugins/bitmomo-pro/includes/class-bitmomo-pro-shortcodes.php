@@ -146,7 +146,7 @@ class Bitmomo_Pro_Shortcodes {
 
 		if ( Bitmomo_Pro_Brief_Readiness::TIER_UNAVAILABLE === $tier || null === $brief ) {
 			echo '<div class="bm-pro__gate">';
-			echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief Bitmomo Pro terbaru belum tersedia.', 'bitmomo-pro' ) . '<br />' . esc_html__( 'Sistem sedang menunggu data yang memenuhi standar kualitas.', 'bitmomo-pro' ) . '</p>';
+				echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief Bitmomo Pro terbaru belum tersedia.', 'bitmomo-pro' ) . '<br />' . esc_html__( 'Sistem sedang menunggu data yang memenuhi standar kualitas.', 'bitmomo-pro' ) . ' <a class="bm-pro__help-link" href="' . esc_url( Bitmomo_Pro_Help_Center::question_url( 'quality-gate' ) ) . '">' . esc_html__( 'Mengapa?', 'bitmomo-pro' ) . '</a></p>';
 			echo '</div>';
 			return;
 		}
@@ -187,7 +187,7 @@ class Bitmomo_Pro_Shortcodes {
 
 			<?php if ( '' !== $brief['expected_range_low'] || '' !== $brief['expected_range_high'] ) : ?>
 				<div class="bm-pro__section">
-					<h4><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?></h4>
+					<h4><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?> <a class="bm-pro__help-link" href="<?php echo esc_url( Bitmomo_Pro_Help_Center::question_url( 'apa-itu-expected-range' ) ); ?>" aria-label="<?php esc_attr_e( 'Apa itu Expected Range?', 'bitmomo-pro' ); ?>">?</a></h4>
 					<p class="bm-pro__range">$<?php echo esc_html( number_format_i18n( floatval( $brief['expected_range_low'] ) ) ); ?> &ndash; $<?php echo esc_html( number_format_i18n( floatval( $brief['expected_range_high'] ) ) ); ?></p>
 				</div>
 			<?php endif; ?>
@@ -215,7 +215,7 @@ class Bitmomo_Pro_Shortcodes {
 
 			<?php if ( ! empty( $brief['invalidation'] ) ) : ?>
 				<div class="bm-pro__section bm-pro__invalidation">
-					<h4><?php esc_html_e( 'Thesis Invalidation', 'bitmomo-pro' ); ?></h4>
+					<h4><?php esc_html_e( 'Thesis Invalidation', 'bitmomo-pro' ); ?> <a class="bm-pro__help-link" href="<?php echo esc_url( Bitmomo_Pro_Help_Center::question_url( 'apa-itu-thesis-invalidation' ) ); ?>" aria-label="<?php esc_attr_e( 'Apa itu Thesis Invalidation?', 'bitmomo-pro' ); ?>">?</a></h4>
 					<p><?php echo esc_html( $brief['invalidation'] ); ?></p>
 				</div>
 			<?php endif; ?>

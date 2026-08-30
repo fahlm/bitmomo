@@ -866,3 +866,14 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   .bm-pro-locks { grid-template-columns: 1fr; }
   .bm-pro-teaser h3 { font-size: 23px; }
 }
+.bm-btc-help {
+  color: var(--muted, #93a4bd);
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.bm-btc-help:hover,
+.bm-btc-help:focus-visible {
+  color: var(--teal, #2dd4bf);
+}
