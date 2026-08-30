@@ -200,7 +200,7 @@ class Bitmomo_Pro_Help_Center {
 		<div class="bm-help" id="bm-help-content">
 			<header class="bm-help__hero">
 				<p class="bm-help__eyebrow">BITMOMO HELP CENTER</p>
-				<h1>Temukan jawaban tentang Bitmomo</h1>
+				<p class="bm-help__title">Temukan jawaban tentang Bitmomo</p>
 				<p>Pelajari cara kerja BTC Daily Intelligence, Market State, Bitmomo Pro, Founding Membership, dan metodologi kami.</p>
 			</header>
 			<nav class="bm-help__nav" aria-label="Kategori Help Center">
