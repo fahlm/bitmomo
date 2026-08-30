@@ -197,7 +197,7 @@ class Bitmomo_Pro_Help_Center {
 		$categories = self::categories();
 		ob_start();
 		?>
-		<main class="bm-help" id="main-content">
+		<div class="bm-help" id="bm-help-content">
 			<header class="bm-help__hero">
 				<p class="bm-help__eyebrow">BITMOMO HELP CENTER</p>
 				<h1>Temukan jawaban tentang Bitmomo</h1>
@@ -221,7 +221,7 @@ class Bitmomo_Pro_Help_Center {
 				<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>">Privacy</a>
 				<a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>">Disclaimer</a>
 			</nav>
-		</main>
+		</div>
 		<?php
 		return ob_get_clean();
 	}
