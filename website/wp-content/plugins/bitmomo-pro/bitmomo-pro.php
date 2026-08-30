@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.12.1
+ * Version: 0.12.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.12.1' );
+define( 'BITMOMO_PRO_VERSION', '0.12.2' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -25,6 +25,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-brief-readiness.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-brief-prefill.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-canonical-adapter.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-shortcodes.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-help-center.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-sales.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-cache.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-setup.php';
@@ -95,6 +96,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Brief_Prefill::instance();
 	Bitmomo_Pro_Canonical_Adapter::instance();
 	Bitmomo_Pro_Shortcodes::instance();
+	Bitmomo_Pro_Help_Center::instance();
 	Bitmomo_Pro_Sales::instance();
 	Bitmomo_Pro_Cache::instance();
 	Bitmomo_Pro_Setup::instance();
