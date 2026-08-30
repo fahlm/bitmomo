@@ -20,6 +20,7 @@ class Bitmomo_Pro_Help_Center {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
 		add_filter( 'document_title_parts', array( $this, 'filter_title' ) );
+		add_filter( 'rank_math/frontend/description', array( $this, 'filter_meta_description' ) );
 		add_action( 'wp_head', array( $this, 'render_meta_description' ), 2 );
 	}
 
@@ -46,9 +47,16 @@ class Bitmomo_Pro_Help_Center {
 	}
 
 	public function render_meta_description() {
-		if ( is_page( 'help' ) ) {
+		if ( is_page( 'help' ) && ! defined( 'RANK_MATH_VERSION' ) ) {
 			echo '<meta name="description" content="' . esc_attr__( 'Pelajari BTC Daily Intelligence, Market State, Bitmomo Pro, Founding Membership, pembayaran, dan metodologi Bitmomo.', 'bitmomo-pro' ) . '" />' . "\n";
 		}
+	}
+
+	public function filter_meta_description( $description ) {
+		if ( is_page( 'help' ) ) {
+			return __( 'Pelajari BTC Daily Intelligence, Market State, Bitmomo Pro, Founding Membership, pembayaran, dan metodologi Bitmomo.', 'bitmomo-pro' );
+		}
+		return $description;
 	}
 
 	public static function question_url( $id ) {
