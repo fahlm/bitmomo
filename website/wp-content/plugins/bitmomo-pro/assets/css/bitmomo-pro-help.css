@@ -17,7 +17,7 @@
 .bm-help { max-width: 820px; margin: 0 auto; padding: 34px 18px 64px; }
 .bm-help__hero { max-width: 680px; padding: 30px 0 24px; }
 .bm-help__eyebrow { margin: 0 0 10px; color: var(--bmh-accent); font-size: 12px; font-weight: 700; letter-spacing: .1em; }
-.bm-help__hero h1 { margin: 0 0 12px; font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.08; }
+.bm-help__title { margin: 0 0 12px; color: inherit; font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 700; line-height: 1.08; }
 .bm-help__hero > p:last-child { margin: 0; color: var(--bmh-muted); font-size: 1.05rem; line-height: 1.65; }
 
 .bm-help__nav { display: flex; gap: 8px; overflow-x: auto; padding: 0 0 18px; margin-bottom: 18px; scrollbar-width: thin; }
