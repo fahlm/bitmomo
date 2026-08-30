@@ -29,11 +29,22 @@ if (!defined('ABSPATH')) exit;
  *    kept (conflicting evidence must not be hidden).
  *  - carry uses a CONTRARIAN sign convention (funding/basis crowded long ->
  *    negative score) and crowding is a mixed composite — neither is ever
- *    merged with direction/structure, and crowding's copy stays magnitude-
- *    only (no directional claim its composite score cannot actually support).
- *    carry's copy describes positioning SKEW ("posisi long/short sedang
- *    dominan"), never a literal trader head-count claim, since funding/basis
- *    is a $-notional cost/pricing signal, not an account-count signal.
+ *    merged with direction/structure. Both carry_candidate() and
+ *    crowding_candidate() receive the FULL axis array (not just the final
+ *    score) and re-inspect the same underlying fields/thresholds
+ *    carry_score()/crowding_score() already use — never crowding_score()
+ *    or carry_score() themselves — purely so the copy can describe exactly
+ *    which observable condition(s) actually contributed, instead of
+ *    over-translating an aggregate score into a claim those fields alone
+ *    cannot prove. A futures contract always has a long AND a short
+ *    counterparty, so funding/basis (carry) never imply a trader head-count
+ *    or a "dominant side"; they describe the futures market's own PRICING
+ *    (funding = cost transferred between sides, basis = futures-vs-spot
+ *    premium/discount). Crowding's OI-change and taker-ratio facts are
+ *    trend-confirming while its account long/short ratio is contrarian, so
+ *    they are reported as separate observed facts (at most two, joined
+ *    with "sementara") rather than folded into one directional or
+ *    "crowded/concentrated" conclusion the composite cannot support.
  *  - volatility has no comparable signed score; its own categorical `regime`
  *    (extreme/high/low/normal, already computed by the engine) drives both
  *    inclusion and a presentation-only materiality rank — not a scoring
@@ -136,11 +147,11 @@ final class Bitmomo_AI_Key_Drivers {
         }
 
         if (self::is_material($carry['status'] ?? 'neutral')) {
-            $candidates[] = self::carry_candidate((int) ($carry['score'] ?? 0));
+            $candidates[] = self::carry_candidate($carry);
         }
 
         if (self::is_material($crowding['status'] ?? 'neutral')) {
-            $candidates[] = self::crowding_candidate((int) ($crowding['score'] ?? 0));
+            $candidates[] = self::crowding_candidate($crowding);
         }
 
         $regime = (string) ($volatility['status'] ?? 'normal');
@@ -211,37 +222,128 @@ final class Bitmomo_AI_Key_Drivers {
         return ['key' => 'structure', 'materiality' => $abs, 'text' => $text];
     }
 
-    private static function carry_candidate($score) {
-        // Funding rate and futures basis are a $-notional cost/pricing
-        // signal (what longs and shorts pay each other, and where futures
-        // trade versus spot) — not a literal trader head-count. Copy
-        // describes positioning SKEW/dominance, current-state only, never
-        // a forward-looking consequence of that skew unwinding.
+    /**
+     * @param array $carry The full axes['carry'] array: score/status plus
+     *              the raw funding_rate/basis_pct/data_status fields.
+     */
+    private static function carry_candidate(array $carry) {
+        // A futures contract always has a long AND a short counterparty —
+        // funding rate and futures basis describe the market's own PRICING
+        // (what longs and shorts pay each other; where futures trade versus
+        // spot), never a trader head-count or a "dominant side" claim those
+        // two $-notional fields alone cannot prove. Copy re-checks the same
+        // thresholds Bitmomo_AI_Signal_Engine::carry_score() already uses
+        // (0.00025/0.0005 for funding, 0.15/0.25 for basis) so it can say
+        // exactly which condition(s) are actually elevated.
+        $score = (int) ($carry['score'] ?? 0);
         $abs = abs($score);
+        $funding = (float) ($carry['funding_rate'] ?? 0);
+        $basis = (float) ($carry['basis_pct'] ?? 0);
+        $funding_long_elevated = $funding >= 0.00025;
+        $funding_short_elevated = $funding <= -0.00025;
+        $basis_long_elevated = $basis > 0.15;
+        $basis_short_elevated = $basis < -0.15;
+
         if ($score < 0) {
-            // Negative carry score = funding/basis crowded long (contrarian).
-            $text = $abs >= 75
-                ? __('Posisi long sedang sangat dominan di pasar futures BTC.', 'bitmomo-ai')
-                : __('Trader futures mulai lebih banyak mengambil posisi long.', 'bitmomo-ai');
+            // Funding/basis positive-elevated = long side paying a premium.
+            if ($funding_long_elevated && $basis_long_elevated) {
+                $text = __('Pasar futures BTC diperdagangkan di atas harga spot, sementara biaya posisi long juga lebih tinggi dari biasanya.', 'bitmomo-ai');
+            } elseif ($basis_long_elevated) {
+                $text = __('Harga futures BTC saat ini diperdagangkan lebih tinggi dibandingkan harga spot.', 'bitmomo-ai');
+            } else {
+                $text = __('Biaya mempertahankan posisi long di pasar futures BTC sedang lebih tinggi dari biasanya.', 'bitmomo-ai');
+            }
+        } elseif ($score > 0) {
+            // Funding/basis negative-elevated = short side paying a premium.
+            if ($funding_short_elevated && $basis_short_elevated) {
+                $text = __('Pasar futures BTC diperdagangkan di bawah harga spot, sementara biaya posisi short juga lebih tinggi dari biasanya.', 'bitmomo-ai');
+            } elseif ($basis_short_elevated) {
+                $text = __('Harga futures BTC saat ini diperdagangkan lebih rendah dibandingkan harga spot.', 'bitmomo-ai');
+            } else {
+                $text = __('Biaya mempertahankan posisi short di pasar futures BTC sedang lebih tinggi dari biasanya.', 'bitmomo-ai');
+            }
         } else {
-            // Positive carry score = funding/basis crowded short (contrarian).
-            $text = $abs >= 75
-                ? __('Posisi short sedang sangat dominan di pasar futures BTC.', 'bitmomo-ai')
-                : __('Trader futures mulai lebih banyak mengambil posisi short.', 'bitmomo-ai');
+            // Defensive: build_candidates() already gates on is_material(),
+            // so a zero/unavailable carry score should never reach here.
+            $text = __('Pasar futures BTC belum menunjukkan tekanan harga yang berarti.', 'bitmomo-ai');
         }
+
         return ['key' => 'carry', 'materiality' => $abs, 'text' => $text];
     }
 
-    private static function crowding_candidate($score) {
-        // Crowding is a mixed composite (OI+price and taker ratio are trend-
-        // confirming, long/short ratio is contrarian) so its sign does not
-        // reliably map to "bullish"/"bearish" — copy stays magnitude-only,
-        // never asserting a direction the composite score cannot support,
-        // and never a forward-looking consequence of positions unwinding.
+    /**
+     * @param array $crowding The full axes['crowding'] array: score/status
+     *              plus the raw oi_change_24h_pct/price_change_24h_pct/
+     *              global_long_short_ratio/taker_buy_sell_ratio fields.
+     */
+    private static function crowding_candidate(array $crowding) {
+        // Crowding's composite score mixes OI+price and the taker ratio
+        // (trend-confirming) with the account long/short ratio (contrarian),
+        // so its sign does not reliably map to "bullish"/"bearish", and a
+        // high magnitude does not by itself prove positions are literally
+        // "crowded" or that "many traders hold the same position." Copy
+        // re-checks the same fields/thresholds
+        // Bitmomo_AI_Signal_Engine::crowding_score() already uses and
+        // reports only the specific observed fact(s) that actually
+        // contributed — at most two, joined with "sementara" — never a
+        // blanket concentration/direction conclusion those fields alone
+        // cannot prove.
+        $score = (int) ($crowding['score'] ?? 0);
         $abs = abs($score);
-        $text = $abs >= 60
-            ? __('Posisi trader di pasar futures BTC saat ini cukup padat, dengan banyak pelaku pasar mengambil posisi yang serupa.', 'bitmomo-ai')
-            : __('Posisi trader di pasar futures BTC saat ini mulai lebih berat ke satu sisi.', 'bitmomo-ai');
+        $oi = (float) ($crowding['oi_change_24h_pct'] ?? 0);
+        $price = (float) ($crowding['price_change_24h_pct'] ?? 0);
+        $long_short = isset($crowding['global_long_short_ratio']) ? (float) $crowding['global_long_short_ratio'] : null;
+        $taker = isset($crowding['taker_buy_sell_ratio']) ? (float) $crowding['taker_buy_sell_ratio'] : null;
+
+        $facts = [];
+        if ($oi >= 2 && 0.0 !== $price) {
+            $facts[] = [
+                'standalone' => __('Open interest futures BTC sedang meningkat, menunjukkan lebih banyak posisi terbuka di pasar.', 'bitmomo-ai'),
+                'lead' => __('Open interest futures BTC sedang meningkat', 'bitmomo-ai'),
+                'join' => __('open interest futures BTC sedang meningkat', 'bitmomo-ai'),
+            ];
+        }
+        if (null !== $taker && $taker >= 1.10) {
+            $facts[] = [
+                'standalone' => __('Aktivitas beli agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas jual.', 'bitmomo-ai'),
+                'lead' => __('Aktivitas beli agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas jual', 'bitmomo-ai'),
+                'join' => __('aktivitas beli agresif lebih kuat daripada aktivitas jual', 'bitmomo-ai'),
+            ];
+        } elseif (null !== $taker && $taker <= 0.90) {
+            $facts[] = [
+                'standalone' => __('Aktivitas jual agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas beli.', 'bitmomo-ai'),
+                'lead' => __('Aktivitas jual agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas beli', 'bitmomo-ai'),
+                'join' => __('aktivitas jual agresif lebih kuat daripada aktivitas beli', 'bitmomo-ai'),
+            ];
+        }
+        if (null !== $long_short && $long_short >= 1.25) {
+            // Explicitly an ACCOUNT proportion, never a position-size claim.
+            $facts[] = [
+                'standalone' => __('Proporsi akun trader saat ini lebih condong ke posisi long.', 'bitmomo-ai'),
+                'lead' => __('Proporsi akun trader saat ini lebih condong ke posisi long', 'bitmomo-ai'),
+                'join' => __('proporsi akun trader lebih condong ke posisi long', 'bitmomo-ai'),
+            ];
+        } elseif (null !== $long_short && $long_short <= 0.80) {
+            $facts[] = [
+                'standalone' => __('Proporsi akun trader saat ini lebih condong ke posisi short.', 'bitmomo-ai'),
+                'lead' => __('Proporsi akun trader saat ini lebih condong ke posisi short', 'bitmomo-ai'),
+                'join' => __('proporsi akun trader lebih condong ke posisi short', 'bitmomo-ai'),
+            ];
+        }
+
+        if (empty($facts)) {
+            // Defensive: build_candidates() already gates on is_material(),
+            // so an all-zero-contribution composite should never reach here.
+            $text = __('Posisi trader di pasar futures BTC belum menunjukkan perubahan yang berarti.', 'bitmomo-ai');
+        } elseif (1 === count($facts)) {
+            $text = $facts[0]['standalone'];
+        } else {
+            // Report at most the two highest-priority facts (OI, then
+            // taker, then account ratio) as one natural sentence rather
+            // than a three-clause run-on.
+            $text = sprintf(__('%s, sementara %s.', 'bitmomo-ai'), $facts[0]['lead'], $facts[1]['join']);
+        }
+
         return ['key' => 'crowding', 'materiality' => $abs, 'text' => $text];
     }
 

@@ -145,33 +145,120 @@ check_kd(
     )))
 );
 
-// --- Carry: 4 tiers (long-side and short-side, moderate and extreme).
+// --- Carry: describes futures-market PRICING (funding cost / basis vs
+// --- spot), never a trader head-count or "dominant side" claim, and
+// --- branches on the same underlying funding_rate/basis_pct fields
+// --- carry_score() already thresholds on (0.00025/0.0005 funding,
+// --- 0.15/0.25 basis), not just the aggregate score.
 check_kd(
-    'carry extreme long-skew: exact expected text',
-    array('Posisi long sedang sangat dominan di pasar futures BTC.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30))))
+    'carry: funding-only elevated (long side): exact expected text',
+    array('Biaya mempertahankan posisi long di pasar futures BTC sedang lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.05))))
 );
 check_kd(
-    'carry moderate long-skew: exact expected text',
-    array('Trader futures mulai lebih banyak mengambil posisi long.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.05))))
+    'carry: basis-only elevated (long side): exact expected text',
+    array('Harga futures BTC saat ini diperdagangkan lebih tinggi dibandingkan harga spot.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0001, 'basis_pct' => 0.20))))
 );
 check_kd(
-    'carry extreme short-skew: exact expected text',
-    array('Posisi short sedang sangat dominan di pasar futures BTC.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0008, 'basis_pct' => -0.30))))
+    'carry: funding+basis both elevated, moderate score (long side): exact combined expected text',
+    array('Pasar futures BTC diperdagangkan di atas harga spot, sementara biaya posisi long juga lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.20))))
 );
 check_kd(
-    'carry moderate short-skew: exact expected text',
-    array('Trader futures mulai lebih banyak mengambil posisi short.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0003, 'basis_pct' => -0.05))))
+    'carry: funding+basis both elevated, extreme score (long side): exact combined expected text',
+    array('Pasar futures BTC diperdagangkan di atas harga spot, sementara biaya posisi long juga lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30))))
+);
+check_kd(
+    'carry: funding-only elevated (short side): exact expected text',
+    array('Biaya mempertahankan posisi short di pasar futures BTC sedang lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0003, 'basis_pct' => -0.05))))
+);
+check_kd(
+    'carry: basis-only elevated (short side): exact expected text',
+    array('Harga futures BTC saat ini diperdagangkan lebih rendah dibandingkan harga spot.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0001, 'basis_pct' => -0.20))))
+);
+check_kd(
+    'carry: funding+basis both elevated (short side): exact combined expected text',
+    array('Pasar futures BTC diperdagangkan di bawah harga spot, sementara biaya posisi short juga lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0008, 'basis_pct' => -0.30))))
+);
+check_kd(
+    'carry: unavailable (funding=0, basis=0, data_status=unavailable) never generates a market claim',
+    array('Pergerakan BTC saat ini relatif tenang dan belum ada faktor yang terlihat dominan.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0, 'basis_pct' => 0, 'data_status' => 'unavailable'))))
 );
 
-// --- Crowding: 2 tiers.
+// --- Crowding: reports the specific observed fact(s) that actually
+// --- contributed to the composite (OI change, taker buy/sell activity,
+// --- the ACCOUNT long/short ratio) rather than translating the composite
+// --- sign into a blanket bullish/bearish or "crowded" conclusion.
 check_kd(
-    'crowding strong: exact expected text',
-    array('Posisi trader di pasar futures BTC saat ini cukup padat, dengan banyak pelaku pasar mengambil posisi yang serupa.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.2))))
+    'crowding: OI-driven only: exact expected text',
+    array('Open interest futures BTC sedang meningkat, menunjukkan lebih banyak posisi terbuka di pasar.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))))
 );
 check_kd(
-    'crowding moderate: exact expected text',
-    array('Posisi trader di pasar futures BTC saat ini mulai lebih berat ke satu sisi.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))))
+    'crowding: taker buy-dominant only: exact expected text',
+    array('Aktivitas beli agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas jual.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2))))
 );
+check_kd(
+    'crowding: taker sell-dominant only: exact expected text',
+    array('Aktivitas jual agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas beli.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 0.8))))
+);
+check_kd(
+    'crowding: account long/short ratio condong-long only: exact expected text, explicitly ACCOUNT wording',
+    array('Proporsi akun trader saat ini lebih condong ke posisi long.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.0))))
+);
+check_kd(
+    'crowding: account long/short ratio condong-short only: exact expected text, explicitly ACCOUNT wording',
+    array('Proporsi akun trader saat ini lebih condong ke posisi short.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.0))))
+);
+check_kd(
+    'crowding: OI + taker-buy both material -> consolidated into ONE natural sentence (matches the reviewed example)',
+    array('Open interest futures BTC sedang meningkat, sementara aktivitas beli agresif lebih kuat daripada aktivitas jual.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2))))
+);
+check_kd(
+    'crowding: all three facts material -> still exactly ONE candidate, top-2-priority (OI+taker) consolidated, account ratio dropped for concision',
+    array('Open interest futures BTC sedang meningkat, sementara aktivitas beli agresif lebih kuat daripada aktivitas jual.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.2))))
+);
+check_kd(
+    'crowding: no underlying derivatives data (ratio/taker unset, OI flat) never generates a market claim',
+    array('Pergerakan BTC saat ini relatif tenang dan belum ada faktor yang terlihat dominan.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0, 'price_change_24h_pct' => 0, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))))
+);
+
+// --- Semantic-accuracy regression: the specific overclaims review found
+// --- must never reappear in ANY carry/crowding output.
+$carry_crowding_samples = array(
+    evaluation_for(array('carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30))),
+    evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.05))),
+    evaluation_for(array('carry' => array('funding_rate' => 0.0001, 'basis_pct' => 0.20))),
+    evaluation_for(array('carry' => array('funding_rate' => -0.0008, 'basis_pct' => -0.30))),
+    evaluation_for(array('carry' => array('funding_rate' => -0.0003, 'basis_pct' => -0.05))),
+    evaluation_for(array('carry' => array('funding_rate' => -0.0001, 'basis_pct' => -0.20))),
+    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))),
+    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2))),
+    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 0.8))),
+    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.0))),
+    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.0))),
+    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.2))),
+);
+$overclaim_terms = array(
+    'sangat dominan', 'banyak trader', 'mengambil posisi', // old carry overclaims
+    'cukup padat', 'banyak pelaku pasar', 'mulai lebih berat ke satu sisi', // old crowding overclaims
+    'crowded', 'concentrat', // literal loanwords, should never appear
+);
+$overclaim_hits = array();
+$directional_word_on_composite_hits = array();
+foreach ($carry_crowding_samples as $sample) {
+    foreach (Bitmomo_AI_Key_Drivers::derive($sample) as $line) {
+        foreach ($overclaim_terms as $term) {
+            if (false !== stripos($line, $term)) {
+                $overclaim_hits[] = $term . ' :: ' . $line;
+            }
+        }
+        // The composite must never be blindly translated into a
+        // bullish/bearish/naik/turun word.
+        if ((false !== stripos($line, 'bullish') || false !== stripos($line, 'bearish') || false !== stripos($line, ' naik') || false !== stripos($line, ' turun'))) {
+            $directional_word_on_composite_hits[] = $line;
+        }
+    }
+}
+check_kd('no removed carry/crowding overclaims reappear (' . count($overclaim_hits) . ' hits: ' . implode(' | ', $overclaim_hits) . ')', empty($overclaim_hits));
+check_kd('crowding composite sign is never translated into a bullish/bearish/naik/turun word (' . count($directional_word_on_composite_hits) . ' hits)', empty($directional_word_on_composite_hits));
 
 // --- Volatility: 3 regimes.
 check_kd(

@@ -179,10 +179,7 @@ check_fp('end-to-end: conflicting direction/structure both surfaced through free
 // --- Case 7: end-to-end language hardening — carry/crowding-heavy market,
 // --- checked through the real free_projection() call (not just the pure
 // --- Key_Drivers unit test) for banned terminology and forward-looking /
-// --- conditional-consequence language, and for the specific overclaims
-// --- flagged in review (an unsupported literal "many traders are long"
-// --- headcount claim from funding/basis alone, and an unsupported
-// --- directional bullish/bearish claim from the crowding composite).
+// --- conditional-consequence language.
 set_preview(fp_signal_input(array(
     'carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30),
     'crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.2),
@@ -202,15 +199,33 @@ foreach ($language_result['key_drivers'] as $line) {
 }
 check_fp('end-to-end: no banned internal-analyst terminology in free_projection() key_drivers', !$banned_hit);
 check_fp('end-to-end: no forward-looking / conditional-consequence language in free_projection() key_drivers', !$forward_looking_hit);
+
+// --- Case 8: end-to-end semantic-accuracy — the specific overclaims
+// --- review flagged (a literal trader head-count / "dominant side" claim
+// --- from funding+basis alone, and a "crowded/many traders" conclusion
+// --- from the crowding composite) must never reappear through the real
+// --- free_projection() call, and the futures-pricing / account-ratio
+// --- wording must come through correctly end-to-end.
+set_preview(fp_signal_input(array(
+    'carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30),
+    'crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.0),
+)));
+$accuracy_result = Bitmomo_AI_Intelligence::free_projection();
+$overclaim_terms = array('sangat dominan', 'banyak trader', 'mengambil posisi', 'cukup padat', 'banyak pelaku pasar', 'crowded', 'concentrat');
+$overclaim_hit = false;
+foreach ($accuracy_result['key_drivers'] as $line) {
+    foreach ($overclaim_terms as $term) {
+        if (false !== stripos($line, $term)) $overclaim_hit = true;
+    }
+}
+check_fp('end-to-end: no removed carry/crowding overclaims (headcount / "dominant side" / "crowded") reappear through free_projection()', !$overclaim_hit);
 check_fp(
-    'end-to-end: carry copy describes positioning skew ("dominan"), not a literal trader head-count claim ("banyak trader ... long")',
-    0 === count(array_filter($language_result['key_drivers'], function ($l) { return false !== stripos($l, 'banyak trader'); }))
+    'end-to-end: carry copy describes futures-market pricing ("diperdagangkan ... harga spot" / "biaya mempertahankan posisi")',
+    0 < count(array_filter($accuracy_result['key_drivers'], function ($l) { return false !== stripos($l, 'diperdagangkan') || false !== stripos($l, 'biaya mempertahankan posisi'); }))
 );
 check_fp(
-    'end-to-end: crowding copy stays magnitude-only, no bullish/bearish word attached to the composite',
-    0 === count(array_filter($language_result['key_drivers'], function ($l) {
-        return false !== stripos($l, 'padat') && (false !== stripos($l, 'bullish') || false !== stripos($l, 'bearish') || false !== stripos($l, 'naik') || false !== stripos($l, 'turun'));
-    }))
+    'end-to-end: crowding account-ratio wording explicitly says "akun" (account proportion), not a position-size claim',
+    0 < count(array_filter($accuracy_result['key_drivers'], function ($l) { return false !== stripos($l, 'proporsi akun trader'); }))
 );
 
 $passed = count(array_filter($checks, function ($row) { return $row[1]; }));
