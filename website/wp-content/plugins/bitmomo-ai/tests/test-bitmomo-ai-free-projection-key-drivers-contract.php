@@ -172,9 +172,46 @@ set_preview(fp_signal_input(array(
     'structure' => array('state' => 'lh_ll', 'state_1d' => 'lh_ll'),
 )));
 $conflict_result = Bitmomo_AI_Intelligence::free_projection();
-$has_momentum = (bool) array_filter($conflict_result['key_drivers'], function ($l) { return false !== strpos($l, 'Momentum jangka pendek'); });
+$has_momentum = (bool) array_filter($conflict_result['key_drivers'], function ($l) { return false !== strpos($l, 'Momentum harga BTC'); });
 $has_structure = (bool) array_filter($conflict_result['key_drivers'], function ($l) { return false !== strpos($l, 'Struktur harga'); });
 check_fp('end-to-end: conflicting direction/structure both surfaced through free_projection()', $has_momentum && $has_structure);
+
+// --- Case 7: end-to-end language hardening — carry/crowding-heavy market,
+// --- checked through the real free_projection() call (not just the pure
+// --- Key_Drivers unit test) for banned terminology and forward-looking /
+// --- conditional-consequence language, and for the specific overclaims
+// --- flagged in review (an unsupported literal "many traders are long"
+// --- headcount claim from funding/basis alone, and an unsupported
+// --- directional bullish/bearish claim from the crowding composite).
+set_preview(fp_signal_input(array(
+    'carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30),
+    'crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.2),
+)));
+$language_result = Bitmomo_AI_Intelligence::free_projection();
+$banned_terms = array('pembacaan', 'assessment', 'positioning derivatif', 'crowded positioning', 'crowding', 'carry', 'composite', 'terkonsentrasi', 'kondisi netral');
+$forward_looking_markers = array('jika', 'apabila', 'berpotensi', 'potensial', 'membuka ruang', 'nantinya', 'ke depan', 'dilepas', 'unwind', 'trigger', 'skenario', 'invalidasi');
+$banned_hit = false;
+$forward_looking_hit = false;
+foreach ($language_result['key_drivers'] as $line) {
+    foreach ($banned_terms as $term) {
+        if (false !== stripos($line, $term)) $banned_hit = true;
+    }
+    foreach ($forward_looking_markers as $marker) {
+        if (false !== stripos($line, $marker)) $forward_looking_hit = true;
+    }
+}
+check_fp('end-to-end: no banned internal-analyst terminology in free_projection() key_drivers', !$banned_hit);
+check_fp('end-to-end: no forward-looking / conditional-consequence language in free_projection() key_drivers', !$forward_looking_hit);
+check_fp(
+    'end-to-end: carry copy describes positioning skew ("dominan"), not a literal trader head-count claim ("banyak trader ... long")',
+    0 === count(array_filter($language_result['key_drivers'], function ($l) { return false !== stripos($l, 'banyak trader'); }))
+);
+check_fp(
+    'end-to-end: crowding copy stays magnitude-only, no bullish/bearish word attached to the composite',
+    0 === count(array_filter($language_result['key_drivers'], function ($l) {
+        return false !== stripos($l, 'padat') && (false !== stripos($l, 'bullish') || false !== stripos($l, 'bearish') || false !== stripos($l, 'naik') || false !== stripos($l, 'turun'));
+    }))
+);
 
 $passed = count(array_filter($checks, function ($row) { return $row[1]; }));
 foreach ($checks as $row) {
