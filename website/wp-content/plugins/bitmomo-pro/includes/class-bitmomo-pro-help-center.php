@@ -216,8 +216,8 @@ class Bitmomo_Pro_Help_Center {
 			<nav class="bm-help__related" aria-label="Tautan terkait">
 				<a href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Bitmomo Pro</a>
 				<a href="<?php echo esc_url( home_url( '/#bm-btc-title' ) ); ?>">BTC Daily Intelligence</a>
-				<a href="<?php echo esc_url( home_url( '/ai-lab/' ) ); ?>">AI Lab</a>
-				<a href="<?php echo esc_url( home_url( '/research/' ) ); ?>">Research</a>
+				<a href="<?php echo esc_url( home_url( '/category/tren-ai/' ) ); ?>">AI Lab</a>
+				<a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>">Research</a>
 				<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>">Privacy</a>
 				<a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>">Disclaimer</a>
 			</nav>
