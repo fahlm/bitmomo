@@ -82,12 +82,16 @@ final class Bitmomo_AI_Shortcodes {
         $support_zone = $zones_ready ? number_format_i18n((float) ($risk['support_zone_low'] ?? 0), 0) . '–' . number_format_i18n((float) ($risk['support_zone_high'] ?? 0), 0) : 'Menunggu data terbaru';
         $resistance_zone = $zones_ready ? number_format_i18n((float) ($risk['resistance_zone_low'] ?? 0), 0) . '–' . number_format_i18n((float) ($risk['resistance_zone_high'] ?? 0), 0) : 'Menunggu data terbaru';
         $invalidation_label = $zones_ready && $bias !== 'neutral' ? number_format_i18n((float) ($risk['invalidation'] ?? 0), 0) : ($zones_ready ? 'Belum terbentuk' : 'Menunggu data terbaru');
-        $reasons = [
-            $direction >= 60 ? 'Arah jangka pendek masih naik.' : ($direction <= -60 ? 'Arah jangka pendek masih turun.' : 'Arah jangka pendek belum jelas.'),
-            $direction >= 20 ? 'Tekanan beli masih dominan.' : ($direction <= -20 ? 'Tekanan jual masih dominan.' : 'Tekanan beli dan jual masih seimbang.'),
-            !$positioning_available ? 'Data posisi futures belum tersedia dan tidak digunakan dalam kesimpulan.' : ($crowding >= 20 ? 'Minat pasar meningkat, tetapi belum berlebihan.' : ($crowding <= -20 ? 'Posisi pasar cenderung ke arah turun, tetapi belum berlebihan.' : 'Minat pasar masih seimbang.')),
-            $volatility >= 75 ? 'Volatilitas sangat tinggi; risiko koreksi ikut meningkat.' : ($volatility >= 40 ? 'Volatilitas meningkat; perubahan harga dapat berlangsung lebih cepat.' : 'Volatilitas relatif rendah.'),
-        ];
+        // Dynamic, ranked, capped (1-6) "Faktor Utama" / Key Drivers list —
+        // replaces the old fixed, always-4-bullet reasons array below. This
+        // is the one customer-facing surface that actually renders driver
+        // explanation copy today (it reads $evaluation directly and was NOT
+        // wired to Bitmomo_AI_Intelligence::primary_driver()/free_projection()
+        // at all), so this is the minimal renderer change required for the
+        // new Key Drivers copy to actually reach the page. Selection,
+        // ranking, consolidation and copy rules all live in
+        // Bitmomo_AI_Key_Drivers so they stay unit-testable in isolation.
+        $reasons = Bitmomo_AI_Key_Drivers::derive($evaluation);
         $direction_label = $direction >= 60 ? 'Naik kuat' : ($direction >= 20 ? 'Cenderung naik' : ($direction <= -60 ? 'Turun kuat' : ($direction <= -20 ? 'Cenderung turun' : 'Netral')));
         $activity_label = $volatility >= 75 ? 'Tinggi' : ($volatility >= 40 ? 'Sedang' : 'Rendah');
         $risk_label = $risk_high ? 'Tinggi' : ($volatility >= 40 ? 'Sedang' : 'Rendah');
