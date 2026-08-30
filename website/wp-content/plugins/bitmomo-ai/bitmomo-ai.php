@@ -47,6 +47,7 @@ final class Bitmomo_AI_Intelligence {
             'market_state' => self::market_state_label($bias),
             'confidence' => min(100, max(0, (int) ($evaluation['confidence'] ?? 0))),
             'primary_driver' => self::primary_driver($evaluation),
+            'key_drivers' => self::key_drivers($evaluation),
             'timestamp' => $timestamp,
             'timestamp_iso' => gmdate('c', $timestamp),
             'freshness_label' => self::freshness_label($timestamp, $state),
@@ -184,6 +185,22 @@ final class Bitmomo_AI_Intelligence {
                 : __('Momentum empat jam belum cukup kuat untuk memberi arah yang tegas.', 'bitmomo-ai'));
     }
 
+    /**
+     * Dynamic "Faktor Utama" / Key Drivers list — the customer-facing
+     * replacement for the single primary_driver() sentence above.
+     * primary_driver() is kept byte-for-byte unchanged for backward
+     * compatibility with any existing consumer of that singular field;
+     * this is purely an additive field on the same free_projection() shape.
+     *
+     * All selection/ranking/copy logic lives in Bitmomo_AI_Key_Drivers so it
+     * can be unit-tested in isolation from this canonical access layer.
+     *
+     * @return string[] 1 to Bitmomo_AI_Key_Drivers::MAX_DRIVERS sentences.
+     */
+    private static function key_drivers(array $evaluation) {
+        return Bitmomo_AI_Key_Drivers::derive($evaluation);
+    }
+
     private static function freshness_label($timestamp, $state) {
         $timezone = new DateTimeZone('Asia/Jakarta');
         $local = (new DateTimeImmutable('@' . $timestamp))->setTimezone($timezone);
@@ -204,6 +221,7 @@ final class Bitmomo_AI_Intelligence {
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-content-types.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-shortcodes.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-signal-engine.php';
+require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-key-drivers.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-quality-gate.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-performance.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-editorial-gate.php';
