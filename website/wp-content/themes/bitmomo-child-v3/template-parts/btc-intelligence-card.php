@@ -23,12 +23,12 @@ $bitmomo_available = in_array($bitmomo_status, ['fresh', 'delayed'], true);
         <div class="bm-btc-unavailable" role="status">
           <span class="bm-btc-freshness is-unavailable"><?php esc_html_e('Belum tersedia', 'bitmomo'); ?></span>
           <h3><?php echo esc_html((string) ($bitmomo_btc['message'] ?? '')); ?></h3>
-          <p><?php echo esc_html((string) ($bitmomo_btc['detail'] ?? '')); ?></p>
+          <p><?php echo esc_html((string) ($bitmomo_btc['detail'] ?? '')); ?> <a class="bm-btc-help" href="<?php echo esc_url(home_url('/help/#quality-gate')); ?>"><?php esc_html_e('Mengapa?', 'bitmomo'); ?></a></p>
         </div>
       <?php else : ?>
         <header class="bm-btc-summary">
           <div>
-            <span class="bm-btc-kicker"><?php esc_html_e('Market State', 'bitmomo'); ?></span>
+            <span class="bm-btc-kicker"><?php esc_html_e('Market State', 'bitmomo'); ?> <a class="bm-btc-help" href="<?php echo esc_url(home_url('/help/#apa-itu-market-state')); ?>" aria-label="<?php esc_attr_e('Apa itu Market State?', 'bitmomo'); ?>">?</a></span>
             <span class="bm-btc-direction is-<?php echo esc_attr($bitmomo_btc['bias']); ?>">
               <?php echo esc_html($bitmomo_btc['market_state']); ?>
             </span>
@@ -41,7 +41,7 @@ $bitmomo_available = in_array($bitmomo_status, ['fresh', 'delayed'], true);
 
         <div class="bm-btc-confidence">
           <div class="bm-btc-confidence-label">
-            <span><?php esc_html_e('Confidence', 'bitmomo'); ?></span>
+            <span><?php esc_html_e('Confidence', 'bitmomo'); ?> <a class="bm-btc-help" href="<?php echo esc_url(home_url('/help/#apa-arti-confidence')); ?>" aria-label="<?php esc_attr_e('Apa arti Confidence?', 'bitmomo'); ?>">?</a></span>
             <strong><?php echo esc_html((int) $bitmomo_btc['confidence']); ?>%</strong>
           </div>
           <div class="bm-btc-confidence-track" aria-hidden="true">

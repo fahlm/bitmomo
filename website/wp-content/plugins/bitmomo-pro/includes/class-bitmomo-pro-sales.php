@@ -64,6 +64,7 @@ class Bitmomo_Pro_Sales {
 		$this->render_founding_beta();
 		$this->render_price();
 		$this->render_cta();
+		Bitmomo_Pro_Help_Center::render_pro_subset();
 		$this->render_disclaimer();
 		echo '</div>';
 		return ob_get_clean();
@@ -177,8 +178,8 @@ class Bitmomo_Pro_Sales {
 		<section class="bm-pro-sales__section bm-pro-sales__price">
 			<p class="bm-pro-sales__price-amount"><?php echo esc_html( self::PRICE_LABEL ); ?></p>
 			<p class="bm-pro-sales__price-sub"><?php echo esc_html( sprintf( __( 'Maksimal %d Founding Members. Paket bulanan dan tahunan mendapat fitur yang sama; satu akun untuk satu pengguna.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
-			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Batalkan kapan saja. Akses tetap aktif sampai akhir periode yang sudah dibayar dan harga Founding berlaku selama keanggotaan tidak terputus.', 'bitmomo-pro' ); ?></p>
-			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Pembayaran bersifat final setelah akses diaktifkan, kecuali pembayaran ganda, kesalahan transaksi, kegagalan layanan/akses, atau jika diwajibkan hukum maupun aturan penyedia pembayaran.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Batalkan kapan saja. Akses tetap aktif sampai akhir periode berlangganan.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Pembayaran bersifat final setelah aktivasi, kecuali untuk pembayaran ganda, kesalahan transaksi, atau kondisi lain yang diwajibkan oleh hukum.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
 	}

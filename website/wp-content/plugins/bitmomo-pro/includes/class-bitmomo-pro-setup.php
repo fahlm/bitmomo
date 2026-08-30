@@ -48,6 +48,13 @@ class Bitmomo_Pro_Setup {
 	 */
 	private function target_pages() {
 		return array(
+			'help'          => array(
+				'path'      => 'help',
+				'post_name' => 'help',
+				'parent'    => '',
+				'title'     => __( 'Help Center Bitmomo', 'bitmomo-pro' ),
+				'shortcode' => '[bitmomo_help_center]',
+			),
 			'pro'           => array(
 				'path'      => 'pro',
 				'post_name' => 'pro',
@@ -193,4 +200,3 @@ class Bitmomo_Pro_Setup {
 		exit;
 	}
 }
-
