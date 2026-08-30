@@ -13,6 +13,15 @@ $bitmomo_btc = class_exists('Bitmomo_AI_Intelligence')
 
 $bitmomo_status = sanitize_key((string) ($bitmomo_btc['status'] ?? 'unavailable'));
 $bitmomo_available = in_array($bitmomo_status, ['fresh', 'delayed'], true);
+$bitmomo_key_drivers = array_values(array_filter(
+    array_map('strval', is_array($bitmomo_btc['key_drivers'] ?? null) ? $bitmomo_btc['key_drivers'] : []),
+    static fn($driver) => trim($driver) !== ''
+));
+$bitmomo_key_drivers = array_slice($bitmomo_key_drivers, 0, 6);
+
+if (!$bitmomo_key_drivers && trim((string) ($bitmomo_btc['primary_driver'] ?? '')) !== '') {
+    $bitmomo_key_drivers[] = (string) $bitmomo_btc['primary_driver'];
+}
 ?>
 <section class="bm-section bm-btc" aria-labelledby="bm-btc-title">
   <div class="bm-container">
@@ -50,8 +59,12 @@ $bitmomo_available = in_array($bitmomo_status, ['fresh', 'delayed'], true);
         </div>
 
         <div class="bm-btc-driver">
-          <span><?php esc_html_e('Primary Driver', 'bitmomo'); ?></span>
-          <p><?php echo esc_html($bitmomo_btc['primary_driver']); ?></p>
+          <span><?php esc_html_e('Faktor Utama', 'bitmomo'); ?></span>
+          <ul class="bm-btc-driver-list">
+            <?php foreach ($bitmomo_key_drivers as $bitmomo_driver) : ?>
+              <li><?php echo esc_html($bitmomo_driver); ?></li>
+            <?php endforeach; ?>
+          </ul>
         </div>
 
         <footer class="bm-btc-status">
@@ -83,4 +96,4 @@ $bitmomo_available = in_array($bitmomo_status, ['fresh', 'delayed'], true);
     </aside>
   </div>
 </section>
-<?php unset($bitmomo_btc, $bitmomo_status, $bitmomo_available); ?>
+<?php unset($bitmomo_btc, $bitmomo_status, $bitmomo_available, $bitmomo_key_drivers, $bitmomo_driver); ?>

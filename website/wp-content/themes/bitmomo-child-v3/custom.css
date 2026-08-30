@@ -734,12 +734,14 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   border-radius: 14px;
   background: rgba(38,208,198,.05);
 }
-.bm-btc-driver p {
+.bm-btc-driver-list {
   margin: 0;
+  padding-left: 20px;
   color: var(--ink);
   font-size: 16px;
   line-height: 1.55;
 }
+.bm-btc-driver-list li + li { margin-top: 8px; }
 
 .bm-btc-status {
   display: flex;
