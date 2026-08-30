@@ -182,6 +182,38 @@ check_kd(
     'carry: unavailable (funding=0, basis=0, data_status=unavailable) never generates a market claim',
     array('Pergerakan BTC saat ini relatif tenang dan belum ada faktor yang terlihat dominan.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0, 'basis_pct' => 0, 'data_status' => 'unavailable'))))
 );
+// --- Defensive fail-closed guard: data_status === 'unavailable' must
+// --- suppress the carry candidate EVEN IF the score/status/funding/basis
+// --- fields are, on their own, unambiguously material -- e.g. a
+// --- malformed or stale payload that still carries a stale material
+// --- score alongside a feed that has since gone unavailable. Built via
+// --- raw_evaluation() (bypassing Signal_Engine::evaluate()) because the
+// --- real engine's carry_score() never actually reads data_status, so
+// --- this exact combination can only arise from a malformed/stale
+// --- payload -- which is precisely the case this guard exists for.
+// --- Other axes remain material and unaffected, proving the guard is
+// --- carry-specific, not a global fail-closed short-circuit.
+check_kd(
+    'carry: data_status=unavailable with material-looking score/status/funding/basis is still fully suppressed (no carry line, no fallback carry sentence, other drivers unaffected)',
+    (function () {
+        $evaluation = raw_evaluation(array(
+            'carry' => array(
+                'score' => -75,
+                'status' => 'strong_bearish',
+                'funding_rate' => 0.0009,
+                'basis_pct' => 0.35,
+                'data_status' => 'unavailable',
+            ),
+            'direction' => array('score' => 80, 'status' => 'strong_bullish'),
+        ));
+        $drivers = Bitmomo_AI_Key_Drivers::derive($evaluation);
+        $has_carry_line = (bool) array_filter($drivers, function ($l) {
+            return false !== stripos($l, 'futures') || false !== stripos($l, 'posisi long') || false !== stripos($l, 'posisi short') || false !== stripos($l, 'spot') || false !== stripos($l, 'biaya');
+        });
+        $has_direction_line = (bool) array_filter($drivers, function ($l) { return false !== strpos($l, 'Momentum harga BTC'); });
+        return !$has_carry_line && $has_direction_line && 1 === count($drivers);
+    })()
+);
 
 // --- Crowding: reports the specific observed fact(s) that actually
 // --- contributed to the composite (OI change, taker buy/sell activity,

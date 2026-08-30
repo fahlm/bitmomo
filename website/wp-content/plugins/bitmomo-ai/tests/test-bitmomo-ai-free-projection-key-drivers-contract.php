@@ -228,6 +228,24 @@ check_fp(
     0 < count(array_filter($accuracy_result['key_drivers'], function ($l) { return false !== stripos($l, 'proporsi akun trader'); }))
 );
 
+// --- Case 9: fail-closed carry data-availability guard, end-to-end. Real
+// --- Signal_Engine::carry_score() never reads data_status, so a feed that
+// --- reports data_status='unavailable' while still carrying elevated
+// --- funding/basis numbers (a malformed or stale payload) will produce a
+// --- materially-scored carry axis purely from those numbers -- exactly
+// --- the case Bitmomo_AI_Key_Drivers' explicit fail-closed guard exists
+// --- to catch. Other axes (direction here) must remain unaffected.
+set_preview(fp_signal_input(array(
+    'carry' => array('funding_rate' => 0.0009, 'basis_pct' => 0.35, 'data_status' => 'unavailable'),
+)));
+$carry_unavailable_result = Bitmomo_AI_Intelligence::free_projection();
+$has_carry_like_line = (bool) array_filter($carry_unavailable_result['key_drivers'], function ($l) {
+    return false !== stripos($l, 'futures') || false !== stripos($l, 'spot') || false !== stripos($l, 'biaya');
+});
+$has_direction_line = (bool) array_filter($carry_unavailable_result['key_drivers'], function ($l) { return false !== strpos($l, 'Momentum harga BTC'); });
+check_fp('end-to-end: data_status=unavailable carry (with elevated funding/basis) never surfaces a carry Key Driver through free_projection()', !$has_carry_like_line);
+check_fp('end-to-end: other material drivers (direction) still surface normally when carry is suppressed for unavailability', $has_direction_line);
+
 $passed = count(array_filter($checks, function ($row) { return $row[1]; }));
 foreach ($checks as $row) {
     printf("[%s] %s\n", $row[1] ? 'PASS' : 'FAIL', $row[0]);

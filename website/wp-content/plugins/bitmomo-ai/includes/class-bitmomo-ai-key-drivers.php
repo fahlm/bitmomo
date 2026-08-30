@@ -45,6 +45,12 @@ if (!defined('ABSPATH')) exit;
  *    they are reported as separate observed facts (at most two, joined
  *    with "sementara") rather than folded into one directional or
  *    "crowded/concentrated" conclusion the composite cannot support.
+ *    carry additionally has an explicit fail-closed guard in
+ *    build_candidates(): data_status === 'unavailable' unconditionally
+ *    suppresses the carry candidate, matching
+ *    Bitmomo_AI_Signal_Engine::carry_reason()'s own convention, even if a
+ *    malformed/stale payload somehow still carries a material-looking
+ *    score/status alongside it.
  *  - volatility has no comparable signed score; its own categorical `regime`
  *    (extreme/high/low/normal, already computed by the engine) drives both
  *    inclusion and a presentation-only materiality rank — not a scoring
@@ -146,7 +152,19 @@ final class Bitmomo_AI_Key_Drivers {
             }
         }
 
-        if (self::is_material($carry['status'] ?? 'neutral')) {
+        // Explicit fail-closed guard: the Signal Engine's own convention is
+        // that unavailable carry data (no funding/basis feed) must be
+        // excluded from the conclusion — see
+        // Bitmomo_AI_Signal_Engine::carry_reason(). carry_score() already
+        // returns 0 for an unavailable/all-zero payload, which is_material()
+        // would normally catch, but this check makes the exclusion explicit
+        // and unconditional: a malformed or stale payload that somehow
+        // carries a non-zero/material-looking score or status alongside
+        // data_status === 'unavailable' must still never produce a
+        // customer-facing carry Key Driver, and produces no fallback
+        // sentence in its place — the other candidates are unaffected.
+        $carry_unavailable = 'unavailable' === (string) ($carry['data_status'] ?? '');
+        if (!$carry_unavailable && self::is_material($carry['status'] ?? 'neutral')) {
             $candidates[] = self::carry_candidate($carry);
         }
 
