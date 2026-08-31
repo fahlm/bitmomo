@@ -16,7 +16,7 @@ final class Bitmomo_AI_Performance {
         $posts = get_posts([
             'post_type' => Bitmomo_AI_Content_Types::SIGNAL,
             'post_status' => 'any',
-            'posts_per_page' => 30,
+            'posts_per_page' => -1,
             'fields' => 'ids',
             'orderby' => 'date',
             'order' => 'DESC',
@@ -71,6 +71,36 @@ final class Bitmomo_AI_Performance {
             $settled++;
         }
         return $settled;
+    }
+
+    public static function corpus_diagnostics() {
+        $ids = get_posts([
+            'post_type' => Bitmomo_AI_Content_Types::SIGNAL,
+            'post_status' => 'any',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+        ]);
+        $post_statuses = [];
+        $settlement_states = ['pending' => 0, 'evaluated' => 0, 'window_missed' => 0, 'missing' => 0, 'other' => 0];
+        $with_input_snapshot = $with_axis_snapshot = 0;
+        foreach ($ids as $post_id) {
+            $post_status = (string) get_post_status($post_id);
+            $post_statuses[$post_status] = ($post_statuses[$post_status] ?? 0) + 1;
+            $state = (string) get_post_meta($post_id, '_bm_outcome_status', true);
+            $bucket = $state === '' ? 'missing' : (isset($settlement_states[$state]) ? $state : 'other');
+            $settlement_states[$bucket]++;
+            if ((string) get_post_meta($post_id, '_bm_input_snapshot', true) !== '') $with_input_snapshot++;
+            if ((string) get_post_meta($post_id, '_bm_axis_snapshot', true) !== '') $with_axis_snapshot++;
+        }
+        ksort($post_statuses);
+        return [
+            'total' => count($ids),
+            'post_statuses' => $post_statuses,
+            'settlement_states' => $settlement_states,
+            'with_input_snapshot' => $with_input_snapshot,
+            'with_axis_snapshot' => $with_axis_snapshot,
+        ];
     }
 
     public static function summary() {
