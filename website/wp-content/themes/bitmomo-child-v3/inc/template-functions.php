@@ -9,7 +9,7 @@ if (!function_exists('bitmomo_render_brand')) {
         $logo_url = get_site_icon_url(96, $fallback_logo_url);
 
         printf(
-            '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s"><img class="bm-brand-mark" src="%s" width="48" height="48" alt="%s" decoding="async"></a></div>',
+            '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s"><img class="bm-brand-mark" src="%s" width="48" height="48" alt="" decoding="async"><span class="bm-brand-name">bitmomo</span></a></div>',
             esc_url(home_url('/')),
             esc_attr__('Bitmomo home', 'bitmomo'),
             esc_url($logo_url),
