@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Bitmomo_AI_Scheduler {
     const HOOK = 'bitmomo_ai_daily_generation';
     const MORNING_HOOK = 'bitmomo_ai_morning_generation';
+    const SETTLEMENT_HOOK = 'bitmomo_ai_outcome_settlement';
     const PUBLISH_LOG_OPTION = 'bitmomo_ai_publish_log';
 
     public static function auto_publish_enabled() {
@@ -13,6 +14,7 @@ final class Bitmomo_AI_Scheduler {
     public static function register() {
         add_action(self::HOOK, [__CLASS__, 'run_us_session']);
         add_action(self::MORNING_HOOK, [__CLASS__, 'run_morning']);
+        add_action(self::SETTLEMENT_HOOK, [__CLASS__, 'run_settlement']);
         add_action('admin_menu', [__CLASS__, 'admin_menu']);
         add_action('admin_post_bitmomo_ai_run_now', [__CLASS__, 'run_now']);
         add_action('admin_post_bitmomo_ai_create_preview', [__CLASS__, 'create_preview_page']);
@@ -20,7 +22,7 @@ final class Bitmomo_AI_Scheduler {
     }
 
     public static function ensure_schedule() {
-        if (!wp_next_scheduled(self::HOOK) || !wp_next_scheduled(self::MORNING_HOOK)) self::schedule();
+        if (!wp_next_scheduled(self::HOOK) || !wp_next_scheduled(self::MORNING_HOOK) || !wp_next_scheduled(self::SETTLEMENT_HOOK)) self::schedule();
     }
 
     public static function schedule() {
@@ -32,15 +34,33 @@ final class Bitmomo_AI_Scheduler {
             if ($next <= $now) $next = $next->modify('+1 day');
             wp_schedule_event($next->getTimestamp(), 'daily', $slot[0]);
         }
+        if (!wp_next_scheduled(self::SETTLEMENT_HOOK)) {
+            $next_settlement = $now->setTime(8, 10);
+            if ($next_settlement <= $now) $next_settlement = $next_settlement->modify('+1 day');
+            wp_schedule_event($next_settlement->getTimestamp(), 'twicedaily', self::SETTLEMENT_HOOK);
+        }
     }
 
     public static function unschedule() {
         wp_clear_scheduled_hook(self::HOOK);
         wp_clear_scheduled_hook(self::MORNING_HOOK);
+        wp_clear_scheduled_hook(self::SETTLEMENT_HOOK);
     }
 
     public static function run_morning() { return self::run('morning'); }
     public static function run_us_session() { return self::run('us_session'); }
+
+    public static function run_settlement() {
+        $data = Bitmomo_AI_Binance::snapshot();
+        if (is_wp_error($data)) {
+            update_option('bitmomo_ai_last_settlement', ['status' => 'error', 'message' => $data->get_error_message(), 'time' => gmdate('c')], false);
+            return $data;
+        }
+        $settled = Bitmomo_AI_Performance::settle($data);
+        do_action('bitmomo_ai_settlement_snapshot', $data);
+        update_option('bitmomo_ai_last_settlement', ['status' => 'success', 'settled' => $settled, 'time' => gmdate('c')], false);
+        return $settled;
+    }
 
     public static function automation_health() {
         $timezone = new DateTimeZone('Asia/Jakarta');
@@ -100,7 +120,6 @@ final class Bitmomo_AI_Scheduler {
             self::record('blocked', $gate->get_error_message());
             return $gate;
         }
-        Bitmomo_AI_Performance::settle($data);
         $generated_at = gmdate('c');
         $analysis_date = wp_date('Y-m-d', strtotime($data['timestamp']), new DateTimeZone('Asia/Jakarta'));
         $source_record_id = 'bitmomo-ai:' . $analysis_date . ':' . $edition;
@@ -240,6 +259,9 @@ final class Bitmomo_AI_Scheduler {
             echo '<p>' . esc_html__('Belum ada percobaan auto-publish.', 'bitmomo-ai') . '</p>';
         }
         $performance = Bitmomo_AI_Performance::summary();
+        $corpus = Bitmomo_AI_Performance::corpus_diagnostics();
+        echo '<h2>' . esc_html__('Signal corpus', 'bitmomo-ai') . '</h2>';
+        echo '<p><strong>' . esc_html(sprintf('%d any-status records', $corpus['total'])) . '</strong> — ' . esc_html('post statuses: ' . wp_json_encode($corpus['post_statuses']) . ' — settlement: ' . wp_json_encode($corpus['settlement_states']) . ' — raw inputs: ' . $corpus['with_input_snapshot'] . ' — axes: ' . $corpus['with_axis_snapshot']) . '</p>';
         echo '<h2>' . esc_html__('Forward validation', 'bitmomo-ai') . '</h2>';
         if ($performance['total'] > 0) {
             $accuracy = $performance['accuracy_pct'] === null ? 'belum tersedia' : number_format_i18n($performance['accuracy_pct'], 1) . '%';
