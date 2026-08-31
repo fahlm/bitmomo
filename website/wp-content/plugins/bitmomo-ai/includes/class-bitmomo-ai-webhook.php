@@ -138,6 +138,8 @@ final class Bitmomo_AI_Webhook {
         update_post_meta($post_id, '_bm_model', 'rules-mtf-v1');
         update_post_meta($post_id, '_bm_payload_hash', $fingerprint);
         update_post_meta($post_id, '_bm_axis_snapshot', wp_json_encode($evaluation['axes']));
+        // Immutable-at-creation engine input for forward validation and later replay.
+        update_post_meta($post_id, '_bm_input_snapshot', wp_json_encode($data));
         $risk = (array) ($evaluation['risk'] ?? []);
         update_post_meta($post_id, '_bm_support_low', (string) ($risk['support_zone_low'] ?? 0));
         update_post_meta($post_id, '_bm_support_high', (string) ($risk['support_zone_high'] ?? 0));

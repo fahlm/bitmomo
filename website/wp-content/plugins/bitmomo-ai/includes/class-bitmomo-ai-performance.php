@@ -16,7 +16,7 @@ final class Bitmomo_AI_Performance {
         $posts = get_posts([
             'post_type' => Bitmomo_AI_Content_Types::SIGNAL,
             'post_status' => 'any',
-            'posts_per_page' => 30,
+            'posts_per_page' => -1,
             'fields' => 'ids',
             'orderby' => 'date',
             'order' => 'DESC',
@@ -71,6 +71,44 @@ final class Bitmomo_AI_Performance {
             $settled++;
         }
         return $settled;
+    }
+
+    public static function corpus_diagnostics() {
+        $ids = get_posts([
+            'post_type' => Bitmomo_AI_Content_Types::SIGNAL,
+            'post_status' => 'any',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+        ]);
+        $post_statuses = [];
+        $settlement_states = ['pending' => 0, 'evaluated' => 0, 'window_missed' => 0, 'missing' => 0, 'other' => 0];
+        $with_input_snapshot = $with_axis_snapshot = 0;
+        $earliest_timestamp = $latest_timestamp = null;
+        foreach ($ids as $post_id) {
+            $post_status = (string) get_post_status($post_id);
+            $post_statuses[$post_status] = ($post_statuses[$post_status] ?? 0) + 1;
+            $record_timestamp = (int) get_post_time('U', true, $post_id);
+            if ($record_timestamp > 0) {
+                if ($earliest_timestamp === null || $record_timestamp < $earliest_timestamp) $earliest_timestamp = $record_timestamp;
+                if ($latest_timestamp === null || $record_timestamp > $latest_timestamp) $latest_timestamp = $record_timestamp;
+            }
+            $state = (string) get_post_meta($post_id, '_bm_outcome_status', true);
+            $bucket = $state === '' ? 'missing' : (isset($settlement_states[$state]) ? $state : 'other');
+            $settlement_states[$bucket]++;
+            if ((string) get_post_meta($post_id, '_bm_input_snapshot', true) !== '') $with_input_snapshot++;
+            if ((string) get_post_meta($post_id, '_bm_axis_snapshot', true) !== '') $with_axis_snapshot++;
+        }
+        ksort($post_statuses);
+        return [
+            'total' => count($ids),
+            'post_statuses' => $post_statuses,
+            'settlement_states' => $settlement_states,
+            'with_input_snapshot' => $with_input_snapshot,
+            'with_axis_snapshot' => $with_axis_snapshot,
+            'earliest_record' => $earliest_timestamp === null ? '' : gmdate('c', $earliest_timestamp),
+            'latest_record' => $latest_timestamp === null ? '' : gmdate('c', $latest_timestamp),
+        ];
     }
 
     public static function summary() {

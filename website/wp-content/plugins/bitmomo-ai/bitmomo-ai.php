@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Bitmomo AI
  * Description: Editorial foundation for AI Market Insight and Bitcoin Signal.
- * Version: 1.2.2
+ * Version: 1.2.3
  * Author: Bitmomo
  * Text Domain: bitmomo-ai
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BITMOMO_AI_VERSION', '1.2.2');
+define('BITMOMO_AI_VERSION', '1.2.3');
 define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
@@ -63,6 +63,7 @@ final class Bitmomo_AI_Intelligence {
 
         $source = self::validated_source();
         if (!$source) return null;
+        if (self::source_is_stale($source)) return null;
 
         $evaluation = $source['evaluation'];
         $risk = is_array($evaluation['risk'] ?? null) ? $evaluation['risk'] : [];
@@ -90,6 +91,7 @@ final class Bitmomo_AI_Intelligence {
     public static function regime_projection() {
         $source = self::validated_source();
         if (!$source || empty($source['data']['regime_metrics'])) return null;
+        if (self::source_is_stale($source)) return null;
         $evaluation = $source['evaluation'];
         $axes = is_array($evaluation['axes'] ?? null) ? $evaluation['axes'] : [];
         $source_timestamp = strtotime((string) ($source['data']['quality']['last_closed_candle'] ?? ($source['data']['timestamp'] ?? ''))) ?: (int) $source['timestamp'];
@@ -133,6 +135,10 @@ final class Bitmomo_AI_Intelligence {
             'source_record_id' => sanitize_text_field((string) ($preview['source_record_id'] ?? '')),
             'comparison_source_record_id' => sanitize_text_field((string) ($preview['comparison_source_record_id'] ?? '')),
         ];
+    }
+
+    private static function source_is_stale(array $source) {
+        return (time() - (int) ($source['timestamp'] ?? 0)) > self::DELAYED_AGE_SECONDS;
     }
 
     private static function unavailable_projection() {
