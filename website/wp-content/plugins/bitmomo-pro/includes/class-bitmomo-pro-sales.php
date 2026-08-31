@@ -57,7 +57,6 @@ class Bitmomo_Pro_Sales {
 		ob_start();
 		echo '<div class="bm-pro-sales">';
 		$this->render_hero();
-		$this->render_problem();
 		$this->render_free_vs_pro();
 		$this->render_daily_deliverable();
 		$this->render_example();
@@ -73,17 +72,9 @@ class Bitmomo_Pro_Sales {
 	private function render_hero() {
 		?>
 		<section class="bm-pro-sales__hero">
-			<h1 class="bm-pro-sales__hero-title"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo-pro' ); ?></h1>
-			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Satu decision view BTC harian yang terstruktur — bukan feed yang harus kamu susun sendiri setiap pagi.', 'bitmomo-pro' ); ?></p>
-		</section>
-		<?php
-	}
-
-	private function render_problem() {
-		?>
-		<section class="bm-pro-sales__section">
-			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Masalahnya', 'bitmomo-pro' ); ?></h2>
-			<p><?php esc_html_e( 'Kamu tidak seharusnya perlu menyusun sendiri arah BTC dari CT, grup Telegram, dan TradingView setiap hari. Bitmomo Pro merangkumnya menjadi satu tampilan keputusan harian yang terstruktur.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__hero-eyebrow"><?php esc_html_e( 'BITMOMO PRO', 'bitmomo-pro' ); ?></p>
+			<h1 class="bm-pro-sales__hero-title"><?php esc_html_e( 'Semua yang perlu diperhatikan berikutnya. Tanpa semua noise-nya.', 'bitmomo-pro' ); ?></h1>
+			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Expected range, skenario, invalidation, dan perubahan penting diringkas menjadi satu Decision View BTC.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
 	}
@@ -123,10 +114,11 @@ class Bitmomo_Pro_Sales {
 		<section class="bm-pro-sales__section">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Yang kamu dapat setiap hari', 'bitmomo-pro' ); ?></h2>
 			<ul class="bm-pro-sales__list">
-				<li><?php esc_html_e( 'Market state dan confidence yang jelas', 'bitmomo-pro' ); ?></li>
-				<li><?php esc_html_e( 'Expected range dan tiga skenario (base/bull/bear)', 'bitmomo-pro' ); ?></li>
-				<li><?php esc_html_e( 'Titik invalidasi thesis', 'bitmomo-pro' ); ?></li>
-				<li><?php esc_html_e( 'Ringkasan "What Changed" dari hari sebelumnya', 'bitmomo-pro' ); ?></li>
+				<li><?php esc_html_e( 'Expected Range harian', 'bitmomo-pro' ); ?></li>
+				<li><?php esc_html_e( 'Scenario Map: Base / Bull / Bear', 'bitmomo-pro' ); ?></li>
+				<li><?php esc_html_e( 'Thesis Invalidation', 'bitmomo-pro' ); ?></li>
+				<li><?php esc_html_e( 'What Changed dari update sebelumnya', 'bitmomo-pro' ); ?></li>
+				<li><?php esc_html_e( 'Confidence Explanation', 'bitmomo-pro' ); ?></li>
 			</ul>
 		</section>
 		<?php
@@ -177,7 +169,7 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section class="bm-pro-sales__section bm-pro-sales__price">
 			<p class="bm-pro-sales__price-amount"><?php echo esc_html( self::PRICE_LABEL ); ?></p>
-			<p class="bm-pro-sales__price-sub"><?php echo esc_html( sprintf( __( 'Maksimal %d Founding Members. Paket bulanan dan tahunan mendapat fitur yang sama; satu akun untuk satu pengguna.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
+			<p class="bm-pro-sales__price-sub"><?php echo esc_html( sprintf( __( 'Maksimal %d Founding Members — Batch 1 dibuka untuk 25 seats. Paket bulanan dan tahunan mendapat fitur yang sama.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
 			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Batalkan kapan saja. Akses tetap aktif sampai akhir periode berlangganan.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Pembayaran bersifat final setelah aktivasi, kecuali untuk pembayaran ganda, kesalahan transaksi, atau kondisi lain yang diwajibkan oleh hukum.', 'bitmomo-pro' ); ?></p>
 		</section>

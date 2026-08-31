@@ -65,12 +65,12 @@ trait Bitmomo_Images_Trait {
     public function detect_first_card_post() {
         global $wp_query;
         if (is_front_page()) {
-            // front-page.php's "BIG STORIES" query is filtered to the
-            // big-stories tag -- match it here so we preload the image
-            // that's actually rendered as the first (eager) card, not
-            // just the latest post site-wide.
-            $p = get_posts(['post_type'=>'post','posts_per_page'=>1,'orderby'=>'date','order'=>'DESC','no_found_rows'=>true,'post_status'=>'publish','tag'=>'big-stories']);
-            if (!empty($p)) $this->first_card_post_id = (int)$p[0]->ID;
+            // As of the customer-facing UI cleanup sprint, front-page.php no
+            // longer renders the "BIG STORIES" tag grid (replaced by the
+            // Research section, which is text-only -- no post thumbnails).
+            // The homepage has no first-card image to preload, so this
+            // intentionally leaves first_card_post_id unset here rather than
+            // preloading an image that's never actually rendered.
         } elseif (is_home()) {
             $p = get_posts(['post_type'=>'post','posts_per_page'=>1,'orderby'=>'date','order'=>'DESC','no_found_rows'=>true,'post_status'=>'publish']);
             if (!empty($p)) $this->first_card_post_id = (int)$p[0]->ID;
