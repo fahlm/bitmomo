@@ -261,7 +261,7 @@ final class Bitmomo_AI_Scheduler {
         $performance = Bitmomo_AI_Performance::summary();
         $corpus = Bitmomo_AI_Performance::corpus_diagnostics();
         echo '<h2>' . esc_html__('Signal corpus', 'bitmomo-ai') . '</h2>';
-        echo '<p><strong>' . esc_html(sprintf('%d any-status records', $corpus['total'])) . '</strong> — ' . esc_html('post statuses: ' . wp_json_encode($corpus['post_statuses']) . ' — settlement: ' . wp_json_encode($corpus['settlement_states']) . ' — raw inputs: ' . $corpus['with_input_snapshot'] . ' — axes: ' . $corpus['with_axis_snapshot']) . '</p>';
+        echo '<p><strong>' . esc_html(sprintf('%d any-status records', $corpus['total'])) . '</strong> — ' . esc_html('post statuses: ' . wp_json_encode($corpus['post_statuses']) . ' — settlement: ' . wp_json_encode($corpus['settlement_states']) . ' — raw inputs: ' . $corpus['with_input_snapshot'] . ' — axes: ' . $corpus['with_axis_snapshot'] . ' — earliest: ' . ($corpus['earliest_record'] ?: 'none') . ' — latest: ' . ($corpus['latest_record'] ?: 'none')) . '</p>';
         echo '<h2>' . esc_html__('Forward validation', 'bitmomo-ai') . '</h2>';
         if ($performance['total'] > 0) {
             $accuracy = $performance['accuracy_pct'] === null ? 'belum tersedia' : number_format_i18n($performance['accuracy_pct'], 1) . '%';
