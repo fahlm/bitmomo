@@ -1,7 +1,7 @@
 <?php
 /**
- * "Bitmomo Research" homepage section (hierarchy position 4, alongside
- * AI Lab). Replaces the previous generic "BIG STORIES" tag grid with an
+ * "Bitmomo Research" homepage section (hierarchy position 8, immediately
+ * after AI Lab). Replaces the previous generic "BIG STORIES" tag grid with an
  * editorial treatment: category, headline, short description, text link
  * -- per the brief's target categories (Bitcoin, Makro, Crypto Market
  * Structure).

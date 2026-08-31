@@ -161,8 +161,19 @@ class Bitmomo_Pro_Help_Center {
 		);
 	}
 
+	/**
+	 * Conversion-critical only (per the frontend-completion sprint's
+	 * aggressive /pro simplification directive) -- what a visitor needs
+	 * resolved right before joining the whitelist or paying, not general
+	 * product education. Everything else (free-vs-pro, update schedule,
+	 * post-149-cap handling, monthly-vs-annual mechanics, whether founders
+	 * get future features) already lives at /help and is one click away via
+	 * render_pro_subset()'s "Lihat Help Center" link -- trimmed from 10
+	 * items to 5 so /pro's FAQ stays a purchase aid, not a second Help
+	 * Center.
+	 */
 	public static function pro_question_ids() {
-		return array( 'apa-itu-bitmomo-pro', 'free-vs-pro', 'jadwal-btc-daily-intelligence', 'harga-bitmomo-pro', 'apa-itu-founding-membership', 'setelah-kuota-149-penuh', 'founders-mendapat-analysts-watchtower', 'batalkan-kapan-saja', 'kebijakan-refund', 'bulanan-vs-tahunan' );
+		return array( 'apa-itu-bitmomo-pro', 'harga-bitmomo-pro', 'apa-itu-founding-membership', 'batalkan-kapan-saja', 'kebijakan-refund' );
 	}
 
 	private static function indexed_items() {

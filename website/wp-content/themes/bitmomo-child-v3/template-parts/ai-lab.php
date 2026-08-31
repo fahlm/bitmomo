@@ -1,7 +1,7 @@
 <?php
 /**
  * "Bitmomo AI Lab" research positioning -- homepage section (hierarchy
- * position 4, alongside Research). Verbatim copy per brief. Must stay a
+ * position 7, immediately before Research). Verbatim copy per brief. Must stay a
  * research/positioning statement -- not general AI news, no internal AI
  * vendor/model names, and not a decorative tag list (each theme carries a
  * one-line description, not just a bare pill).

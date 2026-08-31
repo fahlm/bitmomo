@@ -1,6 +1,6 @@
 <?php
 /**
- * "Platform yang Kami Gunakan" -- homepage section (hierarchy position 5).
+ * "Platform yang Kami Gunakan" -- homepage section (hierarchy position 9).
  *
  * Editorial, not promotional: platform name, short reason, "Baca ulasan →",
  * with a quiet referral disclosure. Wires up the existing, previously-unused

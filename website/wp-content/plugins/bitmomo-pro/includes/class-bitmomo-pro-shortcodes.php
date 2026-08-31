@@ -173,8 +173,17 @@ class Bitmomo_Pro_Shortcodes {
 		<div class="bm-pro__dashboard">
 			<div class="bm-pro__header bm-pro__state--<?php echo esc_attr( $state ? $state : 'unknown' ); ?>">
 				<span class="bm-pro__state-label"><?php echo esc_html( isset( $state_label[ $state ] ) ? $state_label[ $state ] : $state ); ?></span>
-				<?php if ( '' !== $brief['confidence'] ) : ?>
-					<span class="bm-pro__confidence"><?php echo esc_html( $brief['confidence'] ); ?>% <?php esc_html_e( 'confidence', 'bitmomo-pro' ); ?></span>
+				<?php if ( '' !== $brief['confidence'] ) :
+					// Same Rendah/Sedang/Tinggi strength language as the free
+					// BTC Daily Intelligence card (btc-intelligence-card.php) --
+					// confidence is an internal evidence-strength score, not a
+					// calibrated probability, so it is never presented as a raw
+					// "X% confidence" figure here either. Same >=70/>=40
+					// thresholds, kept in sync on purpose.
+					$bm_pro_confidence_value = (int) $brief['confidence'];
+					$bm_pro_confidence_label = $bm_pro_confidence_value >= 70 ? __( 'Tinggi', 'bitmomo-pro' ) : ( $bm_pro_confidence_value >= 40 ? __( 'Sedang', 'bitmomo-pro' ) : __( 'Rendah', 'bitmomo-pro' ) );
+				?>
+					<span class="bm-pro__confidence"><?php esc_html_e( 'Confidence', 'bitmomo-pro' ); ?>: <?php echo esc_html( $bm_pro_confidence_label ); ?></span>
 				<?php endif; ?>
 				<?php if ( '' !== $brief['btc_reference_price'] ) : ?>
 					<span class="bm-pro__price">$<?php echo esc_html( number_format_i18n( floatval( $brief['btc_reference_price'] ) ) ); ?></span>

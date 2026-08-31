@@ -1,9 +1,9 @@
 <?php
 /**
- * Standalone "Bitmomo Pro" homepage section (hierarchy position 2).
+ * Standalone "Bitmomo Pro" homepage section (hierarchy position 4).
  *
- * Extracted from btc-intelligence-card.php so BTC Intelligence (position 1)
- * and Bitmomo Pro (position 2) are two distinct sections instead of one
+ * Extracted from btc-intelligence-card.php so BTC Intelligence (position 3)
+ * and Bitmomo Pro (position 4) are two distinct sections instead of one
  * bundled together -- same markup/CSS as before, just its own section.
  *
  * @package Bitmomo
