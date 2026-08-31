@@ -30,6 +30,16 @@ class Bitmomo_Pro_Entitlements {
 	const META_RENEWAL_STATUS = 'bitmomo_pro_renewal_status';
 	const META_CANCELED_AT = 'bitmomo_pro_canceled_at';
 
+	/**
+	 * Set by Bitmomo_Pro_Activation when a WordPress account was created
+	 * during activation but Pro access could NOT be granted (founding cap
+	 * reached) — flags an account that exists with no Pro access so a
+	 * founder doesn't stumble on it unexplained later. Cleared automatically
+	 * by Bitmomo_Pro_Entitlement_Service::grant_access() the moment access
+	 * is successfully (re)granted for that user, i.e. once resolved.
+	 */
+	const META_ACTIVATION_ORPHANED_AT = 'bitmomo_pro_activation_orphaned_at';
+
 	const NONCE_ACTION = 'bitmomo_pro_save_entitlement';
 	const NONCE_FIELD  = 'bitmomo_pro_entitlement_nonce';
 
@@ -106,6 +116,22 @@ class Bitmomo_Pro_Entitlements {
 				<br /><span style="color:#b32d2e;"><?php esc_html_e( 'Founding cap reached — consider carefully before granting another "Founding Beta member" source.', 'bitmomo-pro' ); ?></span>
 			<?php endif; ?>
 		</p>
+		<?php
+		$orphaned_at = get_user_meta( $user->ID, self::META_ACTIVATION_ORPHANED_AT, true );
+		if ( $orphaned_at ) :
+			?>
+			<p style="border-left:3px solid #b32d2e;background:#fbe7e6;padding:8px 12px;max-width:640px;">
+				<strong><?php esc_html_e( 'This account was created during activation, but Pro access was NOT granted (founding cap reached).', 'bitmomo-pro' ); ?></strong>
+				<br />
+				<?php
+				printf(
+					/* translators: %s: timestamp the orphaned state was recorded */
+					esc_html__( 'Flagged at: %s. Set Status to Active below to resolve, or delete this account if it was created in error. This notice clears automatically once access is granted.', 'bitmomo-pro' ),
+					esc_html( $orphaned_at )
+				);
+				?>
+			</p>
+		<?php endif; ?>
 		<table class="form-table" role="presentation">
 			<tr>
 				<th><label for="bitmomo_pro_status"><?php esc_html_e( 'Status', 'bitmomo-pro' ); ?></label></th>

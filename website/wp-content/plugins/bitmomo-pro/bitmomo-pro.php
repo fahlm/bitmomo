@@ -128,17 +128,59 @@ register_deactivation_hook( __FILE__, 'bitmomo_pro_deactivate' );
  * Priority: BITMOMO_PRO_CHECKOUT_URL constant (wp-config.php) > the
  * bitmomo_pro_checkout_url option (Settings > General) > empty string.
  * Filterable via 'bitmomo_pro_checkout_url' so a future payment integration
- * can override this without touching template code. When empty, callers
- * must fail gracefully rather than render a dead link — see
- * Bitmomo_Pro_Shortcodes::checkout_cta() and Bitmomo_Pro_Sales::render_cta().
+ * can override this without touching template code — including a real
+ * provider's hosted checkout link, once one is chosen; nothing about this
+ * function is provider-specific.
+ *
+ * Fail-closed by construction: the return value is only ever a well-formed
+ * absolute http(s) URL, or '' — see bitmomo_pro_is_valid_checkout_url()
+ * below. A configured-but-malformed value (a bare word, a non-http scheme,
+ * stray whitespace) is treated identically to "not configured", never
+ * rendered as a link. This is the single place that decision is made; every
+ * Pro CTA (Bitmomo_Pro_Sales::render_cta(), Bitmomo_Pro_Shortcodes::checkout_cta(),
+ * Bitmomo_Pro_Account::checkout_cta()) calls this one function and must keep
+ * failing gracefully to the existing "belum tersedia" / manual-activation
+ * copy when it returns ''. Do not duplicate this check elsewhere.
  */
 function bitmomo_pro_get_checkout_url() {
+	$url = bitmomo_pro_get_checkout_url_raw();
+
+	return bitmomo_pro_is_valid_checkout_url( $url ) ? $url : '';
+}
+
+/**
+ * The same constant > option priority chain as bitmomo_pro_get_checkout_url(),
+ * but without the validity gate — i.e. whatever is actually configured,
+ * valid or not. Not for rendering a link with. Exists only so an admin
+ * diagnostic (Bitmomo_Pro_Launch_Readiness) can tell "nothing configured
+ * yet" apart from "something is configured but malformed" instead of both
+ * collapsing into the same blank state. Everything that decides whether to
+ * show a real CTA must keep calling bitmomo_pro_get_checkout_url(), never
+ * this function.
+ */
+function bitmomo_pro_get_checkout_url_raw() {
 	if ( defined( 'BITMOMO_PRO_CHECKOUT_URL' ) && BITMOMO_PRO_CHECKOUT_URL ) {
 		$url = BITMOMO_PRO_CHECKOUT_URL;
 	} else {
 		$url = get_option( 'bitmomo_pro_checkout_url', '' );
 	}
+
 	return apply_filters( 'bitmomo_pro_checkout_url', $url );
+}
+
+/**
+ * True only for a non-empty, well-formed absolute http(s) URL. Wraps core
+ * WordPress's own wp_http_validate_url() rather than inventing a second
+ * validation rule — deliberately strict (rejects non-http(s) schemes,
+ * missing host, etc.) because this gate decides whether a real, clickable
+ * payment destination is shown to a stranger.
+ */
+function bitmomo_pro_is_valid_checkout_url( $url ) {
+	$url = trim( (string) $url );
+	if ( '' === $url ) {
+		return false;
+	}
+	return false !== wp_http_validate_url( $url );
 }
 
 /**
