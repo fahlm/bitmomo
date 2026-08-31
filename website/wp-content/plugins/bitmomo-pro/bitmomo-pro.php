@@ -36,6 +36,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-activation.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-account.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-daily.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-launch-readiness.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-whitelist.php';
 
 /**
  * Bootstraps the plugin's responsibilities:
@@ -82,6 +83,12 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-launch-readiness.php'
  *   canonical adapter output all show explicitly as "RUNTIME
  *   VERIFICATION REQUIRED"), and its overall status is only ever "NOT
  *   READY" or "STAGING-READY CANDIDATE" — never "PRODUCTION READY".
+ * - Whitelist: the Founding Membership Whitelist (V1) — pre-checkout
+ *   demand capture on the Sales page's CTA slot, shown automatically
+ *   whenever bitmomo_pro_get_checkout_url() is empty and replaced
+ *   automatically by the real purchase CTA once a checkout URL is
+ *   configured. One canonical, private bm_pro_whitelist record per email;
+ *   not a seat reservation, not a second subscriber database, not a CRM.
  *
  * This plugin is the paid-product/access layer, not the intelligence engine.
  * bitmomo-ai creates/validates intelligence; bitmomo-pro packages, protects,
@@ -107,6 +114,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Account::instance();
 	Bitmomo_Pro_Daily::instance();
 	Bitmomo_Pro_Launch_Readiness::instance();
+	Bitmomo_Pro_Whitelist::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 

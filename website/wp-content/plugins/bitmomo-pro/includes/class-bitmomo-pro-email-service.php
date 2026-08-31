@@ -35,6 +35,8 @@ class Bitmomo_Pro_Email_Service {
 	const DAILY_NONCE_FIELD  = 'bitmomo_pro_daily_email_nonce';
 	const DAILY_ACTION       = 'bitmomo_pro_admin_send_daily_email';
 
+	const META_WHITELIST_CONFIRMATION_SENT_AT = '_bm_whitelist_confirmation_sent_at';
+
 	private static $instance = null;
 
 	public static function instance() {
@@ -412,6 +414,61 @@ class Bitmomo_Pro_Email_Service {
 
 		wp_safe_redirect( add_query_arg( 'bitmomo_pro_daily_result', '1', admin_url( 'post.php?post=' . $post_id . '&action=edit' ) ) );
 		exit;
+	}
+
+	// ==================================================================
+	// FOUNDING WHITELIST CONFIRMATION EMAIL
+	// ==================================================================
+
+	/**
+	 * Best-effort confirmation email for a new Founding Membership
+	 * Whitelist signup. Called from Bitmomo_Pro_Whitelist::submit_entry()
+	 * only on a genuinely new record (never for a duplicate resubmission).
+	 * A send failure never fails the signup itself — kept here specifically
+	 * so this remains the plugin's only wp_mail() call site (see class
+	 * docblock). Never promises a launch date, never requires account
+	 * creation.
+	 */
+	public function send_whitelist_confirmation_email( $post_id ) {
+		if ( ! $post_id || ! class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
+			return array( 'sent' => false, 'error' => __( 'Missing whitelist entry.', 'bitmomo-pro' ) );
+		}
+
+		$email = get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_EMAIL, true );
+		if ( ! $email || ! is_email( $email ) ) {
+			return array( 'sent' => false, 'error' => __( 'No valid email on this entry.', 'bitmomo-pro' ) );
+		}
+
+		$first_name = get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_FIRST_NAME, true );
+
+		$cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
+		$batch = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25;
+
+		$lines   = array();
+		$lines[] = $first_name ? sprintf( __( 'Halo %s,', 'bitmomo-pro' ), $first_name ) : __( 'Halo,', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Kamu sudah masuk whitelist Bitmomo Pro.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Founding Membership:', 'bitmomo-pro' );
+		$lines[] = __( 'Rp149.000 / bulan atau Rp1.490.000 / tahun', 'bitmomo-pro' );
+		/* translators: %d: founding member cap */
+		$lines[] = sprintf( __( 'Total %d Founding Members.', 'bitmomo-pro' ), $cap );
+		/* translators: %d: batch 1 size */
+		$lines[] = sprintf( __( 'Batch 1: %d anggota.', 'bitmomo-pro' ), $batch );
+		$lines[] = '';
+		$lines[] = __( 'Kami akan menghubungi kamu sebelum akses dibuka.', 'bitmomo-pro' );
+		$lines[] = __( 'Whitelist tidak menjamin tempat. Membership aktif setelah pembayaran berhasil.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Salam,', 'bitmomo-pro' );
+		$lines[] = __( 'Tim Bitmomo', 'bitmomo-pro' );
+
+		$sent = wp_mail( $email, __( 'Kamu sudah masuk whitelist Bitmomo Pro', 'bitmomo-pro' ), implode( "\n", $lines ) );
+
+		if ( $sent ) {
+			update_post_meta( $post_id, self::META_WHITELIST_CONFIRMATION_SENT_AT, current_time( 'mysql' ) );
+		}
+
+		return array( 'sent' => (bool) $sent );
 	}
 
 	// ==================================================================
