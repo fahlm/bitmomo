@@ -989,3 +989,93 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
 .bm-btc-help:focus-visible {
   color: var(--teal, #2dd4bf);
 }
+
+
+/* ============= PR63 VISUAL PARITY ============= */
+.bm-header .bm-container { height: 70px; }
+.bm-nav-list { gap: 30px; }
+.bm-hero { padding: clamp(82px, 9vw, 132px) 0 92px; }
+.bm-hero-layout { grid-template-columns: minmax(0, 1.08fr) minmax(450px, .92fr); gap: clamp(48px, 6vw, 88px); }
+.bm-hero-title { max-width: 690px; font-size: clamp(50px, 5.1vw, 74px); }
+.bm-hero-sub { max-width: 710px; font-size: clamp(17px, 1.4vw, 20px); line-height: 1.72; }
+.bm-direction-card { min-height: 302px; padding: 28px 30px 24px; border-radius: 18px; }
+.bm-direction-chart { height: 150px; margin: 22px 0 18px; }
+.bm-state-chart { align-items: flex-end; justify-content: flex-end; border-bottom: 1px solid #263b58; }
+.bm-state-chart .bm-direction-bar { flex: 0 1 44px; width: 44px; min-width: 10px; height: 100%; }
+.bm-state-chart .bm-direction-bar span { bottom: 0; height: calc(var(--direction-size) * 1%); background: linear-gradient(180deg, #35cdbb, #2d8f91); opacity: .95; }
+.bm-direction-meta { grid-template-columns: .7fr 1.6fr .7fr; padding-top: 18px; }
+.bm-direction-meta dd { font-size: 14px; }
+.bm-direction-meta-driver dd { -webkit-line-clamp: 1; }
+
+.bm-btc { padding: clamp(46px, 6vw, 82px) 0; }
+.bm-btc-section-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 26px; }
+.bm-btc-section-head h2 { margin: 0; color: var(--teal); font: 800 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: .18em; }
+.bm-btc-section-head p { margin: 0; color: #667b98; font-size: 14px; }
+.bm-btc-card,
+.bm-pro-teaser { width: 100%; max-width: none; margin-inline: 0; box-shadow: none; }
+.bm-btc-card { padding: 0; overflow: hidden; background: rgba(16,30,49,.7); }
+.bm-btc-overview { display: grid; grid-template-columns: 1.05fr 1fr 1fr; }
+.bm-btc-metric { min-width: 0; padding: clamp(28px, 3.2vw, 46px); }
+.bm-btc-metric + .bm-btc-metric { border-left: 1px solid var(--stroke); }
+.bm-btc-kicker,
+.bm-btc-driver > span { display: block; margin: 0 0 16px; color: #71839f; font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: .17em; text-transform: uppercase; }
+.bm-btc-metric strong { display: flex; align-items: center; gap: 14px; color: var(--ink); font-size: clamp(28px, 3vw, 40px); line-height: 1.1; }
+.bm-btc-state strong i { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 5px rgba(38,208,198,.13); }
+.bm-btc-metric p { margin: 18px 0 0; color: #8fa2bd; font-size: 15px; line-height: 1.5; }
+.bm-btc-price { text-align: left; }
+.bm-btc-confidence { margin: 0; }
+.bm-btc-confidence-segments { display: grid; grid-template-columns: repeat(5, minmax(18px, 1fr)); gap: 7px; margin-top: 22px; }
+.bm-btc-confidence-segments span { height: 6px; border-radius: 99px; background: #1e304c; }
+.bm-btc-confidence-segments .is-active { background: var(--teal); }
+.bm-btc-driver { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 20px 0; margin: 0; padding: clamp(28px, 3.2vw, 42px); border: 0; border-top: 1px solid var(--stroke); border-radius: 0; background: rgba(24,49,66,.24); }
+.bm-btc-driver > span { margin: 4px 0 0; color: var(--teal); }
+.bm-btc-driver-list { margin: 0; padding-left: 22px; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.55; }
+.bm-btc-driver-list li + li { margin-top: 10px; }
+.bm-btc-driver-empty { margin: 0; color: var(--muted); }
+.bm-btc-status { margin: 0; padding: 24px clamp(28px, 3.2vw, 42px); border-top: 1px solid var(--stroke); }
+.bm-btc-status > div { display: flex; align-items: center; gap: 18px; }
+.bm-btc-status time { color: #71839f; font: 700 11px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: .06em; }
+.bm-btc-freshness { gap: 7px; padding: 7px 12px; border: 1px solid rgba(38,208,198,.34); text-transform: none; }
+.bm-btc-freshness i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.bm-btc-disclaimer { max-width: 570px; margin: 0; padding: 0; border: 0; text-align: right; }
+
+.bm-pro-teaser { display: grid; grid-template-columns: .95fr 1.05fr; align-items: center; gap: clamp(38px, 7vw, 100px); margin-top: 70px; padding: clamp(42px, 5vw, 72px); border-radius: 20px; background: rgba(16,30,49,.78); text-align: left; }
+.bm-pro-copy { min-width: 0; }
+.bm-pro-teaser h3 { max-width: 540px; margin: 22px 0 18px; font-size: clamp(32px, 3.4vw, 48px); line-height: 1.18; }
+.bm-pro-teaser .bm-pro-copy > p { max-width: 500px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
+.bm-pro-cta { margin-top: 28px; border-radius: 12px; }
+.bm-pro-locks { margin: 0; gap: 14px; }
+.bm-pro-locks li { min-height: 86px; padding: 22px; border-radius: 14px; background: rgba(7,17,30,.62); font-size: 15px; }
+.bm-pro-locks li > span:last-child { filter: saturate(.2); opacity: .8; }
+
+@media (max-width: 1050px) {
+  .bm-hero-layout { grid-template-columns: 1fr; }
+  .bm-direction-card { width: min(100%, 720px); }
+  .bm-btc-overview { grid-template-columns: 1fr 1fr; }
+  .bm-btc-confidence { grid-column: 1 / -1; border-top: 1px solid var(--stroke); border-left: 0 !important; }
+}
+
+@media (max-width: 760px) {
+  .bm-header .bm-container { height: 60px; }
+  .bm-nav { top: 60px; }
+  .bm-nav.open { max-height: 430px; }
+  .bm-nav-groups { padding: 8px 20px 18px; }
+  .bm-nav-list a { padding: 11px 10px; }
+  .bm-hero { padding: 50px 0 58px; }
+  .bm-direction-card { min-height: 0; }
+  .bm-state-chart .bm-direction-bar { flex-basis: 32px; width: 32px; }
+  .bm-btc-section-head { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .bm-btc-section-head p { font-size: 12px; }
+  .bm-btc-overview { grid-template-columns: 1fr; }
+  .bm-btc-metric + .bm-btc-metric,
+  .bm-btc-confidence { grid-column: auto; border-top: 1px solid var(--stroke); border-left: 0; }
+  .bm-btc-metric { padding: 25px 22px; }
+  .bm-btc-metric strong { font-size: 30px; }
+  .bm-btc-driver { grid-template-columns: 1fr; padding: 25px 22px; }
+  .bm-btc-status { align-items: flex-start; flex-direction: column; padding: 22px; }
+  .bm-btc-status > div { align-items: flex-start; flex-direction: column; }
+  .bm-btc-disclaimer { text-align: left; }
+  .bm-pro-teaser { grid-template-columns: 1fr; gap: 34px; margin-top: 42px; padding: 30px 22px; }
+  .bm-pro-teaser h3 { font-size: 30px; }
+  .bm-pro-locks { grid-template-columns: 1fr; }
+}
