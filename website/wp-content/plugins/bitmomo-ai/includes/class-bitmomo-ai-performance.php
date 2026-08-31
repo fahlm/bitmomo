@@ -84,9 +84,15 @@ final class Bitmomo_AI_Performance {
         $post_statuses = [];
         $settlement_states = ['pending' => 0, 'evaluated' => 0, 'window_missed' => 0, 'missing' => 0, 'other' => 0];
         $with_input_snapshot = $with_axis_snapshot = 0;
+        $earliest_timestamp = $latest_timestamp = null;
         foreach ($ids as $post_id) {
             $post_status = (string) get_post_status($post_id);
             $post_statuses[$post_status] = ($post_statuses[$post_status] ?? 0) + 1;
+            $record_timestamp = (int) get_post_time('U', true, $post_id);
+            if ($record_timestamp > 0) {
+                if ($earliest_timestamp === null || $record_timestamp < $earliest_timestamp) $earliest_timestamp = $record_timestamp;
+                if ($latest_timestamp === null || $record_timestamp > $latest_timestamp) $latest_timestamp = $record_timestamp;
+            }
             $state = (string) get_post_meta($post_id, '_bm_outcome_status', true);
             $bucket = $state === '' ? 'missing' : (isset($settlement_states[$state]) ? $state : 'other');
             $settlement_states[$bucket]++;
@@ -100,6 +106,8 @@ final class Bitmomo_AI_Performance {
             'settlement_states' => $settlement_states,
             'with_input_snapshot' => $with_input_snapshot,
             'with_axis_snapshot' => $with_axis_snapshot,
+            'earliest_record' => $earliest_timestamp === null ? '' : gmdate('c', $earliest_timestamp),
+            'latest_record' => $latest_timestamp === null ? '' : gmdate('c', $latest_timestamp),
         ];
     }
 
