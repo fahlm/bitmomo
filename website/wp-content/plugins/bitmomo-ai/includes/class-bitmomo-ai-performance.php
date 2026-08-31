@@ -88,7 +88,8 @@ final class Bitmomo_AI_Performance {
         foreach ($ids as $post_id) {
             $post_status = (string) get_post_status($post_id);
             $post_statuses[$post_status] = ($post_statuses[$post_status] ?? 0) + 1;
-            $record_timestamp = (int) get_post_time('U', true, $post_id);
+            $record_timestamp = strtotime((string) get_post_meta($post_id, '_bm_generated_at', true)) ?: 0;
+            if ($record_timestamp <= 0) $record_timestamp = (int) get_post_time('U', false, $post_id);
             if ($record_timestamp > 0) {
                 if ($earliest_timestamp === null || $record_timestamp < $earliest_timestamp) $earliest_timestamp = $record_timestamp;
                 if ($latest_timestamp === null || $record_timestamp > $latest_timestamp) $latest_timestamp = $record_timestamp;
