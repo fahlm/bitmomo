@@ -253,6 +253,7 @@ img { max-width: 100%; height: auto; display: block; }
 .bm-brand-logo,
 .bm-brand .custom-logo-link { gap: 12px; color: var(--ink); }
 .bm-header .bm-brand-logo { flex-basis: auto; width: auto; height: 38px; }
+.bm-header .bm-brand-logo { display: inline-flex; align-items: center; }
 .bm-header .bm-brand-logo > img { width: 38px !important; height: 38px !important; border-radius: 10px; }
 .bm-brand-name { color: var(--ink); font-size: 21px; font-weight: 800; letter-spacing: -.02em; }
 .bm-nav { min-width: 0; justify-content: stretch; }
@@ -281,6 +282,7 @@ img { max-width: 100%; height: auto; display: block; }
   .bm-header .bm-brand-logo > img { width: 34px !important; height: 34px !important; }
   .bm-brand-name { font-size: 19px; }
   .bm-nav { top: 60px; max-height: 0; box-shadow: 0 18px 30px rgba(0,0,0,.28); }
+  body.admin-bar .bm-nav { top: 106px; }
   .bm-nav.open { max-height: 390px; }
   .bm-nav-groups { display: block; padding: 10px 20px 22px; }
   .bm-nav-list { align-items: stretch; padding: 0; }
