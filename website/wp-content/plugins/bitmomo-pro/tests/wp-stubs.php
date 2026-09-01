@@ -55,6 +55,9 @@ function esc_html( $text ) {
 function esc_attr( $text ) {
 	return $text;
 }
+function esc_attr_e( $text, $domain = 'default' ) {
+	echo $text;
+}
 function esc_url( $url ) {
 	return $url;
 }
@@ -113,6 +116,9 @@ function get_post_meta( $post_id, $key, $single = false ) {
 }
 function get_the_title( $post ) {
 	return $GLOBALS['__wp_stub_posts'][ $post->ID ]['post_title'] ?? '';
+}
+function get_post_type( $post_id ) {
+	return $GLOBALS['__wp_stub_posts'][ (int) $post_id ]['post_type'] ?? false;
 }
 function get_the_date( $format, $post ) {
 	return '';
@@ -217,7 +223,15 @@ function update_option( $name, $value ) {
 function apply_filters( $tag, $value, ...$args ) {
 	return $value;
 }
-function do_action( ...$args ) {}
+
+// Still fires NO registered callbacks (add_action() stays a no-op above, so
+// nothing behaviorally changes for any existing test) -- but now records
+// every call so a test can assert a given hook fired (or didn't) with what
+// args, without needing a real pub/sub dispatcher.
+$GLOBALS['__wp_stub_action_log'] = array();
+function do_action( $tag, ...$args ) {
+	$GLOBALS['__wp_stub_action_log'][] = array( 'tag' => $tag, 'args' => $args );
+}
 
 // --- URL validation ------------------------------------------------------
 // Stand-in for WordPress core's wp_http_validate_url(): true only for a

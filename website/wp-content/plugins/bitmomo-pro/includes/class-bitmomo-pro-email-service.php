@@ -427,7 +427,11 @@ class Bitmomo_Pro_Email_Service {
 	 * A send failure never fails the signup itself — kept here specifically
 	 * so this remains the plugin's only wp_mail() call site (see class
 	 * docblock). Never promises a launch date, never requires account
-	 * creation.
+	 * creation, and never contains a payment/checkout link — registration
+	 * and payment happen ONLY on bitmomo.id. Body/subject/opening line and
+	 * the anti-phishing block all follow the brief's locked template
+	 * verbatim. Always ends with a plain anti-phishing/security reminder —
+	 * professional, non-alarming tone, no scare language.
 	 */
 	public function send_whitelist_confirmation_email( $post_id ) {
 		if ( ! $post_id || ! class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
@@ -444,20 +448,44 @@ class Bitmomo_Pro_Email_Service {
 		$cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
 		$batch = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25;
 
+		// Body follows the locked template verbatim: opening (same headline
+		// as the widget's success state) -> FOUNDING MEMBERSHIP recap ->
+		// one notification line covering BOTH channels (no has_whatsapp
+		// branching needed — the line itself already reads correctly
+		// whether or not a WhatsApp number is ever added) -> the same
+		// locked disclaimer -> anti-phishing/security block. No payment
+		// link anywhere — registration/payment happens ONLY on bitmomo.id,
+		// and that page is never linked from this email.
 		$lines   = array();
 		$lines[] = $first_name ? sprintf( __( 'Halo %s,', 'bitmomo-pro' ), $first_name ) : __( 'Halo,', 'bitmomo-pro' );
 		$lines[] = '';
-		$lines[] = __( 'Kamu sudah masuk whitelist Bitmomo Pro.', 'bitmomo-pro' );
+		$lines[] = __( 'Whitelist berhasil. Kamu akan jadi salah satu yang pertama tahu saat akses dibuka.', 'bitmomo-pro' );
 		$lines[] = '';
-		$lines[] = __( 'Founding Membership:', 'bitmomo-pro' );
-		$lines[] = __( 'Rp149.000 / bulan atau Rp1.490.000 / tahun', 'bitmomo-pro' );
+		$lines[] = __( 'Kamu sudah masuk Founding Membership Whitelist Bitmomo Pro.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'FOUNDING MEMBERSHIP', 'bitmomo-pro' );
+		$lines[] = __( 'Rp149.000 / bulan', 'bitmomo-pro' );
+		$lines[] = __( 'Rp1.490.000 / tahun', 'bitmomo-pro' );
 		/* translators: %d: founding member cap */
-		$lines[] = sprintf( __( 'Total %d Founding Members.', 'bitmomo-pro' ), $cap );
+		$lines[] = sprintf( __( '%d Founding Members', 'bitmomo-pro' ), $cap );
 		/* translators: %d: batch 1 size */
-		$lines[] = sprintf( __( 'Batch 1: %d anggota.', 'bitmomo-pro' ), $batch );
+		$lines[] = sprintf( __( 'Batch pertama: %d anggota', 'bitmomo-pro' ), $batch );
 		$lines[] = '';
-		$lines[] = __( 'Kami akan menghubungi kamu sebelum akses dibuka.', 'bitmomo-pro' );
-		$lines[] = __( 'Whitelist tidak menjamin tempat. Membership aktif setelah pembayaran berhasil.', 'bitmomo-pro' );
+		$lines[] = __( 'Kami akan mengirim pemberitahuan melalui email ini dan, jika kamu menambahkan nomor WhatsApp, melalui WhatsApp saat akses dibuka.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Email dan WhatsApp hanya digunakan untuk pemberitahuan. Pendaftaran dan pembayaran hanya dilakukan melalui:', 'bitmomo-pro' );
+		$lines[] = __( 'bitmomo.id', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Bitmomo tidak akan pernah meminta:', 'bitmomo-pro' );
+		$lines[] = __( '- password akun', 'bitmomo-pro' );
+		$lines[] = __( '- seed phrase', 'bitmomo-pro' );
+		$lines[] = __( '- private key', 'bitmomo-pro' );
+		$lines[] = __( '- transfer crypto melalui WhatsApp atau Telegram', 'bitmomo-pro' );
+		$lines[] = __( '- pembayaran ke alamat wallet yang dikirim melalui pesan pribadi', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Jika ragu, ketik bitmomo.id langsung di browser.', 'bitmomo-pro' );
 		$lines[] = '';
 		$lines[] = __( 'Salam,', 'bitmomo-pro' );
 		$lines[] = __( 'Tim Bitmomo', 'bitmomo-pro' );

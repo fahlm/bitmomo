@@ -55,6 +55,14 @@ class Bitmomo_Pro_Whitelist {
 	const META_STATUS           = '_bm_whitelist_status';
 	const META_VALIDATION_CLASS = '_bm_whitelist_validation_class';
 
+	// WhatsApp is a NOTIFICATION CHANNEL ONLY, on the same canonical record —
+	// never a second subscriber database, never required. Consent for this
+	// channel is captured separately from META_CONSENT_AT (email consent):
+	// it is set only by the act of successfully submitting the WhatsApp step
+	// itself, never inherited from the original email signup.
+	const META_WHATSAPP_NUMBER     = '_bm_whitelist_whatsapp_number';
+	const META_WHATSAPP_CONSENT_AT = '_bm_whitelist_whatsapp_consent_at';
+
 	const STATUS_WAITING   = 'waiting';
 	const STATUS_INVITED   = 'invited';
 	const STATUS_CONVERTED = 'converted';
@@ -65,6 +73,11 @@ class Bitmomo_Pro_Whitelist {
 
 	const NONCE_ACTION = 'bitmomo_pro_whitelist_submit';
 	const AJAX_ACTION   = 'bitmomo_pro_whitelist_submit';
+
+	// Separate AJAX action/nonce for the optional second-step WhatsApp
+	// opt-in, so it never shares state with the email-submit step above.
+	const NONCE_ACTION_WHATSAPP = 'bitmomo_pro_whitelist_whatsapp_submit';
+	const AJAX_ACTION_WHATSAPP  = 'bitmomo_pro_whitelist_whatsapp_submit';
 
 	const RATE_LIMIT_MAX    = 5;   // attempts
 	const RATE_LIMIT_WINDOW = 600; // seconds (10 minutes)
@@ -87,6 +100,9 @@ class Bitmomo_Pro_Whitelist {
 
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( $this, 'handle_ajax_submit' ) );
 		add_action( 'wp_ajax_nopriv_' . self::AJAX_ACTION, array( $this, 'handle_ajax_submit' ) );
+
+		add_action( 'wp_ajax_' . self::AJAX_ACTION_WHATSAPP, array( $this, 'handle_ajax_whatsapp_submit' ) );
+		add_action( 'wp_ajax_nopriv_' . self::AJAX_ACTION_WHATSAPP, array( $this, 'handle_ajax_whatsapp_submit' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
 
@@ -146,6 +162,46 @@ class Bitmomo_Pro_Whitelist {
 
 	public static function normalize_email( $email ) {
 		return strtolower( trim( (string) sanitize_email( (string) $email ) ) );
+	}
+
+	/**
+	 * Normalizes any of the input shapes a visitor might type — '0812...',
+	 * '812...', '+62812...', '62812...' — down to a bare 62-prefixed digit
+	 * string ('62812...', no '+', no spaces/dots/dashes). Does not validate
+	 * length/shape; see is_valid_whatsapp_number() for that. Returns '' for
+	 * empty input; an unrecognized prefix is returned as-is (digits only)
+	 * so it still fails validation rather than being silently coerced.
+	 */
+	public static function normalize_whatsapp_number( $raw ) {
+		$digits = preg_replace( '/[^0-9]/', '', (string) $raw );
+
+		if ( '' === $digits ) {
+			return '';
+		}
+
+		if ( 0 === strpos( $digits, '0' ) ) {
+			return '62' . substr( $digits, 1 );
+		}
+
+		if ( 0 === strpos( $digits, '62' ) ) {
+			return $digits;
+		}
+
+		if ( 0 === strpos( $digits, '8' ) ) {
+			return '62' . $digits;
+		}
+
+		return $digits;
+	}
+
+	/**
+	 * @param string $normalized Output of normalize_whatsapp_number().
+	 * Indonesian mobile numbers are '62' + '8' + 7-12 more digits (10-15
+	 * digits total) — anything shorter/longer or missing the '8' after the
+	 * country code is rejected rather than guessed at.
+	 */
+	public static function is_valid_whatsapp_number( $normalized ) {
+		return (bool) preg_match( '/^628[0-9]{7,12}$/', (string) $normalized );
 	}
 
 	/**
@@ -271,6 +327,64 @@ class Bitmomo_Pro_Whitelist {
 	}
 
 	/**
+	 * Pure core of the optional WhatsApp opt-in step — same convention as
+	 * submit_entry(): no superglobals, no output. Adds/updates the
+	 * WhatsApp number on an EXISTING whitelist record; never creates a new
+	 * record and never touches META_EMAIL/META_CONSENT_AT (email consent
+	 * is a separate thing from WhatsApp consent).
+	 *
+	 * @param array $args {
+	 *     @type int    $post_id          Existing bm_pro_whitelist record.
+	 *     @type string $whatsapp_number  Any accepted input shape.
+	 * }
+	 * @return array {
+	 *     @type bool        $ok
+	 *     @type string|null $error  'not_found'|'invalid_whatsapp'|null
+	 * }
+	 */
+	public function submit_whatsapp( $args ) {
+		$post_id = isset( $args['post_id'] ) ? (int) $args['post_id'] : 0;
+
+		if ( ! $post_id || self::POST_TYPE !== get_post_type( $post_id ) ) {
+			return array( 'ok' => false, 'error' => 'not_found' );
+		}
+
+		$normalized = self::normalize_whatsapp_number( $args['whatsapp_number'] ?? '' );
+
+		if ( '' === $normalized || ! self::is_valid_whatsapp_number( $normalized ) ) {
+			return array( 'ok' => false, 'error' => 'invalid_whatsapp' );
+		}
+
+		// Submitting this step IS the WhatsApp consent — a fresh timestamp
+		// every time (re-submitting a new/changed number re-consents), and
+		// never copied from the email-signup consent timestamp.
+		update_post_meta( $post_id, self::META_WHATSAPP_NUMBER, $normalized );
+		update_post_meta( $post_id, self::META_WHATSAPP_CONSENT_AT, current_time( 'mysql' ) );
+
+		/**
+		 * Fires only on a successful WhatsApp number addition. A
+		 * channel-opt-in signal only — never counted as revenue and never
+		 * auto-treated as PMF evidence, same spirit as
+		 * 'pro_whitelist_success' for the email step.
+		 */
+		do_action( 'whatsapp_opt_in', array( 'post_id' => $post_id ) );
+
+		return array( 'ok' => true, 'error' => null );
+	}
+
+	/**
+	 * The per-record scoped nonce action used to authorize the WhatsApp
+	 * step against one specific whitelist record, mirroring WordPress's
+	 * own id+nonce action-link convention rather than a new lookup-by-email
+	 * endpoint. Returned to the client only in that client's OWN
+	 * email-submit success response (see handle_ajax_submit()) — never
+	 * exposed on any public/enumerable surface.
+	 */
+	private static function whatsapp_record_action( $post_id ) {
+		return 'bm_wl_whatsapp_record_' . (int) $post_id;
+	}
+
+	/**
 	 * Marks a whitelist record 'converted' by email — called automatically
 	 * from on_pro_activated() below, and callable directly by any future
 	 * payment-integration webhook once one exists. No-op (returns false) if
@@ -343,15 +457,19 @@ class Bitmomo_Pro_Whitelist {
 			'bitmomo-pro-whitelist',
 			'bitmomoProWhitelist',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'action'  => self::AJAX_ACTION,
-				'nonce'   => wp_create_nonce( self::NONCE_ACTION ),
+				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+				'action'         => self::AJAX_ACTION,
+				'nonce'          => wp_create_nonce( self::NONCE_ACTION ),
+				'whatsappAction' => self::AJAX_ACTION_WHATSAPP,
+				'whatsappNonce'  => wp_create_nonce( self::NONCE_ACTION_WHATSAPP ),
 				'i18n'    => array(
 					'invalid_email'     => __( 'Masukkan alamat email yang valid.', 'bitmomo-pro' ),
 					'consent_required'  => __( 'Centang persetujuan untuk melanjutkan.', 'bitmomo-pro' ),
 					'rate_limited'      => __( 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.', 'bitmomo-pro' ),
 					'generic_error'     => __( 'Terjadi kesalahan. Coba lagi.', 'bitmomo-pro' ),
 					'duplicate_title'   => __( 'Email ini sudah terdaftar di whitelist.', 'bitmomo-pro' ),
+					'invalid_whatsapp'  => __( 'Masukkan nomor WhatsApp yang valid.', 'bitmomo-pro' ),
+					'not_found'         => __( 'Sesi sudah tidak berlaku. Muat ulang halaman dan coba lagi.', 'bitmomo-pro' ),
 				),
 			)
 		);
@@ -426,13 +544,21 @@ class Bitmomo_Pro_Whitelist {
 			</div>
 
 			<div class="bm-wl__panel bm-wl__success" id="bm-wl-success-panel" hidden>
-				<p class="bm-wl__success-title" id="bm-wl-success-title"><?php esc_html_e( 'Kamu sudah masuk whitelist.', 'bitmomo-pro' ); ?></p>
-				<p><?php esc_html_e( 'Kami akan menghubungi kamu sebelum Founding Membership dibuka.', 'bitmomo-pro' ); ?></p>
-				<p class="bm-wl__success-small">
-					<?php echo esc_html( sprintf( __( 'Founding Membership dibatasi %d anggota.', 'bitmomo-pro' ), $founding_cap ) ); ?><br>
-					<?php echo esc_html( sprintf( __( 'Batch pertama hanya %d anggota.', 'bitmomo-pro' ), $founding_batch ) ); ?>
-				</p>
-				<p class="bm-wl__success-small"><?php esc_html_e( 'Whitelist tidak menjamin tempat. Membership aktif setelah pembayaran berhasil.', 'bitmomo-pro' ); ?></p>
+				<p class="bm-wl__success-title" id="bm-wl-success-title"><?php esc_html_e( 'Whitelist berhasil. Kamu akan jadi salah satu yang pertama tahu saat akses dibuka.', 'bitmomo-pro' ); ?></p>
+				<p><?php esc_html_e( 'Cek email kamu untuk informasi lebih lanjut.', 'bitmomo-pro' ); ?></p>
+				<p class="bm-wl__success-small"><?php esc_html_e( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' ); ?></p>
+
+				<div class="bm-wl-whatsapp" id="bm-wl-whatsapp-step" data-post-id="" data-record-token="" hidden>
+					<p class="bm-wl-whatsapp__label"><?php esc_html_e( 'Tambahkan WhatsApp agar tidak melewatkan pemberitahuan saat akses dibuka.', 'bitmomo-pro' ); ?></p>
+					<div class="bm-wl-whatsapp__row">
+						<span class="bm-wl-whatsapp__prefix" aria-hidden="true">+62</span>
+						<input type="tel" class="bm-wl-whatsapp__input" id="bm-wl-whatsapp-number" inputmode="numeric" autocomplete="tel-national" placeholder="812xxxxxxxx" maxlength="15" aria-label="<?php esc_attr_e( 'Nomor WhatsApp', 'bitmomo-pro' ); ?>">
+					</div>
+					<p class="bm-wl-whatsapp__error" id="bm-wl-whatsapp-error" hidden></p>
+					<button type="button" class="bm-wl-whatsapp__submit" id="bm-wl-whatsapp-submit"><?php esc_html_e( 'TAMBAHKAN WHATSAPP', 'bitmomo-pro' ); ?></button>
+					<p class="bm-wl-whatsapp__note"><?php esc_html_e( 'Opsional. Nomor hanya digunakan untuk informasi penting terkait Bitmomo Pro.', 'bitmomo-pro' ); ?></p>
+				</div>
+				<p class="bm-wl-whatsapp__done" id="bm-wl-whatsapp-done" hidden><?php esc_html_e( 'Nomor WhatsApp tersimpan. Terima kasih!', 'bitmomo-pro' ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -446,10 +572,10 @@ class Bitmomo_Pro_Whitelist {
 	public function handle_ajax_submit() {
 		check_ajax_referer( self::NONCE_ACTION, 'bm_wl_nonce' );
 
-		if ( $this->is_rate_limited() ) {
+		if ( $this->is_rate_limited( 'submit' ) ) {
 			wp_send_json_error( array( 'error' => 'rate_limited' ), 429 );
 		}
-		$this->bump_rate_limit();
+		$this->bump_rate_limit( 'submit' );
 
 		do_action( 'pro_whitelist_submit', array(
 			'source' => isset( $_POST['source'] ) ? sanitize_key( wp_unslash( $_POST['source'] ) ) : '',
@@ -485,24 +611,80 @@ class Bitmomo_Pro_Whitelist {
 			'post_id' => $result['post_id'],
 		) );
 
-		wp_send_json_success( array( 'status' => $result['status'] ) );
+		$has_whatsapp = (bool) get_post_meta( $result['post_id'], self::META_WHATSAPP_NUMBER, true );
+
+		wp_send_json_success( array(
+			'status'       => $result['status'],
+			// post_id + record_token together authorize ONLY the WhatsApp
+			// step for THIS record (see whatsapp_record_action()) — the CPT
+			// itself stays non-public/non-queryable/no-REST, so this pair
+			// is not a new enumeration surface, only a capability handed to
+			// the visitor who just proved they hold this email.
+			'post_id'      => $result['post_id'],
+			'record_token' => wp_create_nonce( self::whatsapp_record_action( $result['post_id'] ) ),
+			// Tells the client whether to show the WhatsApp step at all —
+			// never re-ask if a number is already on file (new signup or
+			// duplicate resubmission alike).
+			'has_whatsapp' => $has_whatsapp,
+		) );
+	}
+
+	/**
+	 * $_POST/nonce/rate-limit wrapper around submit_whatsapp() — the
+	 * optional second step. Authorizes against ONE specific record via the
+	 * post_id + record_token pair returned from handle_ajax_submit(); a
+	 * missing/wrong/expired token and a nonexistent post_id produce the
+	 * exact same generic error, so this never becomes a way to probe which
+	 * post_ids exist.
+	 */
+	public function handle_ajax_whatsapp_submit() {
+		check_ajax_referer( self::NONCE_ACTION_WHATSAPP, 'bm_wl_whatsapp_nonce' );
+
+		if ( $this->is_rate_limited( 'whatsapp' ) ) {
+			wp_send_json_error( array( 'error' => 'rate_limited' ), 429 );
+		}
+		$this->bump_rate_limit( 'whatsapp' );
+
+		$post_id      = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		$record_token = isset( $_POST['record_token'] ) ? sanitize_text_field( wp_unslash( $_POST['record_token'] ) ) : '';
+
+		if ( ! $post_id || ! wp_verify_nonce( $record_token, self::whatsapp_record_action( $post_id ) ) ) {
+			wp_send_json_error( array( 'error' => 'not_found' ), 400 );
+		}
+
+		$result = $this->submit_whatsapp( array(
+			'post_id'         => $post_id,
+			'whatsapp_number' => isset( $_POST['whatsapp_number'] ) ? sanitize_text_field( wp_unslash( $_POST['whatsapp_number'] ) ) : '',
+		) );
+
+		if ( ! $result['ok'] ) {
+			wp_send_json_error( array( 'error' => $result['error'] ), 400 );
+		}
+
+		wp_send_json_success( array( 'has_whatsapp' => true ) );
 	}
 
 	// ==================================================================
 	// RATE LIMITING (per-IP, transient-based, no raw IP stored long-term)
 	// ==================================================================
 
-	private function rate_limit_key() {
+	/**
+	 * @param string $action Distinct budget per AJAX action ('submit' vs
+	 *                        'whatsapp') so a normal 2-step signup (submit
+	 *                        email, then add WhatsApp) never risks
+	 *                        exhausting a single shared attempt counter.
+	 */
+	private function rate_limit_key( $action = 'submit' ) {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
-		return 'bm_wl_rl_' . md5( $ip );
+		return 'bm_wl_rl_' . sanitize_key( $action ) . '_' . md5( $ip );
 	}
 
-	private function is_rate_limited() {
-		return (int) get_transient( $this->rate_limit_key() ) >= self::RATE_LIMIT_MAX;
+	private function is_rate_limited( $action = 'submit' ) {
+		return (int) get_transient( $this->rate_limit_key( $action ) ) >= self::RATE_LIMIT_MAX;
 	}
 
-	private function bump_rate_limit() {
-		$key   = $this->rate_limit_key();
+	private function bump_rate_limit( $action = 'submit' ) {
+		$key   = $this->rate_limit_key( $action );
 		$count = (int) get_transient( $key );
 		set_transient( $key, $count + 1, self::RATE_LIMIT_WINDOW );
 	}
@@ -679,6 +861,10 @@ class Bitmomo_Pro_Whitelist {
 			__( 'First name', 'bitmomo-pro' )    => get_post_meta( $post->ID, self::META_FIRST_NAME, true ),
 			__( 'Signed up', 'bitmomo-pro' )     => get_post_meta( $post->ID, self::META_CREATED_AT, true ),
 			__( 'Consent at', 'bitmomo-pro' )    => get_post_meta( $post->ID, self::META_CONSENT_AT, true ),
+			// WhatsApp — never shown anywhere public; only here, behind the
+			// same manage_options-gated admin screen as email/first name.
+			__( 'WhatsApp number', 'bitmomo-pro' )    => get_post_meta( $post->ID, self::META_WHATSAPP_NUMBER, true ) ? ( '+' . get_post_meta( $post->ID, self::META_WHATSAPP_NUMBER, true ) ) : '',
+			__( 'WhatsApp consent at', 'bitmomo-pro' ) => get_post_meta( $post->ID, self::META_WHATSAPP_CONSENT_AT, true ),
 			__( 'Source', 'bitmomo-pro' )        => get_post_meta( $post->ID, self::META_SOURCE, true ),
 			__( 'Landing page', 'bitmomo-pro' )  => get_post_meta( $post->ID, self::META_LANDING_PAGE, true ),
 			__( 'UTM source', 'bitmomo-pro' )    => get_post_meta( $post->ID, self::META_UTM_SOURCE, true ),
