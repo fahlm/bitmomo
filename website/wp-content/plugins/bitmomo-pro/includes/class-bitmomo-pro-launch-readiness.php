@@ -204,14 +204,30 @@ class Bitmomo_Pro_Launch_Readiness {
 	private function section_config() {
 		$rows = array();
 
-		$checkout_url = function_exists( 'bitmomo_pro_get_checkout_url' ) ? bitmomo_pro_get_checkout_url() : '';
-		$rows[]       = array(
-			'label'  => __( 'Checkout URL configured', 'bitmomo-pro' ),
-			'status' => empty( $checkout_url ) ? self::STATUS_WARN : self::STATUS_PASS,
-			'detail' => empty( $checkout_url )
-				? __( 'Not set — sales/dashboard CTAs fall back to a manual-activation note (by design, not a bug).', 'bitmomo-pro' )
-				: esc_url_raw( $checkout_url ),
-		);
+		// Distinguish "nothing configured yet" (expected during Founding
+		// Beta, WARN) from "something is configured but not a valid URL"
+		// (an actual misconfiguration, FAIL) — both used to collapse into
+		// the same blank state because only the validated getter was read
+		// here. See bitmomo_pro_get_checkout_url_raw()'s docblock.
+		$checkout_url_raw = function_exists( 'bitmomo_pro_get_checkout_url_raw' ) ? bitmomo_pro_get_checkout_url_raw() : '';
+		$checkout_url     = function_exists( 'bitmomo_pro_get_checkout_url' ) ? bitmomo_pro_get_checkout_url() : '';
+
+		if ( '' !== trim( (string) $checkout_url_raw ) && empty( $checkout_url ) ) {
+			$rows[] = array(
+				'label'  => __( 'Checkout URL configured', 'bitmomo-pro' ),
+				'status' => self::STATUS_FAIL,
+				/* translators: %s: the raw, invalid configured value */
+				'detail' => sprintf( __( 'A value is set but is not a valid http(s) URL, so the CTA is failing closed to the manual-activation note: %s', 'bitmomo-pro' ), (string) $checkout_url_raw ),
+			);
+		} else {
+			$rows[] = array(
+				'label'  => __( 'Checkout URL configured', 'bitmomo-pro' ),
+				'status' => empty( $checkout_url ) ? self::STATUS_WARN : self::STATUS_PASS,
+				'detail' => empty( $checkout_url )
+					? __( 'Not set — sales/dashboard CTAs fall back to a manual-activation note (by design, not a bug).', 'bitmomo-pro' )
+					: esc_url_raw( $checkout_url ),
+			);
+		}
 
 		$dashboard_url = function_exists( 'bitmomo_pro_get_dashboard_url' ) ? bitmomo_pro_get_dashboard_url() : '';
 		$rows[]        = array(
