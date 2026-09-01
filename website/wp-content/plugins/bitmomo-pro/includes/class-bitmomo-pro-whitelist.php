@@ -434,7 +434,7 @@ class Bitmomo_Pro_Whitelist {
 
 	public function maybe_enqueue_assets() {
 		global $post;
-		$has_widget = is_front_page() || ( is_a( $post, 'WP_Post' ) && (
+		$has_widget = is_front_page() || is_home() || ( is_a( $post, 'WP_Post' ) && (
 			has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ||
 			has_shortcode( $post->post_content, 'bitmomo_pro_whitelist' )
 		) );
