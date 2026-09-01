@@ -5,19 +5,11 @@ get_header();
 
 <main>
 
-  <section class="bm-hero">
-    <div class="bm-container">
-      <h1 class="bm-hero-title">
-        Informasi AI & <span class="teal">Crypto</span> Terdepan
-      </h1>
-      <p class="bm-hero-sub">
-        Bergabung dengan ribuan pembaca dan dapatkan berita serta analisis terkini langsung ke inbox Anda.
-      </p>
-      <a class="bm-hero-btn js-open-subscribe" href="#subscribe">Mulai Berlangganan</a>
-    </div>
-  </section>
+  <?php get_template_part( 'template-parts/home', 'hero' ); ?>
 
   <?php get_template_part( 'template-parts/btc-intelligence', 'card' ); ?>
+
+  <?php get_template_part( 'template-parts/why', 'bitmomo' ); ?>
 
   <section class="bm-section bm-section--stories">
     <div class="bm-container">

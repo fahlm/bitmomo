@@ -48,6 +48,14 @@ class Bitmomo_Pro_Canonical_Adapter {
 		if ( is_array( $pro ) && ! empty( $pro['invalidation'] ) && (float) $pro['invalidation'] > 0 ) {
 			$result['invalidation'] = (string) (float) $pro['invalidation'];
 		}
+		if ( is_array( $pro ) ) {
+			$range_low  = (float) ( $pro['support_zone']['low'] ?? 0 );
+			$range_high = (float) ( $pro['resistance_zone']['high'] ?? 0 );
+			if ( $range_low > 0 && $range_high >= $range_low ) {
+				$result['expected_range_low']  = $range_low;
+				$result['expected_range_high'] = $range_high;
+			}
+		}
 
 		return $result;
 	}
