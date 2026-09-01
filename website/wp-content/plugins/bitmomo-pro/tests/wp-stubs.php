@@ -55,6 +55,9 @@ function esc_html( $text ) {
 function esc_attr( $text ) {
 	return $text;
 }
+function esc_attr_e( $text, $domain = 'default' ) {
+	echo $text;
+}
 function esc_url( $url ) {
 	return $url;
 }
@@ -88,7 +91,15 @@ function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function remove_action( ...$args ) {}
 function add_meta_box( ...$args ) {}
-function register_post_type( ...$args ) {}
+
+// Captures the args of the LAST register_post_type() call per post type, so
+// tests can assert the Whitelist CPT was actually registered non-public/
+// non-queryable/no-REST (the "cannot be enumerated" requirement) without a
+// real WP install to introspect.
+$GLOBALS['__wp_stub_registered_post_types'] = array();
+function register_post_type( $post_type, $args = array() ) {
+	$GLOBALS['__wp_stub_registered_post_types'][ $post_type ] = $args;
+}
 
 // Post-meta store stub, keyed by [post_id][meta_key] => value, for the
 // evaluate_post()/admin_state_for_post()/get_current_brief_for_display()
@@ -110,20 +121,40 @@ function get_post_status( $post_id ) {
 function get_the_title( $post ) {
 	return $GLOBALS['__wp_stub_posts'][ $post->ID ]['post_title'] ?? '';
 }
+function get_post_type( $post_id ) {
+	return $GLOBALS['__wp_stub_posts'][ (int) $post_id ]['post_type'] ?? false;
+}
 function get_the_date( $format, $post ) {
 	return '';
 }
 function get_posts( $args ) {
-	// Returns fake WP_Post-like objects for posts matching post_status in
-	// $args['post_status'], sorted by our stub's insertion "date" (we just
-	// use descending post_id as a stand-in for "most recently published"
-	// since these tests insert in chronological order).
-	$status_filter = is_array( $args['post_status'] ) ? $args['post_status'] : array( $args['post_status'] );
+	// Returns fake WP_Post-like objects matching post_status (or 'any' /
+	// omitted = no status filter), optional post_type, and optional exact
+	// meta_key/meta_value -- purely additive extensions for the Whitelist
+	// CPT tests; a call that (like the pre-existing brief-readiness tests)
+	// only ever passes post_status behaves exactly as before.
+	$status_filter = isset( $args['post_status'] ) && 'any' !== $args['post_status']
+		? ( is_array( $args['post_status'] ) ? $args['post_status'] : array( $args['post_status'] ) )
+		: null;
+	$post_type   = $args['post_type'] ?? null;
+	$meta_key    = $args['meta_key'] ?? null;
+	$meta_value  = $args['meta_value'] ?? null;
+
 	$matches = array();
 	foreach ( $GLOBALS['__wp_stub_posts'] as $id => $post ) {
-		if ( in_array( $post['post_status'], $status_filter, true ) ) {
-			$matches[] = $id;
+		if ( null !== $status_filter && ! in_array( $post['post_status'], $status_filter, true ) ) {
+			continue;
 		}
+		if ( null !== $post_type && ( $post['post_type'] ?? 'post' ) !== $post_type ) {
+			continue;
+		}
+		if ( null !== $meta_key ) {
+			$actual = $GLOBALS['__wp_stub_postmeta'][ $id ][ $meta_key ] ?? '';
+			if ( (string) $actual !== (string) $meta_value ) {
+				continue;
+			}
+		}
+		$matches[] = $id;
 	}
 	rsort( $matches );
 	$limit = isset( $args['posts_per_page'] ) ? $args['posts_per_page'] : -1;
@@ -142,8 +173,29 @@ function get_posts( $args ) {
 	return $out;
 }
 
-function stub_insert_post( $id, $status, $title = '' ) {
-	$GLOBALS['__wp_stub_posts'][ $id ] = array( 'post_status' => $status, 'post_title' => $title );
+function stub_insert_post( $id, $status, $title = '', $post_type = 'post' ) {
+	$GLOBALS['__wp_stub_posts'][ $id ] = array( 'post_status' => $status, 'post_title' => $title, 'post_type' => $post_type );
+}
+
+// Auto-incrementing post-ID counter for wp_insert_post(), started well above
+// the range other test files hand-assign via stub_insert_post() so the two
+// never collide when both run in the same process.
+$GLOBALS['__wp_stub_next_post_id'] = 1000;
+
+/**
+ * @return int|WP_Error
+ */
+function wp_insert_post( $args, $wp_error = false ) {
+	if ( empty( $args['post_type'] ) ) {
+		return $wp_error ? new WP_Error( 'invalid_post_type', 'Missing post_type.' ) : 0;
+	}
+	$id = $GLOBALS['__wp_stub_next_post_id']++;
+	$GLOBALS['__wp_stub_posts'][ $id ] = array(
+		'post_status' => $args['post_status'] ?? 'publish',
+		'post_title'  => $args['post_title'] ?? '',
+		'post_type'   => $args['post_type'],
+	);
+	return $id;
 }
 
 /**
@@ -175,7 +227,15 @@ function update_option( $name, $value ) {
 function apply_filters( $tag, $value, ...$args ) {
 	return $value;
 }
-function do_action( ...$args ) {}
+
+// Still fires NO registered callbacks (add_action() stays a no-op above, so
+// nothing behaviorally changes for any existing test) -- but now records
+// every call so a test can assert a given hook fired (or didn't) with what
+// args, without needing a real pub/sub dispatcher.
+$GLOBALS['__wp_stub_action_log'] = array();
+function do_action( $tag, ...$args ) {
+	$GLOBALS['__wp_stub_action_log'][] = array( 'tag' => $tag, 'args' => $args );
+}
 
 // --- URL validation ------------------------------------------------------
 // Stand-in for WordPress core's wp_http_validate_url(): true only for a
@@ -408,6 +468,86 @@ function is_user_logged_in() {
 }
 function wp_login_url( $redirect = '' ) {
 	return 'http://example.test/wp-login.php';
+}
+
+/**
+ * ==========================================================================
+ * Added for "pro-founding-whitelist": stubs for
+ * class-bitmomo-pro-whitelist.php's AJAX/nonce/rendering surface. Purely
+ * additive.
+ * ==========================================================================
+ */
+
+function absint( $v ) {
+	return abs( (int) $v );
+}
+
+function home_url( $path = '' ) {
+	return 'http://example.test' . ( '' !== $path && '/' !== $path[0] ? '/' : '' ) . $path;
+}
+
+// has_shortcode() is a plain string search here -- good enough for the
+// maybe_enqueue_assets()/add_body_class() callers, which never run in these
+// tests anyway (add_action is a no-op, so wp_enqueue_scripts never fires).
+function has_shortcode( $content, $tag ) {
+	return is_string( $content ) && false !== strpos( $content, '[' . $tag );
+}
+
+function wp_localize_script( ...$args ) {}
+
+// Simplified slugify -- good enough for Help_Center::render_item()'s anchor
+// ids in these tests; not a full port of WordPress's remove_accents() etc.
+function sanitize_title( $title ) {
+	$title = strtolower( (string) $title );
+	$title = preg_replace( '/[^a-z0-9]+/', '-', $title );
+	return trim( $title, '-' );
+}
+
+// Passthrough -- these tests never feed hostile markup through wp_kses(),
+// so stripping isn't exercised; real sanitization is core WP's job.
+function wp_kses( $content, $allowed_html = array(), $allowed_protocols = array() ) {
+	return $content;
+}
+
+// --- Nonces / AJAX ---------------------------------------------------------
+// Deliberately trivial (not cryptographically meaningful) -- just enough for
+// check_ajax_referer()/wp_verify_nonce() round-tripping inside a test.
+
+function wp_create_nonce( $action = -1 ) {
+	return 'nonce_' . md5( (string) $action );
+}
+function wp_verify_nonce( $nonce, $action = -1 ) {
+	return $nonce === wp_create_nonce( $action ) ? 1 : false;
+}
+
+/**
+ * Unlike real WordPress, never calls wp_die()/exit -- records the failure
+ * and returns false so a test can call handle_ajax_submit() in-process and
+ * then inspect $GLOBALS['__wp_stub_json_response'].
+ */
+function check_ajax_referer( $action = -1, $query_arg = false, $stop = true ) {
+	$field = $query_arg ?: 'nonce';
+	$nonce = isset( $_POST[ $field ] ) ? $_POST[ $field ] : ( $_REQUEST[ $field ] ?? '' );
+	$ok    = wp_verify_nonce( $nonce, $action );
+	if ( ! $ok ) {
+		wp_send_json_error( array( 'error' => 'bad_nonce' ), 403 );
+	}
+	return $ok;
+}
+
+// Non-exiting JSON response stubs: instead of wp_die()-ing (which would kill
+// the test process), they record the payload for the test to assert on and
+// throw a lightweight marker exception so calling code stops executing at
+// exactly the point the real wp_send_json_*() would have (via wp_die()).
+class Stub_Wp_Die_Exception extends Exception {}
+
+function wp_send_json_success( $data = null, $status_code = null ) {
+	$GLOBALS['__wp_stub_json_response'] = array( 'success' => true, 'data' => $data, 'status_code' => $status_code );
+	throw new Stub_Wp_Die_Exception( 'wp_send_json_success' );
+}
+function wp_send_json_error( $data = null, $status_code = null ) {
+	$GLOBALS['__wp_stub_json_response'] = array( 'success' => false, 'data' => $data, 'status_code' => $status_code );
+	throw new Stub_Wp_Die_Exception( 'wp_send_json_error' );
 }
 
 // Pre-existing gap (not introduced by this PR): parse_data_timestamp() in
