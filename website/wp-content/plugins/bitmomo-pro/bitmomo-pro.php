@@ -36,6 +36,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-activation.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-account.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-daily.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-launch-readiness.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-performance.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-whitelist.php';
 
 /**
@@ -114,6 +115,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Account::instance();
 	Bitmomo_Pro_Daily::instance();
 	Bitmomo_Pro_Launch_Readiness::instance();
+	Bitmomo_Pro_Performance::instance();
 	Bitmomo_Pro_Whitelist::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );

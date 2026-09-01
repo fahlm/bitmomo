@@ -82,6 +82,7 @@ function sanitize_key( $v ) {
 function wp_unslash( $v ) {
 	return $v;
 }
+function wp_json_encode( $v ) { return json_encode( $v ); }
 
 // No-op action/filter/meta-box registration — none of it runs at
 // `new` time in a way that matters for these pure-logic tests, since we
@@ -113,6 +114,9 @@ function update_post_meta( $post_id, $key, $value ) {
 }
 function get_post_meta( $post_id, $key, $single = false ) {
 	return $GLOBALS['__wp_stub_postmeta'][ $post_id ][ $key ] ?? '';
+}
+function get_post_status( $post_id ) {
+	return $GLOBALS['__wp_stub_posts'][ $post_id ]['post_status'] ?? false;
 }
 function get_the_title( $post ) {
 	return $GLOBALS['__wp_stub_posts'][ $post->ID ]['post_title'] ?? '';
