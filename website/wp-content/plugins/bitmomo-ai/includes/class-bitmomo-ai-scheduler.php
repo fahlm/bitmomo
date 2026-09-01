@@ -277,6 +277,7 @@ final class Bitmomo_AI_Scheduler {
             foreach ($preview['evaluation']['axes'] as $name => $axis) echo '<li><strong>' . esc_html(ucfirst($name)) . ':</strong> ' . esc_html((string) ($axis['score'] ?? 0)) . ' — ' . esc_html((string) ($axis['reason'] ?? '')) . '</li>';
             echo '</ul><p><strong>' . esc_html__('Data quality:', 'bitmomo-ai') . '</strong> ' . esc_html(sprintf('%s — %d%% complete — %d minutes old — %s', $quality['status'] ?? 'unknown', (int) ($quality['completeness_pct'] ?? 0), (int) ($quality['data_age_minutes'] ?? 0), $quality['source'] ?? 'unknown')) . '</p><p>' . esc_html($summary['invalidation']) . '</p>';
         }
+        Bitmomo_AI_Scorecard_Repository::render_admin();
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="bitmomo_ai_run_now"><input type="hidden" name="edition" value="morning">';
         wp_nonce_field('bitmomo_ai_run_now');
         submit_button(__('Run Morning staging test now', 'bitmomo-ai'));
