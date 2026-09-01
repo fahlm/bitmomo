@@ -451,7 +451,8 @@ class Bitmomo_Pro_Whitelist {
 			return;
 		}
 
-		wp_enqueue_style( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-whitelist.css', array(), BITMOMO_PRO_VERSION );
+		wp_enqueue_style( 'bitmomo-pro-sales', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-sales.css', array(), BITMOMO_PRO_VERSION );
+		wp_enqueue_style( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-whitelist.css', array( 'bitmomo-pro-sales' ), BITMOMO_PRO_VERSION );
 		wp_enqueue_script( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/js/bitmomo-pro-whitelist.js', array(), BITMOMO_PRO_VERSION, true );
 		wp_localize_script(
 			'bitmomo-pro-whitelist',
@@ -502,7 +503,7 @@ class Bitmomo_Pro_Whitelist {
 		$founding_cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
 		$founding_batch = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25;
 		?>
-		<div class="bm-wl" id="bm-pro-whitelist">
+		<div class="bm-pro-sales bm-wl" id="bm-pro-whitelist">
 			<div class="bm-wl__panel" id="bm-wl-form-panel">
 				<p class="bm-wl__eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo-pro' ); ?></p>
 				<p class="bm-wl__price"><?php esc_html_e( 'Rp149.000 / bulan', 'bitmomo-pro' ); ?></p>
