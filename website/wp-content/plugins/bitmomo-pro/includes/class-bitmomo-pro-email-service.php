@@ -35,6 +35,8 @@ class Bitmomo_Pro_Email_Service {
 	const DAILY_NONCE_FIELD  = 'bitmomo_pro_daily_email_nonce';
 	const DAILY_ACTION       = 'bitmomo_pro_admin_send_daily_email';
 
+	const META_WHITELIST_CONFIRMATION_SENT_AT = '_bm_whitelist_confirmation_sent_at';
+
 	private static $instance = null;
 
 	public static function instance() {
@@ -412,6 +414,89 @@ class Bitmomo_Pro_Email_Service {
 
 		wp_safe_redirect( add_query_arg( 'bitmomo_pro_daily_result', '1', admin_url( 'post.php?post=' . $post_id . '&action=edit' ) ) );
 		exit;
+	}
+
+	// ==================================================================
+	// FOUNDING WHITELIST CONFIRMATION EMAIL
+	// ==================================================================
+
+	/**
+	 * Best-effort confirmation email for a new Founding Membership
+	 * Whitelist signup. Called from Bitmomo_Pro_Whitelist::submit_entry()
+	 * only on a genuinely new record (never for a duplicate resubmission).
+	 * A send failure never fails the signup itself — kept here specifically
+	 * so this remains the plugin's only wp_mail() call site (see class
+	 * docblock). Never promises a launch date, never requires account
+	 * creation, and never contains a payment/checkout link — registration
+	 * and payment happen ONLY on bitmomo.id. Body/subject/opening line and
+	 * the anti-phishing block all follow the brief's locked template
+	 * verbatim. Always ends with a plain anti-phishing/security reminder —
+	 * professional, non-alarming tone, no scare language.
+	 */
+	public function send_whitelist_confirmation_email( $post_id ) {
+		if ( ! $post_id || ! class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
+			return array( 'sent' => false, 'error' => __( 'Missing whitelist entry.', 'bitmomo-pro' ) );
+		}
+
+		$email = get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_EMAIL, true );
+		if ( ! $email || ! is_email( $email ) ) {
+			return array( 'sent' => false, 'error' => __( 'No valid email on this entry.', 'bitmomo-pro' ) );
+		}
+
+		$first_name = get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_FIRST_NAME, true );
+
+		$cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
+		$batch = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25;
+
+		// Body follows the locked template verbatim: opening (same headline
+		// as the widget's success state) -> FOUNDING MEMBERSHIP recap ->
+		// one notification line covering BOTH channels (no has_whatsapp
+		// branching needed — the line itself already reads correctly
+		// whether or not a WhatsApp number is ever added) -> the same
+		// locked disclaimer -> anti-phishing/security block. No payment
+		// link anywhere — registration/payment happens ONLY on bitmomo.id,
+		// and that page is never linked from this email.
+		$lines   = array();
+		$lines[] = $first_name ? sprintf( __( 'Halo %s,', 'bitmomo-pro' ), $first_name ) : __( 'Halo,', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Whitelist berhasil. Kamu akan jadi salah satu yang pertama tahu saat akses dibuka.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Kamu sudah masuk Founding Membership Whitelist Bitmomo Pro.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'FOUNDING MEMBERSHIP', 'bitmomo-pro' );
+		$lines[] = __( 'Rp149.000 / bulan', 'bitmomo-pro' );
+		$lines[] = __( 'Rp1.490.000 / tahun', 'bitmomo-pro' );
+		/* translators: %d: founding member cap */
+		$lines[] = sprintf( __( '%d Founding Members', 'bitmomo-pro' ), $cap );
+		/* translators: %d: batch 1 size */
+		$lines[] = sprintf( __( 'Batch pertama: %d anggota', 'bitmomo-pro' ), $batch );
+		$lines[] = '';
+		$lines[] = __( 'Kami akan mengirim pemberitahuan melalui email ini dan, jika kamu menambahkan nomor WhatsApp, melalui WhatsApp saat akses dibuka.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Email dan WhatsApp hanya digunakan untuk pemberitahuan. Pendaftaran dan pembayaran hanya dilakukan melalui:', 'bitmomo-pro' );
+		$lines[] = __( 'bitmomo.id', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Bitmomo tidak akan pernah meminta:', 'bitmomo-pro' );
+		$lines[] = __( '- password akun', 'bitmomo-pro' );
+		$lines[] = __( '- seed phrase', 'bitmomo-pro' );
+		$lines[] = __( '- private key', 'bitmomo-pro' );
+		$lines[] = __( '- transfer crypto melalui WhatsApp atau Telegram', 'bitmomo-pro' );
+		$lines[] = __( '- pembayaran ke alamat wallet yang dikirim melalui pesan pribadi', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Jika ragu, ketik bitmomo.id langsung di browser.', 'bitmomo-pro' );
+		$lines[] = '';
+		$lines[] = __( 'Salam,', 'bitmomo-pro' );
+		$lines[] = __( 'Tim Bitmomo', 'bitmomo-pro' );
+
+		$sent = wp_mail( $email, __( 'Kamu sudah masuk whitelist Bitmomo Pro', 'bitmomo-pro' ), implode( "\n", $lines ) );
+
+		if ( $sent ) {
+			update_post_meta( $post_id, self::META_WHITELIST_CONFIRMATION_SENT_AT, current_time( 'mysql' ) );
+		}
+
+		return array( 'sent' => (bool) $sent );
 	}
 
 	// ==================================================================

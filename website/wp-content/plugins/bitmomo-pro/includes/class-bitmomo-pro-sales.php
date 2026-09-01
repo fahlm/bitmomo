@@ -176,11 +176,24 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
+	/**
+	 * Reuses bitmomo_pro_get_checkout_url() (PR #64's fail-closed checkout
+	 * URL) as the single source of truth for which CTA to show — never
+	 * duplicated here. Checkout configured -> real purchase CTA, whitelist
+	 * never shown as the primary action. Checkout not configured -> the
+	 * Founding Membership Whitelist widget takes over this same slot. No
+	 * template change is needed when a checkout URL is later configured;
+	 * this branch just stops calling Bitmomo_Pro_Whitelist automatically.
+	 */
 	private function render_cta() {
 		$url = bitmomo_pro_get_checkout_url();
 		echo '<section class="bm-pro-sales__cta-section">';
 		if ( empty( $url ) ) {
-			echo '<span class="bm-pro-sales__cta bm-pro-sales__cta--pending">' . esc_html__( 'Pendaftaran Founding Beta segera dibuka.', 'bitmomo-pro' ) . '</span>';
+			if ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
+				Bitmomo_Pro_Whitelist::instance()->render_widget( array( 'source' => 'pro_page' ) );
+			} else {
+				echo '<span class="bm-pro-sales__cta bm-pro-sales__cta--pending">' . esc_html__( 'Pendaftaran Founding Beta segera dibuka.', 'bitmomo-pro' ) . '</span>';
+			}
 		} else {
 			printf(
 				'<a class="bm-pro-sales__cta" href="%1$s">%2$s</a>',

@@ -71,6 +71,10 @@ jobs:
         working-directory: website/wp-content/plugins/bitmomo-ai
         run: php tests/test-bitmomo-ai-regime-metrics.php
 
+      - name: Run intelligence scorecard suite
+        working-directory: website/wp-content/plugins/bitmomo-ai
+        run: php tests/test-bitmomo-ai-scorecard.php
+
       - name: Run runtime adapter suite
         working-directory: website/wp-content/plugins/bitmomo-regime
         run: php tests/test-bitmomo-regime-runtime-adapter.php
