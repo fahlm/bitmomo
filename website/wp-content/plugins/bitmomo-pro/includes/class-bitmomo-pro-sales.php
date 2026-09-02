@@ -89,12 +89,27 @@ class Bitmomo_Pro_Sales {
 		$this->render_context_problem();      // 2. Data Is Abundant, Context Is Scarce
 		$this->render_market_experience();    // 3. Built From Market Experience / Perseverance Capital
 		$this->render_intelligence_flow();    // 4. How Bitmomo Turns Data Into Intelligence
+
+		// PEAK 2 -- 11 AI Analysts + Watchtower read as one paired product
+		// story (visual hierarchy polish, 2026-09): same copy, stronger,
+		// shared visual treatment.
+		echo '<div class="bm-pro-sales__peak-pair">';
 		$this->render_ai_analysts();          // 5. 11 AI Analysts
 		$this->render_watchtower();           // 6. Watchtower
+		echo '</div>';
+
 		$this->render_what_exists_today();    // 7. What Exists Today
+
+		// PEAK 3 -- Founding Membership Economics, pricing facts, and the
+		// whitelist form merged into one continuous "climax" panel instead
+		// of three stacked cards, so the form reads as the final step of
+		// the offer rather than a separate administrative widget.
+		echo '<div class="bm-pro-sales__climax">';
 		$this->render_founding_economics();   // 8a. Founding Membership Economics
 		$this->render_price();                // 8b. Pricing
 		$this->render_cta();                  // 8c. Whitelist
+		echo '</div>';
+
 		$this->render_accountability();       // 9. Accountability
 		Bitmomo_Pro_Help_Center::render_pro_subset(); // 10. Buying-Objection FAQ
 		$this->render_final_cta();            // 11. Final CTA
@@ -147,7 +162,7 @@ class Bitmomo_Pro_Sales {
 	/** 2. Data Is Abundant, Context Is Scarce. */
 	private function render_context_problem() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__context">
+		<section class="bm-pro-sales__section--editorial bm-pro-sales__context">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Data ada di mana-mana. Konteks yang jarang.', 'bitmomo-pro' ); ?></h2>
 			<p class="bm-pro-sales__lead"><?php esc_html_e( 'Pasar kripto tidak kekurangan data. Yang sulit adalah memahami apa arti data itu ketika semuanya berubah pada saat yang sama.', 'bitmomo-pro' ); ?></p>
 			<p><?php esc_html_e( 'Ada tools on-chain seperti Nansen atau CryptoQuant yang menampilkan data mentah. Ada AI generik yang bisa menjawab pertanyaan apa pun tentang kripto. Keduanya berguna, tapi keduanya tidak dibangun untuk membaca BTC melalui konteks pengalaman pasar yang berkelanjutan — keduanya berhenti di data atau di jawaban generik, bukan di pemahaman.', 'bitmomo-pro' ); ?></p>
@@ -164,7 +179,7 @@ class Bitmomo_Pro_Sales {
 	 */
 	private function render_market_experience() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__lineage">
+		<section class="bm-pro-sales__section--editorial bm-pro-sales__section--quiet bm-pro-sales__lineage">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'DIBANGUN DARI PENGALAMAN PASAR', 'bitmomo-pro' ); ?></p>
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'AI adalah bagian dari sistem. Konteks adalah fondasinya.', 'bitmomo-pro' ); ?></h2>
 			<p><?php esc_html_e( 'Bitmomo merupakan pengembangan dari research arm Perseverance Capital, yang aktif di pasar kripto sejak 2016 — termasuk pengalaman berinvestasi Bitcoin secara konsisten dan berpartisipasi sejak awal di ETHLend maupun BNB.', 'bitmomo-pro' ); ?></p>
@@ -208,7 +223,7 @@ class Bitmomo_Pro_Sales {
 			),
 		);
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__flow">
+		<section class="bm-pro-sales__section--editorial bm-pro-sales__flow">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Bagaimana Bitmomo mengubah data menjadi intelligence', 'bitmomo-pro' ); ?></h2>
 			<div class="bm-pro-sales__flow-stages">
 				<?php foreach ( $stages as $i => $stage ) : ?>
@@ -227,7 +242,7 @@ class Bitmomo_Pro_Sales {
 	private function render_ai_analysts() {
 		$areas = array( __( 'Trend', 'bitmomo-pro' ), __( 'Structure', 'bitmomo-pro' ), __( 'Derivatives', 'bitmomo-pro' ), __( 'Volatility', 'bitmomo-pro' ), __( 'Positioning', 'bitmomo-pro' ), __( 'Market Context', 'bitmomo-pro' ), __( '+ lainnya', 'bitmomo-pro' ) );
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__analysts">
+		<section class="bm-pro-sales__section bm-pro-sales__section--peak bm-pro-sales__analysts">
 			<div class="bm-pro-sales__status-row">
 				<span class="bm-pro-sales__status-badge"><?php esc_html_e( '11 AI ANALYSTS — SEGERA HADIR', 'bitmomo-pro' ); ?></span>
 			</div>
@@ -245,7 +260,7 @@ class Bitmomo_Pro_Sales {
 	/** 6. Watchtower — SEGERA HADIR. */
 	private function render_watchtower() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__watchtower">
+		<section class="bm-pro-sales__section bm-pro-sales__section--peak bm-pro-sales__watchtower">
 			<div class="bm-pro-sales__status-row">
 				<span class="bm-pro-sales__status-badge"><?php esc_html_e( 'WATCHTOWER — SEGERA HADIR', 'bitmomo-pro' ); ?></span>
 			</div>
@@ -264,7 +279,7 @@ class Bitmomo_Pro_Sales {
 	 */
 	private function render_what_exists_today() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__today">
+		<section class="bm-pro-sales__section--editorial bm-pro-sales__today">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'YANG SUDAH TERSEDIA SEKARANG', 'bitmomo-pro' ); ?></p>
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Decision View BTC, aktif setiap hari.', 'bitmomo-pro' ); ?></h2>
 			<p><?php esc_html_e( 'BTC Daily Intelligence gratis menjawab apa yang sedang terjadi sekarang. Bitmomo Pro melengkapinya dengan Decision View harian yang sudah aktif hari ini:', 'bitmomo-pro' ); ?></p>
@@ -279,11 +294,11 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/** 8a. Founding Membership Economics. */
+	/** 8a. Founding Membership Economics. First block inside the climax panel. */
 	private function render_founding_economics() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__economics">
-			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Bergabung sebelum Bitmomo Pro mencapai bentuk penuhnya.', 'bitmomo-pro' ); ?></h2>
+		<div class="bm-pro-sales__climax-block bm-pro-sales__economics">
+			<h2 class="bm-pro-sales__section-title bm-pro-sales__section-title--climax"><?php esc_html_e( 'Bergabung sebelum Bitmomo Pro mencapai bentuk penuhnya.', 'bitmomo-pro' ); ?></h2>
 			<div class="bm-pro-sales__progression">
 				<div class="bm-pro-sales__progression-step">
 					<span class="bm-pro-sales__progression-label"><?php esc_html_e( 'HARI INI', 'bitmomo-pro' ); ?></span>
@@ -301,7 +316,7 @@ class Bitmomo_Pro_Sales {
 			<p class="bm-pro-sales__economics-anchor"><?php esc_html_e( 'FOUNDING PRICE Rp149.000/bulan', 'bitmomo-pro' ); ?></p>
 			<p><?php esc_html_e( 'Rp149.000/bulan adalah Founding Price. Harga membership baru akan berubah seiring pengembangan fitur dan teknologi Bitmomo Pro. Founding Members yang menjaga membership tetap aktif dapat mempertahankan Founding Price selamanya.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__economics-boundary"><?php esc_html_e( 'Founding benefit berlaku untuk fitur baru yang ditambahkan ke Bitmomo Pro. Produk standalone Bitmomo di masa depan dapat memiliki pricing tersendiri.', 'bitmomo-pro' ); ?></p>
-		</section>
+		</div>
 		<?php
 	}
 
@@ -321,11 +336,11 @@ class Bitmomo_Pro_Sales {
 	 */
 	private function render_price() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__price">
+		<div class="bm-pro-sales__climax-block bm-pro-sales__climax-divider bm-pro-sales__price">
 			<p class="bm-pro-sales__price-stage"><?php esc_html_e( 'Tahap saat ini: Founding Whitelist', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Batalkan kapan saja. Akses tetap aktif sampai akhir periode berlangganan.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Pembayaran bersifat final setelah aktivasi, kecuali untuk pembayaran ganda, kesalahan transaksi, atau kondisi lain yang diwajibkan oleh hukum.', 'bitmomo-pro' ); ?></p>
-		</section>
+		</div>
 		<?php
 	}
 
@@ -341,7 +356,7 @@ class Bitmomo_Pro_Sales {
 	 */
 	private function render_cta() {
 		$url = bitmomo_pro_get_checkout_url();
-		echo '<section class="bm-pro-sales__cta-section">';
+		echo '<div class="bm-pro-sales__climax-block bm-pro-sales__climax-divider bm-pro-sales__cta-section">';
 		if ( empty( $url ) ) {
 			if ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
 				Bitmomo_Pro_Whitelist::instance()->render_widget( array( 'source' => 'pro_page' ) );
@@ -355,13 +370,13 @@ class Bitmomo_Pro_Sales {
 				esc_html__( 'Kunci Harga Founding', 'bitmomo-pro' )
 			);
 		}
-		echo '</section>';
+		echo '</div>';
 	}
 
 	/** 9. Accountability — short; full methodology lives at /btc-intelligence/. */
 	private function render_accountability() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__accountability">
+		<section class="bm-pro-sales__section--editorial bm-pro-sales__section--quiet bm-pro-sales__accountability">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Setiap analisis harus bisa dipertanggungjawabkan.', 'bitmomo-pro' ); ?></h2>
 			<ul class="bm-pro-sales__list">
 				<li><?php esc_html_e( 'Setiap thesis dicatat sebelum hasilnya diketahui.', 'bitmomo-pro' ); ?></li>
@@ -381,7 +396,7 @@ class Bitmomo_Pro_Sales {
 	/** 11. Final CTA. Scrolls to the same whitelist form rendered in Section 8 — no duplicate form, no secondary CTA. */
 	private function render_final_cta() {
 		?>
-		<section class="bm-pro-sales__section bm-pro-sales__final-cta">
+		<section class="bm-pro-sales__section--editorial bm-pro-sales__final-cta">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Bergabung sebelum 11 AI Analysts dan Watchtower dirilis.', 'bitmomo-pro' ); ?></h2>
 			<div class="bm-pro-sales__hero-facts">
 				<div><strong><?php esc_html_e( 'Rp149.000', 'bitmomo-pro' ); ?></strong><span><?php esc_html_e( 'per bulan', 'bitmomo-pro' ); ?></span></div>

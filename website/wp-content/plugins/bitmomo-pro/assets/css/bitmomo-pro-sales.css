@@ -10,6 +10,27 @@
  * plugin/theme — no orange exists in the codebase to match a since-
  * corrected brief detail; flagged in the implementation report rather
  * than introducing an unestablished color).
+ *
+ * 2026-09 visual hierarchy polish (founder review): the page previously
+ * gave every section the same dark-box-with-border treatment, so nothing
+ * stood out. This pass introduces three section "voices" so the page has
+ * three clear peaks (Hero, 11 AI Analysts + Watchtower, Founding
+ * Membership + Whitelist) with everything else supporting them:
+ *   - .bm-pro-sales__section--editorial: no card box — type, spacing and
+ *     a top divider only. Used for the sections that explain and support
+ *     rather than sell (Context, Intelligence Flow, What Exists Today,
+ *     Final CTA), plus --quiet (below) for the two that should recede
+ *     further.
+ *   - .bm-pro-sales__section--quiet: layered on --editorial for
+ *     Perseverance/Accountability — smaller, muted heading so these
+ *     support the thesis without competing with it.
+ *   - .bm-pro-sales__section (unchanged) + .bm-pro-sales__section--peak:
+ *     the boxed, elevated treatment, now reserved for 11 AI Analysts and
+ *     Watchtower, fused into one continuous panel via .bm-pro-sales__peak-pair.
+ *   - .bm-pro-sales__climax: a single stronger panel merging Founding
+ *     Membership Economics, the pricing strip, and the whitelist widget
+ *     so the form reads as the final step of the offer, not a separate
+ *     widget. No copy changed anywhere in this pass — composition only.
  */
 
 /* The shortcode owns the sales-page hero, so suppress the theme's duplicate title. */
@@ -25,6 +46,7 @@
 	--bms-text-muted: #93a4bd;
 	--bms-teal: #2dd4bf;
 	--bms-teal-dark: #0f766e;
+	--bms-teal-soft: rgba( 45, 212, 191, 0.4 );
 	--bms-bull: #34d399;
 	--bms-bear: #f87171;
 
@@ -42,66 +64,68 @@
 	box-sizing: inherit;
 }
 
-/* ---------- Hero (Section 1) ---------- */
+/* ---------- Hero (Section 1) — PEAK 1: the strongest statement on the page ---------- */
 
 .bm-pro-sales__hero {
 	text-align: center;
-	padding: 28px 16px 24px;
+	padding: 40px 16px 32px;
 }
 
 .bm-pro-sales__hero-eyebrow,
 .bm-pro-sales__eyebrow {
-	margin: 0 0 10px;
+	margin: 0 0 14px;
 	font-size: 0.72rem;
 	font-weight: 700;
-	letter-spacing: 0.12em;
+	letter-spacing: 0.14em;
 	text-transform: uppercase;
 	color: var( --bms-teal );
 }
 
 .bm-pro-sales__hero-title {
-	margin: 0 0 10px;
-	font-size: 1.8rem;
+	margin: 0 0 16px;
+	font-size: 2.05rem;
 	font-weight: 800;
-	line-height: 1.25;
+	line-height: 1.18;
+	letter-spacing: -0.01em;
 }
 
 .bm-pro-sales__hero-sub {
-	margin: 0 0 18px;
+	margin: 0 auto 26px;
+	max-width: 520px;
 	color: var( --bms-text-muted );
 	font-size: 1rem;
-	line-height: 1.55;
+	line-height: 1.6;
 }
 
 .bm-pro-sales__hero-offer {
 	background: var( --bms-surface );
 	border: 1px solid var( --bms-border );
-	border-left: 3px solid var( --bms-teal );
+	border-left: 4px solid var( --bms-teal );
 	border-radius: 10px;
-	padding: 14px 16px;
-	margin: 0 0 16px;
+	padding: 18px 20px;
+	margin: 0 0 22px;
 	text-align: left;
 }
 
 .bm-pro-sales__hero-price {
-	margin: 0 0 4px !important;
-	font-size: 1.15rem;
+	margin: 0 0 5px !important;
+	font-size: 1.35rem;
 	font-weight: 800;
 	color: var( --bms-teal );
 }
 
 .bm-pro-sales__hero-price-sub {
 	margin: 0 !important;
-	font-size: 0.85rem;
+	font-size: 0.86rem;
 	color: var( --bms-text-muted );
-	line-height: 1.45;
+	line-height: 1.5;
 }
 
 .bm-pro-sales__hero-facts {
 	display: grid;
 	grid-template-columns: repeat( 2, 1fr );
 	gap: 10px;
-	margin: 0 0 20px;
+	margin: 0 0 24px;
 }
 
 .bm-pro-sales__hero-facts > div {
@@ -126,9 +150,12 @@
 
 .bm-pro-sales__hero-cta {
 	width: 100%;
+	padding: 16px 28px;
+	font-size: 1.05rem;
+	box-shadow: 0 14px 28px -16px var( --bms-teal-soft );
 }
 
-/* ---------- Generic section shell ---------- */
+/* ---------- Generic section shell (peak / boxed voice) ---------- */
 
 .bm-pro-sales__section {
 	background: var( --bms-surface );
@@ -139,21 +166,23 @@
 }
 
 .bm-pro-sales__section-title {
-	margin: 0 0 10px;
-	font-size: 1.15rem;
-	font-weight: 700;
-	line-height: 1.35;
+	margin: 0 0 12px;
+	font-size: 1.3rem;
+	font-weight: 800;
+	line-height: 1.3;
 	color: var( --bms-text );
 }
 
-.bm-pro-sales__section p {
+.bm-pro-sales__section p,
+.bm-pro-sales__section--editorial p {
 	margin: 0 0 10px;
-	line-height: 1.55;
+	line-height: 1.6;
 	font-size: 0.95rem;
 	color: var( --bms-text-muted );
 }
 
-.bm-pro-sales__section p:last-child {
+.bm-pro-sales__section p:last-child,
+.bm-pro-sales__section--editorial p:last-child {
 	margin-bottom: 0;
 }
 
@@ -166,34 +195,64 @@
 }
 
 .bm-pro-sales__list li {
-	margin-bottom: 6px;
+	margin-bottom: 8px;
 }
 
 .bm-pro-sales__list strong {
 	color: var( --bms-text );
 }
 
-/* ---------- Section 2: context problem ---------- */
+/* ---------- Editorial voice: supporting sections, no card box ---------- */
+
+.bm-pro-sales__section--editorial {
+	padding: 34px 16px 8px;
+	margin-bottom: 4px;
+	border-top: 1px solid var( --bms-border );
+}
+
+.bm-pro-sales__section--editorial .bm-pro-sales__section-title {
+	font-size: 1.3rem;
+}
+
+/* Quiet voice: layered on --editorial for sections that should support the
+   thesis rather than compete with it (Perseverance, Accountability). */
+.bm-pro-sales__section--quiet {
+	padding-top: 26px;
+}
+
+.bm-pro-sales__section--quiet .bm-pro-sales__section-title {
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var( --bms-text-muted );
+}
+
+.bm-pro-sales__section--quiet p {
+	font-size: 0.9rem;
+}
+
+/* ---------- Section 2: context problem — product thesis statement ---------- */
 
 .bm-pro-sales__lead {
 	color: var( --bms-text ) !important;
-	font-size: 1.02rem !important;
+	font-size: 1.08rem !important;
 	font-weight: 600;
 }
 
 .bm-pro-sales__pullquote {
-	font-weight: 700;
+	font-weight: 800;
 	color: var( --bms-teal ) !important;
-	border-left: 3px solid var( --bms-teal );
-	padding-left: 12px;
-	font-size: 1rem !important;
+	border-left: 4px solid var( --bms-teal );
+	padding: 4px 0 4px 16px;
+	font-size: 1.2rem !important;
+	line-height: 1.4 !important;
+	margin-top: 18px !important;
 }
 
-/* ---------- Section 3: market experience / lineage ---------- */
+/* ---------- Section 3: market experience / lineage (quiet) ---------- */
 
 .bm-pro-sales__lineage-note {
 	font-style: italic;
-	font-size: 0.88rem !important;
+	font-size: 0.85rem !important;
 	color: var( --bms-text-muted );
 }
 
@@ -203,64 +262,99 @@
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 10px;
+	margin-top: 6px;
 }
 
 .bm-pro-sales__flow-stage {
 	background: var( --bms-bg );
 	border: 1px solid var( --bms-border );
 	border-radius: 10px;
-	padding: 12px 14px;
+	padding: 14px 16px;
 	position: relative;
 }
 
 .bm-pro-sales__flow-index {
 	display: inline-block;
-	width: 22px;
-	height: 22px;
-	line-height: 22px;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
 	text-align: center;
 	border-radius: 50%;
 	background: var( --bms-teal );
 	color: #06201c;
-	font-size: 0.75rem;
+	font-size: 0.8rem;
 	font-weight: 800;
-	margin-bottom: 6px;
+	margin-bottom: 8px;
 }
 
 .bm-pro-sales__flow-stage h3 {
-	margin: 0 0 4px;
-	font-size: 0.85rem;
+	margin: 0 0 5px;
+	font-size: 0.92rem;
 	font-weight: 800;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.03em;
 	color: var( --bms-teal );
 }
 
 .bm-pro-sales__flow-stage p {
 	margin: 0 !important;
-	font-size: 0.88rem !important;
+	font-size: 0.85rem !important;
+	line-height: 1.5 !important;
 }
 
-/* ---------- Sections 5 & 6: 11 AI Analysts / Watchtower status blocks ---------- */
+/* ---------- Sections 5 & 6: 11 AI Analysts / Watchtower — PEAK 2 ---------- */
+
+.bm-pro-sales__peak-pair {
+	margin-bottom: 4px;
+}
+
+.bm-pro-sales__section--peak {
+	border-left: 4px solid var( --bms-teal );
+	padding: 26px 22px;
+}
+
+/* Fuse the pair into one continuous panel: shared inner divider, no gap,
+   no double border between them. */
+.bm-pro-sales__peak-pair .bm-pro-sales__section--peak {
+	margin-bottom: 0;
+	border-radius: 0;
+}
+
+.bm-pro-sales__peak-pair .bm-pro-sales__section--peak:first-child {
+	border-top-left-radius: 14px;
+	border-top-right-radius: 14px;
+}
+
+.bm-pro-sales__peak-pair .bm-pro-sales__section--peak:last-child {
+	border-top: none;
+	border-bottom-left-radius: 14px;
+	border-bottom-right-radius: 14px;
+}
+
+.bm-pro-sales__section--peak .bm-pro-sales__section-title {
+	font-size: 1.5rem;
+	line-height: 1.28;
+}
 
 .bm-pro-sales__status-row {
-	margin: 0 0 10px;
+	margin: 0 0 12px;
 }
 
 .bm-pro-sales__status-badge {
 	display: inline-block;
-	padding: 4px 10px;
+	padding: 5px 12px;
 	border: 1px solid var( --bms-teal );
 	border-radius: 999px;
 	color: var( --bms-teal );
-	font-size: 0.68rem;
+	font-size: 0.7rem;
 	font-weight: 800;
-	letter-spacing: 0.06em;
+	letter-spacing: 0.07em;
 	text-transform: uppercase;
+	background: rgba( 45, 212, 191, 0.08 );
 }
 
 .bm-pro-sales__pill-list {
 	list-style: none;
-	margin: 0 0 12px;
+	margin: 0 0 14px;
 	padding: 0;
 	display: flex;
 	flex-wrap: wrap;
@@ -277,9 +371,15 @@
 }
 
 .bm-pro-sales__signature {
-	font-weight: 700;
+	font-weight: 800 !important;
 	color: var( --bms-text ) !important;
-	font-size: 0.98rem !important;
+	font-size: 1.1rem !important;
+	line-height: 1.45 !important;
+	background: rgba( 45, 212, 191, 0.08 );
+	border-left: 3px solid var( --bms-teal );
+	border-radius: 0 8px 8px 0;
+	padding: 10px 14px !important;
+	margin: 4px 0 12px !important;
 }
 
 .bm-pro-sales__status-note {
@@ -294,13 +394,39 @@
 	color: var( --bms-teal );
 }
 
-/* ---------- Section 8: founding economics + pricing ---------- */
+/* ---------- Section 8: founding economics + pricing + whitelist — PEAK 3 ---------- */
+
+.bm-pro-sales__climax {
+	background: var( --bms-surface );
+	border: 1px solid var( --bms-teal-soft );
+	border-top: 3px solid var( --bms-teal );
+	border-radius: 16px;
+	padding: 28px 22px 24px;
+	margin-bottom: 14px;
+	box-shadow: 0 20px 40px -28px var( --bms-teal-soft );
+}
+
+.bm-pro-sales__climax-block {
+	padding: 0;
+}
+
+.bm-pro-sales__climax-divider {
+	border-top: 1px solid var( --bms-border );
+	margin-top: 20px;
+	padding-top: 20px;
+}
+
+.bm-pro-sales__section-title--climax {
+	font-size: 1.55rem;
+	line-height: 1.25;
+	margin-bottom: 16px;
+}
 
 .bm-pro-sales__progression {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 8px;
-	margin: 0 0 16px;
+	margin: 0 0 20px;
 }
 
 .bm-pro-sales__progression-step {
@@ -308,6 +434,7 @@
 	border: 1px solid var( --bms-border );
 	border-radius: 10px;
 	padding: 10px 12px;
+	position: relative;
 }
 
 .bm-pro-sales__progression-label {
@@ -325,9 +452,11 @@
 }
 
 .bm-pro-sales__economics-anchor {
-	font-size: 1.3rem !important;
+	font-size: 2.15rem !important;
 	font-weight: 800;
-	color: var( --bms-text ) !important;
+	color: var( --bms-teal ) !important;
+	line-height: 1.15 !important;
+	margin: 0 0 10px !important;
 }
 
 .bm-pro-sales__economics-boundary {
@@ -346,19 +475,6 @@
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: var( --bms-teal ) !important;
-}
-
-.bm-pro-sales__price-amount {
-	font-size: 1.6rem;
-	font-weight: 800;
-	margin: 0 0 6px !important;
-	color: var( --bms-text ) !important;
-}
-
-.bm-pro-sales__price-sub {
-	color: var( --bms-text-muted ) !important;
-	font-size: 0.9rem !important;
-	margin: 0 0 8px !important;
 }
 
 .bm-pro-sales__price-stage {
@@ -383,7 +499,23 @@
 
 .bm-pro-sales__cta-section {
 	text-align: center;
-	padding: 10px 0 20px;
+	padding-bottom: 4px;
+}
+
+/* Blend the whitelist widget's own box into the climax panel instead of
+   showing it as a separate nested card — higher specificity than
+   .bm-wl__panel in bitmomo-pro-whitelist.css wins regardless of load
+   order, and no whitelist markup/JS/logic is touched to achieve this. */
+.bm-pro-sales__climax .bm-wl__panel {
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	padding: 0;
+}
+
+.bm-pro-sales__climax .bm-wl__submit {
+	padding: 15px 20px;
+	font-size: 1rem;
 }
 
 .bm-pro-sales__cta {
@@ -412,14 +544,14 @@
 	cursor: default;
 }
 
-/* ---------- Section 9: accountability ---------- */
+/* ---------- Section 9: accountability (quiet) ---------- */
 
 .bm-pro-sales__accountability-link {
 	display: inline-block;
 	margin-top: 4px;
 	color: var( --bms-teal );
 	font-weight: 700;
-	font-size: 0.9rem;
+	font-size: 0.88rem;
 	text-decoration: none;
 }
 
@@ -429,7 +561,7 @@
 
 .bm-pro-sales__accountability-note {
 	margin-top: 4px !important;
-	font-size: 0.85rem !important;
+	font-size: 0.83rem !important;
 	font-style: italic;
 	color: var( --bms-text-muted ) !important;
 }
@@ -438,11 +570,17 @@
 
 .bm-pro-sales__final-cta {
 	text-align: center;
+	padding-top: 34px;
+	padding-bottom: 24px;
+}
+
+.bm-pro-sales__final-cta .bm-pro-sales__section-title {
+	font-size: 1.4rem;
 }
 
 .bm-pro-sales__final-cta .bm-pro-sales__hero-facts {
 	grid-template-columns: repeat( 3, 1fr );
-	margin: 0 0 18px;
+	margin: 0 0 20px;
 }
 
 /* ---------- Disclaimer ---------- */
@@ -462,20 +600,67 @@
 /* ---------- Tablet/desktop breakpoint ---------- */
 
 @media ( min-width: 640px ) {
+	.bm-pro-sales__hero {
+		padding: 56px 24px 44px;
+	}
+
+	.bm-pro-sales__hero-title {
+		font-size: 2.6rem;
+		max-width: 640px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	.bm-pro-sales__hero-facts {
 		grid-template-columns: repeat( 4, 1fr );
 	}
 
+	/* Three-column flow: two readable rows of three instead of six
+	   cramped columns, with a connecting arrow to the next stage in
+	   the same row (hidden at the end of each row). */
 	.bm-pro-sales__flow-stages {
-		grid-template-columns: repeat( 6, 1fr );
+		grid-template-columns: repeat( 3, 1fr );
+		gap: 16px 14px;
 	}
 
-	.bm-pro-sales__flow-stage p {
-		font-size: 0.78rem !important;
+	.bm-pro-sales__flow-stage:not( :nth-child( 3n ) )::after {
+		content: "→";
+		position: absolute;
+		top: 50%;
+		right: -19px;
+		transform: translateY( -50% );
+		color: var( --bms-teal );
+		font-size: 1.1rem;
+		font-weight: 700;
 	}
 
 	.bm-pro-sales__progression {
 		grid-template-columns: repeat( 3, 1fr );
+	}
+
+	.bm-pro-sales__progression-step:not( :last-child )::after {
+		content: "→";
+		position: absolute;
+		top: 50%;
+		right: -15px;
+		transform: translateY( -50% );
+		color: var( --bms-teal );
+		font-size: 1rem;
+		font-weight: 700;
+	}
+
+	.bm-pro-sales__economics-anchor {
+		font-size: 2.5rem !important;
+	}
+
+	.bm-pro-sales__today .bm-pro-sales__list {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 4px 32px;
+	}
+
+	.bm-pro-sales__climax {
+		padding: 36px 40px 32px;
 	}
 
 	.bm-pro-sales__final-cta .bm-pro-sales__hero-facts {
