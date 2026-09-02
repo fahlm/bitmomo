@@ -41,6 +41,17 @@ class Bitmomo_Pro_Sales {
 	const SEAT_CAP    = 149;
 	const BATCH_ONE   = 25;
 
+	/**
+	 * Staging visual QA (2026-09) confirmed /btc-intelligence/ returns a
+	 * 404 on the live site today. Per that pass's explicit instruction not
+	 * to ship a broken public link, the Accountability section's
+	 * "Lihat metodologi & track record lengkap" CTA is deferred to plain,
+	 * unlinked text until that page ships. Flip this to true (and nothing
+	 * else needs to change -- render_accountability() already branches on
+	 * it) once /btc-intelligence/ is live.
+	 */
+	const METHODOLOGY_PAGE_LIVE = false;
+
 	private static $instance = null;
 
 	public static function instance() {
@@ -294,13 +305,23 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/** 8b. Pricing block, immediately above the whitelist form. */
+	/**
+	 * 8b. Pricing stage strip, immediately above the whitelist form.
+	 *
+	 * Staging visual QA (2026-09) found this block repeating the same
+	 * "FOUNDING MEMBERSHIP / Rp149.000 per bulan / Rp1.490.000 per tahun /
+	 * 149 Founding Members / Batch pertama: 25 anggota" facts the widget
+	 * immediately below (Bitmomo_Pro_Whitelist::render_widget(), or the
+	 * real purchase link) already shows on its own -- reading as padding
+	 * rather than an economic-advantage framing. Trimmed to only the facts
+	 * that are NOT already repeated one section down: the whitelist-stage
+	 * badge and the cancellation/payment terms. All required price facts
+	 * still appear exactly once on the page (hero) plus once more directly
+	 * on the CTA/whitelist block below -- never a third time here.
+	 */
 	private function render_price() {
 		?>
 		<section class="bm-pro-sales__section bm-pro-sales__price">
-			<p class="bm-pro-sales__price-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo-pro' ); ?></p>
-			<p class="bm-pro-sales__price-amount"><?php echo esc_html( self::PRICE_LABEL ); ?></p>
-			<p class="bm-pro-sales__price-sub"><?php echo esc_html( sprintf( __( '%d Founding Members — Batch pertama: 25 anggota. Paket bulanan dan tahunan mendapat fitur yang sama.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
 			<p class="bm-pro-sales__price-stage"><?php esc_html_e( 'Tahap saat ini: Founding Whitelist', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Batalkan kapan saja. Akses tetap aktif sampai akhir periode berlangganan.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__price-terms"><?php esc_html_e( 'Pembayaran bersifat final setelah aktivasi, kecuali untuk pembayaran ganda, kesalahan transaksi, atau kondisi lain yang diwajibkan oleh hukum.', 'bitmomo-pro' ); ?></p>
@@ -348,7 +369,11 @@ class Bitmomo_Pro_Sales {
 				<li><?php esc_html_e( 'Hasil yang kurang baik tetap tercatat dalam riwayat, bukan dihapus.', 'bitmomo-pro' ); ?></li>
 				<li><?php esc_html_e( 'Sampel yang masih kecil ditampilkan apa adanya, bukan dibesar-besarkan.', 'bitmomo-pro' ); ?></li>
 			</ul>
-			<a class="bm-pro-sales__accountability-link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>"><?php esc_html_e( 'Lihat metodologi & track record lengkap →', 'bitmomo-pro' ); ?></a>
+			<?php if ( self::METHODOLOGY_PAGE_LIVE ) : ?>
+				<a class="bm-pro-sales__accountability-link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>"><?php esc_html_e( 'Lihat metodologi & track record lengkap →', 'bitmomo-pro' ); ?></a>
+			<?php else : ?>
+				<p class="bm-pro-sales__accountability-note"><?php esc_html_e( 'Metodologi & track record lengkap segera tersedia sebagai halaman terpisah.', 'bitmomo-pro' ); ?></p>
+			<?php endif; ?>
 		</section>
 		<?php
 	}
