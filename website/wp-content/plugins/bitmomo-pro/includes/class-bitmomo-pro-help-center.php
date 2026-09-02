@@ -113,8 +113,8 @@ class Bitmomo_Pro_Help_Center {
 					self::q( 'harga-bitmomo-pro', 'Berapa harga Bitmomo Pro?', array( 'Founding Membership tersedia dalam dua pilihan:', '<strong>Bulanan</strong> — Rp149.000/bulan<br><strong>Tahunan</strong> — Rp1.490.000/tahun', 'Keduanya memberikan akses ke fitur Bitmomo Pro yang sama.' ) ),
 					self::q( 'apa-itu-founding-membership', 'Apa itu Founding Membership?', array( 'Founding Membership adalah membership khusus untuk member awal Bitmomo Pro.', 'Total Founding Membership dibatasi hingga 149 member.', 'Batch pertama dibuka untuk 25 member.', 'Selama membership tetap aktif, Founding Member mempertahankan founding price dan mendapatkan fitur baru yang ditambahkan ke Bitmomo Pro ketika tersedia.' ) ),
 					self::q( 'bulanan-vs-tahunan', 'Apa beda paket bulanan dan tahunan?', array( 'Fitur yang diperoleh sama.', 'Perbedaannya adalah periode pembayaran.', '<strong>Bulanan:</strong><br>Rp149.000 setiap bulan.', '<strong>Tahunan:</strong><br>Rp1.490.000 untuk 12 bulan.', 'Paket tahunan memiliki harga efektif yang lebih rendah dan mengurangi kebutuhan melakukan pembayaran manual setiap bulan.' ) ),
-					self::q( 'apakah-founding-price-tetap', 'Apakah harga Bitmomo Pro akan tetap Rp149.000/bulan?', array( 'Rp149.000/bulan adalah Founding Price, bukan harga reguler yang kami rencanakan untuk jangka panjang.', 'Harga publik berikutnya belum ditetapkan. Namun, berdasarkan scope produk yang sedang dikembangkan, saat ini kami memperkirakan harga reguler Bitmomo Pro nantinya berada di sekitar Rp349.000/bulan.', 'Harga tersebut masih dapat berubah sebelum pendaftaran kembali dibuka.' ) ),
-					self::q( 'setelah-kuota-149-penuh', 'Apa yang terjadi setelah kuota 149 Founding Members terpenuhi?', array( 'Setelah kuota 149 Founding Members terpenuhi, pendaftaran Bitmomo Pro akan ditutup sementara untuk member baru.', 'Fokus kami akan beralih ke pengembangan produk, peningkatan kualitas intelligence, dan pengumpulan feedback dari Founding Members sebelum membuka akses kembali ke publik.', 'Kami belum menetapkan harga reguler final untuk periode setelah Founding Membership. Namun, berdasarkan scope produk yang sedang dikembangkan, kami memperkirakan harga normal Bitmomo Pro nantinya berada di kisaran Rp349.000/bulan.', 'Harga tersebut masih dapat berubah sebelum pendaftaran dibuka kembali.', 'Founding Members yang menjaga membership tetap aktif akan tetap mempertahankan founding price sesuai paket yang dipilih.' ) ),
+					self::q( 'apakah-founding-price-tetap', 'Apakah harga Bitmomo Pro akan tetap Rp149.000/bulan?', array( 'Rp149.000/bulan adalah Founding Price.', 'Harga membership baru akan berubah seiring pengembangan fitur dan teknologi Bitmomo Pro.', 'Founding Members yang menjaga membership tetap aktif dapat mempertahankan Founding Price selamanya.' ) ),
+					self::q( 'setelah-kuota-149-penuh', 'Apa yang terjadi setelah kuota 149 Founding Members terpenuhi?', array( 'Setelah kuota 149 Founding Members terpenuhi, pendaftaran Bitmomo Pro akan ditutup sementara untuk member baru.', 'Fokus kami akan beralih ke pengembangan produk, peningkatan kualitas intelligence, dan pengumpulan feedback dari Founding Members sebelum membuka akses kembali ke publik.', 'Rp149.000/bulan adalah Founding Price. Harga membership baru akan berubah seiring pengembangan fitur dan teknologi Bitmomo Pro.', 'Founding Members yang menjaga membership tetap aktif dapat mempertahankan Founding Price selamanya.' ) ),
 					self::q( 'member-baru-setelah-penuh', 'Apakah Bitmomo akan menerima member baru setelah Founding Membership penuh?', array( 'Tidak untuk sementara waktu.', 'Setelah 149 tempat terisi, kami berencana menutup pendaftaran dan fokus bekerja bersama cohort Founding Members untuk menyempurnakan produk sebelum menentukan kapan akses publik dibuka kembali.' ) ),
 					self::q( 'semua-produk-masa-depan', 'Apakah Founding Members mendapatkan semua produk Bitmomo di masa depan?', array( 'Tidak.', 'Founding benefit berlaku untuk fitur baru yang ditambahkan ke Bitmomo Pro, termasuk 11 AI Analysts dan Watchtower jika diluncurkan sebagai bagian dari Bitmomo Pro.', 'Produk standalone Bitmomo di masa depan dapat memiliki pricing tersendiri.' ) ),
 					self::q( 'berhenti-dan-bergabung-kembali', 'Apa yang terjadi jika saya berhenti berlangganan lalu bergabung kembali?', array( 'Akses tetap tersedia sampai akhir periode yang sudah dibayar.', 'Setelah membership benar-benar berakhir, founding price sebelumnya tidak dijamin masih tersedia jika Anda bergabung kembali di kemudian hari.' ) ),
@@ -132,15 +132,15 @@ class Bitmomo_Pro_Help_Center {
 			),
 			'ai-analysts-watchtower' => array(
 				'title' => '11 AI Analysts & Watchtower',
-				'statuses' => array( '11 AI ANALYSTS — IN DEVELOPMENT', 'BITMOMO WATCHTOWER — IN DEVELOPMENT', 'TELEGRAM ALERTS — IN DEVELOPMENT' ),
+				'statuses' => array( '11 AI ANALYSTS — SEGERA HADIR', 'BITMOMO WATCHTOWER — SEGERA HADIR', 'TELEGRAM ALERTS — SEGERA HADIR' ),
 				'items' => array(
-					self::q( 'apa-itu-11-ai-analysts', 'Apa itu 11 AI Analysts?', array( '11 AI Analysts adalah sebelas analyst AI spesialis yang sedang dikembangkan untuk membaca BTC dari perspektif berbeda dan memberikan verdict masing-masing.', 'Area analisisnya mencakup antara lain trend, volatility, momentum, market structure, derivatives, flow, sentiment, macro, historical regime, dan event risk.', 'Hasilnya dirancang untuk disatukan menjadi satu Bitmomo Decision View.' ), 'IN DEVELOPMENT' ),
-					self::q( 'analysts-dan-watchtower', 'Bagaimana 11 AI Analysts dan Watchtower bekerja bersama?', array( '<strong>“11 AI Analysts membangun thesis. Watchtower menjaganya tetap relevan.”</strong>', '“Dua kali sehari, 11 analyst memberi verdict. Di antaranya, Watchtower mendeteksi perubahan penting dan mengirim update ke Telegram.”', 'Ini menggambarkan capability yang direncanakan dan belum tersedia saat ini.' ), 'IN DEVELOPMENT' ),
-					self::q( 'apakah-analysts-tersedia', 'Apakah 11 AI Analysts sudah tersedia?', array( 'Belum.', '11 AI Analysts masih dalam pengembangan.', 'Ketika tersedia, sistem ini dirancang untuk memberikan berbagai perspektif spesialis pada scheduled intelligence Bitmomo.' ), 'IN DEVELOPMENT' ),
-					self::q( 'apa-itu-watchtower', 'Apa itu Bitmomo Watchtower?', array( 'Watchtower adalah monitoring layer Bitmomo yang sedang dikembangkan untuk mendeteksi perubahan penting di antara scheduled intelligence updates.', 'Tujuannya adalah membantu menjaga thesis Bitmomo tetap relevan ketika kondisi pasar berubah.' ), 'IN DEVELOPMENT' ),
-					self::q( 'watchtower-bukan-news-feed', 'Apakah Watchtower akan mengirim setiap berita dan pergerakan pasar?', array( 'Tidak.', 'Watchtower dirancang sebagai high-signal monitoring system, bukan news feed.', 'Tujuannya adalah menyaring perubahan yang cukup penting untuk membuat kondisi atau thesis pasar perlu diperhatikan kembali.' ), 'IN DEVELOPMENT' ),
-					self::q( 'telegram-alerts', 'Apakah Telegram Alerts sudah tersedia?', array( 'Belum.', 'Telegram Alerts merupakan bagian dari Watchtower yang masih dalam pengembangan.' ), 'IN DEVELOPMENT' ),
-					self::q( 'founders-mendapat-analysts-watchtower', 'Apakah Founding Members akan mendapatkan 11 AI Analysts dan Watchtower?', array( 'Ya, jika fitur tersebut diluncurkan sebagai bagian dari Bitmomo Pro.', 'Founding Members yang menjaga membership tetap aktif akan mendapatkan fitur tersebut tanpa kehilangan founding price mereka.' ), 'IN DEVELOPMENT' ),
+					self::q( 'apa-itu-11-ai-analysts', 'Apa itu 11 AI Analysts?', array( '11 AI Analysts adalah sebelas analyst AI spesialis yang sedang dikembangkan untuk membaca BTC dari perspektif berbeda dan memberikan verdict masing-masing.', 'Area analisisnya mencakup antara lain trend, volatility, momentum, market structure, derivatives, flow, sentiment, macro, historical regime, dan event risk.', 'Hasilnya dirancang untuk disatukan menjadi satu Bitmomo Decision View.', 'Sedang dalam pengembangan aktif dan akan menjadi bagian dari Bitmomo Pro berikutnya.' ), 'SEGERA HADIR' ),
+					self::q( 'analysts-dan-watchtower', 'Bagaimana 11 AI Analysts dan Watchtower bekerja bersama?', array( '<strong>“11 AI Analysts membangun thesis. Watchtower menjaganya tetap relevan.”</strong>', '“Dua kali sehari, 11 analyst memberi verdict. Di antaranya, Watchtower mendeteksi perubahan penting dan mengirim update ke Telegram.”', 'Ini menggambarkan capability yang direncanakan dan belum tersedia saat ini.' ), 'SEGERA HADIR' ),
+					self::q( 'apakah-analysts-tersedia', 'Kapan 11 AI Analysts dan Watchtower tersedia?', array( 'Belum tersedia hari ini.', 'Sedang dalam pengembangan aktif dan akan menjadi bagian dari Bitmomo Pro berikutnya.', 'Ketika tersedia, sistem ini dirancang untuk memberikan berbagai perspektif spesialis pada scheduled intelligence Bitmomo.' ), 'SEGERA HADIR' ),
+					self::q( 'apa-itu-watchtower', 'Apa itu Bitmomo Watchtower?', array( 'Watchtower adalah monitoring layer Bitmomo yang sedang dikembangkan untuk mendeteksi perubahan penting di antara scheduled intelligence updates.', 'Tujuannya adalah membantu menjaga thesis Bitmomo tetap relevan ketika kondisi pasar berubah.', 'Sedang dalam pengembangan aktif dan akan menjadi bagian dari Bitmomo Pro berikutnya.' ), 'SEGERA HADIR' ),
+					self::q( 'watchtower-bukan-news-feed', 'Apakah Watchtower akan mengirim setiap berita dan pergerakan pasar?', array( 'Tidak.', 'Watchtower dirancang sebagai high-signal monitoring system, bukan news feed.', 'Tujuannya adalah menyaring perubahan yang cukup penting untuk membuat kondisi atau thesis pasar perlu diperhatikan kembali.' ), 'SEGERA HADIR' ),
+					self::q( 'telegram-alerts', 'Apakah Telegram Alerts sudah tersedia?', array( 'Belum.', 'Telegram Alerts merupakan bagian dari Watchtower yang masih dalam pengembangan.' ), 'SEGERA HADIR' ),
+					self::q( 'founders-mendapat-analysts-watchtower', 'Apakah Founding Members akan mendapatkan 11 AI Analysts dan Watchtower?', array( 'Ya, jika fitur tersebut diluncurkan sebagai bagian dari Bitmomo Pro.', 'Founding Members yang menjaga membership tetap aktif akan mendapatkan fitur tersebut tanpa kehilangan founding price mereka.' ), 'SEGERA HADIR' ),
 				),
 			),
 			'ai-lab-decentralized-ai' => array(
@@ -162,18 +162,29 @@ class Bitmomo_Pro_Help_Center {
 	}
 
 	/**
-	 * Conversion-critical only (per the frontend-completion sprint's
-	 * aggressive /pro simplification directive) -- what a visitor needs
-	 * resolved right before joining the whitelist or paying, not general
-	 * product education. Everything else (free-vs-pro, update schedule,
-	 * post-149-cap handling, monthly-vs-annual mechanics, whether founders
-	 * get future features) already lives at /help and is one click away via
-	 * render_pro_subset()'s "Lihat Help Center" link -- trimmed from 10
-	 * items to 5 so /pro's FAQ stays a purchase aid, not a second Help
-	 * Center.
+	 * Buying-objection FAQ for /pro (per the sellability redesign brief,
+	 * 2026-09-02). A prior frontend-completion sprint trimmed this list
+	 * from 10 items to 5 to keep /pro's FAQ a lean purchase aid. That
+	 * trim is reversed here: the redesign explicitly requires these 10
+	 * objection-handling topics -- covering the new AI Analysts/Watchtower
+	 * positioning, Founding Membership economics, and lapse/rejoin rules --
+	 * to sit directly on /pro rather than one click away at /help. General
+	 * product education not tied to a buying objection still lives only at
+	 * /help via render_pro_subset()'s "Lihat Help Center" link.
 	 */
 	public static function pro_question_ids() {
-		return array( 'apa-itu-bitmomo-pro', 'harga-bitmomo-pro', 'apa-itu-founding-membership', 'batalkan-kapan-saja', 'kebijakan-refund' );
+		return array(
+			'sinyal-buy-atau-sell',
+			'apa-itu-bitmomo-pro',
+			'free-vs-pro',
+			'apa-itu-11-ai-analysts',
+			'apa-itu-watchtower',
+			'apakah-analysts-tersedia',
+			'apa-itu-founding-membership',
+			'apakah-founding-price-tetap',
+			'berhenti-dan-bergabung-kembali',
+			'founders-mendapat-analysts-watchtower',
+		);
 	}
 
 	private static function indexed_items() {
@@ -241,7 +252,7 @@ class Bitmomo_Pro_Help_Center {
 		$items = self::indexed_items();
 		?>
 		<section class="bm-pro-sales__faq" aria-labelledby="bm-pro-faq-title">
-			<h2 id="bm-pro-faq-title">Pertanyaan yang Sering Diajukan</h2>
+			<h2 id="bm-pro-faq-title">Pertanyaan Sebelum Bergabung</h2>
 			<div class="bm-faq"><?php foreach ( self::pro_question_ids() as $id ) { if ( isset( $items[ $id ] ) ) { self::render_item( $items[ $id ], 'pro' ); } } ?></div>
 			<div class="bm-pro-sales__faq-more"><p>Punya pertanyaan lain?</p><a href="<?php echo esc_url( home_url( '/help/' ) ); ?>">Lihat Help Center →</a></div>
 		</section>

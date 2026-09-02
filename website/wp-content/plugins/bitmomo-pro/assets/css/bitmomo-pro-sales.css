@@ -3,7 +3,13 @@
  * Every selector is namespaced under .bm-pro-sales so this never leaks
  * into or is affected by the active theme's global styles.
  * Mobile-first, readable at 360px; a single breakpoint widens the
- * free-vs-pro comparison and example scenario grid on tablet/desktop.
+ * six-stage intelligence flow and progression steps on tablet/desktop.
+ *
+ * 2026-09 sellability redesign: kept the existing --bms-teal accent
+ * throughout (the only accent color actually used anywhere in this
+ * plugin/theme — no orange exists in the codebase to match a since-
+ * corrected brief detail; flagged in the implementation report rather
+ * than introducing an unestablished color).
  */
 
 /* The shortcode owns the sales-page hero, so suppress the theme's duplicate title. */
@@ -36,12 +42,15 @@
 	box-sizing: inherit;
 }
 
+/* ---------- Hero (Section 1) ---------- */
+
 .bm-pro-sales__hero {
 	text-align: center;
-	padding: 28px 16px 20px;
+	padding: 28px 16px 24px;
 }
 
-.bm-pro-sales__hero-eyebrow {
+.bm-pro-sales__hero-eyebrow,
+.bm-pro-sales__eyebrow {
 	margin: 0 0 10px;
 	font-size: 0.72rem;
 	font-weight: 700;
@@ -51,17 +60,75 @@
 }
 
 .bm-pro-sales__hero-title {
-	margin: 0 0 8px;
+	margin: 0 0 10px;
 	font-size: 1.8rem;
 	font-weight: 800;
+	line-height: 1.25;
 }
 
 .bm-pro-sales__hero-sub {
-	margin: 0;
+	margin: 0 0 18px;
 	color: var( --bms-text-muted );
 	font-size: 1rem;
-	line-height: 1.5;
+	line-height: 1.55;
 }
+
+.bm-pro-sales__hero-offer {
+	background: var( --bms-surface );
+	border: 1px solid var( --bms-border );
+	border-left: 3px solid var( --bms-teal );
+	border-radius: 10px;
+	padding: 14px 16px;
+	margin: 0 0 16px;
+	text-align: left;
+}
+
+.bm-pro-sales__hero-price {
+	margin: 0 0 4px !important;
+	font-size: 1.15rem;
+	font-weight: 800;
+	color: var( --bms-teal );
+}
+
+.bm-pro-sales__hero-price-sub {
+	margin: 0 !important;
+	font-size: 0.85rem;
+	color: var( --bms-text-muted );
+	line-height: 1.45;
+}
+
+.bm-pro-sales__hero-facts {
+	display: grid;
+	grid-template-columns: repeat( 2, 1fr );
+	gap: 10px;
+	margin: 0 0 20px;
+}
+
+.bm-pro-sales__hero-facts > div {
+	background: var( --bms-bg );
+	border: 1px solid var( --bms-border );
+	border-radius: 10px;
+	padding: 10px 8px;
+}
+
+.bm-pro-sales__hero-facts strong {
+	display: block;
+	font-size: 1.05rem;
+	font-weight: 800;
+}
+
+.bm-pro-sales__hero-facts span {
+	display: block;
+	font-size: 0.72rem;
+	color: var( --bms-text-muted );
+	margin-top: 2px;
+}
+
+.bm-pro-sales__hero-cta {
+	width: 100%;
+}
+
+/* ---------- Generic section shell ---------- */
 
 .bm-pro-sales__section {
 	background: var( --bms-surface );
@@ -73,16 +140,21 @@
 
 .bm-pro-sales__section-title {
 	margin: 0 0 10px;
-	font-size: 1rem;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: var( --bms-text-muted );
+	font-size: 1.15rem;
+	font-weight: 700;
+	line-height: 1.35;
+	color: var( --bms-text );
 }
 
 .bm-pro-sales__section p {
-	margin: 0;
+	margin: 0 0 10px;
 	line-height: 1.55;
 	font-size: 0.95rem;
+	color: var( --bms-text-muted );
+}
+
+.bm-pro-sales__section p:last-child {
+	margin-bottom: 0;
 }
 
 .bm-pro-sales__list {
@@ -90,111 +162,222 @@
 	padding-left: 1.1rem;
 	line-height: 1.6;
 	font-size: 0.95rem;
+	color: var( --bms-text-muted );
 }
 
-.bm-pro-sales__compare {
+.bm-pro-sales__list li {
+	margin-bottom: 6px;
+}
+
+.bm-pro-sales__list strong {
+	color: var( --bms-text );
+}
+
+/* ---------- Section 2: context problem ---------- */
+
+.bm-pro-sales__lead {
+	color: var( --bms-text ) !important;
+	font-size: 1.02rem !important;
+	font-weight: 600;
+}
+
+.bm-pro-sales__pullquote {
+	font-weight: 700;
+	color: var( --bms-teal ) !important;
+	border-left: 3px solid var( --bms-teal );
+	padding-left: 12px;
+	font-size: 1rem !important;
+}
+
+/* ---------- Section 3: market experience / lineage ---------- */
+
+.bm-pro-sales__lineage-note {
+	font-style: italic;
+	font-size: 0.88rem !important;
+	color: var( --bms-text-muted );
+}
+
+/* ---------- Section 4: six-stage intelligence flow ---------- */
+
+.bm-pro-sales__flow-stages {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: 12px;
+	gap: 10px;
 }
 
-.bm-pro-sales__compare-col {
+.bm-pro-sales__flow-stage {
 	background: var( --bms-bg );
 	border: 1px solid var( --bms-border );
 	border-radius: 10px;
 	padding: 12px 14px;
+	position: relative;
 }
 
-.bm-pro-sales__compare-col h3 {
-	margin: 0 0 8px;
+.bm-pro-sales__flow-index {
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	line-height: 22px;
+	text-align: center;
+	border-radius: 50%;
+	background: var( --bms-teal );
+	color: #06201c;
+	font-size: 0.75rem;
+	font-weight: 800;
+	margin-bottom: 6px;
+}
+
+.bm-pro-sales__flow-stage h3 {
+	margin: 0 0 4px;
 	font-size: 0.85rem;
-	text-transform: uppercase;
+	font-weight: 800;
 	letter-spacing: 0.04em;
-	color: var( --bms-text-muted );
+	color: var( --bms-teal );
 }
 
-.bm-pro-sales__compare-col--pro {
-	border-left: 3px solid var( --bms-teal );
+.bm-pro-sales__flow-stage p {
+	margin: 0 !important;
+	font-size: 0.88rem !important;
 }
 
-.bm-pro-sales__compare-col ul {
-	margin: 0;
-	padding-left: 1.1rem;
-	font-size: 0.9rem;
-	line-height: 1.55;
+/* ---------- Sections 5 & 6: 11 AI Analysts / Watchtower status blocks ---------- */
+
+.bm-pro-sales__status-row {
+	margin: 0 0 10px;
 }
 
-.bm-pro-sales__example-label {
+.bm-pro-sales__status-badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border: 1px solid var( --bms-teal );
+	border-radius: 999px;
+	color: var( --bms-teal );
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.bm-pro-sales__pill-list {
+	list-style: none;
+	margin: 0 0 12px;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.bm-pro-sales__pill-list li {
+	background: var( --bms-bg );
+	border: 1px solid var( --bms-border );
+	border-radius: 999px;
+	padding: 5px 12px;
 	font-size: 0.8rem;
 	color: var( --bms-text-muted );
-	margin: 0 0 10px !important;
+}
+
+.bm-pro-sales__signature {
+	font-weight: 700;
+	color: var( --bms-text ) !important;
+	font-size: 0.98rem !important;
+}
+
+.bm-pro-sales__status-note {
+	font-size: 0.82rem !important;
+	color: var( --bms-text-muted );
 	font-style: italic;
 }
 
-.bm-pro-sales__example {
-	background: var( --bms-bg );
-	border: 1px dashed var( --bms-border );
-	border-radius: 10px;
-	padding: 14px;
+/* ---------- Section 7: what exists today ---------- */
+
+.bm-pro-sales__today .bm-pro-sales__list strong {
+	color: var( --bms-teal );
 }
 
-.bm-pro-sales__example-header {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	gap: 8px;
-	margin-bottom: 8px;
-	font-size: 0.85rem;
-	color: var( --bms-text-muted );
-}
+/* ---------- Section 8: founding economics + pricing ---------- */
 
-.bm-pro-sales__example-range {
-	font-size: 1.1rem;
-	font-weight: 700;
-	margin: 0 0 12px !important;
-}
-
-.bm-pro-sales__example-scenarios {
+.bm-pro-sales__progression {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 8px;
+	margin: 0 0 16px;
 }
 
-.bm-pro-sales__example-scenarios h4 {
-	margin: 0 0 2px;
-	font-size: 0.75rem;
-	text-transform: uppercase;
-	color: var( --bms-text-muted );
+.bm-pro-sales__progression-step {
+	background: var( --bms-bg );
+	border: 1px solid var( --bms-border );
+	border-radius: 10px;
+	padding: 10px 12px;
 }
 
-.bm-pro-sales__example-scenarios p {
-	margin: 0;
-	font-size: 0.85rem;
-	color: var( --bms-text-muted );
+.bm-pro-sales__progression-label {
+	display: inline-block;
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	color: var( --bms-teal );
+	margin-bottom: 4px;
+}
+
+.bm-pro-sales__progression-step p {
+	margin: 0 !important;
+	font-size: 0.88rem !important;
+}
+
+.bm-pro-sales__economics-anchor {
+	font-size: 1.3rem !important;
+	font-weight: 800;
+	color: var( --bms-text ) !important;
+}
+
+.bm-pro-sales__economics-boundary {
+	font-size: 0.82rem !important;
+	opacity: .8;
 }
 
 .bm-pro-sales__price {
 	text-align: center;
 }
 
+.bm-pro-sales__price-eyebrow {
+	margin: 0 0 6px !important;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var( --bms-teal ) !important;
+}
+
 .bm-pro-sales__price-amount {
 	font-size: 1.6rem;
 	font-weight: 800;
 	margin: 0 0 6px !important;
+	color: var( --bms-text ) !important;
 }
 
 .bm-pro-sales__price-sub {
-	color: var( --bms-text-muted );
-	font-size: 0.9rem;
-	margin: 0 0 10px !important;
+	color: var( --bms-text-muted ) !important;
+	font-size: 0.9rem !important;
+	margin: 0 0 8px !important;
+}
+
+.bm-pro-sales__price-stage {
+	display: inline-block;
+	font-size: 0.72rem !important;
+	font-weight: 700;
+	color: var( --bms-teal ) !important;
+	border: 1px solid var( --bms-teal );
+	border-radius: 999px;
+	padding: 3px 10px;
+	margin: 0 0 12px !important;
 }
 
 .bm-pro-sales__price-terms {
-	font-size: 11px;
+	font-size: 11px !important;
 	font-weight: 400;
 	line-height: 1.45;
 	opacity: .72;
-	color: var( --bms-text-muted );
+	color: var( --bms-text-muted ) !important;
 	margin: 0 0 4px !important;
 }
 
@@ -212,6 +395,8 @@
 	font-weight: 700;
 	font-size: 1rem;
 	text-decoration: none;
+	border: none;
+	cursor: pointer;
 }
 
 .bm-pro-sales__cta:hover {
@@ -227,6 +412,34 @@
 	cursor: default;
 }
 
+/* ---------- Section 9: accountability ---------- */
+
+.bm-pro-sales__accountability-link {
+	display: inline-block;
+	margin-top: 4px;
+	color: var( --bms-teal );
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.bm-pro-sales__accountability-link:hover {
+	text-decoration: underline;
+}
+
+/* ---------- Section 11: final CTA ---------- */
+
+.bm-pro-sales__final-cta {
+	text-align: center;
+}
+
+.bm-pro-sales__final-cta .bm-pro-sales__hero-facts {
+	grid-template-columns: repeat( 3, 1fr );
+	margin: 0 0 18px;
+}
+
+/* ---------- Disclaimer ---------- */
+
 .bm-pro-sales__disclaimer {
 	text-align: center;
 	padding: 4px 12px 24px;
@@ -239,12 +452,26 @@
 	line-height: 1.5;
 }
 
+/* ---------- Tablet/desktop breakpoint ---------- */
+
 @media ( min-width: 640px ) {
-	.bm-pro-sales__compare {
-		grid-template-columns: 1fr 1fr;
+	.bm-pro-sales__hero-facts {
+		grid-template-columns: repeat( 4, 1fr );
 	}
 
-	.bm-pro-sales__example-scenarios {
+	.bm-pro-sales__flow-stages {
+		grid-template-columns: repeat( 6, 1fr );
+	}
+
+	.bm-pro-sales__flow-stage p {
+		font-size: 0.78rem !important;
+	}
+
+	.bm-pro-sales__progression {
+		grid-template-columns: repeat( 3, 1fr );
+	}
+
+	.bm-pro-sales__final-cta .bm-pro-sales__hero-facts {
 		grid-template-columns: repeat( 3, 1fr );
 	}
 }
