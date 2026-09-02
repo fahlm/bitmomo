@@ -105,6 +105,9 @@ class Bitmomo_Pro_Whitelist {
 		add_action( 'wp_ajax_nopriv_' . self::AJAX_ACTION_WHATSAPP, array( $this, 'handle_ajax_whatsapp_submit' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
+		add_filter( 'litespeed_optimize_js_excludes', array( $this, 'exclude_whitelist_js' ) );
+		add_filter( 'litespeed_optm_js_defer_exc', array( $this, 'exclude_whitelist_js' ) );
+		add_filter( 'litespeed_optm_gm_js_exc', array( $this, 'exclude_whitelist_js' ) );
 
 		// Converted-state: listens to the EXISTING entitlement lifecycle hook
 		// (Bitmomo_Pro_Entitlement_Service::grant_access()) rather than
@@ -474,6 +477,11 @@ class Bitmomo_Pro_Whitelist {
 				),
 			)
 		);
+	}
+
+	public function exclude_whitelist_js( $excludes ) {
+		$excludes[] = 'bitmomo-pro-whitelist.js';
+		return array_unique( $excludes );
 	}
 
 	/**
