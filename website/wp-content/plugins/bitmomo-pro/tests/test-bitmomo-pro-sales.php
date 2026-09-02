@@ -69,12 +69,14 @@ check( 'CTA LABEL: the old bare "GABUNG WHITELIST" string no longer appears anyw
 
 check( 'HERO: eyebrow matches locked copy', false !== strpos( $html, 'FOUNDING MEMBERSHIP — BITMOMO PRO' ) );
 check( 'HERO: headline matches locked copy verbatim', false !== strpos( $html, 'Pahami BTC dalam konteks, bukan sekadar dari potongan data.' ) );
-check( 'HERO: supporting product copy present verbatim', false !== strpos( $html, 'Bitmomo Pro sudah memiliki Decision View untuk membantu memahami kondisi BTC hari ini. 11 AI Analysts dan Watchtower akan segera hadir untuk memperluas analisis dan menjaga thesis tetap relevan ketika kondisi pasar berubah.' ) );
+check( 'HERO: supporting product copy present verbatim (final polish: shortened)', false !== strpos( $html, 'Decision View hari ini. 11 AI Analysts dan Watchtower segera hadir.' ) );
 check( 'HERO: "Founding Price Rp149.000/bulan" is prominent', false !== strpos( $html, 'Founding Price Rp149.000/bulan' ) );
 check( 'HERO: Rp149.000/bulan fact visible', false !== strpos( $html, 'Rp149.000' ) );
-check( 'HERO: Rp1.490.000/tahun fact visible', false !== strpos( $html, 'Rp1.490.000' ) );
+check( 'HERO: Rp1.490.000/tahun fact visible (now a secondary line, not a 4th equal-weight stat box)', false !== strpos( $html, 'Rp1.490.000' ) );
 check( 'HERO: 149 Founding Members fact visible', false !== strpos( $html, '149' ) && false !== strpos( $html, 'Founding Members' ) );
-check( 'HERO: "Batch pertama: 25 anggota" fact visible', false !== strpos( $html, 'Batch pertama: 25 anggota' ) );
+check( 'HERO: "Batch pertama" fact visible (final polish: dropped the redundant "25 anggota" repeat next to the 25 stat)', false !== strpos( $html, 'Batch pertama' ) );
+check( 'HERO: annual price is a secondary line, not a 4th equal-weight stat box', false === strpos( $html, '<div><strong>Rp1.490.000</strong>' ) );
+check( 'HERO: hero-facts stat row is 3 boxes, not 4 (final polish: crowded/merged-looking 4-box row fixed)', 3 === substr_count( substr( $html, strpos( $html, 'bm-pro-sales__hero-facts' ), 700 ), '<div><strong>' ) );
 check( 'HERO: hero-level pricing appears before the FAQ (not buried)', strpos( $html, 'Founding Price Rp149.000/bulan' ) < strpos( $html, 'Pertanyaan Sebelum Bergabung' ) );
 
 // ==========================================================================
@@ -89,7 +91,7 @@ check( 'STATUS: old "IN DEVELOPMENT" wording is gone', false === strpos( $html, 
 check( 'STATUS: no "24/7" claim', false === stripos( $html, '24/7' ) );
 check( 'STATUS: no "real-time" claim', false === stripos( $html, 'real-time' ) && false === stripos( $html, 'real time' ) );
 check( 'STATUS: 11 AI Analysts signature line present verbatim', false !== strpos( $html, '11 AI Analysts membangun thesis. Watchtower menjaganya tetap relevan.' ) );
-check( 'STATUS: Watchtower "high-signal, bukan news feed" framing present', false !== strpos( $html, 'high-signal monitoring system, bukan news feed' ) );
+check( 'STATUS: Watchtower "bukan news feed" framing present (final polish: two paragraphs merged into one, shorter)', false !== strpos( $html, 'bukan news feed' ) );
 
 // ==========================================================================
 // SECTIONS -> all 11 required sections render in order
@@ -213,6 +215,17 @@ check( 'MOBILE: page container uses max-width (fluid), not a fixed width', false
 check( 'MOBILE: no fixed pixel widths above 360px anywhere in the stylesheet (would force horizontal scroll at 360px)', 0 === preg_match( '/(?<!max-)(?<!min-)\bwidth:\s*(\d+)px/', $css, $m ) || ( isset( $m[1] ) && (int) $m[1] <= 360 ) );
 check( 'MOBILE: six-stage flow and progression are single-column by default (stack vertically before the desktop breakpoint)', preg_match( '/\.bm-pro-sales__flow-stages\s*\{[^}]*grid-template-columns:\s*1fr/', $css ) && preg_match( '/\.bm-pro-sales__progression\s*\{[^}]*grid-template-columns:\s*1fr/', $css ) );
 check( 'MOBILE: 11 AI Analysts role pills wrap instead of forcing 11 fixed-width cards', false !== strpos( $css, 'flex-wrap: wrap' ) );
+
+// ==========================================================================
+// GLOBAL COLOR SYSTEM (final polish) -> orange is the sole commercial/
+// paid-conversion CTA color; teal remains the intelligence/panel accent
+// everywhere else (status badges, price typography, peak/climax borders).
+// ==========================================================================
+
+check( 'COLOR: orange token defined, matching the site-wide navbar CTA color (#f4ad32)', false !== strpos( $css, '--bms-orange: #f4ad32' ) );
+check( 'COLOR: the primary CTA button (.bm-pro-sales__cta) uses orange, not teal', (bool) preg_match( '/\.bm-pro-sales__cta\s*\{[^}]*background:\s*var\(\s*--bms-orange\s*\)/s', $css ) );
+check( 'COLOR: the whitelist submit button is overridden to orange inside the climax panel', false !== strpos( $css, '.bm-pro-sales__climax .bm-wl__submit {' ) && (bool) preg_match( '/\.bm-pro-sales__climax \.bm-wl__submit\s*\{[^}]*background:\s*var\(\s*--bms-orange\s*\)/s', $css ) );
+check( 'COLOR: status badges (11 AI Analysts / Watchtower) remain teal, not repointed to orange', (bool) preg_match( '/\.bm-pro-sales__status-badge\s*\{[^}]*border:\s*1px solid var\(\s*--bms-teal\s*\)/s', $css ) );
 
 // ==========================================================================
 // Report

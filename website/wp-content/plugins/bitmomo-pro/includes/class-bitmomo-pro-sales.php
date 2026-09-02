@@ -118,22 +118,30 @@ class Bitmomo_Pro_Sales {
 		return ob_get_clean();
 	}
 
-	/** 1. Hero + Founding Offer. Copy is founder-locked — do not reword. */
+	/**
+	 * 1. Hero + Founding Offer. Headline is founder-locked verbatim — do
+	 * not reword. The support line, price-sub line, and hero-facts stat
+	 * row were shortened/restructured in the 2026-09 final polish pass
+	 * (founder review: hero read long, and the 4-box stat row visually
+	 * merged strong/span text into unreadable pairs like
+	 * "149Founding Members"). Three stats now instead of four, with the
+	 * annual price demoted to a small secondary line rather than a fourth
+	 * equal-weight box.
+	 */
 	private function render_hero() {
 		?>
 		<section class="bm-pro-sales__hero">
 			<p class="bm-pro-sales__hero-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP — BITMOMO PRO', 'bitmomo-pro' ); ?></p>
 			<h1 class="bm-pro-sales__hero-title"><?php esc_html_e( 'Pahami BTC dalam konteks, bukan sekadar dari potongan data.', 'bitmomo-pro' ); ?></h1>
-			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Bitmomo Pro sudah memiliki Decision View untuk membantu memahami kondisi BTC hari ini. 11 AI Analysts dan Watchtower akan segera hadir untuk memperluas analisis dan menjaga thesis tetap relevan ketika kondisi pasar berubah.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Decision View hari ini. 11 AI Analysts dan Watchtower segera hadir.', 'bitmomo-pro' ); ?></p>
 			<div class="bm-pro-sales__hero-offer">
 				<p class="bm-pro-sales__hero-price"><?php esc_html_e( 'Founding Price Rp149.000/bulan', 'bitmomo-pro' ); ?></p>
-				<p class="bm-pro-sales__hero-price-sub"><?php esc_html_e( 'Pertahankan harga ini selama membership tetap aktif, meskipun capability Bitmomo Pro terus bertambah.', 'bitmomo-pro' ); ?></p>
+				<p class="bm-pro-sales__hero-price-sub"><?php esc_html_e( 'Rp1.490.000/tahun · harga ini terkunci selama membership tetap aktif.', 'bitmomo-pro' ); ?></p>
 			</div>
 			<div class="bm-pro-sales__hero-facts">
 				<div><strong><?php esc_html_e( 'Rp149.000', 'bitmomo-pro' ); ?></strong><span><?php esc_html_e( 'per bulan', 'bitmomo-pro' ); ?></span></div>
-				<div><strong><?php esc_html_e( 'Rp1.490.000', 'bitmomo-pro' ); ?></strong><span><?php esc_html_e( 'per tahun', 'bitmomo-pro' ); ?></span></div>
 				<div><strong><?php echo esc_html( self::SEAT_CAP ); ?></strong><span><?php esc_html_e( 'Founding Members', 'bitmomo-pro' ); ?></span></div>
-				<div><strong><?php echo esc_html( self::BATCH_ONE ); ?></strong><span><?php esc_html_e( 'Batch pertama: 25 anggota', 'bitmomo-pro' ); ?></span></div>
+				<div><strong><?php echo esc_html( self::BATCH_ONE ); ?></strong><span><?php esc_html_e( 'Batch pertama', 'bitmomo-pro' ); ?></span></div>
 			</div>
 			<?php $this->render_cta_link( 'bm-pro-sales__hero-cta' ); ?>
 		</section>
@@ -165,8 +173,7 @@ class Bitmomo_Pro_Sales {
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__context">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Data ada di mana-mana. Konteks yang jarang.', 'bitmomo-pro' ); ?></h2>
 			<p class="bm-pro-sales__lead"><?php esc_html_e( 'Pasar kripto tidak kekurangan data. Yang sulit adalah memahami apa arti data itu ketika semuanya berubah pada saat yang sama.', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Ada tools on-chain seperti Nansen atau CryptoQuant yang menampilkan data mentah. Ada AI generik yang bisa menjawab pertanyaan apa pun tentang kripto. Keduanya berguna, tapi keduanya tidak dibangun untuk membaca BTC melalui konteks pengalaman pasar yang berkelanjutan — keduanya berhenti di data atau di jawaban generik, bukan di pemahaman.', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Bitmomo tidak menggantikan data provider atau AI generik. Bitmomo mengisi bagian yang keduanya tidak dirancang untuk mengisi: mengubah data pasar menjadi konteks yang bisa langsung dipakai untuk mengambil keputusan.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'Tools on-chain dan AI generik berguna, tapi keduanya berhenti di data mentah atau jawaban umum, bukan di pemahaman. Bitmomo mengisi bagian itu: mengubah data pasar menjadi konteks yang bisa langsung dipakai untuk mengambil keputusan.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__pullquote"><?php esc_html_e( 'Data bisa ditemukan di banyak tempat. Konteks dibangun dari pengalaman.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
@@ -183,7 +190,7 @@ class Bitmomo_Pro_Sales {
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'DIBANGUN DARI PENGALAMAN PASAR', 'bitmomo-pro' ); ?></p>
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'AI adalah bagian dari sistem. Konteks adalah fondasinya.', 'bitmomo-pro' ); ?></h2>
 			<p><?php esc_html_e( 'Bitmomo merupakan pengembangan dari research arm Perseverance Capital, yang aktif di pasar kripto sejak 2016 — termasuk pengalaman berinvestasi Bitcoin secara konsisten dan berpartisipasi sejak awal di ETHLend maupun BNB.', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Pengalaman itu terbentuk dari menghadapi banyak siklus: pergantian regime pasar, leverage unwind, hingga rotasi narasi antar sektor kripto. Konteks itulah yang menjadi fondasi kerangka analisis Bitmomo, bukan hanya data hari ini.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'Pengalaman menghadapi banyak siklus pasar itulah yang menjadi fondasi kerangka analisis Bitmomo, bukan hanya data hari ini.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__lineage-note"><?php esc_html_e( 'Bitmomo bukan dibangun dari prompt semata, tapi dari pengalaman menghadapi siklus pasar yang berulang.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
@@ -247,7 +254,7 @@ class Bitmomo_Pro_Sales {
 				<span class="bm-pro-sales__status-badge"><?php esc_html_e( '11 AI ANALYSTS — SEGERA HADIR', 'bitmomo-pro' ); ?></span>
 			</div>
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( '11 perspektif spesialis, satu kerangka intelligence yang sama.', 'bitmomo-pro' ); ?></h2>
-			<p><?php esc_html_e( '11 AI Analysts bukan 11 model AI yang berdiri sendiri-sendiri. Setiap analyst bekerja dalam kerangka intelligence Bitmomo yang sama, membaca BTC dari sudut pandang spesialisasinya masing-masing sebelum hasilnya disatukan menjadi satu Decision View.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( '11 AI Analysts bukan 11 model yang berdiri sendiri. Setiap analyst membaca BTC dari sudut pandang spesialisasinya, lalu disatukan menjadi satu Decision View.', 'bitmomo-pro' ); ?></p>
 			<ul class="bm-pro-sales__pill-list">
 				<?php foreach ( $areas as $area ) : ?><li><?php echo esc_html( $area ); ?></li><?php endforeach; ?>
 			</ul>
@@ -265,8 +272,7 @@ class Bitmomo_Pro_Sales {
 				<span class="bm-pro-sales__status-badge"><?php esc_html_e( 'WATCHTOWER — SEGERA HADIR', 'bitmomo-pro' ); ?></span>
 			</div>
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Bukan soal apa yang bergerak. Soal apakah sesuatu benar-benar berubah.', 'bitmomo-pro' ); ?></h2>
-			<p><?php esc_html_e( 'Watchtower adalah monitoring layer yang sedang dikembangkan untuk mendeteksi perubahan penting di antara scheduled intelligence updates, lalu menilai apakah perubahan itu cukup berarti untuk memengaruhi thesis yang sedang berjalan.', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Watchtower dirancang sebagai high-signal monitoring system, bukan news feed. Tujuannya menyaring perubahan yang benar-benar relevan, bukan mengirim setiap pergerakan harga atau berita.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'Watchtower adalah monitoring layer yang sedang dikembangkan untuk mendeteksi perubahan penting di antara scheduled updates, lalu menilai apakah perubahan itu cukup relevan untuk memengaruhi thesis yang berjalan — bukan news feed yang mengirim setiap pergerakan harga.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__status-note"><?php esc_html_e( 'Sedang dalam pengembangan aktif dan akan menjadi bagian dari Bitmomo Pro berikutnya.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
@@ -284,11 +290,11 @@ class Bitmomo_Pro_Sales {
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Decision View BTC, aktif setiap hari.', 'bitmomo-pro' ); ?></h2>
 			<p><?php esc_html_e( 'BTC Daily Intelligence gratis menjawab apa yang sedang terjadi sekarang. Bitmomo Pro melengkapinya dengan Decision View harian yang sudah aktif hari ini:', 'bitmomo-pro' ); ?></p>
 			<ul class="bm-pro-sales__list">
-				<li><strong><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'rentang harga yang dinilai masih masuk akal berdasarkan kondisi dan data saat intelligence dibuat.', 'bitmomo-pro' ); ?></li>
+				<li><strong><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'rentang harga yang realistis berdasarkan kondisi saat ini.', 'bitmomo-pro' ); ?></li>
 				<li><strong><?php esc_html_e( 'Scenario Map', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'Base, Bull, dan Bear — kemungkinan jalur pasar beserta kondisi pendukungnya.', 'bitmomo-pro' ); ?></li>
 				<li><strong><?php esc_html_e( 'Thesis Invalidation', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'kondisi yang membuat thesis utama tidak lagi layak dipertahankan.', 'bitmomo-pro' ); ?></li>
-				<li><strong><?php esc_html_e( 'What Changed', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'perubahan penting dibanding Decision View sebelumnya, tanpa perlu membandingkan chart sendiri.', 'bitmomo-pro' ); ?></li>
-				<li><strong><?php esc_html_e( 'Confidence Explanation', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'seberapa kuat bukti yang mendukung kesimpulan tersebut saat dibuat.', 'bitmomo-pro' ); ?></li>
+				<li><strong><?php esc_html_e( 'What Changed', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'perubahan penting dibanding Decision View sebelumnya.', 'bitmomo-pro' ); ?></li>
+				<li><strong><?php esc_html_e( 'Confidence Explanation', 'bitmomo-pro' ); ?></strong> — <?php esc_html_e( 'seberapa kuat bukti di balik kesimpulan tersebut.', 'bitmomo-pro' ); ?></li>
 			</ul>
 		</section>
 		<?php
@@ -378,12 +384,7 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__section--quiet bm-pro-sales__accountability">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Setiap analisis harus bisa dipertanggungjawabkan.', 'bitmomo-pro' ); ?></h2>
-			<ul class="bm-pro-sales__list">
-				<li><?php esc_html_e( 'Setiap thesis dicatat sebelum hasilnya diketahui.', 'bitmomo-pro' ); ?></li>
-				<li><?php esc_html_e( 'Hasilnya dievaluasi secara terbuka setelah fakta terjadi.', 'bitmomo-pro' ); ?></li>
-				<li><?php esc_html_e( 'Hasil yang kurang baik tetap tercatat dalam riwayat, bukan dihapus.', 'bitmomo-pro' ); ?></li>
-				<li><?php esc_html_e( 'Sampel yang masih kecil ditampilkan apa adanya, bukan dibesar-besarkan.', 'bitmomo-pro' ); ?></li>
-			</ul>
+			<p><?php esc_html_e( 'Setiap thesis dicatat sebelum hasilnya diketahui, lalu dievaluasi terbuka setelah fakta terjadi — termasuk hasil yang kurang baik dan sampel yang masih kecil, ditampilkan apa adanya, tidak dihapus atau dibesar-besarkan.', 'bitmomo-pro' ); ?></p>
 			<?php if ( self::METHODOLOGY_PAGE_LIVE ) : ?>
 				<a class="bm-pro-sales__accountability-link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>"><?php esc_html_e( 'Lihat metodologi & track record lengkap →', 'bitmomo-pro' ); ?></a>
 			<?php else : ?>
@@ -401,7 +402,7 @@ class Bitmomo_Pro_Sales {
 			<div class="bm-pro-sales__hero-facts">
 				<div><strong><?php esc_html_e( 'Rp149.000', 'bitmomo-pro' ); ?></strong><span><?php esc_html_e( 'per bulan', 'bitmomo-pro' ); ?></span></div>
 				<div><strong><?php echo esc_html( self::SEAT_CAP ); ?></strong><span><?php esc_html_e( 'Founding Members', 'bitmomo-pro' ); ?></span></div>
-				<div><strong><?php echo esc_html( self::BATCH_ONE ); ?></strong><span><?php esc_html_e( 'Batch pertama: 25 anggota', 'bitmomo-pro' ); ?></span></div>
+				<div><strong><?php echo esc_html( self::BATCH_ONE ); ?></strong><span><?php esc_html_e( 'Batch pertama', 'bitmomo-pro' ); ?></span></div>
 			</div>
 			<?php $this->render_cta_link(); ?>
 		</section>

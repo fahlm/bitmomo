@@ -6,10 +6,19 @@
  * six-stage intelligence flow and progression steps on tablet/desktop.
  *
  * 2026-09 sellability redesign: kept the existing --bms-teal accent
- * throughout (the only accent color actually used anywhere in this
- * plugin/theme — no orange exists in the codebase to match a since-
- * corrected brief detail; flagged in the implementation report rather
- * than introducing an unestablished color).
+ * throughout.
+ *
+ * 2026-09 final polish (color system): the site already has a real,
+ * established commercial-CTA color — custom.css's --cta / --cta-hover
+ * (#f4ad32 / #e69a18), the same color the navbar's BITMOMO PRO button and
+ * .bm-hero-btn use site-wide. This pass introduces --bms-orange /
+ * --bms-orange-dark matching those exact values and repoints every
+ * *purchase-intent click target* (hero/final CTA button, the whitelist
+ * widget's own submit button) to it. Teal remains everywhere else —
+ * status badges, panel borders/glow, price typography, the peak-voice
+ * system, the accountability link — since those are informational/
+ * intelligence accents and visual-hierarchy cues, not conversion actions.
+ * Orange = "click to buy/join." Teal = "Bitmomo's intelligence system."
  *
  * 2026-09 visual hierarchy polish (founder review): the page previously
  * gave every section the same dark-box-with-border treatment, so nothing
@@ -47,6 +56,9 @@
 	--bms-teal: #2dd4bf;
 	--bms-teal-dark: #0f766e;
 	--bms-teal-soft: rgba( 45, 212, 191, 0.4 );
+	--bms-orange: #f4ad32;
+	--bms-orange-dark: #e69a18;
+	--bms-orange-soft: rgba( 244, 173, 50, 0.4 );
 	--bms-bull: #34d399;
 	--bms-bear: #f87171;
 
@@ -123,8 +135,8 @@
 
 .bm-pro-sales__hero-facts {
 	display: grid;
-	grid-template-columns: repeat( 2, 1fr );
-	gap: 10px;
+	grid-template-columns: repeat( 3, 1fr );
+	gap: 8px;
 	margin: 0 0 24px;
 }
 
@@ -132,27 +144,30 @@
 	background: var( --bms-bg );
 	border: 1px solid var( --bms-border );
 	border-radius: 10px;
-	padding: 10px 8px;
+	padding: 12px 6px;
+	text-align: center;
 }
 
 .bm-pro-sales__hero-facts strong {
 	display: block;
 	font-size: 1.05rem;
 	font-weight: 800;
+	line-height: 1.25;
 }
 
 .bm-pro-sales__hero-facts span {
 	display: block;
-	font-size: 0.72rem;
+	font-size: 0.7rem;
 	color: var( --bms-text-muted );
-	margin-top: 2px;
+	margin-top: 6px;
+	line-height: 1.3;
 }
 
 .bm-pro-sales__hero-cta {
 	width: 100%;
 	padding: 16px 28px;
 	font-size: 1.05rem;
-	box-shadow: 0 14px 28px -16px var( --bms-teal-soft );
+	box-shadow: 0 14px 28px -16px var( --bms-orange-soft );
 }
 
 /* ---------- Generic section shell (peak / boxed voice) ---------- */
@@ -516,13 +531,20 @@
 .bm-pro-sales__climax .bm-wl__submit {
 	padding: 15px 20px;
 	font-size: 1rem;
+	background: var( --bms-orange );
+	color: #0b1620;
+}
+
+.bm-pro-sales__climax .bm-wl__submit:hover {
+	background: var( --bms-orange-dark );
+	color: #0b1620;
 }
 
 .bm-pro-sales__cta {
 	display: inline-block;
 	padding: 14px 28px;
-	background: var( --bms-teal );
-	color: #06201c;
+	background: var( --bms-orange );
+	color: #0b1620;
 	border-radius: 8px;
 	font-weight: 700;
 	font-size: 1rem;
@@ -532,8 +554,8 @@
 }
 
 .bm-pro-sales__cta:hover {
-	background: var( --bms-teal-dark );
-	color: #eafffb;
+	background: var( --bms-orange-dark );
+	color: #0b1620;
 }
 
 .bm-pro-sales__cta--pending {
@@ -609,10 +631,6 @@
 		max-width: 640px;
 		margin-left: auto;
 		margin-right: auto;
-	}
-
-	.bm-pro-sales__hero-facts {
-		grid-template-columns: repeat( 4, 1fr );
 	}
 
 	/* Three-column flow: two readable rows of three instead of six
