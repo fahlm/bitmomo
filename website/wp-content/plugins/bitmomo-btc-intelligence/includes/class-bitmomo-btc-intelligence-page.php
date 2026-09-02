@@ -34,21 +34,58 @@ if ( ! defined( 'ABSPATH' ) ) {
  * PUBLIC ADAPTER DEPENDENCY: sections 7-10 (Track Record, Confidence vs
  * Accuracy, Expected Range historical hit-rate, Performance by Regime) and
  * part of section 11 (deeper data-quality metrics) need a public,
- * read-only summary of the P1 Scorecard that does not exist yet. This
- * class is written against the expected future shape
- * `Bitmomo_Public_Intelligence_Adapter::evaluation_summary()` (see
- * adapter_evaluation_summary() below) so that once that class lands, only
- * adapter_evaluation_summary()'s class_exists()/method_exists() guard
- * needs to start returning real data -- no other change to this file
- * should be required. Until then, every one of those sections renders an
- * honest "belum tersedia" boundary state: headings, framing copy, and
- * structure are all real; no number is ever fabricated.
+ * read-only summary of the P1 Scorecard that does not exist yet.
+ *
+ * 2026-09 adapter-integration prep (no adapter class exists in this
+ * codebase yet -- this section documents the *contract*, not an
+ * implementation): the expected adapter is
+ * `Bitmomo_Public_Intelligence_Adapter` with three static methods --
+ * `snapshot()`, `history()`, and `evaluation_summary()`. Directional
+ * performance, Confidence evaluation, Expected Range performance, Regime
+ * performance, and the deeper Data Quality metrics are all written
+ * against `evaluation_summary()` specifically (see adapter_evaluation_
+ * summary() below), matching this class's existing, already-approved
+ * assumption. `snapshot()` and `history()` are exposed via their own
+ * guarded/cached accessors (adapter_snapshot(), adapter_history()) purely
+ * for forward compatibility with the announced interface -- no section
+ * consumes them yet, and nothing here presumes what they will return.
+ * Whoever wires real data in a future pass should not need to invent the
+ * guard/cache boilerplate again, only the render body.
+ *
+ * Non-negotiable rendering rules for whoever does that future wiring
+ * (stated here so they don't have to be rediscovered):
+ * - Sample status: the backend already owns the n<10 / 10-29 / >=30
+ *   thresholds (insufficient_sample / early_sample / adequate_sample,
+ *   see adapter_evaluation_summary()'s docblock). This class must never
+ *   recompute or guess that threshold from a raw `n` -- only display a
+ *   status string the adapter already computed.
+ * - Version grouping: if/when an adapter payload carries a version or
+ *   schema marker, entries from incompatible versions must never be
+ *   silently merged, averaged, or displayed together as one figure --
+ *   an incompatible/unrecognized version is treated the same as no data
+ *   (render the boundary state), never coerced into the current shape.
+ * - Unknown stays unknown: a missing/null field renders the boundary
+ *   state, never a defaulted, zero, or "N/A"-as-a-number value.
+ *
+ * Until the adapter exists, every one of those sections renders an
+ * honest "belum tersedia" boundary state via render_adapter_pending_
+ * boundary(): headings, framing copy, and structure are all real; no
+ * number is ever fabricated.
  */
 class Bitmomo_Btc_Intelligence_Page {
 
 	private static $instance = null;
 
-	/** Cached result of adapter_evaluation_summary() for one render pass. */
+	/**
+	 * Per-render caches for the three expected adapter methods, each
+	 * loaded and guarded independently -- Codex may ship them one at a
+	 * time, so this class never assumes all three exist just because one
+	 * does.
+	 */
+	private $adapter_snapshot = null;
+	private $adapter_snapshot_loaded = false;
+	private $adapter_history = null;
+	private $adapter_history_loaded = false;
 	private $evaluation_summary = null;
 	private $evaluation_summary_loaded = false;
 
@@ -106,8 +143,84 @@ class Bitmomo_Btc_Intelligence_Page {
 		return $this->evaluation_summary;
 	}
 
-	private function adapter_available() {
+	private function adapter_evaluation_summary_available() {
 		return is_array( $this->adapter_evaluation_summary() );
+	}
+
+	/**
+	 * Guarded/cached accessor for Bitmomo_Public_Intelligence_Adapter::
+	 * snapshot(), mirroring adapter_evaluation_summary() exactly. Exposed
+	 * for forward compatibility with the announced 3-method interface --
+	 * no section reads this yet (see the class docblock's PUBLIC ADAPTER
+	 * DEPENDENCY note). Never assumes a return shape.
+	 */
+	private function adapter_snapshot() {
+		if ( $this->adapter_snapshot_loaded ) {
+			return $this->adapter_snapshot;
+		}
+		$this->adapter_snapshot_loaded = true;
+
+		if ( class_exists( 'Bitmomo_Public_Intelligence_Adapter' )
+			&& method_exists( 'Bitmomo_Public_Intelligence_Adapter', 'snapshot' ) ) {
+			$this->adapter_snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
+		}
+
+		return $this->adapter_snapshot;
+	}
+
+	private function adapter_snapshot_available() {
+		return is_array( $this->adapter_snapshot() );
+	}
+
+	/**
+	 * Guarded/cached accessor for Bitmomo_Public_Intelligence_Adapter::
+	 * history(), mirroring adapter_evaluation_summary() exactly. Exposed
+	 * for forward compatibility -- no section reads this yet. When a
+	 * future pass does wire history() into a section, that section must
+	 * honor the version-grouping rule in the class docblock: entries from
+	 * an incompatible/unrecognized version are never merged with current
+	 * ones.
+	 */
+	private function adapter_history() {
+		if ( $this->adapter_history_loaded ) {
+			return $this->adapter_history;
+		}
+		$this->adapter_history_loaded = true;
+
+		if ( class_exists( 'Bitmomo_Public_Intelligence_Adapter' )
+			&& method_exists( 'Bitmomo_Public_Intelligence_Adapter', 'history' ) ) {
+			$this->adapter_history = Bitmomo_Public_Intelligence_Adapter::history();
+		}
+
+		return $this->adapter_history;
+	}
+
+	private function adapter_history_available() {
+		return is_array( $this->adapter_history() );
+	}
+
+	/**
+	 * Shared "is the adapter data this section needs ready yet" branch,
+	 * used by every section listed under PUBLIC ADAPTER DEPENDENCY above.
+	 * Renders the same honest "Belum Tersedia" boundary either way --
+	 * this never fabricates a number and never assumes a shape the
+	 * adapter hasn't confirmed.
+	 *
+	 * $unavailable_note is shown when the relevant adapter method itself
+	 * isn't callable yet (today, always -- no adapter class exists, so
+	 * every call site's currently-rendered copy is preserved exactly by
+	 * passing the same note this section always used). $partial_note,
+	 * when given, is shown instead once the adapter method exists but has
+	 * nothing summarized for this specific section yet; omitting it just
+	 * reuses $unavailable_note in both states, which is intentional at
+	 * call sites that don't have distinct wording yet.
+	 */
+	private function render_adapter_pending_boundary( $available, $unavailable_note = '', $partial_note = '' ) {
+		if ( $available ) {
+			$this->render_blocked_boundary( '' !== $partial_note ? $partial_note : $unavailable_note );
+		} else {
+			$this->render_blocked_boundary( $unavailable_note );
+		}
 	}
 
 	public function render_page( $atts ) {
@@ -387,12 +500,18 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section class="bm-bi__section--editorial bm-bi__track-record">
 			<h2 class="bm-bi__section-title">TRACK RECORD</h2>
 			<p><?php esc_html_e( 'Performa Bitmomo Intelligence dipecah berdasarkan tiga kategori berikut, dibandingkan dengan apa yang benar-benar terjadi.', 'bitmomo-btc-intelligence' ); ?></p>
-			<?php if ( $this->adapter_available() ) : ?>
-				<?php // Forward-compatible: real rendering will read $this->adapter_evaluation_summary()['directional_accuracy'] and its by-bias/by-session/by-regime breakdowns once the adapter exists. ?>
-				<?php $this->render_blocked_boundary( __( 'Data ringkasan Track Record belum tersedia.', 'bitmomo-btc-intelligence' ) ); ?>
-			<?php else : ?>
-				<?php $this->render_blocked_boundary(); ?>
-			<?php endif; ?>
+			<?php
+			// Forward-compatible: real rendering will read
+			// $this->adapter_evaluation_summary()['directional_accuracy']
+			// and its by-bias/by-session/by-regime breakdowns once the
+			// adapter exists -- honoring the sample-status and
+			// version-grouping rules in the class docblock.
+			$this->render_adapter_pending_boundary(
+				$this->adapter_evaluation_summary_available(),
+				'',
+				__( 'Data ringkasan Track Record belum tersedia.', 'bitmomo-btc-intelligence' )
+			);
+			?>
 			<ul class="bm-bi__breakdown-labels">
 				<li><?php esc_html_e( 'Akurasi berdasarkan Bias (Bullish / Neutral / Bearish)', 'bitmomo-btc-intelligence' ); ?></li>
 				<li><?php esc_html_e( 'Akurasi berdasarkan sesi (Morning vs US Session)', 'bitmomo-btc-intelligence' ); ?></li>
@@ -416,7 +535,14 @@ class Bitmomo_Btc_Intelligence_Page {
 				<?php foreach ( array( 'Rendah', 'Sedang', 'Tinggi' ) as $bucket ) : ?>
 					<div class="bm-bi__confidence-bucket">
 						<span class="bm-bi__kicker"><?php echo esc_html( $bucket ); ?></span>
-						<?php $this->render_blocked_boundary( __( 'Belum tersedia.', 'bitmomo-btc-intelligence' ) ); ?>
+						<?php
+						// Forward-compatible: real rendering will read this
+						// bucket's slice of $this->adapter_evaluation_summary()
+						// once the adapter exists.
+						$this->render_adapter_pending_boundary( $this->adapter_evaluation_summary_available(), __( 'Belum tersedia.', 'bitmomo-btc-intelligence' ) );
+						// (unavailable_note reused for both states -- no
+						// distinct per-bucket "partial" wording exists yet.)
+						?>
 					</div>
 				<?php endforeach; ?>
 			</div>
@@ -433,7 +559,12 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section class="bm-bi__section--editorial bm-bi__expected-range">
 			<h2 class="bm-bi__section-title">PERFORMA EXPECTED RANGE</h2>
 			<p><?php esc_html_e( 'Expected Range adalah proyeksi rentang harga BTC dari Bitmomo Pro. Bagian ini menunjukkan seberapa sering harga aktual berada di dalam rentang tersebut secara historis.', 'bitmomo-btc-intelligence' ); ?></p>
-			<?php $this->render_blocked_boundary(); ?>
+			<?php
+			// Forward-compatible: real rendering will read historical
+			// hit-rate data from $this->adapter_evaluation_summary() once
+			// the adapter exists.
+			$this->render_adapter_pending_boundary( $this->adapter_evaluation_summary_available() );
+			?>
 			<p class="bm-bi__editorial-note"><?php esc_html_e( 'Rentang yang berlaku hari ini hanya untuk anggota Bitmomo Pro — bagian ini hanya menunjukkan akurasi historisnya.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
@@ -447,7 +578,12 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section class="bm-bi__section--editorial bm-bi__regime-performance">
 			<h2 class="bm-bi__section-title">PERFORMA BERDASARKAN REGIME</h2>
 			<p><?php esc_html_e( 'Performa Bitmomo Intelligence bisa berbeda di tiap regime pasar. Bagian ini memecah akurasi per kategori Market State.', 'bitmomo-btc-intelligence' ); ?></p>
-			<?php $this->render_blocked_boundary(); ?>
+			<?php
+			// Forward-compatible: real rendering will read per-regime
+			// accuracy from $this->adapter_evaluation_summary() once the
+			// adapter exists.
+			$this->render_adapter_pending_boundary( $this->adapter_evaluation_summary_available() );
+			?>
 		</section>
 		<?php
 	}
@@ -477,7 +613,15 @@ class Bitmomo_Btc_Intelligence_Page {
 					</strong>
 				</div>
 			</div>
-			<?php $this->render_blocked_boundary( __( 'Metrik kualitas data yang lebih mendalam (konsistensi, cakupan sumber) belum tersedia secara publik.', 'bitmomo-btc-intelligence' ) ); ?>
+			<?php
+			// Forward-compatible: real rendering will read deeper quality
+			// metrics from $this->adapter_evaluation_summary() once the
+			// adapter exists.
+			$this->render_adapter_pending_boundary(
+				$this->adapter_evaluation_summary_available(),
+				__( 'Metrik kualitas data yang lebih mendalam (konsistensi, cakupan sumber) belum tersedia secara publik.', 'bitmomo-btc-intelligence' )
+			);
+			?>
 		</section>
 		<?php
 	}
