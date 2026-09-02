@@ -481,6 +481,8 @@ class Bitmomo_Pro_Whitelist {
 
 	public function exclude_whitelist_js( $excludes ) {
 		$excludes[] = 'bitmomo-pro-whitelist.js';
+		$excludes[] = 'bitmomo-pro-whitelist-js-extra';
+		$excludes[] = 'bitmomoProWhitelist';
 		return array_unique( $excludes );
 	}
 
@@ -522,7 +524,13 @@ class Bitmomo_Pro_Whitelist {
 				</p>
 				<p class="bm-wl__sub"><?php esc_html_e( 'Daftar untuk mendapat akses lebih awal saat Bitmomo Pro dibuka. Batch pertama dibatasi 25 anggota.', 'bitmomo-pro' ); ?></p>
 
-				<form id="bm-wl-form" novalidate>
+				<form id="bm-wl-form"
+					data-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
+					data-action="<?php echo esc_attr( self::AJAX_ACTION ); ?>"
+					data-nonce="<?php echo esc_attr( wp_create_nonce( self::NONCE_ACTION ) ); ?>"
+					data-whatsapp-action="<?php echo esc_attr( self::AJAX_ACTION_WHATSAPP ); ?>"
+					data-whatsapp-nonce="<?php echo esc_attr( wp_create_nonce( self::NONCE_ACTION_WHATSAPP ) ); ?>"
+					novalidate>
 					<?php wp_nonce_field( self::NONCE_ACTION, 'bm_wl_nonce' ); ?>
 					<input type="hidden" name="source" value="<?php echo esc_attr( $source ); ?>">
 					<input type="hidden" name="landing_page" value="<?php echo esc_attr( $landing_page ); ?>">
