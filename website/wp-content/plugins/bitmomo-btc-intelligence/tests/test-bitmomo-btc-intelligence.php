@@ -79,7 +79,9 @@ $html = $page->render_page( array() );
 
 check( 'Page renders non-empty output', strlen( $html ) > 500 );
 check( 'Page output wrapped in bm-bi container', false !== strpos( $html, 'class="bm-bi"' ) );
-check( 'Hero headline present', false !== strpos( $html, 'Apa yang sedang dianalisis Bitmomo dari BTC' ) );
+check( 'Hero headline matches locked copy exactly', false !== strpos( $html, 'Pahami BTC dalam konteks.' ) );
+check( 'Hero supporting line matches locked copy exactly', false !== strpos( $html, 'Lima axis. Satu framework. Track record terbuka.' ) );
+check( 'Hero disclaimer matches locked copy exactly, no extra explanatory sentence', false !== strpos( $html, '<p class="bm-bi__hero-micro">Bukan sinyal beli/jual. Bukan saran keuangan.</p>' ) );
 check( 'All 13 section anchors present (13 h1/h2 headings incl. hero)', substr_count( $html, 'bm-bi__section-title' ) + substr_count( $html, 'bm-bi__hero-title' ) >= 12 );
 
 /* =========================================================================

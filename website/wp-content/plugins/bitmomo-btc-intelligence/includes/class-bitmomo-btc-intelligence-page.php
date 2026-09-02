@@ -137,9 +137,9 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__hero">
 			<p class="bm-bi__eyebrow">BTC INTELLIGENCE</p>
-			<h1 class="bm-bi__hero-title"><?php esc_html_e( 'Apa yang sedang dianalisis Bitmomo dari BTC — dan seberapa bisa dipercaya hasilnya.', 'bitmomo-btc-intelligence' ); ?></h1>
-			<p class="bm-bi__hero-subhead"><?php esc_html_e( 'Analisis terstruktur tentang kondisi BTC, dibangun dari lima axis intelligence yang bekerja secara konsisten — dan track record yang bisa kamu cek sendiri, bukan cuma klaim.', 'bitmomo-btc-intelligence' ); ?></p>
-			<p class="bm-bi__hero-micro"><?php esc_html_e( 'Bukan sinyal beli/jual. Bukan saran keuangan. Setiap pandangan dicatat dan dievaluasi terhadap apa yang benar-benar terjadi setelahnya.', 'bitmomo-btc-intelligence' ); ?></p>
+			<h1 class="bm-bi__hero-title"><?php esc_html_e( 'Pahami BTC dalam konteks.', 'bitmomo-btc-intelligence' ); ?></h1>
+			<p class="bm-bi__hero-subhead"><?php esc_html_e( 'Lima axis. Satu framework. Track record terbuka.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__hero-micro"><?php esc_html_e( 'Bukan sinyal beli/jual. Bukan saran keuangan.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}
@@ -312,7 +312,7 @@ class Bitmomo_Btc_Intelligence_Page {
 					</div>
 				<?php endforeach; ?>
 			</div>
-			<p class="bm-bi__signature"><?php esc_html_e( 'Kelima axis ini dijalankan secara konsisten dan deterministik, lalu digabungkan menjadi satu Market State, satu Directional Bias, dan satu level Confidence.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__signature"><?php esc_html_e( 'Prosesnya sama setiap kali: konsisten, deterministik, tidak berubah-ubah tergantung mood pasar.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}
@@ -491,7 +491,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section class="bm-bi__section--editorial bm-bi__section--quiet bm-bi__methodology">
 			<h2 class="bm-bi__section-title">METODOLOGI &amp; AKUNTABILITAS</h2>
 			<p><?php esc_html_e( 'Lima axis intelligence yang deterministik. Tanpa spekulasi ke arah yang belum bisa dijelaskan. Setiap hasil dicatat sebelum outcome diketahui, lalu dievaluasi terhadap apa yang benar-benar terjadi — bukan dinilai ulang setelah fakta agar terlihat lebih baik.', 'bitmomo-btc-intelligence' ); ?></p>
-			<p><?php esc_html_e( 'Bitmomo tidak hanya menghasilkan analisis. Setiap hasil dicatat sebelum outcome diketahui, lalu dievaluasi terhadap apa yang benar-benar terjadi setelahnya — termasuk saat hasilnya tidak sesuai. Halaman ini menunjukkan hasil evaluasi tersebut apa adanya, termasuk ketika sampelnya masih terlalu kecil untuk disimpulkan.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Halaman ini menunjukkan hasilnya apa adanya — termasuk saat meleset, dan termasuk ketika sampelnya masih terlalu kecil untuk disimpulkan.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}

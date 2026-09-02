@@ -61,30 +61,32 @@
 
 .bm-bi__hero {
 	text-align: center;
-	padding: 40px 16px 28px;
+	padding: 28px 16px 18px;
 }
 
 .bm-bi__hero-title {
-	font-size: 1.7rem;
+	font-size: 2.1rem;
 	font-weight: 800;
-	line-height: 1.28;
-	margin: 0 0 14px;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+	margin: 0 0 10px;
 }
 
 .bm-bi__hero-subhead {
-	font-size: 1rem;
+	font-size: 0.98rem;
 	color: var( --bmi-text-muted );
-	line-height: 1.55;
-	margin: 0 0 12px;
-	max-width: 560px;
+	line-height: 1.4;
+	margin: 0 0 10px;
+	max-width: 480px;
 	margin-left: auto;
 	margin-right: auto;
 }
 
 .bm-bi__hero-micro {
-	font-size: 0.82rem;
+	font-size: 0.76rem;
 	color: var( --bmi-text-muted );
 	font-style: italic;
+	opacity: 0.75;
 	margin: 0;
 }
 
@@ -395,10 +397,10 @@
 
 @media ( min-width: 640px ) {
 	.bm-bi__hero {
-		padding: 56px 24px 40px;
+		padding: 40px 24px 28px;
 	}
 	.bm-bi__hero-title {
-		font-size: 2.2rem;
+		font-size: 2.8rem;
 		max-width: 660px;
 		margin-left: auto;
 		margin-right: auto;
