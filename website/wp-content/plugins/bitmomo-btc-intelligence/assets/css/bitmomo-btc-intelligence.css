@@ -12,6 +12,16 @@
  * and the closing Pro CTA (the one place this page actually asks for a
  * click). A light monospace touch on numeric/status figures reinforces
  * "recorded evidence" over "marketing."
+ *
+ * 2026-09 final polish (color system): the one commercial click target on
+ * this page — the Pro CTA primary button — uses --bmi-orange, matching
+ * the site-wide commercial-CTA color (custom.css's --cta / #f4ad32, the
+ * same color the navbar BITMOMO PRO button and /pro's own CTA use).
+ * Cyan stays everywhere else on this page: it is an intelligence/
+ * research accent (badges, axis headings, signature callouts, the
+ * snapshot/CTA panel borders), never a purchase action, and the
+ * secondary "Lihat cara kerja" link stays cyan too since it is not the
+ * primary conversion path.
  */
 
 .bm-bi {
@@ -22,6 +32,8 @@
 	--bmi-text-muted: #8b98ac;
 	--bmi-cyan: #38bdf8;
 	--bmi-cyan-soft: rgba( 56, 189, 248, 0.35 );
+	--bmi-orange: #f4ad32;
+	--bmi-orange-dark: #e69a18;
 	--bmi-bull: #34d399;
 	--bmi-bear: #f87171;
 	--bmi-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
@@ -375,13 +387,18 @@
 .bm-bi__cta-primary {
 	display: block;
 	text-align: center;
-	background: var( --bmi-cyan );
-	color: #04121c;
+	background: var( --bmi-orange );
+	color: #0b1620;
 	font-weight: 800;
 	padding: 14px 20px;
 	border-radius: 10px;
 	text-decoration: none;
 	font-size: 1rem;
+}
+
+.bm-bi__cta-primary:hover {
+	background: var( --bmi-orange-dark );
+	color: #0b1620;
 }
 .bm-bi__cta-secondary {
 	display: block;

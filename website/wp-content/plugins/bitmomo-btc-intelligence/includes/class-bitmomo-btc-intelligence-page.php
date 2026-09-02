@@ -263,8 +263,8 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__how">
 			<h2 class="bm-bi__section-title">BAGAIMANA BITMOMO MEMBACA PASAR</h2>
-			<p><?php esc_html_e( 'Bitmomo Intelligence tidak dimulai dari satu angka atau satu indikator. Setiap analisis BTC dibangun dari lima axis intelligence yang deterministik — masing-masing menjawab pertanyaan berbeda tentang kondisi pasar saat ini. Kelima axis ini digabungkan menjadi satu Market State, satu Directional Bias, dan satu level Confidence — bukan lima opini terpisah yang harus kamu tafsirkan sendiri.', 'bitmomo-btc-intelligence' ); ?></p>
-			<p class="bm-bi__disclaimer-line"><?php esc_html_e( 'Ini bukan lima "agent" AI yang independen. Ini lima dimensi intelligence yang deterministik — proses yang sama, dijalankan secara konsisten setiap kali analisis dilakukan.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Setiap analisis BTC dibangun dari lima axis intelligence yang deterministik, digabungkan menjadi satu Market State, satu Directional Bias, dan satu level Confidence — bukan lima opini terpisah yang harus kamu tafsirkan sendiri.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__disclaimer-line"><?php esc_html_e( 'Ini bukan lima "agent" AI yang independen — ini lima dimensi deterministik, proses yang sama setiap kali.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}
@@ -326,13 +326,12 @@ class Bitmomo_Btc_Intelligence_Page {
 			<h2 class="bm-bi__section-title">CARA MEMBACA BITMOMO INTELLIGENCE</h2>
 
 			<h3><?php esc_html_e( 'Market State bukan Directional Bias', 'bitmomo-btc-intelligence' ); ?></h3>
-			<p><?php esc_html_e( 'Market State menjelaskan struktur kondisi pasar saat ini — apakah sedang Akumulasi, Ekspansi, Distribusi, Kapitulasi, atau Transisi. Directional Bias menjelaskan arah yang lebih mungkin — Bullish, Neutral, atau Bearish. Dua hal ini bisa berbeda: pasar bisa berada di regime Transisi dengan Bias Bullish, misalnya. Bitmomo tidak pernah menggabungkan keduanya jadi satu label, dan tidak pernah menyimpulkan salah satu dari yang lain.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Market State menjelaskan struktur kondisi pasar saat ini — Akumulasi, Ekspansi, Distribusi, Kapitulasi, atau Transisi. Directional Bias menjelaskan arah yang lebih mungkin — Bullish, Neutral, atau Bearish. Keduanya bisa berbeda, dan Bitmomo tidak pernah menggabungkan atau menyimpulkan salah satu dari yang lain.', 'bitmomo-btc-intelligence' ); ?></p>
 
 			<h3><?php esc_html_e( 'Confidence bukan probabilitas', 'bitmomo-btc-intelligence' ); ?></h3>
-			<p><?php esc_html_e( 'Confidence ditampilkan sebagai Rendah, Sedang, atau Tinggi — ini adalah kekuatan bukti di balik analisis saat ini, bukan probabilitas statistik. Confidence "Tinggi" tidak berarti "70% kemungkinan benar." Ini berarti kelima axis intelligence saat ini secara konsisten mengarah ke kesimpulan yang sama.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Confidence ditampilkan sebagai Rendah, Sedang, atau Tinggi — kekuatan bukti di balik analisis, bukan probabilitas statistik. "Tinggi" berarti kelima axis mengarah ke kesimpulan yang sama, bukan "70% kemungkinan benar."', 'bitmomo-btc-intelligence' ); ?></p>
 
-			<h3><?php esc_html_e( 'Apa yang bukan Bitmomo Intelligence', 'bitmomo-btc-intelligence' ); ?></h3>
-			<p><?php esc_html_e( 'Bukan sinyal beli/jual. Bukan target harga. Bukan jaminan hasil. Ini adalah hasil analisis kondisi pasar berbasis proses yang konsisten — dimaksudkan untuk membantu kamu memahami konteks, bukan menggantikan keputusan kamu.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__disclaimer-line"><?php esc_html_e( 'Bukan sinyal beli/jual, bukan target harga, bukan jaminan hasil — ini bantuan memahami konteks, bukan pengganti keputusan kamu.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}
@@ -346,7 +345,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__history">
 			<h2 class="bm-bi__section-title">RIWAYAT MARKET STATE &amp; BIAS</h2>
-			<p><?php esc_html_e( 'Setiap analisis yang memenuhi kriteria pencatatan disimpan bersama timestamp dan versinya — bukan ditulis ulang setelah kejadian. Riwayat di bawah ini menunjukkan Market State dan Directional Bias yang sudah tercatat.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Setiap analisis dicatat dengan timestamp — bukan ditulis ulang setelah kejadian. Riwayat berikut menunjukkan Market State dan Bias yang sudah tercatat.', 'bitmomo-btc-intelligence' ); ?></p>
 			<div class="bm-bi__history-embed">
 				<?php
 				if ( shortcode_exists( 'bitmomo_market_regime_history' ) ) {
@@ -356,7 +355,7 @@ class Bitmomo_Btc_Intelligence_Page {
 				}
 				?>
 			</div>
-			<p class="bm-bi__history-note"><?php esc_html_e( 'Riwayat ini terus bertambah seiring waktu. Semakin panjang riwayatnya, semakin bisa dipercaya evaluasi performa di bawah.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__history-note"><?php esc_html_e( 'Riwayat terus bertambah — makin panjang, makin bisa dipercaya evaluasi performa di bawah.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}
@@ -372,7 +371,7 @@ class Bitmomo_Btc_Intelligence_Page {
 	 */
 	private function render_blocked_boundary( $note = '' ) {
 		if ( '' === $note ) {
-			$note = __( 'Data evaluasi publik untuk bagian ini belum tersedia. Bagian ini akan otomatis terisi begitu adapter data publik (Bitmomo_Public_Intelligence_Adapter) tersedia dari tim engineering — tidak ada angka yang direkayasa di sini.', 'bitmomo-btc-intelligence' );
+			$note = __( 'Data evaluasi publik untuk bagian ini belum tersedia — tidak ada angka yang direkayasa di sini.', 'bitmomo-btc-intelligence' );
 		}
 		echo '<div class="bm-bi__blocked" role="status">';
 		echo '<span class="bm-bi__badge bm-bi__badge--muted">' . esc_html__( 'Belum Tersedia', 'bitmomo-btc-intelligence' ) . '</span>';
@@ -387,10 +386,10 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__track-record">
 			<h2 class="bm-bi__section-title">TRACK RECORD</h2>
-			<p><?php esc_html_e( 'Bitmomo tidak hanya menghasilkan analisis. Setiap hasil dicatat sebelum outcome diketahui, lalu dievaluasi terhadap apa yang benar-benar terjadi setelahnya. Bagian ini menunjukkan hasil evaluasi tersebut apa adanya, termasuk ketika sampel datanya masih terlalu kecil untuk disimpulkan.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Performa Bitmomo Intelligence dipecah berdasarkan tiga kategori berikut, dibandingkan dengan apa yang benar-benar terjadi.', 'bitmomo-btc-intelligence' ); ?></p>
 			<?php if ( $this->adapter_available() ) : ?>
 				<?php // Forward-compatible: real rendering will read $this->adapter_evaluation_summary()['directional_accuracy'] and its by-bias/by-session/by-regime breakdowns once the adapter exists. ?>
-				<?php $this->render_blocked_boundary( __( 'Adapter publik terdeteksi tapi belum ada data ringkasan untuk Track Record.', 'bitmomo-btc-intelligence' ) ); ?>
+				<?php $this->render_blocked_boundary( __( 'Data ringkasan Track Record belum tersedia.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
 				<?php $this->render_blocked_boundary(); ?>
 			<?php endif; ?>
@@ -433,9 +432,9 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__expected-range">
 			<h2 class="bm-bi__section-title">PERFORMA EXPECTED RANGE</h2>
-			<p><?php esc_html_e( 'Expected Range adalah proyeksi rentang harga BTC dari Bitmomo Pro. Bagian ini menunjukkan seberapa sering harga aktual berada di dalam rentang yang diproyeksikan — termasuk seberapa sering breach terjadi di sisi bawah atau atas.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Expected Range adalah proyeksi rentang harga BTC dari Bitmomo Pro. Bagian ini menunjukkan seberapa sering harga aktual berada di dalam rentang tersebut secara historis.', 'bitmomo-btc-intelligence' ); ?></p>
 			<?php $this->render_blocked_boundary(); ?>
-			<p class="bm-bi__editorial-note"><?php esc_html_e( 'Rentang Expected Range hari ini hanya tersedia untuk anggota Bitmomo Pro. Bagian ini hanya menunjukkan seberapa akurat rentang tersebut secara historis — bukan angka rentang yang sedang berlaku sekarang.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__editorial-note"><?php esc_html_e( 'Rentang yang berlaku hari ini hanya untuk anggota Bitmomo Pro — bagian ini hanya menunjukkan akurasi historisnya.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}
@@ -447,7 +446,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__regime-performance">
 			<h2 class="bm-bi__section-title">PERFORMA BERDASARKAN REGIME</h2>
-			<p><?php esc_html_e( 'Kondisi pasar tidak selalu sama — performa Bitmomo Intelligence pun bisa berbeda di tiap regime. Bagian ini memecah akurasi dan stabilitas regime per kategori Market State.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Performa Bitmomo Intelligence bisa berbeda di tiap regime pasar. Bagian ini memecah akurasi per kategori Market State.', 'bitmomo-btc-intelligence' ); ?></p>
 			<?php $this->render_blocked_boundary(); ?>
 		</section>
 		<?php
@@ -463,7 +462,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__data-quality">
 			<h2 class="bm-bi__section-title">KUALITAS &amp; KESEGARAN DATA</h2>
-			<p><?php esc_html_e( 'Intelligence hanya sebaik data di baliknya. Bagian ini menunjukkan seberapa sering data diperbarui dan seberapa "segar" hasil analisis saat kamu melihatnya — bukan klaim real-time yang belum benar-benar live.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Intelligence hanya sebaik data di baliknya. Bagian ini menunjukkan seberapa segar data saat kamu melihatnya — bukan klaim real-time yang belum benar-benar live.', 'bitmomo-btc-intelligence' ); ?></p>
 			<div class="bm-bi__quality-row">
 				<div class="bm-bi__metric">
 					<span class="bm-bi__kicker"><?php esc_html_e( 'Data terkini', 'bitmomo-btc-intelligence' ); ?></span>

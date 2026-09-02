@@ -152,6 +152,22 @@ check( 'Page class file never references any Bitmomo_Pro_ class', 0 === preg_mat
 check( 'Page class file never CALLS Bitmomo_AI_Scorecard:: (private P1 internals) -- a docblock mention explaining why it is avoided is fine, a static call is not', 0 === preg_match( '/Bitmomo_AI_Scorecard::/', file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' ) ) );
 
 /* =========================================================================
+ * PUBLIC COPY HYGIENE -- no internal engineering names/class names in
+ * customer-facing "Belum Tersedia" boundary copy (final polish pass).
+ * ====================================================================== */
+check( 'Rendered public output never names the internal adapter class to users', false === strpos( $html, 'Bitmomo_Public_Intelligence_Adapter' ) );
+check( 'Rendered public output never says "adapter" to users', false === stripos( $html, 'adapter' ) );
+check( 'Rendered public output never says "tim engineering" to users', false === stripos( $html, 'tim engineering' ) );
+
+/* =========================================================================
+ * GLOBAL COLOR SYSTEM -- orange is the sole commercial-CTA accent; cyan
+ * remains the intelligence/informational accent everywhere else.
+ * ====================================================================== */
+$css = file_get_contents( dirname( __DIR__ ) . '/assets/css/bitmomo-btc-intelligence.css' );
+check( 'CSS defines a commercial-orange token matching the site-wide CTA color', false !== strpos( $css, '--bmi-orange: #f4ad32' ) );
+check( 'Pro CTA primary button uses the orange token, not cyan', false !== strpos( $css, 'background: var( --bmi-orange )' ) );
+
+/* =========================================================================
  * LOCKED VOCABULARY
  * ====================================================================== */
 check( 'Customer-facing copy never uses the word "pembacaan"', 0 === preg_match( '/pembacaan/i', $html ) );
