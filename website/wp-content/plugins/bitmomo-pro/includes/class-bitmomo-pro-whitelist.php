@@ -105,6 +105,9 @@ class Bitmomo_Pro_Whitelist {
 		add_action( 'wp_ajax_nopriv_' . self::AJAX_ACTION_WHATSAPP, array( $this, 'handle_ajax_whatsapp_submit' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
+		add_filter( 'litespeed_optimize_js_excludes', array( $this, 'exclude_whitelist_js' ) );
+		add_filter( 'litespeed_optm_js_defer_exc', array( $this, 'exclude_whitelist_js' ) );
+		add_filter( 'litespeed_optm_gm_js_exc', array( $this, 'exclude_whitelist_js' ) );
 
 		// Converted-state: listens to the EXISTING entitlement lifecycle hook
 		// (Bitmomo_Pro_Entitlement_Service::grant_access()) rather than
@@ -434,10 +437,10 @@ class Bitmomo_Pro_Whitelist {
 
 	public function maybe_enqueue_assets() {
 		global $post;
-		$has_widget = is_a( $post, 'WP_Post' ) && (
+		$has_widget = is_front_page() || is_home() || ( is_a( $post, 'WP_Post' ) && (
 			has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ||
 			has_shortcode( $post->post_content, 'bitmomo_pro_whitelist' )
-		);
+		) );
 
 		if ( ! $has_widget ) {
 			return;
@@ -451,7 +454,8 @@ class Bitmomo_Pro_Whitelist {
 			return;
 		}
 
-		wp_enqueue_style( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-whitelist.css', array(), BITMOMO_PRO_VERSION );
+		wp_enqueue_style( 'bitmomo-pro-sales', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-sales.css', array(), BITMOMO_PRO_VERSION );
+		wp_enqueue_style( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-whitelist.css', array( 'bitmomo-pro-sales' ), BITMOMO_PRO_VERSION );
 		wp_enqueue_script( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/js/bitmomo-pro-whitelist.js', array(), BITMOMO_PRO_VERSION, true );
 		wp_localize_script(
 			'bitmomo-pro-whitelist',
@@ -473,6 +477,13 @@ class Bitmomo_Pro_Whitelist {
 				),
 			)
 		);
+	}
+
+	public function exclude_whitelist_js( $excludes ) {
+		$excludes[] = 'bitmomo-pro-whitelist.js';
+		$excludes[] = 'bitmomo-pro-whitelist-js-extra';
+		$excludes[] = 'bitmomoProWhitelist';
+		return array_unique( $excludes );
 	}
 
 	/**
@@ -502,7 +513,7 @@ class Bitmomo_Pro_Whitelist {
 		$founding_cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
 		$founding_batch = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25;
 		?>
-		<div class="bm-wl" id="bm-pro-whitelist">
+		<div class="bm-pro-sales bm-wl" id="bm-pro-whitelist">
 			<div class="bm-wl__panel" id="bm-wl-form-panel">
 				<p class="bm-wl__eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo-pro' ); ?></p>
 				<p class="bm-wl__price"><?php esc_html_e( 'Rp149.000 / bulan', 'bitmomo-pro' ); ?></p>
@@ -513,7 +524,13 @@ class Bitmomo_Pro_Whitelist {
 				</p>
 				<p class="bm-wl__sub"><?php esc_html_e( 'Daftar untuk mendapat akses lebih awal saat Bitmomo Pro dibuka. Batch pertama dibatasi 25 anggota.', 'bitmomo-pro' ); ?></p>
 
-				<form id="bm-wl-form" novalidate>
+				<form id="bm-wl-form"
+					data-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
+					data-action="<?php echo esc_attr( self::AJAX_ACTION ); ?>"
+					data-nonce="<?php echo esc_attr( wp_create_nonce( self::NONCE_ACTION ) ); ?>"
+					data-whatsapp-action="<?php echo esc_attr( self::AJAX_ACTION_WHATSAPP ); ?>"
+					data-whatsapp-nonce="<?php echo esc_attr( wp_create_nonce( self::NONCE_ACTION_WHATSAPP ) ); ?>"
+					novalidate>
 					<?php wp_nonce_field( self::NONCE_ACTION, 'bm_wl_nonce' ); ?>
 					<input type="hidden" name="source" value="<?php echo esc_attr( $source ); ?>">
 					<input type="hidden" name="landing_page" value="<?php echo esc_attr( $landing_page ); ?>">

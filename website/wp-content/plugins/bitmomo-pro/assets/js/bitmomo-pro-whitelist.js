@@ -7,7 +7,24 @@
 			return;
 		}
 
-		var config = window.bitmomoProWhitelist;
+		var localizedConfig = window.bitmomoProWhitelist || {};
+		var nonceField = form.querySelector('input[name="bm_wl_nonce"]');
+		var config = {
+			ajaxUrl: localizedConfig.ajaxUrl || form.getAttribute('data-ajax-url'),
+			action: localizedConfig.action || form.getAttribute('data-action'),
+			nonce: localizedConfig.nonce || form.getAttribute('data-nonce') || (nonceField ? nonceField.value : ''),
+			whatsappAction: localizedConfig.whatsappAction || form.getAttribute('data-whatsapp-action'),
+			whatsappNonce: localizedConfig.whatsappNonce || form.getAttribute('data-whatsapp-nonce'),
+			i18n: localizedConfig.i18n || {
+				invalid_email: 'Masukkan alamat email yang valid.',
+				consent_required: 'Centang persetujuan untuk melanjutkan.',
+				rate_limited: 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.',
+				generic_error: 'Terjadi kesalahan. Coba lagi.',
+				duplicate_title: 'Email ini sudah terdaftar di whitelist.',
+				invalid_whatsapp: 'Masukkan nomor WhatsApp yang valid.',
+				not_found: 'Sesi sudah tidak berlaku. Muat ulang halaman dan coba lagi.'
+			}
+		};
 		var errorEl = document.getElementById('bm-wl-error');
 		var formPanel = document.getElementById('bm-wl-form-panel');
 		var successPanel = document.getElementById('bm-wl-success-panel');

@@ -41,6 +41,15 @@
 	padding: 28px 16px 20px;
 }
 
+.bm-pro-sales__hero-eyebrow {
+	margin: 0 0 10px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var( --bms-teal );
+}
+
 .bm-pro-sales__hero-title {
 	margin: 0 0 8px;
 	font-size: 1.8rem;

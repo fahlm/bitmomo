@@ -33,9 +33,16 @@ $bm_direction_label = static function ( $bias, $confidence ) {
     return 'Neutral';
 };
 
-$bm_latest_bias = (string) ( $bm_hero_latest['directional_bias'] ?? ( $bm_hero_intel['bias'] ?? 'neutral' ) );
+// Directional Bias: prefer the live canonical projection over a possibly-stale
+// regime-record snapshot, so the hero stays consistent with the BTC Intelligence
+// card below it. Collapses entirely (no hardcoded fallback) when bias is absent.
+$bm_raw_bias = sanitize_key( (string) ( $bm_hero_intel['bias'] ?? ( $bm_hero_latest['directional_bias'] ?? '' ) ) );
+$bm_bias_valid = in_array( $bm_raw_bias, array( 'bullish', 'bearish', 'neutral' ), true );
 $bm_latest_confidence = (float) ( $bm_hero_intel['confidence'] ?? ( $bm_hero_latest['regime_confidence'] ?? 0 ) );
-$bm_latest_direction = $bm_direction_label( $bm_latest_bias, $bm_latest_confidence );
+$bm_latest_direction = $bm_bias_valid ? $bm_direction_label( $bm_raw_bias, $bm_latest_confidence ) : '';
+
+// Market State: always sourced from the canonical regime plugin -- never from
+// the AI projection's legacy `market_state` field, which is just a bias relabel.
 $bm_market_state = class_exists( 'Bitmomo_Regime_Taxonomy' ) && ! empty( $bm_hero_latest['regime'] )
     ? Bitmomo_Regime_Taxonomy::regime_label_id( $bm_hero_latest['regime'] )
     : 'Belum tersedia';
@@ -59,10 +66,18 @@ $bm_confidence_label = $bm_latest_confidence >= 70 ? 'Tinggi' : ( $bm_latest_con
       <p class="bm-hero-notes">SNAPSHOT HARIAN GRATIS <span>·</span> TANPA SINYAL INSTAN <span>·</span> BTC ONLY</p>
     </div>
 
-    <article class="bm-direction-card" aria-label="Market State 30 hari">
+    <article class="bm-direction-card" aria-label="Market State dan Directional Bias 30 hari">
       <header class="bm-direction-head">
-        <span>MARKET STATE / 30D</span>
-        <strong><?php echo esc_html( strtoupper( (string) ( $bm_hero_intel['market_state'] ?? $bm_latest_direction ) ) ); ?></strong>
+        <div class="bm-direction-metric bm-direction-metric--state">
+          <span>MARKET STATE / 30D</span>
+          <strong><?php echo esc_html( strtoupper( $bm_market_state ) ); ?></strong>
+        </div>
+        <?php if ( $bm_latest_direction ) : ?>
+        <div class="bm-direction-metric bm-direction-metric--bias">
+          <span>DIRECTIONAL BIAS</span>
+          <strong><?php echo esc_html( strtoupper( $bm_latest_direction ) ); ?></strong>
+        </div>
+        <?php endif; ?>
       </header>
       <div class="bm-direction-chart bm-state-chart" role="img" aria-label="Riwayat Market State resmi; tinggi batang mengikuti confidence Regime.">
         <?php if ( $bm_hero_official ) : foreach ( $bm_hero_official as $bm_day => $bm_record ) :
@@ -82,4 +97,4 @@ $bm_confidence_label = $bm_latest_confidence >= 70 ? 'Tinggi' : ( $bm_latest_con
     </article>
   </div>
 </section>
-<?php unset( $bm_hero_intel, $bm_hero_available, $bm_hero_records, $bm_hero_official, $bm_hero_latest, $bm_direction_label, $bm_latest_bias, $bm_latest_confidence, $bm_latest_direction, $bm_market_state, $bm_hero_drivers, $bm_hero_driver, $bm_hero_updated, $bm_confidence_label, $bm_record, $bm_date_key, $bm_day, $bm_conf, $bm_state_label ); ?>
+<?php unset( $bm_hero_intel, $bm_hero_available, $bm_hero_records, $bm_hero_official, $bm_hero_latest, $bm_direction_label, $bm_raw_bias, $bm_bias_valid, $bm_latest_confidence, $bm_latest_direction, $bm_market_state, $bm_hero_drivers, $bm_hero_driver, $bm_hero_updated, $bm_confidence_label, $bm_record, $bm_date_key, $bm_day, $bm_conf, $bm_state_label ); ?>

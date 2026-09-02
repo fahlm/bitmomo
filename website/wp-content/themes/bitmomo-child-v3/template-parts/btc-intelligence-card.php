@@ -25,6 +25,17 @@ if ( class_exists( 'Bitmomo_Regime_State_Store' ) ) {
 $bitmomo_regime_label = class_exists( 'Bitmomo_Regime_Taxonomy' ) && ! empty( $bitmomo_regime['regime'] )
     ? Bitmomo_Regime_Taxonomy::regime_label_id( $bitmomo_regime['regime'] )
     : __( 'Belum tersedia', 'bitmomo' );
+
+// Directional Bias: its own labeled, independently-collapsible metric -- sourced
+// only from the live canonical `bias` value, never a hardcoded default. Market
+// State (above) stays sourced exclusively from the regime plugin.
+$bitmomo_raw_bias = sanitize_key( (string) ( $bitmomo_btc['bias'] ?? '' ) );
+$bitmomo_bias_valid = in_array( $bitmomo_raw_bias, array( 'bullish', 'bearish', 'neutral' ), true );
+$bitmomo_bias_labels = array(
+    'bullish' => __( 'Bullish', 'bitmomo' ),
+    'bearish' => __( 'Bearish', 'bitmomo' ),
+    'neutral' => __( 'Neutral', 'bitmomo' ),
+);
 $bitmomo_confidence = max( 0, min( 100, (int) ( $bitmomo_btc['confidence'] ?? 0 ) ) );
 $bitmomo_confidence_label = $bitmomo_confidence >= 70 ? __( 'Tinggi', 'bitmomo' ) : ( $bitmomo_confidence >= 40 ? __( 'Sedang', 'bitmomo' ) : __( 'Rendah', 'bitmomo' ) );
 $bitmomo_confidence_segments = max( 1, min( 5, (int) ceil( $bitmomo_confidence / 20 ) ) );
@@ -49,7 +60,12 @@ $bitmomo_updated = ! empty( $bitmomo_btc['timestamp_iso'] ) ? strtotime( $bitmom
           <div class="bm-btc-metric bm-btc-state">
             <span class="bm-btc-kicker"><?php esc_html_e( 'Market State', 'bitmomo' ); ?></span>
             <strong><i aria-hidden="true"></i><?php echo esc_html( $bitmomo_regime_label ); ?></strong>
-            <p>Bias jangka pendek: <?php echo esc_html( strtolower( (string) ( $bitmomo_btc['bias'] ?? 'neutral' ) ) ); ?></p>
+            <?php if ( $bitmomo_bias_valid ) : ?>
+              <p class="bm-btc-bias-row">
+                <span class="bm-btc-bias-label"><?php esc_html_e( 'Directional Bias', 'bitmomo' ); ?></span>
+                <span class="bm-btc-direction is-<?php echo esc_attr( $bitmomo_raw_bias ); ?>"><?php echo esc_html( $bitmomo_bias_labels[ $bitmomo_raw_bias ] ); ?></span>
+              </p>
+            <?php endif; ?>
           </div>
           <div class="bm-btc-metric bm-btc-price">
             <span class="bm-btc-kicker"><?php esc_html_e( 'BTC Reference Price', 'bitmomo' ); ?></span>
@@ -89,22 +105,7 @@ $bitmomo_updated = ! empty( $bitmomo_btc['timestamp_iso'] ) ? strtotime( $bitmom
         </footer>
       <?php endif; ?>
     </article>
-
-    <aside class="bm-pro-teaser" id="bitmomo-pro" aria-labelledby="bm-pro-title">
-      <div class="bm-pro-copy">
-        <span class="bm-pro-eyebrow">BITMOMO PRO</span>
-        <h3 id="bm-pro-title">Jangan cuma tahu bias pasar. Ketahui apa yang bisa mengubahnya.</h3>
-        <p>Bitmomo Pro membantu Anda memahami skenario di balik perubahan pasar.</p>
-        <a class="bm-pro-cta" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Lihat Bitmomo Pro</a>
-      </div>
-      <ul class="bm-pro-locks" aria-label="Fitur Bitmomo Pro">
-        <li><span>Expected Range</span><span aria-hidden="true">🔒</span></li>
-        <li><span>Scenario Map</span><span aria-hidden="true">🔒</span></li>
-        <li><span>Thesis Invalidation</span><span aria-hidden="true">🔒</span></li>
-        <li><span>What Changed</span><span aria-hidden="true">🔒</span></li>
-      </ul>
-    </aside>
   </div>
 </section>
-<?php unset( $bitmomo_btc, $bitmomo_status, $bitmomo_available, $bitmomo_key_drivers, $bitmomo_regime, $bitmomo_regime_label, $bitmomo_confidence, $bitmomo_confidence_label, $bitmomo_confidence_segments, $bitmomo_updated, $bitmomo_segment, $bitmomo_driver ); ?>
+<?php unset( $bitmomo_btc, $bitmomo_status, $bitmomo_available, $bitmomo_key_drivers, $bitmomo_regime, $bitmomo_regime_label, $bitmomo_raw_bias, $bitmomo_bias_valid, $bitmomo_bias_labels, $bitmomo_confidence, $bitmomo_confidence_label, $bitmomo_confidence_segments, $bitmomo_updated, $bitmomo_segment, $bitmomo_driver ); ?>
 
