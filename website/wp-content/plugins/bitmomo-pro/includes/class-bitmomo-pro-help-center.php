@@ -127,7 +127,7 @@ class Bitmomo_Pro_Help_Center {
 					self::q( 'setelah-membatalkan', 'Apa yang terjadi setelah saya membatalkan?', array( 'Pembatalan menghentikan kelanjutan membership berikutnya.', 'Akses yang sudah dibayar tetap aktif sampai tanggal berakhirnya periode berlangganan.' ) ),
 					self::q( 'kebijakan-refund', 'Apakah pembayaran dapat dikembalikan?', array( 'Secara umum, pembayaran bersifat final setelah aktivasi.', 'Pengecualian dapat berlaku untuk pembayaran ganda, kesalahan transaksi, kegagalan pemberian akses yang berasal dari sisi Bitmomo, atau kondisi lain yang diwajibkan oleh hukum atau penyedia pembayaran.' ) ),
 					self::q( 'pembayaran-ganda', 'Bagaimana jika pembayaran saya terpotong dua kali?', array( 'Hubungi Bitmomo melalui kanal support resmi yang tercantum.', 'Pembayaran ganda merupakan salah satu kondisi yang dapat diproses sebagai pengecualian terhadap kebijakan pembayaran final.' ) ),
-					self::q( 'setelah-pembayaran', 'Apa yang terjadi setelah pembayaran?', array( 'Selama Founding Beta, pembayaran dapat diverifikasi secara manual.', 'Setelah pembayaran dikonfirmasi, akun Bitmomo Pro akan diaktifkan dan masa akses disesuaikan dengan paket bulanan atau tahunan yang dipilih.' ) ),
+					self::q( 'setelah-pembayaran', 'Apa yang terjadi setelah pembayaran?', array( 'Selama Founding Membership, pembayaran dapat diverifikasi secara manual.', 'Setelah pembayaran dikonfirmasi, akun Bitmomo Pro akan diaktifkan dan masa akses disesuaikan dengan paket bulanan atau tahunan yang dipilih.' ) ),
 				),
 			),
 			'ai-analysts-watchtower' => array(
