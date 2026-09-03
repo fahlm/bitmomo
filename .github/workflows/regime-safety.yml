@@ -75,6 +75,14 @@ jobs:
         working-directory: website/wp-content/plugins/bitmomo-ai
         run: php tests/test-bitmomo-ai-scorecard.php
 
+      - name: Run canonical direction-strength suite
+        working-directory: website/wp-content/plugins/bitmomo-ai
+        run: php tests/test-bitmomo-ai-direction-strength.php
+
+      - name: Run public intelligence adapter suite
+        working-directory: website/wp-content/plugins/bitmomo-ai
+        run: php tests/test-bitmomo-public-intelligence-adapter.php
+
       - name: Run runtime adapter suite
         working-directory: website/wp-content/plugins/bitmomo-regime
         run: php tests/test-bitmomo-regime-runtime-adapter.php
