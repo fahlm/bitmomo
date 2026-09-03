@@ -24,12 +24,18 @@ ksort( $bm_hero_official );
 $bm_hero_official = array_slice( $bm_hero_official, -30, null, true );
 $bm_hero_latest = $bm_hero_official ? end( $bm_hero_official ) : array();
 
-$bm_direction_label = static function ( $bias, $confidence ) {
+$bm_direction_label = static function ( $strength, $bias ) {
+    $labels = array(
+        'strong_bullish' => 'Strong Bullish',
+        'bullish'        => 'Moderate Bullish',
+        'neutral'        => 'Neutral',
+        'bearish'        => 'Moderate Bearish',
+        'strong_bearish' => 'Strong Bearish',
+    );
+    $strength = sanitize_key( (string) $strength );
+    if ( isset( $labels[ $strength ] ) ) return $labels[ $strength ];
     $bias = sanitize_key( (string) $bias );
-    $confidence = max( 0, min( 100, (float) $confidence ) );
-    if ( 'neutral' === $bias ) return 'Neutral';
-    if ( 'bullish' === $bias ) return $confidence >= 70 ? 'Strong Bullish' : 'Moderate Bullish';
-    if ( 'bearish' === $bias ) return $confidence >= 70 ? 'Strong Bearish' : 'Moderate Bearish';
+    if ( in_array( $bias, array( 'bullish', 'bearish', 'neutral' ), true ) ) return ucfirst( $bias );
     return 'Neutral';
 };
 
@@ -39,7 +45,8 @@ $bm_direction_label = static function ( $bias, $confidence ) {
 $bm_raw_bias = sanitize_key( (string) ( $bm_hero_intel['bias'] ?? ( $bm_hero_latest['directional_bias'] ?? '' ) ) );
 $bm_bias_valid = in_array( $bm_raw_bias, array( 'bullish', 'bearish', 'neutral' ), true );
 $bm_latest_confidence = (float) ( $bm_hero_intel['confidence'] ?? ( $bm_hero_latest['regime_confidence'] ?? 0 ) );
-$bm_latest_direction = $bm_bias_valid ? $bm_direction_label( $bm_raw_bias, $bm_latest_confidence ) : '';
+$bm_latest_strength = sanitize_key( (string) ( $bm_hero_intel['direction_strength'] ?? '' ) );
+$bm_latest_direction = $bm_bias_valid ? $bm_direction_label( $bm_latest_strength, $bm_raw_bias ) : '';
 
 // Market State: always sourced from the canonical regime plugin -- never from
 // the AI projection's legacy `market_state` field, which is just a bias relabel.
@@ -97,4 +104,4 @@ $bm_confidence_label = $bm_latest_confidence >= 70 ? 'Tinggi' : ( $bm_latest_con
     </article>
   </div>
 </section>
-<?php unset( $bm_hero_intel, $bm_hero_available, $bm_hero_records, $bm_hero_official, $bm_hero_latest, $bm_direction_label, $bm_raw_bias, $bm_bias_valid, $bm_latest_confidence, $bm_latest_direction, $bm_market_state, $bm_hero_drivers, $bm_hero_driver, $bm_hero_updated, $bm_confidence_label, $bm_record, $bm_date_key, $bm_day, $bm_conf, $bm_state_label ); ?>
+<?php unset( $bm_hero_intel, $bm_hero_available, $bm_hero_records, $bm_hero_official, $bm_hero_latest, $bm_direction_label, $bm_raw_bias, $bm_bias_valid, $bm_latest_confidence, $bm_latest_strength, $bm_latest_direction, $bm_market_state, $bm_hero_drivers, $bm_hero_driver, $bm_hero_updated, $bm_confidence_label, $bm_record, $bm_date_key, $bm_day, $bm_conf, $bm_state_label ); ?>
