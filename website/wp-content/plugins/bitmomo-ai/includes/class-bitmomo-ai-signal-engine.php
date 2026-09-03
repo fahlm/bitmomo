@@ -19,6 +19,7 @@ final class Bitmomo_AI_Signal_Engine {
 
         return [
             'bias' => $bias,
+            'direction_strength' => self::direction_strength($directional_score),
             'confidence' => $confidence,
             'score' => $directional_score,
             'quality' => $data['quality'] ?? ['status' => 'unknown'],
@@ -92,6 +93,12 @@ final class Bitmomo_AI_Signal_Engine {
     }
 
     private static function score_status($score) {
+        return self::direction_strength($score);
+    }
+
+    /** Canonical five-state direction derived only from the aggregate score. */
+    public static function direction_strength($score) {
+        $score = max(-100, min(100, (float) $score));
         if ($score >= 60) return 'strong_bullish';
         if ($score >= 20) return 'bullish';
         if ($score <= -60) return 'strong_bearish';
