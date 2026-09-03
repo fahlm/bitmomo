@@ -130,6 +130,7 @@ final class Bitmomo_AI_Webhook {
         $post_id = wp_insert_post($postarr, true);
         if (is_wp_error($post_id)) return $post_id;
         update_post_meta($post_id, '_bm_direction', $evaluation['bias']);
+        update_post_meta($post_id, '_bm_direction_strength', $evaluation['direction_strength']);
         update_post_meta($post_id, '_bm_confidence', $evaluation['confidence']);
         update_post_meta($post_id, '_bm_timeframe', $data['timeframe']);
         update_post_meta($post_id, '_bm_market_price', (string) $data['close']);
