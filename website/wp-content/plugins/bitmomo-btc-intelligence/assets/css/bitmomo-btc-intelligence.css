@@ -17,11 +17,17 @@
  * this page — the Pro CTA primary button — uses --bmi-orange, matching
  * the site-wide commercial-CTA color (custom.css's --cta / #f4ad32, the
  * same color the navbar BITMOMO PRO button and /pro's own CTA use).
- * Cyan stays everywhere else on this page: it is an intelligence/
- * research accent (badges, axis headings, signature callouts, the
- * snapshot/CTA panel borders), never a purchase action, and the
- * secondary "Lihat cara kerja" link stays cyan too since it is not the
- * primary conversion path.
+ *
+ * 2026-09 accent correction: this page had drifted to reading as a
+ * bright-cyan dashboard. --bmi-teal (#2dd4bf, the same teal family as
+ * the theme's --teal and /pro's --bms-teal) is now the dominant
+ * intelligence/system accent -- the eyebrow, signature callout, axis
+ * headings, confidence meter, version tags, and the snapshot/CTA panel
+ * borders all use it. Cyan (--bmi-cyan) is kept only as a sparing
+ * secondary highlight: the "Lihat cara kerja" secondary link, since it
+ * is not the primary conversion path and a single small link doesn't
+ * need the dominant accent. Semantic market colors (bull/bear/neutral)
+ * and the orange commercial CTA are unrelated to this pass and unchanged.
  */
 
 .bm-bi {
@@ -32,6 +38,8 @@
 	--bmi-text-muted: #8b98ac;
 	--bmi-cyan: #38bdf8;
 	--bmi-cyan-soft: rgba( 56, 189, 248, 0.35 );
+	--bmi-teal: #2dd4bf;
+	--bmi-teal-soft: rgba( 45, 212, 191, 0.35 );
 	--bmi-orange: #f4ad32;
 	--bmi-orange-dark: #e69a18;
 	--bmi-bull: #34d399;
@@ -57,7 +65,7 @@
 	letter-spacing: 0.09em;
 	font-size: 0.72rem;
 	font-weight: 700;
-	color: var( --bmi-cyan );
+	color: var( --bmi-teal );
 	margin: 0 0 8px;
 }
 
@@ -137,8 +145,8 @@
 }
 
 .bm-bi__signature {
-	background: rgba( 56, 189, 248, 0.07 );
-	border-left: 3px solid var( --bmi-cyan );
+	background: rgba( 45, 212, 191, 0.07 );
+	border-left: 3px solid var( --bmi-teal );
 	padding: 10px 14px;
 	font-size: 0.92rem;
 	font-weight: 700;
@@ -156,7 +164,7 @@
 }
 
 .bm-bi__snapshot {
-	border-top: 3px solid var( --bmi-cyan );
+	border-top: 3px solid var( --bmi-teal );
 }
 
 /* ---------- Current snapshot ---------- */
@@ -321,10 +329,10 @@
 	background: var( --bmi-border );
 	font-style: normal;
 }
-.bm-bi__confidence-meter.is-rendah i:nth-child(1) { background: var( --bmi-cyan ); }
+.bm-bi__confidence-meter.is-rendah i:nth-child(1) { background: var( --bmi-teal ); }
 .bm-bi__confidence-meter.is-sedang i:nth-child(1),
-.bm-bi__confidence-meter.is-sedang i:nth-child(2) { background: var( --bmi-cyan ); }
-.bm-bi__confidence-meter.is-tinggi i { background: var( --bmi-cyan ); }
+.bm-bi__confidence-meter.is-sedang i:nth-child(2) { background: var( --bmi-teal ); }
+.bm-bi__confidence-meter.is-tinggi i { background: var( --bmi-teal ); }
 
 .bm-bi__badge {
 	display: inline-block;
@@ -398,7 +406,7 @@
 .bm-bi__axis-card h3 {
 	margin: 0 0 6px;
 	font-size: 1rem;
-	color: var( --bmi-cyan );
+	color: var( --bmi-teal );
 }
 .bm-bi__axis-q {
 	font-size: 0.85rem !important;
@@ -484,8 +492,8 @@
 	font-weight: 700;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	color: var( --bmi-cyan ) !important;
-	background: rgba( 34, 211, 238, 0.1 );
+	color: var( --bmi-teal ) !important;
+	background: rgba( 45, 212, 191, 0.1 );
 	border-radius: 6px;
 	padding: 3px 8px;
 	margin: 0 0 8px !important;
@@ -557,7 +565,7 @@
 /* ---------- Pro CTA ---------- */
 
 .bm-bi__pro-cta {
-	border-top: 3px solid var( --bmi-cyan );
+	border-top: 3px solid var( --bmi-teal );
 	text-align: left;
 }
 .bm-bi__pro-cta-actions {
