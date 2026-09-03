@@ -39,11 +39,16 @@ final class Bitmomo_AI_Intelligence {
         if (!in_array($bias, ['bullish', 'neutral', 'bearish'], true)) $bias = 'neutral';
 
         $state = $age <= self::FRESH_AGE_SECONDS ? 'fresh' : 'delayed';
+        $direction_strength = sanitize_key((string) ($evaluation['direction_strength'] ?? ''));
+        if (!in_array($direction_strength, ['strong_bearish', 'bearish', 'neutral', 'bullish', 'strong_bullish'], true)) {
+            $direction_strength = Bitmomo_AI_Signal_Engine::direction_strength((float) ($evaluation['score'] ?? 0));
+        }
 
         return [
             'status' => $state,
             'price' => (float) ($data['close'] ?? 0),
             'bias' => $bias,
+            'direction_strength' => $direction_strength,
             'market_state' => self::market_state_label($bias),
             'confidence' => min(100, max(0, (int) ($evaluation['confidence'] ?? 0))),
             'primary_driver' => self::primary_driver($evaluation),
@@ -231,6 +236,7 @@ require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-key-drivers.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-quality-gate.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-performance.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-scorecard.php';
+require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-public-intelligence-adapter.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-editorial-gate.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-admin-notices.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-report.php';
