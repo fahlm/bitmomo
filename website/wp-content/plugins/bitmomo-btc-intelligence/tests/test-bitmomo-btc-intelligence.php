@@ -95,6 +95,131 @@ check( 'Snapshot: Faktor Utama list rendered', false !== strpos( $html, 'Funding
 check( 'Snapshot: freshness timestamp line rendered, not "Belum tersedia"', false !== strpos( $html, 'Data terkini' ) );
 
 /* =========================================================================
+ * MARKET DIRECTION SPECTRUM — hero intelligence instrument (P0 hardening,
+ * 2026-09). Direction/Strength must come only from the canonical bias
+ * (and, once it exists, a canonical direction_strength field) -- never
+ * from Confidence. Confidence must only ever change the marker's fill
+ * weight/opacity class and the separate confidence badge, never the
+ * marker's left/width (its spectrum position).
+ * ====================================================================== */
+function spectrum_marker_style( $html ) {
+	if ( ! preg_match( '/bm-bi__spectrum-marker[^"]*"[^>]*style="([^"]+)"/', $html, $m ) ) {
+		return null;
+	}
+	return $m[1];
+}
+
+// Extracts the marker's full class attribute value. Deliberately used with
+// per-token checks (not a fixed substring) so these tests don't couple to
+// an arbitrary class array order in the PHP -- only the presence of each
+// semantic class matters, never which comes first.
+function spectrum_marker_classes( $html ) {
+	if ( ! preg_match( '/class="(bm-bi__spectrum-marker[^"]*)"/', $html, $m ) ) {
+		return null;
+	}
+	return explode( ' ', $m[1] );
+}
+
+function marker_has_classes( $html, array $expected ) {
+	$classes = spectrum_marker_classes( $html );
+	if ( null === $classes ) {
+		return false;
+	}
+	foreach ( $expected as $needle ) {
+		if ( ! in_array( $needle, $classes, true ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+check( 'Hero intelligence visualization (spectrum) renders', false !== strpos( $html, 'bm-bi__spectrum-track' ) && false !== strpos( $html, 'MARKET DIRECTION SPECTRUM' ) );
+check( 'Spectrum shows all five canonical zone labels', false !== strpos( $html, 'Strong Bear' ) && false !== strpos( $html, 'Strong Bull' ) && false !== strpos( $html, '>Neutral<' ) );
+
+// Bullish, high confidence (82) -- no direction_strength field (today's
+// real backend state): must render the "wide" (strength-unknown) marker
+// on the bullish side, never a fabricated Moderate/Strong claim.
+Bitmomo_AI_Intelligence::$fixture = array(
+	'status' => 'fresh', 'price' => 65000, 'bias' => 'bullish', 'confidence' => 82,
+	'key_drivers' => array(), 'timestamp_iso' => date( 'c' ),
+);
+$html_bull_hi = $page->render_page( array() );
+check( 'Directional Strength does NOT render Strong/Moderate without a canonical backend field', false === strpos( $html_bull_hi, '>Strong Bullish<' ) && false === strpos( $html_bull_hi, '>Moderate Bullish<' ) );
+check( 'Missing direction_strength renders the honest "segera hadir" wide-band note, not a fabricated classification', false !== strpos( $html_bull_hi, 'kekuatan arah' ) && false !== strpos( $html_bull_hi, 'segera hadir' ) );
+check( 'Bullish marker uses the wide (strength-unknown) treatment, not a precise one', marker_has_classes( $html_bull_hi, array( 'bm-bi__spectrum-marker--wide', 'is-bullish' ) ) );
+check( 'High confidence (82) renders the "tinggi" confidence class', false !== strpos( $html_bull_hi, 'is-confidence-tinggi' ) );
+$style_bull_hi = spectrum_marker_style( $html_bull_hi );
+
+// Same bias, LOW confidence (12) -- position must be byte-identical;
+// only the confidence class may differ. This is the core "Confidence
+// never moves spectrum position" assertion.
+Bitmomo_AI_Intelligence::$fixture = array(
+	'status' => 'fresh', 'price' => 65000, 'bias' => 'bullish', 'confidence' => 12,
+	'key_drivers' => array(), 'timestamp_iso' => date( 'c' ),
+);
+$html_bull_lo = $page->render_page( array() );
+$style_bull_lo = spectrum_marker_style( $html_bull_lo );
+check( 'CONFIDENCE INDEPENDENCE: low confidence (12) renders the "rendah" confidence class', false !== strpos( $html_bull_lo, 'is-confidence-rendah' ) );
+check( 'CONFIDENCE INDEPENDENCE: marker left/width position is IDENTICAL for the same bias regardless of Confidence (82 vs 12)', null !== $style_bull_hi && $style_bull_hi === $style_bull_lo );
+check( 'CONFIDENCE INDEPENDENCE: direction label stays Bullish at low confidence too (direction is not downgraded by low confidence)', false !== strpos( $html_bull_lo, '<strong>Bullish</strong>' ) );
+
+// Neutral is a real, precisely-known state (no Moderate/Strong ambiguity
+// for Neutral in the canonical enum) -- must render as a solid, precise
+// marker at all confidence levels, never as an empty/missing state.
+Bitmomo_AI_Intelligence::$fixture = array(
+	'status' => 'fresh', 'price' => 65000, 'bias' => 'neutral', 'confidence' => 91,
+	'key_drivers' => array(), 'timestamp_iso' => date( 'c' ),
+);
+$html_neutral_hi = $page->render_page( array() );
+check( 'Neutral renders as a valid, precise state (not the strength-unknown wide treatment)', marker_has_classes( $html_neutral_hi, array( 'bm-bi__spectrum-marker--precise', 'is-neutral' ) ) );
+$style_neutral_hi = spectrum_marker_style( $html_neutral_hi );
+
+Bitmomo_AI_Intelligence::$fixture = array(
+	'status' => 'fresh', 'price' => 65000, 'bias' => 'neutral', 'confidence' => 8,
+	'key_drivers' => array(), 'timestamp_iso' => date( 'c' ),
+);
+$html_neutral_lo = $page->render_page( array() );
+$style_neutral_lo = spectrum_marker_style( $html_neutral_lo );
+check( 'Neutral + low confidence still renders the precise Neutral marker (not empty/missing)', marker_has_classes( $html_neutral_lo, array( 'bm-bi__spectrum-marker--precise', 'is-neutral' ) ) );
+check( 'CONFIDENCE INDEPENDENCE: Neutral marker position is identical regardless of Confidence (91 vs 8)', null !== $style_neutral_hi && $style_neutral_hi === $style_neutral_lo );
+check( 'Neutral + high vs low confidence differ only in confidence class, not position', strpos( $html_neutral_hi, 'is-confidence-tinggi' ) !== false && strpos( $html_neutral_lo, 'is-confidence-rendah' ) !== false );
+
+// Bearish, symmetric check.
+Bitmomo_AI_Intelligence::$fixture = array(
+	'status' => 'fresh', 'price' => 65000, 'bias' => 'bearish', 'confidence' => 60,
+	'key_drivers' => array(), 'timestamp_iso' => date( 'c' ),
+);
+$html_bear = $page->render_page( array() );
+check( 'Bearish marker uses the wide (strength-unknown) treatment, symmetric with bullish', marker_has_classes( $html_bear, array( 'bm-bi__spectrum-marker--wide', 'is-bearish' ) ) );
+check( 'Bearish does NOT render a fabricated Strong/Moderate Bearish claim', false === strpos( $html_bear, '>Strong Bearish<' ) && false === strpos( $html_bear, '>Moderate Bearish<' ) );
+
+// Simulate a FUTURE backend that adds `direction_strength` to
+// free_projection(), using the exact canonical score_status() enum this
+// class documents. The frontend must render a PRECISE marker from that
+// value verbatim -- proving the architecture is five-state-ready without
+// this test having to wait for the real adapter/backend field to exist.
+Bitmomo_AI_Intelligence::$fixture = array(
+	'status' => 'fresh', 'price' => 65000, 'bias' => 'bullish', 'confidence' => 75,
+	'key_drivers' => array(), 'timestamp_iso' => date( 'c' ), 'direction_strength' => 'strong_bullish',
+);
+$html_strong = $page->render_page( array() );
+check( 'A canonical direction_strength value from the backend renders a PRECISE marker (five-state-ready architecture)', marker_has_classes( $html_strong, array( 'bm-bi__spectrum-marker--precise', 'is-bullish' ) ) );
+check( 'Once direction_strength is known, the "segera hadir" placeholder note disappears', false === strpos( $html_strong, 'segera hadir' ) );
+
+// An unrecognized/garbage direction_strength value must never be trusted
+// -- falls back to the same honest wide-band treatment as if it were
+// absent (never coerced, never a version/shape guess).
+Bitmomo_AI_Intelligence::$fixture = array(
+	'status' => 'fresh', 'price' => 65000, 'bias' => 'bullish', 'confidence' => 75,
+	'key_drivers' => array(), 'timestamp_iso' => date( 'c' ), 'direction_strength' => 'extremely_bullish_v2',
+);
+$html_bad_strength = $page->render_page( array() );
+check( 'An unrecognized direction_strength value is never trusted -- falls back to the honest wide-band state', marker_has_classes( $html_bad_strength, array( 'bm-bi__spectrum-marker--wide', 'is-bullish' ) ) );
+
+// No fabricated price series / chart anywhere on this page.
+check( 'No canvas/chart element was added for a fabricated price series', false === strpos( $html, '<canvas' ) );
+
+/* =========================================================================
  * UNKNOWN / STALE BEHAVIOR
  * ====================================================================== */
 Bitmomo_AI_Intelligence::$fixture = array(
@@ -118,7 +243,8 @@ Bitmomo_AI_Intelligence::$fixture = array(
 Bitmomo_Regime_State_Store::$fixture = null;
 $html_unavailable = $page->render_page( array() );
 check( 'Unavailable snapshot renders honest unavailable state', false !== strpos( $html_unavailable, 'Update BTC terbaru belum tersedia.' ) );
-check( 'Unavailable snapshot never fabricates a price/confidence figure', false === strpos( $html_unavailable, 'BTC Reference' ) || false === strpos( $html_unavailable, 'bm-bi__snapshot-grid' ) );
+check( 'Unavailable snapshot never fabricates a price/confidence figure', false === strpos( $html_unavailable, 'BTC Reference' ) || false === strpos( $html_unavailable, 'bm-bi__snapshot-top' ) );
+check( 'Unavailable snapshot renders no spectrum instrument at all', false === strpos( $html_unavailable, 'bm-bi__spectrum-track' ) );
 
 // Reset to a normal fixture for the remaining checks.
 Bitmomo_AI_Intelligence::$fixture = array(

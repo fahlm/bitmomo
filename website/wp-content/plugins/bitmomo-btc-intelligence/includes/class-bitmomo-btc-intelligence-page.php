@@ -71,6 +71,45 @@ if ( ! defined( 'ABSPATH' ) ) {
  * honest "belum tersedia" boundary state via render_adapter_pending_
  * boundary(): headings, framing copy, and structure are all real; no
  * number is ever fabricated.
+ *
+ * CRITICAL SEMANTIC SEPARATION (2026-09 hero hardening pass) -- four
+ * logically independent concepts appear in render_current_snapshot():
+ *   A. Direction        Bullish / Neutral / Bearish (free_projection()
+ *                        ['bias'] -- public-safe today).
+ *   B. Directional Strength   Moderate / Strong. Comes ONLY from a
+ *                        canonical backend classification -- never
+ *                        computed, inferred, or guessed here.
+ *   C. Confidence        Strength/completeness of the evidence behind
+ *                        the analysis (free_projection()['confidence'],
+ *                        bucketed Rendah/Sedang/Tinggi -- public-safe
+ *                        today). NOT a probability of being right.
+ *   D. Market State      Regime/context (Akumulasi, Ekspansi, ...), from
+ *                        Bitmomo_Regime_State_Store -- unrelated to A-C.
+ * Confidence must never move the spectrum marker's position (A/B), and
+ * A/B must never be derived from C. STRONG BULLISH + LOW CONFIDENCE and
+ * NEUTRAL + HIGH CONFIDENCE are both valid, expected states.
+ *
+ * DIRECTIONAL STRENGTH -- BACKEND STATUS (audited 2026-09, see the P0
+ * product-hardening report for the full writeup): Bitmomo_AI_Signal_
+ * Engine::evaluate() already computes an aggregate directional score
+ * (weighted from the direction/carry/structure/crowding axes -- NOT
+ * volatility, which the engine deliberately excludes from direction) and
+ * already classifies it into the exact five states this page wants
+ * (strong_bearish/bearish/neutral/bullish/strong_bullish) via
+ * Bitmomo_AI_Signal_Engine::score_status() -- but that classification is
+ * currently only ever applied to each *individual axis*, and the
+ * aggregate score itself is only exposed through Bitmomo_AI_Intelligence
+ * ::pro_projection(), which is entitlement-gated and explicitly
+ * Pro-only. free_projection() (the only method this public page may
+ * read) exposes solely the coarser 3-state `bias`. So: the classification
+ * logic and thresholds already exist and are reusable as-is, but there is
+ * currently NO public-safe field carrying the 5-state result -- this is
+ * documented as a P0 backend dependency, not implemented here. See
+ * render_current_snapshot()'s `direction_strength` handling: it reads a
+ * `$snapshot['direction_strength']` key defensively (using score_status()
+ * 's own enum) so that once free_projection() adds that field, this page
+ * needs zero further change -- until then it renders an honest "kekuatan
+ * arah segera hadir" wide-band state, never a fabricated Moderate/Strong.
  */
 class Bitmomo_Btc_Intelligence_Page {
 
@@ -293,7 +332,65 @@ class Bitmomo_Btc_Intelligence_Page {
 		);
 
 		$confidence       = max( 0, min( 100, (int) ( $snapshot['confidence'] ?? 0 ) ) );
+		$confidence_key   = $confidence >= 70 ? 'tinggi' : ( $confidence >= 40 ? 'sedang' : 'rendah' );
 		$confidence_label = $confidence >= 70 ? __( 'Tinggi', 'bitmomo-btc-intelligence' ) : ( $confidence >= 40 ? __( 'Sedang', 'bitmomo-btc-intelligence' ) : __( 'Rendah', 'bitmomo-btc-intelligence' ) );
+
+		// Directional Strength (Moderate/Strong) is a SEPARATE dimension from
+		// Direction (Bullish/Neutral/Bearish) and from Confidence -- see the
+		// class docblock's DIRECTIONAL STRENGTH note. free_projection() does
+		// not expose it yet (2026-09 audit: the canonical aggregate score
+		// and its Bitmomo_AI_Signal_Engine::score_status() classification
+		// exist backend-side but are only surfaced via the Pro-gated
+		// pro_projection(), never via the public free_projection()). This
+		// reads a `direction_strength` key defensively, in case a future
+		// backend pass adds it to free_projection() using the SAME
+		// score_status() enum -- it never computes or guesses the value
+		// itself, and an absent/unrecognized value renders the honest
+		// "belum tersedia" wide-band treatment instead of a fabricated one.
+		// Zone index (0-4) for each of the five canonical states, matching
+		// Bitmomo_AI_Signal_Engine::score_status()'s own enum exactly --
+		// this frontend does not invent these names or boundaries.
+		$strength_zone_index = array(
+			'strong_bearish' => 0,
+			'bearish'        => 1, // "moderate bearish"
+			'neutral'        => 2,
+			'bullish'        => 3, // "moderate bullish"
+			'strong_bullish' => 4,
+		);
+		$raw_strength   = sanitize_key( (string) ( $snapshot['direction_strength'] ?? '' ) );
+		$strength_known = $bias_valid && isset( $strength_zone_index[ $raw_strength ] );
+
+		// Spectrum position resolution, in this strict order:
+		// 1. A canonical direction_strength value (future backend field) --
+		//    precise marker at its exact zone. Never present today.
+		// 2. Neutral bias -- always precise, even without direction_strength,
+		//    since score_status() has no "moderate/strong neutral" variant.
+		// 3. Bullish/Bearish bias with no strength value -- an honest wide
+		//    band across both zones on that side; strength is unknown, not
+		//    assumed to be either Moderate or Strong.
+		// 4. No valid bias -- no marker; the section already shows the
+		//    honest unavailable state above.
+		if ( $strength_known ) {
+			$spectrum_mode = 'precise';
+			$spectrum_zone_start = $strength_zone_index[ $raw_strength ];
+			$spectrum_zone_end   = $strength_zone_index[ $raw_strength ];
+		} elseif ( $bias_valid && 'neutral' === $raw_bias ) {
+			$spectrum_mode = 'precise';
+			$spectrum_zone_start = 2;
+			$spectrum_zone_end   = 2;
+		} elseif ( $bias_valid && 'bearish' === $raw_bias ) {
+			$spectrum_mode = 'wide';
+			$spectrum_zone_start = 0;
+			$spectrum_zone_end   = 1;
+		} elseif ( $bias_valid && 'bullish' === $raw_bias ) {
+			$spectrum_mode = 'wide';
+			$spectrum_zone_start = 3;
+			$spectrum_zone_end   = 4;
+		} else {
+			$spectrum_mode = 'unknown';
+			$spectrum_zone_start = null;
+			$spectrum_zone_end   = null;
+		}
 
 		$key_drivers = array_values( array_filter(
 			array_map( 'strval', is_array( $snapshot['key_drivers'] ?? null ) ? $snapshot['key_drivers'] : array() ),
@@ -314,26 +411,82 @@ class Bitmomo_Btc_Intelligence_Page {
 					<p><?php echo esc_html( (string) ( $snapshot['detail'] ?? '' ) ); ?></p>
 				</div>
 			<?php else : ?>
-				<div class="bm-bi__snapshot-grid">
+				<div class="bm-bi__snapshot-top">
+					<div class="bm-bi__metric bm-bi__metric--price">
+						<span class="bm-bi__kicker"><?php esc_html_e( 'BTC Reference', 'bitmomo-btc-intelligence' ); ?></span>
+						<strong>$<?php echo esc_html( number_format_i18n( (float) ( $snapshot['price'] ?? 0 ), 0 ) ); ?></strong>
+					</div>
 					<div class="bm-bi__metric">
 						<span class="bm-bi__kicker"><?php esc_html_e( 'Market State', 'bitmomo-btc-intelligence' ); ?></span>
 						<strong><?php echo esc_html( $regime_label ); ?></strong>
 					</div>
-					<div class="bm-bi__metric">
-						<span class="bm-bi__kicker"><?php esc_html_e( 'Directional Bias', 'bitmomo-btc-intelligence' ); ?></span>
-						<?php if ( $bias_valid ) : ?>
-							<strong class="bm-bi__bias is-<?php echo esc_attr( $raw_bias ); ?>"><?php echo esc_html( $bias_labels[ $raw_bias ] ); ?></strong>
-						<?php else : ?>
-							<strong class="bm-bi__bias is-unknown"><?php esc_html_e( 'Belum Tersedia', 'bitmomo-btc-intelligence' ); ?></strong>
-						<?php endif; ?>
-					</div>
-					<div class="bm-bi__metric">
+				</div>
+
+				<?php
+				/**
+				 * MARKET DIRECTION SPECTRUM -- the hero intelligence
+				 * instrument. Spatial position always comes from the
+				 * canonical Direction/Directional-Strength result computed
+				 * above; it is never influenced by Confidence. Confidence
+				 * is rendered as a separate visual channel (marker
+				 * fill/opacity + an explicit text badge) below the track,
+				 * never as spectrum position -- see the class docblock's
+				 * CRITICAL SEMANTIC SEPARATION note.
+				 */
+				?>
+				<div class="bm-bi__spectrum">
+					<p class="bm-bi__spectrum-label"><?php esc_html_e( 'MARKET DIRECTION SPECTRUM', 'bitmomo-btc-intelligence' ); ?></p>
+					<?php if ( 'unknown' === $spectrum_mode ) : ?>
+						<div class="bm-bi__spectrum-track bm-bi__spectrum-track--unknown">
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--strong-bear"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--bear"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--neutral"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--bull"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--strong-bull"></div>
+						</div>
+						<p class="bm-bi__spectrum-readout bm-bi__spectrum-readout--unknown"><?php esc_html_e( 'Belum Tersedia', 'bitmomo-btc-intelligence' ); ?></p>
+					<?php else : ?>
+						<?php
+						$marker_left  = $spectrum_zone_start * 20;
+						$marker_width = ( $spectrum_zone_end - $spectrum_zone_start + 1 ) * 20;
+						$marker_classes = array( 'bm-bi__spectrum-marker', 'is-' . $raw_bias, 'is-confidence-' . $confidence_key );
+						if ( 'wide' === $spectrum_mode ) {
+							$marker_classes[] = 'bm-bi__spectrum-marker--wide';
+						} else {
+							$marker_classes[] = 'bm-bi__spectrum-marker--precise';
+						}
+						?>
+						<div class="bm-bi__spectrum-track">
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--strong-bear"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--bear"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--neutral"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--bull"></div>
+							<div class="bm-bi__spectrum-zone bm-bi__spectrum-zone--strong-bull"></div>
+							<div class="<?php echo esc_attr( implode( ' ', $marker_classes ) ); ?>" style="left:<?php echo esc_attr( $marker_left ); ?>%;width:<?php echo esc_attr( $marker_width ); ?>%;" role="img" aria-label="<?php echo esc_attr( sprintf(
+								/* translators: 1: direction label, 2: confidence label */
+								__( 'Arah %1$s, Confidence %2$s', 'bitmomo-btc-intelligence' ),
+								$bias_labels[ $raw_bias ],
+								$confidence_label
+							) ); ?>"></div>
+						</div>
+						<div class="bm-bi__spectrum-scale" aria-hidden="true">
+							<span><?php esc_html_e( 'Strong Bear', 'bitmomo-btc-intelligence' ); ?></span>
+							<span><?php esc_html_e( 'Bear', 'bitmomo-btc-intelligence' ); ?></span>
+							<span><?php esc_html_e( 'Neutral', 'bitmomo-btc-intelligence' ); ?></span>
+							<span><?php esc_html_e( 'Bull', 'bitmomo-btc-intelligence' ); ?></span>
+							<span><?php esc_html_e( 'Strong Bull', 'bitmomo-btc-intelligence' ); ?></span>
+						</div>
+						<p class="bm-bi__spectrum-readout is-<?php echo esc_attr( $raw_bias ); ?>">
+							<strong><?php echo esc_html( $bias_labels[ $raw_bias ] ); ?></strong>
+							<?php if ( 'wide' === $spectrum_mode ) : ?>
+								<span class="bm-bi__spectrum-readout-note"><?php esc_html_e( '· kekuatan arah (Moderate/Strong) segera hadir', 'bitmomo-btc-intelligence' ); ?></span>
+							<?php endif; ?>
+						</p>
+					<?php endif; ?>
+					<div class="bm-bi__confidence-badge">
 						<span class="bm-bi__kicker"><?php esc_html_e( 'Confidence', 'bitmomo-btc-intelligence' ); ?></span>
+						<span class="bm-bi__confidence-meter is-<?php echo esc_attr( $confidence_key ); ?>" aria-hidden="true"><i></i><i></i><i></i></span>
 						<strong><?php echo esc_html( $confidence_label ); ?></strong>
-					</div>
-					<div class="bm-bi__metric">
-						<span class="bm-bi__kicker"><?php esc_html_e( 'BTC Reference', 'bitmomo-btc-intelligence' ); ?></span>
-						<strong>$<?php echo esc_html( number_format_i18n( (float) ( $snapshot['price'] ?? 0 ), 0 ) ); ?></strong>
 					</div>
 				</div>
 

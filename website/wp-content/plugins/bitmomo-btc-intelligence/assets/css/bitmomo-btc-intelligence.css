@@ -35,6 +35,9 @@
 	--bmi-orange: #f4ad32;
 	--bmi-orange-dark: #e69a18;
 	--bmi-bull: #34d399;
+	--bmi-bull-strong: #059669;
+	--bmi-bear-strong: #dc2626;
+	--bmi-neutral: #8fa3c2;
 	--bmi-bear: #f87171;
 	--bmi-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 	max-width: 760px;
@@ -158,11 +161,11 @@
 
 /* ---------- Current snapshot ---------- */
 
-.bm-bi__snapshot-grid {
+.bm-bi__snapshot-top {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 14px 12px;
-	margin: 10px 0 16px;
+	margin: 10px 0 18px;
 }
 
 .bm-bi__metric {
@@ -194,6 +197,153 @@
 	font-family: inherit;
 	font-size: 0.9rem;
 }
+
+/* ---------- Market Direction Spectrum (hero intelligence instrument) ----------
+ * Position on the track encodes Direction + Directional Strength ONLY.
+ * Confidence never moves the marker; it only changes the marker's own
+ * fill weight/opacity, plus the separate text badge below the track --
+ * two visibly distinct channels, per the class docblock's semantic-
+ * separation rule. A dashed, low-opacity "wide" marker spanning both
+ * zones on one side means "direction known, strength not yet available"
+ * -- it deliberately never resolves to a single precise position, so it
+ * can never be mistaken for a real Moderate/Strong classification. */
+
+.bm-bi__spectrum {
+	margin: 4px 0 16px;
+}
+
+.bm-bi__spectrum-label {
+	font-size: 0.72rem !important;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var( --bmi-text-muted ) !important;
+	margin: 0 0 10px !important;
+}
+
+.bm-bi__spectrum-track {
+	position: relative;
+	display: flex;
+	height: 34px;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid var( --bmi-border );
+}
+
+.bm-bi__spectrum-zone {
+	flex: 1 1 20%;
+	height: 100%;
+}
+.bm-bi__spectrum-zone--strong-bear { background: rgba( 220, 38, 38, 0.16 ); }
+.bm-bi__spectrum-zone--bear { background: rgba( 248, 113, 113, 0.12 ); }
+.bm-bi__spectrum-zone--neutral { background: rgba( 143, 163, 194, 0.14 ); }
+.bm-bi__spectrum-zone--bull { background: rgba( 52, 211, 153, 0.12 ); }
+.bm-bi__spectrum-zone--strong-bull { background: rgba( 5, 150, 105, 0.16 ); }
+
+.bm-bi__spectrum-track--unknown .bm-bi__spectrum-zone {
+	opacity: 0.5;
+}
+
+.bm-bi__spectrum-marker {
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	border-radius: 6px;
+	transition: none;
+}
+
+/* Precise marker: a single resolved zone -- either Neutral (always
+   precise) or a canonical direction_strength value from the backend. */
+.bm-bi__spectrum-marker--precise {
+	border: 2px solid rgba( 255, 255, 255, 0.85 );
+}
+.bm-bi__spectrum-marker--precise.is-bullish { background: var( --bmi-bull ); }
+.bm-bi__spectrum-marker--precise.is-bearish { background: var( --bmi-bear ); }
+.bm-bi__spectrum-marker--precise.is-neutral { background: var( --bmi-neutral ); }
+
+/* Wide marker: direction known, strength not yet available -- dashed
+   border and reduced fill so it visually reads as provisional, never as
+   a resolved Moderate/Strong position. */
+.bm-bi__spectrum-marker--wide {
+	border: 2px dashed rgba( 255, 255, 255, 0.55 );
+	background-image: repeating-linear-gradient( 135deg, currentColor 0, currentColor 2px, transparent 2px, transparent 10px );
+	background-color: transparent;
+}
+.bm-bi__spectrum-marker--wide.is-bullish { color: var( --bmi-bull ); }
+.bm-bi__spectrum-marker--wide.is-bearish { color: var( --bmi-bear ); }
+
+/* Confidence modifies fill weight only -- never position or which of
+   the precise/wide treatments above is used. */
+.bm-bi__spectrum-marker.is-confidence-rendah { opacity: 0.45; }
+.bm-bi__spectrum-marker.is-confidence-sedang { opacity: 0.7; }
+.bm-bi__spectrum-marker.is-confidence-tinggi { opacity: 1; }
+
+.bm-bi__spectrum-scale {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 6px;
+	font-size: 0.62rem;
+	color: var( --bmi-text-muted );
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+.bm-bi__spectrum-scale span {
+	flex: 1 1 20%;
+	text-align: center;
+}
+.bm-bi__spectrum-scale span:first-child { text-align: left; }
+.bm-bi__spectrum-scale span:last-child { text-align: right; }
+
+.bm-bi__spectrum-readout {
+	margin: 10px 0 0 !important;
+	font-size: 0.95rem !important;
+	color: var( --bmi-text ) !important;
+}
+.bm-bi__spectrum-readout.is-bullish strong { color: var( --bmi-bull ); }
+.bm-bi__spectrum-readout.is-bearish strong { color: var( --bmi-bear ); }
+.bm-bi__spectrum-readout.is-neutral strong { color: var( --bmi-neutral ); }
+.bm-bi__spectrum-readout-note {
+	font-size: 0.78rem;
+	color: var( --bmi-text-muted );
+	font-style: italic;
+}
+.bm-bi__spectrum-readout--unknown {
+	color: var( --bmi-text-muted ) !important;
+	font-style: italic;
+}
+
+.bm-bi__confidence-badge {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var( --bmi-border );
+}
+.bm-bi__confidence-badge .bm-bi__kicker {
+	margin-right: 2px;
+}
+.bm-bi__confidence-badge strong {
+	font-family: var( --bmi-mono );
+	font-size: 0.88rem;
+}
+
+.bm-bi__confidence-meter {
+	display: inline-flex;
+	gap: 3px;
+}
+.bm-bi__confidence-meter i {
+	display: block;
+	width: 14px;
+	height: 8px;
+	border-radius: 2px;
+	background: var( --bmi-border );
+	font-style: normal;
+}
+.bm-bi__confidence-meter.is-rendah i:nth-child(1) { background: var( --bmi-cyan ); }
+.bm-bi__confidence-meter.is-sedang i:nth-child(1),
+.bm-bi__confidence-meter.is-sedang i:nth-child(2) { background: var( --bmi-cyan ); }
+.bm-bi__confidence-meter.is-tinggi i { background: var( --bmi-cyan ); }
 
 .bm-bi__badge {
 	display: inline-block;
