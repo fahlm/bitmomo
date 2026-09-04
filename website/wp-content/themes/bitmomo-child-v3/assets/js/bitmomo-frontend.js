@@ -166,7 +166,7 @@
 
     var dateEl = document.getElementById('bm-direction-detail-date');
     var biasEl = document.getElementById('bm-direction-detail-bias');
-    var confEl = document.getElementById('bm-direction-detail-confidence');
+    var certEl = document.getElementById('bm-direction-detail-certainty');
     var stateEl = document.getElementById('bm-direction-detail-state');
 
     if (dateEl) dateEl.textContent = bar.getAttribute('data-date') || '';
@@ -174,7 +174,7 @@
       biasEl.textContent = bar.getAttribute('data-bias-label') || '';
       biasEl.className = bar.getAttribute('data-bias-class') || '';
     }
-    if (confEl) confEl.textContent = bar.getAttribute('data-confidence-label') || '';
+    if (certEl) certEl.textContent = bar.getAttribute('data-certainty-label') || '';
     if (stateEl) stateEl.textContent = bar.getAttribute('data-state-label') || '';
   });
 }());
