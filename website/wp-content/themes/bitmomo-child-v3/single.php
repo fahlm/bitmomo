@@ -38,6 +38,15 @@ get_header();
       </div></div></section>
     <?php endif; wp_reset_postdata();
   endif; ?>
+  <section class="bm-section bm-riset-bridge"><div class="bm-container">
+    <div class="bm-riset-bridge-card">
+      <div class="bm-riset-bridge-copy">
+        <span class="bm-riset-bridge-eyebrow">BTC Intelligence</span>
+        <p>Lihat bagaimana Bitmomo membaca kondisi BTC saat ini.</p>
+      </div>
+      <a class="bm-riset-bridge-cta" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat BTC Intelligence &rarr;</a>
+    </div>
+  </div></section>
 <?php endwhile; endif; ?>
 </main>
 <?php get_footer(); ?>
