@@ -58,7 +58,49 @@ $bm_hero_drivers = $bm_hero_available && is_array( $bm_hero_intel['key_drivers']
     : array();
 $bm_hero_driver = trim( (string) ( $bm_hero_drivers[0] ?? '' ) );
 $bm_hero_updated = ! empty( $bm_hero_intel['timestamp_iso'] ) ? strtotime( $bm_hero_intel['timestamp_iso'] ) : false;
-$bm_confidence_label = $bm_latest_confidence >= 70 ? 'Tinggi' : ( $bm_latest_confidence >= 40 ? 'Sedang' : 'Rendah' );
+
+// Confidence -> plain-language bucket. Same thresholds used for the aggregate
+// headline value below and for each individual historical observation --
+// this is an established display bucketing, not a new inference of
+// direction strength (which is deliberately NOT derived from confidence
+// anywhere in this file; see $bm_direction_label above).
+$bm_confidence_bucket = static function ( $value ) {
+    $value = (float) $value;
+    if ( $value >= 70 ) return 'Tinggi';
+    if ( $value >= 40 ) return 'Sedang';
+    return 'Rendah';
+};
+$bm_confidence_label = $bm_confidence_bucket( $bm_latest_confidence );
+
+// Canonical bias -> display label. Historical regime records only ever carry
+// the three-way Bitmomo_Regime_Taxonomy bias (bullish/neutral/bearish) -- NOT
+// the five-way strong/moderate strength used above for the live projection.
+// That strength value does not exist per historical day, so it is never
+// fabricated here; each bar shows only the bias its own record genuinely has.
+$bm_bias_display_label = static function ( $bias ) {
+    $bias = sanitize_key( (string) $bias );
+    $labels = array( 'bullish' => 'Bullish', 'neutral' => 'Neutral', 'bearish' => 'Bearish' );
+    return isset( $labels[ $bias ] ) ? $labels[ $bias ] : 'Belum tersedia';
+};
+
+// Pre-render the detail state for the latest (default-selected) observation
+// so the panel is meaningful before any interaction and still works with
+// JavaScript disabled.
+$bm_hero_default_detail = array( 'date' => '', 'bias' => 'Belum tersedia', 'bias_class' => '', 'confidence' => 'Belum tersedia', 'state' => 'Belum tersedia' );
+if ( $bm_hero_official ) {
+    $bm_default_day    = array_key_last( $bm_hero_official );
+    $bm_default_record = $bm_hero_official[ $bm_default_day ];
+    $bm_default_bias   = sanitize_key( (string) ( $bm_default_record['directional_bias'] ?? '' ) );
+    $bm_hero_default_detail = array(
+        'date'       => wp_date( 'd M', strtotime( $bm_default_day ) ),
+        'bias'       => $bm_bias_display_label( $bm_default_bias ),
+        'bias_class' => in_array( $bm_default_bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? 'is-' . $bm_default_bias : '',
+        'confidence' => $bm_confidence_bucket( $bm_default_record['regime_confidence'] ?? 0 ),
+        'state'      => class_exists( 'Bitmomo_Regime_Taxonomy' ) && ! empty( $bm_default_record['regime'] )
+            ? Bitmomo_Regime_Taxonomy::regime_label_id( $bm_default_record['regime'] )
+            : 'Belum tersedia',
+    );
+}
 ?>
 <section class="bm-hero" aria-labelledby="bm-home-title">
   <div class="bm-container bm-hero-layout">
@@ -86,22 +128,74 @@ $bm_confidence_label = $bm_latest_confidence >= 70 ? 'Tinggi' : ( $bm_latest_con
         </div>
         <?php endif; ?>
       </header>
-      <div class="bm-direction-chart bm-state-chart" role="img" aria-label="Riwayat Market State resmi; tinggi batang mengikuti confidence Regime.">
-        <?php if ( $bm_hero_official ) : foreach ( $bm_hero_official as $bm_day => $bm_record ) :
+      <div
+        class="bm-direction-chart bm-state-chart"
+        role="group"
+        aria-label="Riwayat Market State resmi. Tinggi batang mengikuti Confidence, warna mengikuti Directional Bias. Pilih satu batang untuk detail."
+      >
+        <?php if ( $bm_hero_official ) :
+          $bm_last_day = array_key_last( $bm_hero_official );
+          foreach ( $bm_hero_official as $bm_day => $bm_record ) :
           $bm_conf = max( 0, min( 100, (float) ( $bm_record['regime_confidence'] ?? 0 ) ) );
           $bm_state_label = class_exists( 'Bitmomo_Regime_Taxonomy' ) ? Bitmomo_Regime_Taxonomy::regime_label_id( $bm_record['regime'] ?? '' ) : ( $bm_record['regime'] ?? '' );
+          $bm_bar_bias = sanitize_key( (string) ( $bm_record['directional_bias'] ?? '' ) );
+          $bm_bar_bias_valid = in_array( $bm_bar_bias, array( 'bullish', 'neutral', 'bearish' ), true );
+          $bm_bar_bias_label = $bm_bias_display_label( $bm_bar_bias );
+          $bm_bar_confidence_label = $bm_confidence_bucket( $bm_conf );
+          $bm_bar_date_short = wp_date( 'd M', strtotime( $bm_day ) );
+          $bm_is_current = ( $bm_day === $bm_last_day );
+          $bm_bar_classes = 'bm-direction-bar';
+          if ( $bm_bar_bias_valid ) $bm_bar_classes .= ' is-' . $bm_bar_bias;
+          if ( $bm_is_current ) $bm_bar_classes .= ' is-current';
+          if ( $bm_is_current ) $bm_bar_classes .= ' is-selected';
         ?>
-          <span class="bm-direction-bar" style="--direction-size:<?php echo esc_attr( max( 8, $bm_conf ) ); ?>" title="<?php echo esc_attr( $bm_day . ': ' . $bm_state_label . ' · ' . round( $bm_conf ) . '%' ); ?>"><span></span></span>
-        <?php endforeach; else : ?>
+          <button
+            type="button"
+            class="<?php echo esc_attr( $bm_bar_classes ); ?>"
+            style="--direction-size:<?php echo esc_attr( max( 8, $bm_conf ) ); ?>"
+            title="<?php echo esc_attr( $bm_day . ': ' . $bm_state_label . ' · ' . round( $bm_conf ) . '%' ); ?>"
+            aria-pressed="<?php echo $bm_is_current ? 'true' : 'false'; ?>"
+            aria-label="<?php echo esc_attr( $bm_bar_date_short . ': ' . $bm_bar_bias_label . ', confidence ' . $bm_bar_confidence_label . ', ' . $bm_state_label ); ?>"
+            data-date="<?php echo esc_attr( $bm_bar_date_short ); ?>"
+            data-bias-label="<?php echo esc_attr( $bm_bar_bias_label ); ?>"
+            data-bias-class="<?php echo esc_attr( $bm_bar_bias_valid ? 'is-' . $bm_bar_bias : '' ); ?>"
+            data-confidence-label="<?php echo esc_attr( $bm_bar_confidence_label ); ?>"
+            data-state-label="<?php echo esc_attr( $bm_state_label ); ?>"
+          ><span></span></button>
+        <?php endforeach; ?>
+        <?php else : ?>
           <p class="bm-direction-empty">Riwayat Direction akan tampil setelah evaluasi pasar resmi tersedia.</p>
         <?php endif; ?>
       </div>
+      <?php if ( $bm_hero_official ) : ?>
+      <div class="bm-direction-dates" aria-hidden="true">
+        <?php foreach ( $bm_hero_official as $bm_day => $bm_record ) : ?>
+          <span><?php echo esc_html( wp_date( 'd', strtotime( $bm_day ) ) ); ?></span>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
       <dl class="bm-direction-meta">
         <div><dt>CONFIDENCE</dt><dd><?php echo esc_html( $bm_confidence_label ); ?></dd></div>
         <div class="bm-direction-meta-driver"><dt>DRIVER</dt><dd><?php echo esc_html( $bm_hero_driver ?: 'Belum tersedia' ); ?></dd></div>
         <div><dt>UPDATED</dt><dd><?php echo esc_html( $bm_hero_updated ? wp_date( 'H:i', $bm_hero_updated ) . ' WIB' : 'Belum tersedia' ); ?></dd></div>
       </dl>
+      <?php if ( $bm_hero_official ) : ?>
+      <dl class="bm-direction-detail" id="bm-direction-detail">
+        <div><dt>DATE</dt><dd id="bm-direction-detail-date"><?php echo esc_html( $bm_hero_default_detail['date'] ); ?></dd></div>
+        <div><dt>DIRECTIONAL BIAS</dt><dd id="bm-direction-detail-bias" class="<?php echo esc_attr( $bm_hero_default_detail['bias_class'] ); ?>"><?php echo esc_html( $bm_hero_default_detail['bias'] ); ?></dd></div>
+        <div><dt>CONFIDENCE</dt><dd id="bm-direction-detail-confidence"><?php echo esc_html( $bm_hero_default_detail['confidence'] ); ?></dd></div>
+        <div><dt>MARKET STATE</dt><dd id="bm-direction-detail-state"><?php echo esc_html( $bm_hero_default_detail['state'] ); ?></dd></div>
+      </dl>
+      <?php endif; ?>
     </article>
   </div>
 </section>
-<?php unset( $bm_hero_intel, $bm_hero_available, $bm_hero_records, $bm_hero_official, $bm_hero_latest, $bm_direction_label, $bm_raw_bias, $bm_bias_valid, $bm_latest_confidence, $bm_latest_strength, $bm_latest_direction, $bm_market_state, $bm_hero_drivers, $bm_hero_driver, $bm_hero_updated, $bm_confidence_label, $bm_record, $bm_date_key, $bm_day, $bm_conf, $bm_state_label ); ?>
+<?php unset(
+  $bm_hero_intel, $bm_hero_available, $bm_hero_records, $bm_hero_official, $bm_hero_latest,
+  $bm_direction_label, $bm_raw_bias, $bm_bias_valid, $bm_latest_confidence, $bm_latest_strength,
+  $bm_latest_direction, $bm_market_state, $bm_hero_drivers, $bm_hero_driver, $bm_hero_updated,
+  $bm_confidence_bucket, $bm_confidence_label, $bm_bias_display_label, $bm_hero_default_detail,
+  $bm_default_day, $bm_default_record, $bm_default_bias, $bm_record, $bm_date_key, $bm_day, $bm_conf,
+  $bm_state_label, $bm_last_day, $bm_bar_bias, $bm_bar_bias_valid, $bm_bar_bias_label,
+  $bm_bar_confidence_label, $bm_bar_date_short, $bm_is_current, $bm_bar_classes
+); ?>

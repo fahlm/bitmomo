@@ -144,4 +144,37 @@
       fetch(config.ajaxUrl, { method: 'POST', body: payload, keepalive: true });
     }
   }, true);
+
+  /* ---------- Homepage 30D direction chart: tap/click detail state ---------- */
+  document.addEventListener('click', function (event) {
+    var bar = event.target && event.target.closest ? event.target.closest('.bm-state-chart .bm-direction-bar') : null;
+    if (!bar) return;
+
+    var chart = bar.closest('.bm-state-chart');
+    if (!chart) return;
+
+    var buttons = chart.querySelectorAll('.bm-direction-bar');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].classList.remove('is-selected');
+      buttons[i].setAttribute('aria-pressed', 'false');
+    }
+    bar.classList.add('is-selected');
+    bar.setAttribute('aria-pressed', 'true');
+
+    var detail = document.getElementById('bm-direction-detail');
+    if (!detail) return;
+
+    var dateEl = document.getElementById('bm-direction-detail-date');
+    var biasEl = document.getElementById('bm-direction-detail-bias');
+    var confEl = document.getElementById('bm-direction-detail-confidence');
+    var stateEl = document.getElementById('bm-direction-detail-state');
+
+    if (dateEl) dateEl.textContent = bar.getAttribute('data-date') || '';
+    if (biasEl) {
+      biasEl.textContent = bar.getAttribute('data-bias-label') || '';
+      biasEl.className = bar.getAttribute('data-bias-class') || '';
+    }
+    if (confEl) confEl.textContent = bar.getAttribute('data-confidence-label') || '';
+    if (stateEl) stateEl.textContent = bar.getAttribute('data-state-label') || '';
+  });
 }());
