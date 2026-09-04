@@ -1379,76 +1379,79 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   .bm-riset-bridge-cta { width: 100%; justify-content: center; }
 }
 
-/* ============= P0 VISUAL CORRECTION: RISET HIERARCHY (2026-09) ============= */
-.bm-riset-head--compact {
-  padding: clamp(28px, 3.5vw, 44px) 20px clamp(20px, 2.5vw, 28px);
-}
-.bm-riset-head--compact .bm-page-title {
-  font-size: clamp(24px, 3vw, 34px);
-  padding-bottom: 8px;
-}
-.bm-riset-head--compact .bm-riset-sub {
-  max-width: 520px;
-  margin: 10px auto 0;
-  font-size: 15px;
-}
+/* ============= P0 VISUAL CORRECTION v2: RISET REDESIGN (2026-09-04) =============
+   Product-brand market-intelligence page, not an editorial magazine: a
+   compact left-aligned hero, a "Latest Research" primary+secondary
+   spotlight, a distinct "Bitmomo AI Lab" brand/R&D module, and a dense
+   "Arsip Riset" list. No gradients on the AI Lab module (flat tint
+   only), no orange anywhere in Riset (orange stays commercial-only).
+   Homepage chart CSS below this block is untouched -- frozen this pass. */
 
-.bm-riset-subnav {
+.bm-riset-hero {
+  text-align: left;
+  padding: clamp(32px, 4vw, 48px) 20px clamp(24px, 3vw, 32px);
+}
+.bm-riset-hero .bm-container { margin: 0 auto; }
+.bm-riset-hero-inner {
   display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 18px;
-  padding: 0;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
 }
-.bm-riset-subnav a {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 14px;
-  border: 1px solid var(--stroke);
-  border-radius: var(--pill);
+.bm-riset-hero-copy { max-width: 560px; }
+.bm-riset-hero .bm-page-title {
+  display: block;
+  max-width: 560px;
+  padding-bottom: 0;
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.22;
+  text-align: left;
+}
+.bm-riset-hero .bm-page-title::after { display: none; }
+.bm-riset-hero .bm-riset-eyebrow { margin: 0 0 10px; }
+.bm-riset-hero .bm-riset-sub { margin: 10px 0 0; max-width: 440px; text-align: left; font-size: 15px; }
+
+.bm-riset-nav {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+  margin: 0;
+}
+.bm-riset-nav a {
+  padding-bottom: 6px;
+  border-bottom: 1px solid transparent;
   color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
+  font: 700 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
-.bm-riset-subnav a:hover,
-.bm-riset-subnav a:focus-visible {
-  border-color: var(--teal);
-  color: var(--teal);
+.bm-riset-nav a:hover,
+.bm-riset-nav a:focus-visible {
+  border-bottom-color: var(--teal);
+  color: var(--ink);
 }
 
-.bm-riset-section { padding: clamp(40px, 5vw, 64px) 0; }
-.bm-riset-section-head { max-width: 640px; margin: 0 0 28px; }
 .bm-riset-section-eyebrow {
   display: block;
-  margin: 0 0 10px;
+  margin: 0 0 20px;
   color: var(--teal);
   font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: .16em;
   text-transform: uppercase;
 }
-.bm-riset-section-head h2 { margin: 0; color: var(--ink); font-size: clamp(22px, 2.4vw, 28px); line-height: 1.3; }
-.bm-riset-section-head p { margin: 10px 0 0; color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 560px; }
 
-/* AI Lab: distinct research-vertical treatment -- teal foundation, cyan
-   secondary accent, no orange (orange stays commercial-only) and no
-   gradients/neon -- a restrained tinted band + cyan eyebrow/heading. */
-.bm-riset-section--ai-lab {
-  border-top: 1px solid var(--stroke);
-  border-bottom: 1px solid var(--stroke);
-  background: linear-gradient(180deg, rgba(56, 189, 248, .05), rgba(56, 189, 248, .015));
-}
-.bm-riset-ai-lab-eyebrow { color: #38bdf8; }
-.bm-riset-ai-lab-head h2 { color: #e6f6ff; }
-
-.bm-riset-grid {
+/* ---- Latest Research: 1 primary spotlight + a compact secondary list ---- */
+.bm-riset-latest { padding: clamp(36px, 4.5vw, 56px) 0; }
+.bm-riset-latest-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 32px;
+  align-items: start;
 }
-.bm-riset-card {
+.bm-riset-primary {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--stroke);
@@ -1456,43 +1459,153 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   background: var(--card-bg);
   overflow: hidden;
 }
-.bm-riset-card-media {
+.bm-riset-primary-media {
   display: block;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 8.5;
+  max-height: 320px;
   overflow: hidden;
   background: #0f2434;
 }
-.bm-riset-card-media img,
-.bm-riset-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.bm-riset-card-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.bm-riset-card-topic {
-  color: var(--teal);
-  font: 800 10px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  letter-spacing: .12em;
+.bm-riset-primary-media img,
+.bm-riset-primary-media .bm-riset-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bm-riset-primary-body { padding: 22px 24px 24px; }
+.bm-riset-primary-body h2 { margin: 0; font-size: clamp(19px, 1.8vw, 23px); line-height: 1.3; }
+.bm-riset-primary-body h2 a { color: var(--ink); }
+.bm-riset-primary-body h2 a:hover { color: var(--teal); }
+.bm-riset-primary-body p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bm-riset-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.bm-riset-meta time { color: #71839f; font-size: 12px; }
+.bm-riset-link { color: var(--teal); font-weight: 700; font-size: 13px; white-space: nowrap; }
+.bm-riset-link:hover { color: var(--teal-hover); }
+
+.bm-riset-secondary-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.bm-riset-secondary-list li { padding: 16px 0; border-top: 1px solid var(--stroke); }
+.bm-riset-secondary-list li:first-child { border-top: 0; padding-top: 0; }
+.bm-riset-secondary-list time { display: block; margin-bottom: 6px; color: #71839f; font-size: 11.5px; letter-spacing: .02em; }
+.bm-riset-secondary-list h3 { margin: 0; font-size: 15.5px; line-height: 1.35; }
+.bm-riset-secondary-list h3 a { color: var(--ink); }
+.bm-riset-secondary-list h3 a:hover { color: var(--teal); }
+.bm-riset-secondary-list p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---- Bitmomo AI Lab: brand/R&D module, not an article grid. Flat cyan
+   tint only -- no gradients, no orange, no illustration-as-identity. ---- */
+.bm-ai-lab-brand {
+  padding: clamp(44px, 5.5vw, 68px) 0;
+  border-top: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--stroke);
+  background: rgba(56, 189, 248, .035);
+}
+.bm-ai-lab-inner { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: start; }
+.bm-ai-lab-kicker { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.bm-ai-lab-kicker span {
+  color: #8ba0bd;
+  font: 800 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
+}
+.bm-ai-lab-kicker strong {
+  color: #38bdf8;
+  font: 800 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
+}
+.bm-ai-lab-intro h2 { margin: 0 0 12px; max-width: 620px; color: #e6f6ff; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.3; }
+.bm-ai-lab-support { margin: 0 0 28px; max-width: 540px; color: var(--muted); font-size: 15px; line-height: 1.65; }
+
+.bm-ai-lab-pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 0; padding: 0; list-style: none; }
+.bm-ai-lab-pillars li { padding-top: 14px; border-top: 2px solid #38bdf8; }
+.bm-ai-lab-pillar-name { display: block; margin: 0 0 8px; color: var(--ink); font-weight: 700; font-size: 14.5px; }
+.bm-ai-lab-pillars p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+.bm-ai-lab-work {
+  padding: 22px 24px;
+  border: 1px solid rgba(56, 189, 248, .25);
+  border-radius: var(--radius);
+  background: rgba(10, 22, 33, .4);
+}
+.bm-ai-lab-work-label {
+  display: block;
+  margin: 0 0 14px;
+  color: #38bdf8;
+  font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
   text-transform: uppercase;
 }
-.bm-riset-card-body h3 { margin: 0; font-size: 17px; line-height: 1.35; }
-.bm-riset-card-body h3 a { color: var(--ink); }
-.bm-riset-card-body h3 a:hover { color: var(--teal); }
-.bm-riset-card-body p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; flex: 1; }
-.bm-riset-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
-.bm-riset-card-meta time { color: #71839f; font-size: 12px; }
-.bm-riset-card-link { color: var(--teal); font-weight: 700; font-size: 13px; white-space: nowrap; }
-.bm-riset-card-link:hover { color: var(--teal-hover); }
+.bm-ai-lab-work-list { margin: 0; padding: 0; list-style: none; }
+.bm-ai-lab-work-list li { padding: 12px 0; border-top: 1px solid rgba(56, 189, 248, .18); }
+.bm-ai-lab-work-list li:first-child { border-top: 0; padding-top: 0; }
+.bm-ai-lab-work-topic {
+  display: block;
+  margin-bottom: 4px;
+  color: #6fb8d6;
+  font: 800 10px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .1em;
+}
+.bm-ai-lab-work-list a { display: block; color: var(--ink); font-size: 14px; font-weight: 600; line-height: 1.4; }
+.bm-ai-lab-work-list a:hover { color: #38bdf8; }
 
-.bm-riset-grid--ai-lab .bm-riset-card { border-color: rgba(56, 189, 248, .28); background: rgba(56, 189, 248, .035); }
-.bm-riset-grid--ai-lab .bm-riset-card-topic { color: #38bdf8; }
+/* ---- Arsip Riset: dense scan list, not another card grid ---- */
+.bm-riset-archive { padding: clamp(36px, 4.5vw, 56px) 0 clamp(48px, 6vw, 72px); }
+.bm-riset-archive-list { margin: 20px 0 0; padding: 0; list-style: none; }
+.bm-riset-archive-list li { padding: 16px 0; border-top: 1px solid var(--stroke); }
+.bm-riset-archive-list li:first-child { border-top: 0; padding-top: 0; }
+.bm-riset-archive-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.bm-riset-archive-row time { flex: 0 0 auto; margin-right: 16px; color: #71839f; font-size: 12px; }
+.bm-riset-archive-row a:not(.bm-riset-archive-arrow) { flex: 1; color: var(--ink); font-weight: 700; font-size: 15px; }
+.bm-riset-archive-row a:not(.bm-riset-archive-arrow):hover { color: var(--teal); }
+.bm-riset-archive-arrow { flex: 0 0 auto; color: var(--teal); font-weight: 700; }
+.bm-riset-archive-list p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 @media (max-width: 1050px) {
-  .bm-riset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bm-riset-latest-grid { grid-template-columns: 1fr; }
+  .bm-ai-lab-inner { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 900px) {
+  .bm-riset-hero-inner { flex-direction: column; align-items: flex-start; gap: 18px; }
 }
 
 @media (max-width: 640px) {
-  .bm-riset-grid { grid-template-columns: 1fr; }
-  .bm-riset-section { padding: 32px 0; }
-  .bm-riset-section-head { margin-bottom: 20px; }
-  .bm-riset-subnav { gap: 8px; }
+  .bm-riset-hero { padding: 28px 20px 22px; }
+  .bm-riset-hero .bm-page-title { font-size: 24px; }
+  .bm-riset-nav { gap: 16px; }
+  .bm-riset-primary-media { aspect-ratio: 16 / 10; max-height: 200px; }
+  .bm-riset-primary-body { padding: 18px 18px 20px; }
+  .bm-riset-latest-grid { gap: 22px; }
+  .bm-ai-lab-pillars { grid-template-columns: 1fr; gap: 16px; }
+  .bm-ai-lab-work { padding: 18px; }
 }
+
+@media (max-width: 480px) {
+  .bm-riset-archive-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .bm-riset-archive-row time { margin-right: 0; }
+}
+
 
 /* ============= P0 VISUAL CORRECTION: HOMEPAGE CHART POLISH (2026-09) =============
    CSS-only. No data/semantics changed: color still = Directional Bias,
