@@ -9,7 +9,7 @@ function performance_check( $label, $condition ) {
 }
 
 $performance = Bitmomo_Pro_Performance::instance();
-stub_insert_post( 10, 'publish', 'Forward brief' );
+stub_insert_post( 10, 'publish', 'Forward brief', Bitmomo_Pro_Briefs::POST_TYPE );
 $fields = array(
 	'market_state' => 'bullish', 'btc_reference_price' => 100,
 	'expected_range_low' => 95, 'expected_range_high' => 110,
@@ -29,7 +29,7 @@ performance_check( 'range intersection is recorded', 'yes' === get_post_meta( 10
 performance_check( 'upper breach is recorded', 'yes' === get_post_meta( 10, '_bitmomo_pro_outcome_breached_high', true ) );
 performance_check( 'frozen bullish state is evaluated', 'correct' === get_post_meta( 10, '_bitmomo_pro_outcome_market_state', true ) );
 
-stub_insert_post( 11, 'publish', 'Historical brief' );
+stub_insert_post( 11, 'publish', 'Historical brief', Bitmomo_Pro_Briefs::POST_TYPE );
 update_post_meta( 11, '_bitmomo_pro_evaluation_status', 'pending' );
 $performance->settle( array( 'close' => 105, 'outcome_window' => array( 'high_24h' => 112, 'low_24h' => 97 ) ) );
 performance_check( 'brief without frozen original is not backfilled or fabricated', '' === get_post_meta( 11, '_bitmomo_pro_evaluated_at', true ) );
