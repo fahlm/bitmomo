@@ -56,7 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
       <ul class="bm-future-list" aria-label="<?php esc_attr_e( 'Fitur yang sedang dikembangkan', 'bitmomo' ); ?>">
         <li><span class="bm-future-badge"><?php esc_html_e( 'SEGERA HADIR', 'bitmomo' ); ?></span><span class="bm-future-name"><?php esc_html_e( '11 AI Analysts', 'bitmomo' ); ?></span></li>
         <li><span class="bm-future-badge"><?php esc_html_e( 'SEGERA HADIR', 'bitmomo' ); ?></span><span class="bm-future-name"><?php esc_html_e( 'Watchtower', 'bitmomo' ); ?></span></li>
-        <li><span class="bm-future-badge"><?php esc_html_e( 'IN DEVELOPMENT', 'bitmomo' ); ?></span><span class="bm-future-name"><?php esc_html_e( 'Telegram Alerts', 'bitmomo' ); ?></span></li>
+        <li><span class="bm-future-badge"><?php esc_html_e( 'SEGERA HADIR', 'bitmomo' ); ?></span><span class="bm-future-name"><?php esc_html_e( 'Telegram Alerts', 'bitmomo' ); ?></span></li>
       </ul>
       <a class="bm-future-link" href="<?php echo esc_url( home_url( '/help/#ai-analysts-watchtower' ) ); ?>"><?php esc_html_e( 'Pelajari lebih lanjut →', 'bitmomo' ); ?></a>
     </div>
