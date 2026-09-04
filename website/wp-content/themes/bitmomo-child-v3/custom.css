@@ -1385,7 +1385,14 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
    spotlight, a distinct "Bitmomo AI Lab" brand/R&D module, and a dense
    "Arsip Riset" list. No gradients on the AI Lab module (flat tint
    only), no orange anywhere in Riset (orange stays commercial-only).
-   Homepage chart CSS below this block is untouched -- frozen this pass. */
+   Homepage chart CSS below this block is untouched -- frozen this pass.
+
+   Final visual correction pass (2026-09-04b): "Latest Research" is now a
+   single compact index list (no giant magazine card); Arsip rows are
+   single clickable anchors with the excerpt removed (this also resolves
+   the old fixed-height + line-clamp text clipping); AI Lab presentation
+   is compressed/de-widgeted with restrained cyan dividers. AI Lab
+   architecture, copy, and pillars are unchanged. */
 
 .bm-riset-hero {
   text-align: left;
@@ -1443,72 +1450,66 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   text-transform: uppercase;
 }
 
-/* ---- Latest Research: 1 primary spotlight + a compact secondary list ---- */
-.bm-riset-latest { padding: clamp(36px, 4.5vw, 56px) 0; }
-.bm-riset-latest-grid {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 32px;
-  align-items: start;
-}
-.bm-riset-primary {
+/* ---- Riset Terbaru: compact research index list, not a magazine
+   spotlight. Title/idea over image; a restrained thumbnail on the
+   latest item only. Whole row is one clickable anchor. ---- */
+.bm-riset-latest { padding: clamp(32px, 4vw, 48px) 0; }
+.bm-riset-index-list {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius);
-  background: var(--card-bg);
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--stroke);
+  max-width: 760px;
 }
-.bm-riset-primary-media {
+.bm-riset-index-item { border-bottom: 1px solid var(--stroke); }
+.bm-riset-index-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 15px 6px;
+  color: inherit;
+  border-radius: 8px;
+}
+.bm-riset-index-row:hover { background: rgba(255, 255, 255, .03); }
+.bm-riset-index-row:hover h3 { color: var(--teal); }
+.bm-riset-index-thumb {
+  flex: 0 0 auto;
   display: block;
-  aspect-ratio: 16 / 8.5;
-  max-height: 320px;
+  width: 84px;
+  height: 60px;
+  border-radius: 8px;
   overflow: hidden;
   background: #0f2434;
 }
-.bm-riset-primary-media img,
-.bm-riset-primary-media .bm-riset-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.bm-riset-primary-body { padding: 22px 24px 24px; }
-.bm-riset-primary-body h2 { margin: 0; font-size: clamp(19px, 1.8vw, 23px); line-height: 1.3; }
-.bm-riset-primary-body h2 a { color: var(--ink); }
-.bm-riset-primary-body h2 a:hover { color: var(--teal); }
-.bm-riset-primary-body p {
-  margin: 10px 0 0;
-  color: var(--muted);
-  font-size: 14.5px;
-  line-height: 1.55;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.bm-riset-index-thumb img,
+.bm-riset-index-thumb-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bm-riset-index-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.bm-riset-index-body time { color: #71839f; font-size: 12px; letter-spacing: .01em; }
+.bm-riset-index-body h3 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.35;
 }
-.bm-riset-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
-.bm-riset-meta time { color: #71839f; font-size: 12px; }
-.bm-riset-link { color: var(--teal); font-weight: 700; font-size: 13px; white-space: nowrap; }
-.bm-riset-link:hover { color: var(--teal-hover); }
-
-.bm-riset-secondary-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
-.bm-riset-secondary-list li { padding: 16px 0; border-top: 1px solid var(--stroke); }
-.bm-riset-secondary-list li:first-child { border-top: 0; padding-top: 0; }
-.bm-riset-secondary-list time { display: block; margin-bottom: 6px; color: #71839f; font-size: 11.5px; letter-spacing: .02em; }
-.bm-riset-secondary-list h3 { margin: 0; font-size: 15.5px; line-height: 1.35; }
-.bm-riset-secondary-list h3 a { color: var(--ink); }
-.bm-riset-secondary-list h3 a:hover { color: var(--teal); }
-.bm-riset-secondary-list p {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.bm-riset-index-item--featured .bm-riset-index-body h3 { font-size: clamp(16.5px, 1.4vw, 18.5px); }
+.bm-riset-index-arrow {
+  flex: 0 0 auto;
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 15px;
+  transition: transform .15s ease;
 }
+.bm-riset-index-row:hover .bm-riset-index-arrow { transform: translateX(3px); }
 
 /* ---- Bitmomo AI Lab: brand/R&D module, not an article grid. Flat cyan
-   tint only -- no gradients, no orange, no illustration-as-identity. ---- */
+   tint only -- no gradients, no orange, no illustration-as-identity.
+   Architecture/copy/pillars unchanged -- density + click affordance +
+   divider weight only. ---- */
 .bm-ai-lab-brand {
-  padding: clamp(44px, 5.5vw, 68px) 0;
+  padding: clamp(40px, 5vw, 60px) 0;
   border-top: 1px solid var(--stroke);
   border-bottom: 1px solid var(--stroke);
   background: rgba(56, 189, 248, .035);
@@ -1534,22 +1535,29 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
 .bm-ai-lab-pillars p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 
 .bm-ai-lab-work {
-  padding: 22px 24px;
-  border: 1px solid rgba(56, 189, 248, .25);
+  padding: 18px 20px;
+  border: 1px solid rgba(56, 189, 248, .18);
   border-radius: var(--radius);
-  background: rgba(10, 22, 33, .4);
+  background: rgba(10, 22, 33, .32);
 }
 .bm-ai-lab-work-label {
   display: block;
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   color: #38bdf8;
   font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: .14em;
   text-transform: uppercase;
 }
 .bm-ai-lab-work-list { margin: 0; padding: 0; list-style: none; }
-.bm-ai-lab-work-list li { padding: 12px 0; border-top: 1px solid rgba(56, 189, 248, .18); }
-.bm-ai-lab-work-list li:first-child { border-top: 0; padding-top: 0; }
+.bm-ai-lab-work-list li {
+  padding: 10px 8px;
+  margin: 0 -8px;
+  border-top: 1px solid rgba(56, 189, 248, .15);
+  border-radius: 6px;
+  transition: background .15s ease;
+}
+.bm-ai-lab-work-list li:first-child { border-top: 0; }
+.bm-ai-lab-work-list li:hover { background: rgba(56, 189, 248, .06); }
 .bm-ai-lab-work-topic {
   display: block;
   margin-bottom: 4px;
@@ -1557,32 +1565,53 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   font: 800 10px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: .1em;
 }
-.bm-ai-lab-work-list a { display: block; color: var(--ink); font-size: 14px; font-weight: 600; line-height: 1.4; }
-.bm-ai-lab-work-list a:hover { color: #38bdf8; }
-
-/* ---- Arsip Riset: dense scan list, not another card grid ---- */
-.bm-riset-archive { padding: clamp(36px, 4.5vw, 56px) 0 clamp(48px, 6vw, 72px); }
-.bm-riset-archive-list { margin: 20px 0 0; padding: 0; list-style: none; }
-.bm-riset-archive-list li { padding: 16px 0; border-top: 1px solid var(--stroke); }
-.bm-riset-archive-list li:first-child { border-top: 0; padding-top: 0; }
-.bm-riset-archive-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
-.bm-riset-archive-row time { flex: 0 0 auto; margin-right: 16px; color: #71839f; font-size: 12px; }
-.bm-riset-archive-row a:not(.bm-riset-archive-arrow) { flex: 1; color: var(--ink); font-weight: 700; font-size: 15px; }
-.bm-riset-archive-row a:not(.bm-riset-archive-arrow):hover { color: var(--teal); }
-.bm-riset-archive-arrow { flex: 0 0 auto; color: var(--teal); font-weight: 700; }
-.bm-riset-archive-list p {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.bm-ai-lab-work-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
 }
+.bm-ai-lab-work-list a::after {
+  content: "\2192";
+  flex: 0 0 auto;
+  color: #38bdf8;
+  font-weight: 700;
+  transition: transform .15s ease;
+}
+.bm-ai-lab-work-list a:hover { color: #38bdf8; }
+.bm-ai-lab-work-list a:hover::after { transform: translateX(3px); }
+
+/* ---- Arsip: dense, compact scan list -- no excerpt, single clickable
+   anchor per row. ---- */
+.bm-riset-archive { padding: clamp(32px, 4vw, 48px) 0 clamp(44px, 5.5vw, 64px); }
+.bm-riset-archive-list {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 720px;
+}
+.bm-riset-archive-list li { border-top: 1px solid var(--stroke); }
+.bm-riset-archive-list li:first-child { border-top: 0; }
+.bm-riset-archive-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 6px;
+  color: inherit;
+  border-radius: 8px;
+}
+.bm-riset-archive-row:hover { background: rgba(255, 255, 255, .03); }
+.bm-riset-archive-row:hover .bm-riset-archive-title { color: var(--teal); }
+.bm-riset-archive-row time { flex: 0 0 auto; color: #71839f; font-size: 12px; }
+.bm-riset-archive-title { flex: 1 1 auto; min-width: 0; color: var(--ink); font-weight: 700; font-size: 15px; }
+.bm-riset-archive-arrow { flex: 0 0 auto; color: var(--teal); font-weight: 700; transition: transform .15s ease; }
+.bm-riset-archive-row:hover .bm-riset-archive-arrow { transform: translateX(3px); }
 
 @media (max-width: 1050px) {
-  .bm-riset-latest-grid { grid-template-columns: 1fr; }
   .bm-ai-lab-inner { grid-template-columns: 1fr; gap: 32px; }
 }
 
@@ -1594,16 +1623,61 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   .bm-riset-hero { padding: 28px 20px 22px; }
   .bm-riset-hero .bm-page-title { font-size: 24px; }
   .bm-riset-nav { gap: 16px; }
-  .bm-riset-primary-media { aspect-ratio: 16 / 10; max-height: 200px; }
-  .bm-riset-primary-body { padding: 18px 18px 20px; }
-  .bm-riset-latest-grid { gap: 22px; }
-  .bm-ai-lab-pillars { grid-template-columns: 1fr; gap: 16px; }
-  .bm-ai-lab-work { padding: 18px; }
+
+  .bm-riset-index-row { gap: 12px; padding: 13px 4px; }
+  .bm-riset-index-thumb { width: 64px; height: 46px; }
+  .bm-riset-index-body h3 { font-size: 14px; }
+  .bm-riset-index-item--featured .bm-riset-index-body h3 { font-size: 15.5px; }
+
+  /* AI Lab: ~20-30% denser on mobile via tighter padding/spacing/type,
+     never cramped. Architecture/copy/pillars unchanged. */
+  .bm-ai-lab-brand { padding: clamp(26px, 7vw, 36px) 0; }
+  .bm-ai-lab-kicker { margin: 0 0 10px; }
+  .bm-ai-lab-intro h2 { font-size: clamp(20px, 5.5vw, 23px); margin: 0 0 8px; }
+  .bm-ai-lab-support { margin: 0 0 18px; font-size: 14px; line-height: 1.55; }
+  .bm-ai-lab-pillars { grid-template-columns: 1fr; gap: 12px; }
+  .bm-ai-lab-pillars li {
+    padding-top: 10px;
+    border-top: 0;
+    position: relative;
+  }
+  .bm-ai-lab-pillars li::before {
+    content: "";
+    display: block;
+    width: 26px;
+    height: 1px;
+    margin-bottom: 9px;
+    background: rgba(56, 189, 248, .45);
+  }
+  .bm-ai-lab-pillar-name { font-size: 13.5px; margin-bottom: 5px; }
+  .bm-ai-lab-pillars p { font-size: 12.5px; line-height: 1.45; }
+  .bm-ai-lab-work { padding: 14px 16px; margin-top: 18px; }
+  .bm-ai-lab-work-label { margin: 0 0 10px; }
+  .bm-ai-lab-work-list li { padding: 9px 6px; margin: 0 -6px; }
+  .bm-ai-lab-work-list a { font-size: 13.5px; }
+  .bm-ai-lab-work-topic { font-size: 9.5px; margin-bottom: 3px; }
+
+  .bm-riset-archive-row { padding: 12px 4px; }
 }
 
 @media (max-width: 480px) {
-  .bm-riset-archive-row { flex-direction: column; align-items: flex-start; gap: 4px; }
-  .bm-riset-archive-row time { margin-right: 0; }
+  /* Arsip row: arrow must stay pinned to the title block, never its own
+     standalone line -- switch to a 2-col grid (date spans full width,
+     title+arrow share the second row) so the arrow position is independent
+     of how many lines the title text wraps to. */
+  .bm-riset-archive-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "date  date"
+      "title arrow";
+    column-gap: 12px;
+    row-gap: 3px;
+    align-items: center;
+  }
+  .bm-riset-archive-row time { grid-area: date; }
+  .bm-riset-archive-title { grid-area: title; }
+  .bm-riset-archive-arrow { grid-area: arrow; align-self: center; }
 }
 
 
