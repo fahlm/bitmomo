@@ -37,6 +37,18 @@ foreach ($bitmomo_modules as $bitmomo_module) {
 }
 unset($bitmomo_module, $bitmomo_module_path, $bitmomo_modules);
 
+/**
+ * Suppress Hello Elementor's redundant page title only on the dedicated
+ * BTC Intelligence page. The shortcode renderer supplies the canonical H1.
+ *
+ * @param bool $show_title Whether the parent theme should render its title.
+ * @return bool
+ */
+function bitmomo_filter_btc_intelligence_page_title($show_title) {
+    return is_page(['btc-intelligence', 2602]) ? false : $show_title;
+}
+add_filter('hello_elementor_page_title', 'bitmomo_filter_btc_intelligence_page_title');
+
 
 class Bitmomo_Performance_Optimizer {
 
