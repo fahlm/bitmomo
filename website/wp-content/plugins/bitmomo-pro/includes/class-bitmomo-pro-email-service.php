@@ -94,7 +94,7 @@ class Bitmomo_Pro_Email_Service {
 		$lines[] = wp_lostpassword_url();
 		$lines[] = '';
 
-		$lines[] = __( 'Ini adalah bagian dari Bitmomo Pro Founding Beta — sebagian proses (termasuk aktivasi dan pembatalan) masih dilakukan manual selama kami menyempurnakan produk di masa beta.', 'bitmomo-pro' );
+		$lines[] = __( 'Ini adalah bagian dari Bitmomo Pro Founding Membership — sebagian proses (termasuk aktivasi dan pembatalan) masih dilakukan manual selama kami menyempurnakan produk di masa beta.', 'bitmomo-pro' );
 		$lines[] = '';
 		/* translators: %s: support email address */
 		$lines[] = sprintf( __( 'Butuh bantuan atau ingin membatalkan perpanjangan? Balas email ini atau hubungi %s. Akses tetap aktif sampai akhir periode yang sudah dibayar.', 'bitmomo-pro' ), $support_email );

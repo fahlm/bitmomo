@@ -554,7 +554,7 @@ class Bitmomo_Pro_Whitelist {
 
 					<p class="bm-wl__error" id="bm-wl-error" hidden></p>
 
-					<button type="submit" class="bm-wl__submit"><?php esc_html_e( 'GABUNG WHITELIST', 'bitmomo-pro' ); ?></button>
+					<button type="submit" class="bm-wl__submit"><?php esc_html_e( 'GABUNG FOUNDING WHITELIST', 'bitmomo-pro' ); ?></button>
 				</form>
 
 				<p class="bm-wl__note"><?php esc_html_e( 'Masuk whitelist tidak menjamin tempat. Membership aktif setelah pembayaran berhasil.', 'bitmomo-pro' ); ?></p>
