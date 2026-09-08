@@ -50,7 +50,7 @@ class Bitmomo_Pro_Sales {
 	 * else needs to change -- render_accountability() already branches on
 	 * it) once /btc-intelligence/ is live.
 	 */
-	const METHODOLOGY_PAGE_LIVE = false;
+	const METHODOLOGY_PAGE_LIVE = true;
 
 	private static $instance = null;
 
@@ -65,6 +65,18 @@ class Bitmomo_Pro_Sales {
 		add_shortcode( 'bitmomo_pro_sales', array( $this, 'render_sales' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+		add_filter( 'rank_math/frontend/description', array( $this, 'filter_meta_description' ) );
+		add_action( 'wp_head', array( $this, 'render_meta_description' ) );
+	}
+
+	public function filter_meta_description( $description ) {
+		return is_page( 'pro' ) ? __( 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario yang relevan, dan apa yang dapat mengubah thesis pasar.', 'bitmomo-pro' ) : $description;
+	}
+
+	public function render_meta_description() {
+		if ( is_page( 'pro' ) && ! defined( 'RANK_MATH_VERSION' ) ) {
+			echo '<meta name="description" content="' . esc_attr( $this->filter_meta_description( '' ) ) . '" />' . "\n";
+		}
 	}
 
 	public function add_body_class( $classes ) {

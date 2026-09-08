@@ -124,6 +124,32 @@ class Bitmomo_Btc_Intelligence_Page {
 	private function __construct() {
 		add_shortcode( 'bitmomo_btc_intelligence', array( $this, 'render_page' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
+		add_action( 'template_redirect', array( $this, 'prevent_snapshot_page_cache' ) );
+		add_filter( 'rank_math/frontend/description', array( $this, 'filter_meta_description' ) );
+		add_action( 'wp_head', array( $this, 'render_meta_description' ) );
+	}
+
+	public function filter_meta_description( $description ) {
+		return is_page( 'btc-intelligence' ) ? __( 'BTC Daily Intelligence Bitmomo: kondisi pasar, bias, confidence, faktor utama, riwayat, dan evaluasi yang transparan.', 'bitmomo-btc-intelligence' ) : $description;
+	}
+
+	public function render_meta_description() {
+		if ( is_page( 'btc-intelligence' ) && ! defined( 'RANK_MATH_VERSION' ) ) {
+			echo '<meta name="description" content="' . esc_attr( $this->filter_meta_description( '' ) ) . '" />' . "\n";
+		}
+	}
+
+	/** Freshness is evaluated by the backend on each request, not frozen in HTML cache. */
+	public function prevent_snapshot_page_cache() {
+		global $post;
+		if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) ) {
+			return;
+		}
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+		nocache_headers();
+		do_action( 'litespeed_control_set_nocache', 'Canonical intelligence freshness' );
 	}
 
 	public function maybe_enqueue_assets() {
@@ -284,6 +310,29 @@ class Bitmomo_Btc_Intelligence_Page {
 	 * an honest "belum ada hasil" note, never a fabricated 0% or N/A
 	 * number, matching the "unknown stays unknown" rule.
 	 */
+	private function regime_display_label( $value ) {
+		$labels = array( 'accumulation' => 'Akumulasi', 'expansion' => 'Ekspansi', 'distribution' => 'Distribusi', 'capitulation' => 'Kapitulasi', 'transition' => 'Transisi' );
+		return is_string( $value ) && isset( $labels[ $value ] ) ? $labels[ $value ] : __( 'Belum tersedia', 'bitmomo-btc-intelligence' );
+	}
+
+	/** Display backend freshness verbatim; never classify age in this renderer. */
+	private function render_freshness( $snapshot ) {
+		$freshness = is_array( $snapshot['freshness'] ?? null ) ? $snapshot['freshness'] : array();
+		$iso = (string) ( $freshness['timestamp_iso'] ?? '' );
+		// Require an explicit offset: never interpret a naive date in server timezone.
+		$timestamp = preg_match( '/(?:Z|[+-]\d{2}:\d{2})$/', $iso ) ? strtotime( $iso ) : false;
+		if ( ! $timestamp ) {
+			esc_html_e( 'Waktu pembaruan belum tersedia.', 'bitmomo-btc-intelligence' );
+			return;
+		}
+		$exact = ( new DateTimeImmutable( '@' . $timestamp ) )->setTimezone( new DateTimeZone( 'Asia/Jakarta' ) )->format( 'd M Y, H:i' ) . ' WIB';
+		$label = trim( (string) ( $freshness['label'] ?? '' ) );
+		if ( '' === $label ) {
+			$label = __( 'Diperbarui', 'bitmomo-btc-intelligence' ) . ' ' . $exact;
+		}
+		echo '<time datetime="' . esc_attr( $iso ) . '" title="' . esc_attr( $exact ) . '">' . esc_html( $label ) . '</time>';
+	}
+
 	private function render_public_metric( $label, $metric, $value_field = 'accuracy_pct', $suffix = '%' ) {
 		$metric = is_array( $metric ) ? $metric : array();
 		$n      = isset( $metric['n'] ) ? (int) $metric['n'] : 0;
@@ -393,9 +442,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		$raw_strength = $available ? sanitize_key( (string) $snapshot['direction_strength'] ) : '';
 		$resolved     = $available && isset( $bias_labels[ $raw_bias ] ) && isset( $strength_zone_index[ $raw_strength ] );
 
-		$regime_label = ( $resolved && class_exists( 'Bitmomo_Regime_Taxonomy' ) && ! empty( $snapshot['market_state'] ) )
-			? Bitmomo_Regime_Taxonomy::regime_label_id( $snapshot['market_state'] )
-			: __( 'Belum tersedia', 'bitmomo-btc-intelligence' );
+		$regime_label = $this->regime_display_label( $resolved ? ( $snapshot['market_state'] ?? null ) : null );
 
 		// Confidence: displayed only via the adapter's own 'high'/
 		// 'medium'/'low' classification (confidence_label() in the
@@ -416,9 +463,6 @@ class Bitmomo_Btc_Intelligence_Page {
 			? array_values( array_filter( array_map( 'strval', $snapshot['key_drivers'] ) ) )
 			: array();
 
-		$updated = ( $resolved && ! empty( $snapshot['freshness']['timestamp_iso'] ) )
-			? strtotime( (string) $snapshot['freshness']['timestamp_iso'] )
-			: false;
 		?>
 		<section class="bm-bi__section bm-bi__section--peak bm-bi__snapshot">
 			<p class="bm-bi__eyebrow">KONDISI BTC SAAT INI</p>
@@ -505,15 +549,7 @@ class Bitmomo_Btc_Intelligence_Page {
 
 				<p class="bm-bi__freshness">
 					<?php
-					if ( $updated ) {
-						printf(
-							/* translators: %s: human-readable local date/time of the snapshot */
-							esc_html__( 'Data terkini — diperbarui %s.', 'bitmomo-btc-intelligence' ),
-							esc_html( date_i18n( 'd M Y, H:i', $updated ) )
-						);
-					} else {
-						esc_html_e( 'Waktu pembaruan belum tersedia.', 'bitmomo-btc-intelligence' );
-					}
+					$this->render_freshness( $snapshot );
 					?>
 				</p>
 			<?php endif; ?>
@@ -705,7 +741,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<ul class="bm-bi__breakdown-labels">
 				<li><?php esc_html_e( 'Akurasi berdasarkan Bias (Bullish / Neutral / Bearish)', 'bitmomo-btc-intelligence' ); ?></li>
 				<li><?php esc_html_e( 'Akurasi berdasarkan sesi (Morning vs US Session)', 'bitmomo-btc-intelligence' ); ?></li>
-				<li><?php esc_html_e( 'Akurasi berdasarkan Market State / regime', 'bitmomo-btc-intelligence' ); ?></li>
+				<li><?php esc_html_e( 'Return dan volatilitas berdasarkan Market State / regime', 'bitmomo-btc-intelligence' ); ?></li>
 			</ul>
 			<?php if ( ! empty( $versions ) ) : ?>
 				<p class="bm-bi__editorial-note"><?php esc_html_e( 'Breakdown per sesi (Morning vs US Session) belum tersedia secara publik -- breakdown per Market State/regime ada di bagian "Performa Berdasarkan Regime" di bawah.', 'bitmomo-btc-intelligence' ); ?></p>
@@ -815,7 +851,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__regime-performance">
 			<h2 class="bm-bi__section-title">PERFORMA BERDASARKAN REGIME</h2>
-			<p><?php esc_html_e( 'Performa Bitmomo Intelligence bisa berbeda di tiap regime pasar. Bagian ini memecah akurasi per kategori Market State.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Return dan volatilitas setelah pencatatan, dipisahkan berdasarkan Market State. Ini bukan akurasi prediksi arah.', 'bitmomo-btc-intelligence' ); ?></p>
 			<?php if ( empty( $versions ) ) : ?>
 				<?php $this->render_adapter_pending_boundary( $this->adapter_evaluation_summary_available() ); ?>
 			<?php else : ?>
@@ -844,10 +880,9 @@ class Bitmomo_Btc_Intelligence_Page {
 							<?php
 							$regimes = is_array( $regimes ) ? $regimes : array();
 							foreach ( $regimes as $regime_key => $metric ) {
-								$label = ( class_exists( 'Bitmomo_Regime_Taxonomy' ) && 'unknown' !== $regime_key )
-									? Bitmomo_Regime_Taxonomy::regime_label_id( sanitize_key( (string) $regime_key ) )
-									: __( 'Tidak diketahui', 'bitmomo-btc-intelligence' );
-								$this->render_public_metric( $label, $metric );
+								$label = $this->regime_display_label( $regime_key );
+								$this->render_public_metric( $label . ' · Return rata-rata', $metric, 'average_forward_return_pct' );
+								$this->render_public_metric( $label . ' · Volatilitas rata-rata', $metric, 'average_forward_volatility_pct' );
 							}
 							?>
 						</div>
@@ -865,9 +900,6 @@ class Bitmomo_Btc_Intelligence_Page {
 	 * ================================================================== */
 	private function render_data_quality() {
 		$snapshot = $this->adapter_snapshot();
-		$updated  = ( is_array( $snapshot ) && ! empty( $snapshot['freshness']['timestamp_iso'] ) )
-			? strtotime( (string) $snapshot['freshness']['timestamp_iso'] )
-			: false;
 		$summary      = $this->adapter_evaluation_summary();
 		$data_quality = is_array( $summary['data_quality'] ?? null ) ? $summary['data_quality'] : array();
 		?>
@@ -876,14 +908,10 @@ class Bitmomo_Btc_Intelligence_Page {
 			<p><?php esc_html_e( 'Intelligence hanya sebaik data di baliknya. Bagian ini menunjukkan seberapa segar data saat kamu melihatnya — bukan klaim real-time yang belum benar-benar live.', 'bitmomo-btc-intelligence' ); ?></p>
 			<div class="bm-bi__quality-row">
 				<div class="bm-bi__metric">
-					<span class="bm-bi__kicker"><?php esc_html_e( 'Data terkini', 'bitmomo-btc-intelligence' ); ?></span>
+					<span class="bm-bi__kicker"><?php esc_html_e( 'Pembaruan intelligence', 'bitmomo-btc-intelligence' ); ?></span>
 					<strong>
 						<?php
-						if ( $updated ) {
-							echo esc_html( date_i18n( 'd M Y, H:i', $updated ) );
-						} else {
-							esc_html_e( 'Belum tersedia', 'bitmomo-btc-intelligence' );
-						}
+						$this->render_freshness( $snapshot );
 						?>
 					</strong>
 				</div>

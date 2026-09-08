@@ -152,7 +152,7 @@ function make_snapshot( $bias, $strength, $confidence_value, $confidence_label, 
 		'directional_bias'     => $bias,
 		'direction_strength'   => $strength,
 		'confidence'           => array( 'value' => $confidence_value, 'label' => $confidence_label ),
-		'freshness'            => array( 'label' => '', 'timestamp' => time(), 'timestamp_iso' => date( 'c' ) ),
+		'freshness'            => array( 'label' => 'Tertunda · diperbarui 8 jam lalu', 'timestamp' => 1788394207, 'timestamp_iso' => '2026-09-03T00:10:07+00:00' ),
 		'key_drivers'          => array( 'Funding rate elevated', 'Spot volume rising' ),
 		'versions'             => array( 'engine' => '1.2.4', 'classifier' => 'classifier-v1' ),
 	), $extra );
@@ -197,7 +197,9 @@ $html_wired = render_fresh( $reflection );
 check( 'ADAPTER SNAPSHOT CONSUMED: BTC reference price rendered from snapshot()', false !== strpos( $html_wired, '65,000' ) || false !== strpos( $html_wired, '65.000' ) );
 check( 'ADAPTER SNAPSHOT CONSUMED: Market State rendered from snapshot()', false !== strpos( $html_wired, 'Ekspansi' ) );
 check( 'ADAPTER SNAPSHOT CONSUMED: Faktor Utama rendered from snapshot() key_drivers', false !== strpos( $html_wired, 'Funding rate elevated' ) );
-check( 'ADAPTER SNAPSHOT CONSUMED: freshness rendered, not "belum tersedia"', false !== strpos( $html_wired, 'Data terkini' ) );
+check( 'ADAPTER SNAPSHOT CONSUMED: backend freshness label rendered verbatim', false !== strpos( $html_wired, 'Tertunda · diperbarui 8 jam lalu' ) );
+check( 'FRESHNESS: exact timestamp converted to WIB', false !== strpos( $html_wired, '03 Sep 2026, 07:10 WIB' ) );
+check( 'FRESHNESS: never falsely claims current data', false === strpos( $html_wired, 'Data terkini' ) );
 check( 'Hero intelligence visualization (spectrum) renders', false !== strpos( $html_wired, 'bm-bi__spectrum-track' ) && false !== strpos( $html_wired, 'MARKET DIRECTION SPECTRUM' ) );
 check( 'Spectrum shows all five canonical zone labels', false !== strpos( $html_wired, 'Strong Bear' ) && false !== strpos( $html_wired, 'Strong Bull' ) && false !== strpos( $html_wired, '>Neutral<' ) );
 
@@ -313,8 +315,8 @@ Bitmomo_Public_Intelligence_Adapter::$evaluation_summary_fixture = array(
 		'transition_frequency_pct'  => 10.9,
 		'versions'                  => array(
 			'classifier-v1' => array(
-				'expansion'    => array( 'n' => 20, 'accuracy_pct' => 70.0, 'sample_status' => 'EARLY SAMPLE' ),
-				'accumulation' => array( 'n' => 15, 'accuracy_pct' => 60.0, 'sample_status' => 'EARLY SAMPLE' ),
+				'expansion'    => array( 'n' => 20, 'average_forward_return_pct' => -1.25, 'average_forward_volatility_pct' => 2.75, 'sample_status' => 'EARLY SAMPLE' ),
+				'accumulation' => array( 'n' => 15, 'average_forward_return_pct' => 0.0, 'average_forward_volatility_pct' => null, 'sample_status' => 'EARLY SAMPLE' ),
 			),
 		),
 	),
@@ -331,7 +333,7 @@ check( 'EVALUATION SECTIONS USE BACKEND SAMPLE STATUS: backend n is shown verbat
 check( 'Confidence Evaluation renders the backend\'s own dynamic bucket ranges, not a hardcoded Rendah/Sedang/Tinggi split', false !== strpos( $html_eval, '0–49' ) && false !== strpos( $html_eval, '50–69' ) && false !== strpos( $html_eval, '70–100' ) );
 check( 'Expected Range Performance renders the real range_hit_pct', false !== strpos( $html_eval, '72.5%' ) );
 check( 'Expected Range Performance never shows a live Rp range number even once real evaluation data exists', 0 === preg_match( '/Rp[\d.,]+\s*[-–]\s*Rp[\d.,]+/', $html_eval ) );
-check( 'Regime Performance renders per-regime accuracy for both Ekspansi and Akumulasi', false !== strpos( $html_eval, '70.0%' ) && false !== strpos( $html_eval, '60.0%' ) );
+check( 'Regime Performance renders genuine return and volatility, not accuracy', false !== strpos( $html_eval, '-1.3%' ) && false !== strpos( $html_eval, '2.8%' ) && false !== strpos( $html_eval, 'Akumulasi · Return rata-rata' ) );
 check( 'Regime Performance renders the backend\'s real append-only/transition summary line', false !== strpos( $html_eval, '55' ) && false !== strpos( $html_eval, '10.9' ) );
 check( 'Data Quality renders the real stale/blocked/missing/settlement figures', false !== strpos( $html_eval, '2.5%' ) && false !== strpos( $html_eval, '1.2%' ) && false !== strpos( $html_eval, '95.0%' ) );
 // Deliberately excludes 'axes'/'axis' (this page's own legitimate product
@@ -391,6 +393,20 @@ check( 'NO FAKE HISTORY: adapter_history() accessor returns exactly what the ada
  * regression back to that bug is caught even without loading the whole
  * theme.
  * ====================================================================== */
+$label_method = $reflection->getMethod( 'regime_display_label' );
+$label_method->setAccessible( true );
+foreach ( array( 'accumulation' => 'Akumulasi', 'expansion' => 'Ekspansi', 'distribution' => 'Distribusi', 'capitulation' => 'Kapitulasi', 'transition' => 'Transisi', 'unknown' => 'Belum tersedia', 'future_enum' => 'Belum tersedia', '' => 'Belum tersedia' ) as $raw => $expected ) {
+	check( 'REGIME safe display: ' . $raw, $expected === $label_method->invoke( $fresh_for_history, $raw ) );
+}
+check( 'REGIME null is unavailable, never Neutral', 'Belum tersedia' === $label_method->invoke( $fresh_for_history, null ) );
+$freshness_method = $reflection->getMethod( 'render_freshness' );
+$freshness_method->setAccessible( true );
+foreach ( array( null, array(), array( 'freshness' => array( 'timestamp_iso' => '2026-09-03T00:10:07' ) ), array( 'freshness' => array( 'timestamp_iso' => 'invalid' ) ) ) as $missing ) {
+	ob_start();
+	$freshness_method->invoke( $fresh_for_history, $missing );
+	$missing_output = ob_get_clean();
+	check( 'FRESHNESS missing/invalid/naive timestamp stays unknown', 'Waktu pembaruan belum tersedia.' === $missing_output );
+}
 $bm_direction_label = static function ( $strength, $bias ) {
 	$labels = array(
 		'strong_bullish' => 'Strong Bullish',

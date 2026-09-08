@@ -49,6 +49,16 @@ function bitmomo_filter_btc_intelligence_page_title($show_title) {
 }
 add_filter('hello_elementor_page_title', 'bitmomo_filter_btc_intelligence_page_title');
 
+function bitmomo_filter_pro_page_title($show_title) {
+    return is_page(['pro', 2496]) ? false : $show_title;
+}
+add_filter('hello_elementor_page_title', 'bitmomo_filter_pro_page_title');
+
+function bitmomo_filter_help_page_title($show_title) {
+    return is_page(['help', 2548]) ? false : $show_title;
+}
+add_filter('hello_elementor_page_title', 'bitmomo_filter_help_page_title');
+
 
 class Bitmomo_Performance_Optimizer {
 

@@ -104,7 +104,7 @@ class Bitmomo_Regime_Shortcodes {
 					<?php
 					printf(
 						/* translators: 1: number of days of history collected so far, 2: target number of days (30) */
-						esc_html__( 'Showing %1$d of %2$d days — history is still accumulating.', 'bitmomo-regime' ),
+						esc_html__( 'Menampilkan %1$d dari %2$d hari — riwayat masih terus bertambah.', 'bitmomo-regime' ),
 						(int) $projection['available_days'],
 						(int) $projection['target_days']
 					);

@@ -222,7 +222,7 @@ class Bitmomo_Pro_Help_Center {
 		<div class="bm-help" id="bm-help-content">
 			<header class="bm-help__hero">
 				<p class="bm-help__eyebrow">BITMOMO HELP CENTER</p>
-				<p class="bm-help__title">Temukan jawaban tentang Bitmomo</p>
+				<h1 class="bm-help__title">Temukan jawaban tentang Bitmomo</h1>
 				<p>Pelajari cara kerja BTC Daily Intelligence, Market State, Bitmomo Pro, Founding Membership, dan metodologi kami.</p>
 			</header>
 			<nav class="bm-help__nav" aria-label="Kategori Help Center">
@@ -237,7 +237,7 @@ class Bitmomo_Pro_Help_Center {
 			<?php endforeach; ?>
 			<nav class="bm-help__related" aria-label="Tautan terkait">
 				<a href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Bitmomo Pro</a>
-				<a href="<?php echo esc_url( home_url( '/#bm-btc-title' ) ); ?>">BTC Daily Intelligence</a>
+				<a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">BTC Daily Intelligence</a>
 				<a href="<?php echo esc_url( home_url( '/category/tren-ai/' ) ); ?>">AI Lab</a>
 				<a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>">Research</a>
 				<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>">Privacy</a>
