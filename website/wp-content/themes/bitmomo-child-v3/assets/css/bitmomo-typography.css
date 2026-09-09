@@ -49,6 +49,29 @@
  * on it.
  */
 
+/* ---------------------------------------------------------------- @font-face
+ * Declared here rather than left to the Google Fonts stylesheet enqueued in
+ * trait-bitmomo-assets.php, because that stylesheet does not survive to real
+ * visitors: LiteSpeed combines the page's CSS into one file and drops the
+ * cross-origin Google link, so an anonymous visitor got the family NAME with
+ * no font behind it and silently fell back to the OS default — exactly the
+ * defect this layer exists to fix. Logged-in users were served un-combined
+ * CSS and saw Archivo, which is why it looked correct while it was not.
+ *
+ * Keeping the @font-face rules in our own stylesheet means they get combined
+ * like any other CSS and always reach the page. Archivo is a variable font:
+ * all five weights resolve to the same two files, so two blocks with a
+ * 400-800 range replace the ten Google emits — and the site's nonstandard
+ * 650 weight now renders properly instead of snapping to the nearest static
+ * cut. Latin and Latin-Extended only; the site is Indonesian and English.
+ *
+ * Self-hosting these two woff2 files inside the theme is still the intended
+ * end state — it removes the third-party request entirely, which matters for
+ * this audience — and needs only these two URLs swapped for local ones.
+ */
+@font-face{font-family:'Archivo';font-style:normal;font-weight:400 800;font-stretch:100%;font-display:swap;src:url(https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxKsv4Rn.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:400 800;font-stretch:100%;font-display:swap;src:url(https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLyTOxKsv4RnUPU.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+
 :root {
 	/* Archivo: a grotesque with enough character to read as a chosen face
 	   rather than a default, and it carries every weight already in use
