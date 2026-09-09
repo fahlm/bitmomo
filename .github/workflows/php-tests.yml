@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - "website/wp-content/plugins/**"
+      - "website/wp-content/themes/bitmomo-child-v3/**"
       - ".github/workflows/php-tests.yml"
   push:
     branches:
       - "**"
     paths:
       - "website/wp-content/plugins/**"
+      - "website/wp-content/themes/bitmomo-child-v3/**"
       - ".github/workflows/php-tests.yml"
   workflow_dispatch:
 
