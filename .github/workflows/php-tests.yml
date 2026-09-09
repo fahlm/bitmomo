@@ -1,0 +1,93 @@
+name: PHP test suites
+
+on:
+  pull_request:
+    paths:
+      - "website/wp-content/plugins/**"
+      - ".github/workflows/php-tests.yml"
+  push:
+    branches:
+      - "**"
+    paths:
+      - "website/wp-content/plugins/**"
+      - ".github/workflows/php-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: php-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php-tests:
+    name: Discover and run PHP suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      MINIMUM_SUITES: "17"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Show PHP version
+        run: php --version
+
+      - name: Lint plugin PHP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' php_files < <(find website/wp-content/plugins -type f -name '*.php' -print0 | sort -z)
+
+          if [ "${#php_files[@]}" -eq 0 ]; then
+            echo "::error::No PHP files found under website/wp-content/plugins"
+            exit 1
+          fi
+
+          for file in "${php_files[@]}"; do
+            php -l "${file}"
+          done
+
+      - name: Discover PHP test suites
+        id: discover
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' suites < <(find website/wp-content/plugins -type f -path '*/tests/test-*.php' -print0 | sort -z)
+          count="${#suites[@]}"
+
+          {
+            echo "Discovered ${count} PHP test suite(s):"
+            for suite in "${suites[@]}"; do
+              echo "- ${suite}"
+            done
+          } | tee /tmp/php-test-suites.txt
+
+          if [ "${count}" -lt "${MINIMUM_SUITES}" ]; then
+            echo "::error::Expected at least ${MINIMUM_SUITES} PHP test suites, found ${count}"
+            exit 1
+          fi
+
+          {
+            echo 'suites<<EOF'
+            cat /tmp/php-test-suites.txt
+            echo 'EOF'
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Run discovered PHP test suites
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' suites < <(find website/wp-content/plugins -type f -path '*/tests/test-*.php' -print0 | sort -z)
+
+          for suite in "${suites[@]}"; do
+            echo "::group::${suite}"
+            php "${suite}"
+            echo "::endgroup::"
+          done
