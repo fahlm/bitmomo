@@ -505,6 +505,31 @@
 	margin: 4px 0 10px !important;
 }
 
+/* ---------- D3: sample-size framing (SAMPEL BELUM CUKUP) ----------
+ * n is often 1-5 while metrics below show precise percentages; this
+ * flag is the PRIMARY context for that group's metrics -- it must read
+ * before the numbers, not as a footnote after them. Backend already
+ * decides the status string; this only styles it as a clear, teal
+ * (system-accent, not warning-red) flag with a quiet supporting note. */
+.bm-bi__sample-flag {
+	display: inline-block;
+	font-size: 0.7rem !important;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var( --bmi-teal ) !important;
+	background: rgba( 45, 212, 191, 0.1 );
+	border-radius: 6px;
+	padding: 3px 8px;
+	margin: 0 0 6px !important;
+}
+.bm-bi__sample-flag-note {
+	font-size: 0.82rem !important;
+	color: var( --bmi-text-muted ) !important;
+	line-height: 1.4;
+	margin: 0 0 12px !important;
+}
+
 .bm-bi__metric-row {
 	display: grid;
 	grid-template-columns: repeat( 2, 1fr );
@@ -518,9 +543,10 @@
 	border-top: 1px solid var( --bmi-border );
 }
 .bm-bi__metric-stat strong {
-	font-size: 1rem;
+	font-size: 0.92rem;
+	font-weight: 600;
 	font-family: var( --bmi-mono );
-	color: var( --bmi-text );
+	color: var( --bmi-text-muted );
 }
 .bm-bi__metric-meta {
 	font-size: 0.72rem;

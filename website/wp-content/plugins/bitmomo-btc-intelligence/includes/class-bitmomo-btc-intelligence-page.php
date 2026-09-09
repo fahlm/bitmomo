@@ -126,17 +126,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
 		add_action( 'template_redirect', array( $this, 'prevent_snapshot_page_cache' ) );
 		add_filter( 'rank_math/frontend/description', array( $this, 'filter_meta_description' ) );
-		add_action( 'wp_head', array( $this, 'render_meta_description' ) );
-	}
-
-	public function filter_meta_description( $description ) {
-		return is_page( 'btc-intelligence' ) ? __( 'BTC Daily Intelligence Bitmomo: kondisi pasar, bias, confidence, faktor utama, riwayat, dan evaluasi yang transparan.', 'bitmomo-btc-intelligence' ) : $description;
-	}
-
-	public function render_meta_description() {
-		if ( is_page( 'btc-intelligence' ) && ! defined( 'RANK_MATH_VERSION' ) ) {
-			echo '<meta name="description" content="' . esc_attr( $this->filter_meta_description( '' ) ) . '" />' . "\n";
-		}
+		add_action( 'wp_head', array( $this, 'render_meta_description' ), 2 );
 	}
 
 	/** Freshness is evaluated by the backend on each request, not frozen in HTML cache. */
@@ -303,6 +293,36 @@ class Bitmomo_Btc_Intelligence_Page {
 	}
 
 	/**
+	 * D2: humanizes a raw internal engine/classifier version id (e.g.
+	 * "BINANCE-PUBLIC-FIVE-AXIS-V2", "REGIME-V1", "UNKNOWN-CLASSIFIER")
+	 * into a customer-safe label ("Framework v2", "Regime v1"). Display
+	 * only -- $versions stays keyed and grouped by the raw backend id
+	 * everywhere else in this class, so different engine/methodology
+	 * versions are never merged; this only changes what a human reads.
+	 * Never fabricates a version history: an id with no recognizable
+	 * "-Vn" suffix falls back to the generic "Framework" label instead
+	 * of guessing a number.
+	 */
+	private function public_version_label( $raw_version ) {
+		$raw_version = trim( (string) $raw_version );
+		if ( '' === $raw_version ) {
+			return __( 'Classifier belum diketahui', 'bitmomo-btc-intelligence' );
+		}
+		$parts  = preg_split( '/[\/_|,]+/', $raw_version );
+		$labels = array();
+		foreach ( (array) $parts as $part ) {
+			$part = trim( (string) $part );
+			if ( preg_match( '/-?V(\d+)$/i', $part, $m ) ) {
+				$labels[] = ( false !== stripos( $part, 'REGIME' ) )
+					? sprintf( __( 'Regime v%s', 'bitmomo-btc-intelligence' ), $m[1] )
+					: sprintf( __( 'Framework v%s', 'bitmomo-btc-intelligence' ), $m[1] );
+			}
+		}
+		$labels = array_unique( $labels );
+		return $labels ? implode( ' · ', $labels ) : __( 'Framework', 'bitmomo-btc-intelligence' );
+	}
+
+	/**
 	 * Renders one evaluation_summary() metric row honestly: the headline
 	 * figure (only the exact field named by $value_field -- never a
 	 * recomputed derivative of other fields), the backend's own `n` and
@@ -371,10 +391,10 @@ class Bitmomo_Btc_Intelligence_Page {
 		echo '<div class="bm-bi">';
 		$this->render_hero();
 		$this->render_current_snapshot();
+		$this->render_historical_regime();
 		$this->render_how_it_works();
 		$this->render_five_axes();
 		$this->render_how_to_read();
-		$this->render_historical_regime();
 		$this->render_track_record();
 		$this->render_confidence_evaluation();
 		$this->render_expected_range_performance();
@@ -657,8 +677,7 @@ class Bitmomo_Btc_Intelligence_Page {
 				}
 				?>
 			</div>
-			<p class="bm-bi__history-note"><?php esc_html_e( 'Riwayat terus bertambah — makin panjang, makin bisa dipercaya evaluasi performa di bawah.', 'bitmomo-btc-intelligence' ); ?></p>
-		</section>
+			</section>
 		<?php
 	}
 
@@ -705,7 +724,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__track-record">
 			<h2 class="bm-bi__section-title">TRACK RECORD</h2>
-			<p><?php esc_html_e( 'Performa Bitmomo Intelligence dipecah berdasarkan tiga kategori berikut, dibandingkan dengan apa yang benar-benar terjadi.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Performa Bitmomo dievaluasi terhadap hasil aktual dan dipisahkan berdasarkan versi metodologi.', 'bitmomo-btc-intelligence' ); ?></p>
 			<?php if ( empty( $versions ) ) : ?>
 				<?php
 				$this->render_adapter_pending_boundary(
@@ -719,7 +738,14 @@ class Bitmomo_Btc_Intelligence_Page {
 				<?php foreach ( $versions as $version => $metrics ) : ?>
 					<div class="bm-bi__version-group">
 						<?php if ( count( $versions ) > 1 ) : ?>
-							<p class="bm-bi__version-tag"><?php echo esc_html( sprintf( __( 'Versi: %s', 'bitmomo-btc-intelligence' ), (string) $version ) ); ?></p>
+							<p class="bm-bi__version-tag"><?php echo esc_html( sprintf( __( 'Versi: %s', 'bitmomo-btc-intelligence' ), $this->public_version_label( (string) $version ) ) ); ?></p>
+						<?php endif; ?>
+						<?php
+						$bm_bi_all_status = isset( $metrics['all']['sample_status'] ) ? (string) $metrics['all']['sample_status'] : '';
+						if ( '' !== $bm_bi_all_status && 'ADEQUATE' !== $bm_bi_all_status ) :
+						?>
+							<p class="bm-bi__sample-flag"><?php echo esc_html( strtoupper( $this->public_sample_status_label( $bm_bi_all_status ) ) ); ?></p>
+							<p class="bm-bi__sample-flag-note"><?php esc_html_e( 'Hasil awal ditampilkan apa adanya, tetapi jumlah observasi belum cukup untuk kesimpulan statistik.', 'bitmomo-btc-intelligence' ); ?></p>
 						<?php endif; ?>
 						<div class="bm-bi__metric-row">
 							<?php
@@ -779,7 +805,7 @@ class Bitmomo_Btc_Intelligence_Page {
 				<?php foreach ( $versions as $version => $metrics ) : ?>
 					<div class="bm-bi__version-group">
 						<?php if ( count( $versions ) > 1 ) : ?>
-							<p class="bm-bi__version-tag"><?php echo esc_html( sprintf( __( 'Versi: %s', 'bitmomo-btc-intelligence' ), (string) $version ) ); ?></p>
+							<p class="bm-bi__version-tag"><?php echo esc_html( sprintf( __( 'Versi: %s', 'bitmomo-btc-intelligence' ), $this->public_version_label( (string) $version ) ) ); ?></p>
 						<?php endif; ?>
 						<div class="bm-bi__confidence-buckets">
 							<?php
@@ -823,7 +849,7 @@ class Bitmomo_Btc_Intelligence_Page {
 				<?php foreach ( $versions as $version => $metric ) : ?>
 					<div class="bm-bi__version-group">
 						<?php if ( count( $versions ) > 1 ) : ?>
-							<p class="bm-bi__version-tag"><?php echo esc_html( sprintf( __( 'Versi: %s', 'bitmomo-btc-intelligence' ), (string) $version ) ); ?></p>
+							<p class="bm-bi__version-tag"><?php echo esc_html( sprintf( __( 'Versi: %s', 'bitmomo-btc-intelligence' ), $this->public_version_label( (string) $version ) ) ); ?></p>
 						<?php endif; ?>
 						<div class="bm-bi__metric-row">
 							<?php
@@ -944,8 +970,9 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section--editorial bm-bi__section--quiet bm-bi__methodology">
 			<h2 class="bm-bi__section-title">METODOLOGI &amp; AKUNTABILITAS</h2>
-			<p><?php esc_html_e( 'Lima axis intelligence yang deterministik. Tanpa spekulasi ke arah yang belum bisa dijelaskan. Setiap hasil dicatat sebelum outcome diketahui, lalu dievaluasi terhadap apa yang benar-benar terjadi — bukan dinilai ulang setelah fakta agar terlihat lebih baik.', 'bitmomo-btc-intelligence' ); ?></p>
-			<p><?php esc_html_e( 'Halaman ini menunjukkan hasilnya apa adanya — termasuk saat meleset, dan termasuk ketika sampelnya masih terlalu kecil untuk disimpulkan.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Lima dimensi pasar dianalisis dengan framework yang konsisten. Setiap insight dicatat sebelum hasil aktual diketahui, lalu dievaluasi terhadap hasil tersebut.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Hasil ditampilkan apa adanya, termasuk saat sampel masih terlalu kecil untuk disimpulkan.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__version-note"><?php esc_html_e( 'Versi metodologi yang berbeda tidak digabungkan.', 'bitmomo-btc-intelligence' ); ?></p>
 		</section>
 		<?php
 	}
@@ -957,14 +984,28 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section class="bm-bi__section bm-bi__section--peak bm-bi__pro-cta">
 			<p class="bm-bi__eyebrow">BITMOMO PRO</p>
-			<h2 class="bm-bi__section-title bm-bi__section-title--climax"><?php esc_html_e( 'Ketahui apa yang perlu diperhatikan berikutnya.', 'bitmomo-btc-intelligence' ); ?></h2>
-			<p><?php esc_html_e( 'Bitmomo Pro membantu kamu memahami skenario pasar yang paling relevan, kondisi yang dapat mengubah thesis, dan perubahan penting yang layak mendapat perhatian.', 'bitmomo-btc-intelligence' ); ?></p>
-			<p class="bm-bi__signature"><?php esc_html_e( 'Lebih sedikit waktu memantau noise. Lebih banyak fokus pada perubahan yang benar-benar penting.', 'bitmomo-btc-intelligence' ); ?></p>
+			<h2 class="bm-bi__section-title bm-bi__section-title--climax"><?php esc_html_e( 'Ketahui apa yang perlu dipantau berikutnya.', 'bitmomo-btc-intelligence' ); ?></h2>
+			<p><?php esc_html_e( 'Skenario, perubahan thesis, dan kondisi yang dapat mengubah pandangan pasar.', 'bitmomo-btc-intelligence' ); ?></p>
 			<div class="bm-bi__pro-cta-actions">
 				<a class="bm-bi__cta-primary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo-btc-intelligence' ); ?></a>
-				<a class="bm-bi__cta-secondary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Lihat cara kerja Bitmomo Pro', 'bitmomo-btc-intelligence' ); ?></a>
+				<a class="bm-bi__cta-secondary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Lihat cara kerja', 'bitmomo-btc-intelligence' ); ?></a>
 			</div>
 		</section>
 		<?php
+	}
+
+	public function filter_meta_description( $description ) {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) ) {
+			return __( 'BTC Intelligence Bitmomo: kondisi BTC terkini, Market State, Directional Bias, dan Track Record akurasi berbasis data historis, diperbarui dua kali sehari.', 'bitmomo-btc-intelligence' );
+		}
+		return $description;
+	}
+
+	public function render_meta_description() {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) && ! defined( 'RANK_MATH_VERSION' ) ) {
+			echo '<meta name="description" content="' . esc_attr__( 'BTC Intelligence Bitmomo: kondisi BTC terkini, Market State, Directional Bias, dan Track Record akurasi berbasis data historis, diperbarui dua kali sehari.', 'bitmomo-btc-intelligence' ) . '" />' . "\n";
+		}
 	}
 }
