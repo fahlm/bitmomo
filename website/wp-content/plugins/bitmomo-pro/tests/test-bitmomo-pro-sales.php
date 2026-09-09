@@ -150,8 +150,21 @@ check( 'ECONOMICS: "Tahap saat ini: Founding Whitelist" present', false !== strp
 // ==========================================================================
 
 check( 'ACCOUNTABILITY: no invented accuracy percentage (e.g. "XX% akurat")', 0 === preg_match( '/\d+%\s*akurat/i', $html ) );
-check( 'ACCOUNTABILITY: does NOT link to /btc-intelligence/ while METHODOLOGY_PAGE_LIVE is false (avoids a public 404)', false === strpos( $html, 'href="' . home_url( '/btc-intelligence/' ) . '"' ) );
-check( 'ACCOUNTABILITY: shows the deferred plain-text note instead', false !== strpos( $html, 'Metodologi & track record lengkap segera tersedia sebagai halaman terpisah.' ) );
+// The methodology page moved from "not built yet" to live during staging.
+// These two assertions are therefore expressed against the CONSTANT rather
+// than against one hardcoded state, so the guard they exist for -- never
+// ship a link to a page that 404s -- keeps holding in BOTH configurations
+// instead of going red the moment the page goes live.
+$bm_methodology_link = 'href="' . home_url( '/btc-intelligence/' ) . '"';
+$bm_methodology_note = 'Metodologi & track record lengkap segera tersedia sebagai halaman terpisah.';
+
+if ( Bitmomo_Pro_Sales::METHODOLOGY_PAGE_LIVE ) {
+	check( 'ACCOUNTABILITY: links to /btc-intelligence/ once METHODOLOGY_PAGE_LIVE is true', false !== strpos( $html, $bm_methodology_link ) );
+	check( 'ACCOUNTABILITY: drops the deferred plain-text note once the page is live', false === strpos( $html, $bm_methodology_note ) );
+} else {
+	check( 'ACCOUNTABILITY: does NOT link to /btc-intelligence/ while METHODOLOGY_PAGE_LIVE is false (avoids a public 404)', false === strpos( $html, $bm_methodology_link ) );
+	check( 'ACCOUNTABILITY: shows the deferred plain-text note instead', false !== strpos( $html, $bm_methodology_note ) );
+}
 
 // ==========================================================================
 // FAQ -> the 10-item buying-objection selection renders with SEGERA HADIR
