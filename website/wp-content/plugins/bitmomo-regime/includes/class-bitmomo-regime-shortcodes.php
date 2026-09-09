@@ -92,109 +92,63 @@ class Bitmomo_Regime_Shortcodes {
 		return $this->style() . trim( (string) ob_get_clean() );
 	}
 
+	/**
+	 * The `days` attribute is still accepted so existing shortcode calls do
+	 * not change meaning, but it is deliberately not read here: the chart is
+	 * built client-side by bitmomo-frontend.js from the full projection, so
+	 * how many days are drawn is that script's decision, not this one's.
+	 */
 	public function render_history( $atts ) {
-		$atts = shortcode_atts(
-			array( 'days' => Bitmomo_Regime_History::DEFAULT_DAYS ),
-			$atts,
-			'bitmomo_market_regime_history'
-		);
+		unset( $atts );
 
 		$records = Bitmomo_Regime_State_Store::instance()->get_recent( Bitmomo_Regime_History::TARGET_DAYS );
-
-		// Two projections from ONE fetch: the chart renders the requested
-		// window (`days`), the "Lihat semua riwayat" modal renders every
-		// official day actually collected. Neither ever pads missing days --
-		// Bitmomo_Regime_History::for_frontend() is the single guarantee of
-		// that and is not bypassed here.
-		$projection = Bitmomo_Regime_History::for_frontend( $records, (int) $atts['days'] );
-		$full       = Bitmomo_Regime_History::for_frontend( $records, Bitmomo_Regime_History::TARGET_DAYS );
+		$full    = Bitmomo_Regime_History::for_frontend( $records, Bitmomo_Regime_History::TARGET_DAYS );
 
 		$this->history_instance++;
 		$modal_id   = 'bmreg-history-modal-' . $this->history_instance;
 		$heading_id = $modal_id . '-title';
 
-		$chart_days = $projection['days'];
-		$count      = count( $chart_days );
-		$axis_step  = $count > 0 ? (int) max( 1, ceil( $count / 4 ) ) : 1;
-		$latest     = $count > 0 ? $chart_days[ $count - 1 ] : null;
-
 		ob_start();
 		?>
 		<div class="bmreg-history">
-			<?php if ( $projection['available_days'] < $projection['target_days'] ) : ?>
+			<?php if ( $full['available_days'] < $full['target_days'] ) : ?>
 				<p class="bmreg-history-note">
 					<?php
 					printf(
 						/* translators: 1: number of days of history collected so far, 2: target number of days (30) */
 						esc_html__( 'Menampilkan %1$d dari %2$d hari — riwayat masih terus bertambah.', 'bitmomo-regime' ),
-						(int) $projection['available_days'],
-						(int) $projection['target_days']
+						(int) $full['available_days'],
+						(int) $full['target_days']
 					);
 					?>
 				</p>
 			<?php endif; ?>
 
-			<?php if ( empty( $chart_days ) ) : ?>
+			<?php if ( empty( $full['days'] ) ) : ?>
 				<div class="bmreg-card bmreg-empty"><?php esc_html_e( 'No regime history yet.', 'bitmomo-regime' ); ?></div>
 			<?php else : ?>
-				<div class="bmreg-history-chart">
-					<div class="bmreg-history-bars">
-						<?php foreach ( $chart_days as $index => $day ) : ?>
-							<?php
-							$bias       = self::bias_slug( $day['directional_bias'] );
-							$confidence = self::clamp_confidence( $day['regime_confidence'] );
-							// Bar height encodes Market State Certainty (regime
-							// confidence), never directional conviction -- the two
-							// are separate axes and must not be conflated. Floor of
-							// 4% keeps a 0-confidence day visible and clickable
-							// instead of collapsing it to nothing.
-							$height  = max( 4, $confidence );
-							$detail  = wp_json_encode(
-								array(
-									'date'              => self::display_date( $day['date'] ),
-									'regime_label_id'   => (string) $day['regime_label_id'],
-									'directional_bias'  => (string) $day['directional_bias'],
-									'regime_confidence' => $confidence,
-								)
-							);
-							?>
-							<button type="button"
-								class="bmreg-history-bar bmreg-bias-<?php echo esc_attr( $bias ); ?>"
-								data-bmreg-detail="<?php echo esc_attr( $detail ); ?>"
-								aria-label="<?php
-									echo esc_attr(
-										sprintf(
-											/* translators: 1: date, 2: regime label, 3: directional bias, 4: confidence percentage */
-											__( '%1$s — %2$s, bias %3$s, certainty %4$d%%', 'bitmomo-regime' ),
-											(string) $day['date'],
-											(string) $day['regime_label_id'],
-											(string) $day['directional_bias'],
-											$confidence
-										)
-									);
-								?>">
-								<span style="--bmreg-bar-height:<?php echo esc_attr( $height ); ?>%"></span>
-							</button>
-						<?php endforeach; ?>
-					</div>
+				<?php
+				/*
+				 * The chart is NOT rendered here. bitmomo-frontend.js reads this
+				 * JSON block and builds the combined bar + price-line chart
+				 * (.bmreg-trend-*) client-side. Emitting bars from PHP as well
+				 * would duplicate a working component; dropping this block would
+				 * silently kill it. It stays exactly as the theme expects it.
+				 */
+				?>
+				<script type="application/json" class="bmreg-history-data"><?php
+					echo wp_json_encode( $full['days'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+				?></script>
 
-					<div class="bmreg-history-axis" aria-hidden="true">
-						<?php foreach ( $chart_days as $index => $day ) : ?>
-							<span><?php
-								echo esc_html(
-									( 0 === $index % $axis_step || $index === $count - 1 )
-										? self::axis_label( $day['date'] )
-										: ''
-								);
-							?></span>
-						<?php endforeach; ?>
-					</div>
-
-					<p class="bmreg-history-selected" role="status" aria-live="polite"><?php
-						echo esc_html( $latest ? self::detail_line( $latest ) : '' );
-					?></p>
-				</div>
-
+				<?php
+				/*
+				 * The modal is the part that genuinely had no markup. Its CSS
+				 * (.bmreg-history-modal, .bmreg-history-dialog,
+				 * .bmreg-history-pro-link) and its delegated click handler both
+				 * ship on every page load from style() and history_script()
+				 * below, and until now acted on nothing.
+				 */
+				?>
 				<button type="button"
 					class="bmreg-history-open"
 					aria-controls="<?php echo esc_attr( $modal_id ); ?>"
@@ -239,18 +193,15 @@ class Bitmomo_Regime_Shortcodes {
 		<?php
 		$markup = trim( (string) ob_get_clean() );
 
-		// The handler is only worth shipping when there is markup for it to
-		// act on; an empty-history page gets the card and nothing else.
-		$script = empty( $chart_days ) ? '' : $this->history_script();
+		$script = empty( $full['days'] ) ? '' : $this->history_script();
 
 		return $this->style() . $script . $markup;
 	}
 
 	/**
-	 * The four presentation helpers below exist so the chart, the axis, the
-	 * live "selected day" line and the modal list all describe a day the
-	 * SAME way. Any of them formatting a day independently is how the two
-	 * surfaces silently drift apart.
+	 * Presentation helpers for the modal list. Kept as named methods rather
+	 * than inlined so the bias vocabulary and the clamping rule have one
+	 * definition, matching Bitmomo_Regime_Taxonomy rather than restating it.
 	 */
 	private static function bias_slug( $bias ) {
 		$bias = strtolower( (string) $bias );
@@ -271,20 +222,7 @@ class Bitmomo_Regime_Shortcodes {
 		return $timestamp ? gmdate( 'd M Y', $timestamp ) : (string) $date;
 	}
 
-	private static function axis_label( $date ) {
-		$timestamp = strtotime( (string) $date );
-		return $timestamp ? gmdate( 'd', $timestamp ) : '';
-	}
 
-	private static function detail_line( array $day ) {
-		return sprintf(
-			'%s · %s · %s · %d%%',
-			self::display_date( $day['date'] ),
-			(string) $day['regime_label_id'],
-			self::bias_label( $day['directional_bias'] ),
-			self::clamp_confidence( $day['regime_confidence'] )
-		);
-	}
 
 	/**
 	 * Recovered verbatim from the live staging server, which held the only
@@ -318,6 +256,11 @@ class Bitmomo_Regime_Shortcodes {
 			. '.bmreg-meta{display:flex;gap:.75em;margin-top:.4em;flex-wrap:wrap;}'
 			. '.bmreg-asof{margin-top:.4em;font-size:.85em;opacity:.6;}'
 			. '.bmreg-history-note{font-size:.85em;opacity:.7;}'
+			// The .bmreg-history-chart/-bars/-bar/-axis/-selected rules below
+			// style a server-rendered chart that no longer exists: the live
+			// chart is .bmreg-trend-*, built by bitmomo-frontend.js. They are
+			// recovered verbatim and left in place rather than deleted on
+			// inference — removing them is a separate, reviewable decision.
 			. '.bmreg-history-chart{border:1px solid #263b58;border-radius:12px;padding:18px 16px 12px;margin:16px 0 12px;background:rgba(16,30,49,.65);}'
 			. '.bmreg-history-bars{height:150px;display:flex;align-items:flex-end;gap:8px;border-bottom:1px solid #263b58;padding:0 2px;}'
 			. '.bmreg-history-bar{position:relative;flex:1 1 0;min-width:0;height:100%;padding:0;border:0;background:transparent;cursor:pointer;}'
