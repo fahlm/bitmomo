@@ -109,4 +109,3 @@ $bitmomo_updated = ! empty( $bitmomo_btc['timestamp_iso'] ) ? strtotime( $bitmom
   </div>
 </section>
 <?php unset( $bitmomo_btc, $bitmomo_status, $bitmomo_available, $bitmomo_key_drivers, $bitmomo_regime, $bitmomo_regime_label, $bitmomo_raw_bias, $bitmomo_bias_valid, $bitmomo_bias_labels, $bitmomo_confidence, $bitmomo_confidence_label, $bitmomo_confidence_segments, $bitmomo_updated, $bitmomo_segment, $bitmomo_driver ); ?>
-

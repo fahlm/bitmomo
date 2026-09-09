@@ -125,7 +125,7 @@ if ( $bm_hero_official ) {
     <div class="bm-hero-copy">
       <p class="bm-hero-eyebrow"><span aria-hidden="true"></span>BTC INTELLIGENCE PLATFORM</p>
       <h1 class="bm-hero-title" id="bm-home-title">BTC Intelligence untuk pasar yang berubah cepat.</h1>
-      <p class="bm-hero-sub">Pahami kondisi BTC sekarang, skenario berikutnya, dan apa yang dapat mengubah thesis pasar — tanpa menyatukan puluhan indikator sendiri.</p>
+      <p class="bm-hero-sub">Pahami kondisi BTC sekarang, skenario berikutnya, dan apa yang dapat mengubah thesis pasar — tanpa harus menganalisis semuanya sendiri.</p>
       <div class="bm-hero-actions">
         <a class="bm-hero-btn" href="#bm-btc-title">Lihat BTC Intelligence</a>
         <a class="bm-hero-btn bm-hero-btn--secondary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Pelajari Bitmomo Pro</a>
@@ -194,7 +194,6 @@ if ( $bm_hero_official ) {
       <?php endif; ?>
       <dl class="bm-direction-meta">
         <div><dt>CONFIDENCE</dt><dd><?php echo esc_html( $bm_confidence_label ); ?></dd></div>
-        <div class="bm-direction-meta-driver"><dt>DRIVER</dt><dd><?php echo esc_html( $bm_hero_driver ?: 'Belum tersedia' ); ?></dd></div>
         <div><dt>UPDATED</dt><dd><?php echo esc_html( $bm_hero_updated ? wp_date( 'H:i', $bm_hero_updated ) . ' WIB' : 'Belum tersedia' ); ?></dd></div>
       </dl>
       <?php if ( $bm_hero_official ) : ?>

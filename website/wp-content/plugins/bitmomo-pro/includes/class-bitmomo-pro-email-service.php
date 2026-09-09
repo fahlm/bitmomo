@@ -448,6 +448,18 @@ class Bitmomo_Pro_Email_Service {
 		$cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
 		$batch = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25;
 
+		$has_whatsapp      = (bool) get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_WHATSAPP_NUMBER, true );
+		$whatsapp_link_url = '';
+		if ( ! $has_whatsapp ) {
+			$whatsapp_link_url = add_query_arg(
+				array(
+					'bm_wl_post'  => $post_id,
+					'bm_wl_token' => wp_create_nonce( Bitmomo_Pro_Whitelist::whatsapp_record_action( $post_id ) ),
+				),
+				home_url( '/pro/' )
+			);
+		}
+
 		// Body follows the locked template verbatim: opening (same headline
 		// as the widget's success state) -> FOUNDING MEMBERSHIP recap ->
 		// one notification line covering BOTH channels (no has_whatsapp
@@ -472,18 +484,12 @@ class Bitmomo_Pro_Email_Service {
 		$lines[] = sprintf( __( 'Batch pertama: %d anggota', 'bitmomo-pro' ), $batch );
 		$lines[] = '';
 		$lines[] = __( 'Kami akan mengirim pemberitahuan melalui email ini dan, jika kamu menambahkan nomor WhatsApp, melalui WhatsApp saat akses dibuka.', 'bitmomo-pro' );
-		if ( ! get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_WHATSAPP_NUMBER, true ) && method_exists( 'Bitmomo_Pro_Whitelist', 'whatsapp_record_action' ) ) {
-			$whatsapp_url = add_query_arg(
-				array(
-					'bm_wl_post'  => (int) $post_id,
-					'bm_wl_token' => wp_create_nonce( Bitmomo_Pro_Whitelist::whatsapp_record_action( $post_id ) ),
-				),
-				home_url( '/pro/' )
-			);
-			$lines[] = __( 'Tambahkan nomor WhatsApp (opsional):', 'bitmomo-pro' );
-			$lines[] = esc_url_raw( $whatsapp_url );
-		}
 		$lines[] = '';
+		if ( ! $has_whatsapp && $whatsapp_link_url ) {
+			$lines[] = __( 'Mau juga dapat pemberitahuan lewat WhatsApp? Tambahkan nomormu di sini:', 'bitmomo-pro' );
+			$lines[] = esc_url_raw( $whatsapp_link_url );
+			$lines[] = '';
+		}
 		$lines[] = __( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' );
 		$lines[] = '';
 		$lines[] = __( 'Email dan WhatsApp hanya digunakan untuk pemberitahuan. Pendaftaran dan pembayaran hanya dilakukan melalui:', 'bitmomo-pro' );

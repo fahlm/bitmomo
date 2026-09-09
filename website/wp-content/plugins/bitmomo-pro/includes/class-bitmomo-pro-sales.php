@@ -66,16 +66,19 @@ class Bitmomo_Pro_Sales {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
 		add_filter( 'rank_math/frontend/description', array( $this, 'filter_meta_description' ) );
-		add_action( 'wp_head', array( $this, 'render_meta_description' ) );
+		add_action( 'wp_head', array( $this, 'render_meta_description' ), 2 );
 	}
 
 	public function filter_meta_description( $description ) {
-		return is_page( 'pro' ) ? __( 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario yang relevan, dan apa yang dapat mengubah thesis pasar.', 'bitmomo-pro' ) : $description;
+		if ( is_page( array( 'pro', 2496 ) ) ) {
+			return __( 'Bitmomo Pro: decision-support layer untuk BTC dengan Decision View harian, Expected Range, dan Scenario Map. 11 AI Analysts & Watchtower segera hadir.', 'bitmomo-pro' );
+		}
+		return $description;
 	}
 
 	public function render_meta_description() {
-		if ( is_page( 'pro' ) && ! defined( 'RANK_MATH_VERSION' ) ) {
-			echo '<meta name="description" content="' . esc_attr( $this->filter_meta_description( '' ) ) . '" />' . "\n";
+		if ( is_page( array( 'pro', 2496 ) ) && ! defined( 'RANK_MATH_VERSION' ) ) {
+			echo '<meta name="description" content="' . esc_attr__( 'Bitmomo Pro: decision-support layer untuk BTC dengan Decision View harian, Expected Range, dan Scenario Map. 11 AI Analysts & Watchtower segera hadir.', 'bitmomo-pro' ) . '" />' . "\n";
 		}
 	}
 
@@ -374,7 +377,7 @@ class Bitmomo_Pro_Sales {
 	 */
 	private function render_cta() {
 		$url = bitmomo_pro_get_checkout_url();
-		echo '<div class="bm-pro-sales__climax-block bm-pro-sales__climax-divider bm-pro-sales__cta-section">';
+		echo '<div class="bm-pro-sales__climax-block bm-pro-sales__climax-divider bm-pro-sales__cta-section" id="founding-membership">';
 		if ( empty( $url ) ) {
 			if ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
 				Bitmomo_Pro_Whitelist::instance()->render_widget( array( 'source' => 'pro_page' ) );
