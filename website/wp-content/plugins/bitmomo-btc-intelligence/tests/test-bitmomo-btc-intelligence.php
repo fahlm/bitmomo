@@ -90,7 +90,11 @@ foreach ( array( 'Direction', 'Volatility', 'Carry', 'Structure', 'Crowding' ) a
 }
 check( 'Five Axes explicitly denies being 5 independent AI agents', false !== strpos( $html, 'bukan lima "agent" AI yang independen' ) );
 
-check( 'Pro CTA headline matches locked copy', false !== strpos( $html, 'Ketahui apa yang perlu diperhatikan berikutnya.' ) );
+// The locked copy moved. The live page has said "perlu dipantau" since the
+// staging copy pass; this assertion still named the pre-pass wording and
+// nothing caught it, because no CI ran this suite. Updated to the copy
+// that is actually approved and shipping.
+check( 'Pro CTA headline matches locked copy', false !== strpos( $html, 'Ketahui apa yang perlu dipantau berikutnya.' ) );
 check( 'Pro CTA links to /pro/', false !== strpos( $html, 'href="http://example.test/pro/"' ) );
 check( 'Pro CTA headline does not lead with Expected Range/Scenario Map as the feature', 0 === preg_match( '/perhatikan berikutnya\.<\/h2>\s*<p>[^<]*Expected Range/i', $html ) );
 
