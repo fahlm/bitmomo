@@ -1,0 +1,158 @@
+/**
+ * Bitmomo — typography and control-surface layer.
+ *
+ * WHY THIS FILE IS SEPARATE FROM custom.css
+ * -----------------------------------------
+ * custom.css on the staging server is ~34 KB ahead of every branch in this
+ * repository and is the most drifted file in the project. Rewriting it from
+ * source would destroy work that exists nowhere else. This layer is therefore
+ * purely additive: it loads AFTER custom.css and overrides only what it names.
+ * Deleting this file returns the site to exactly its previous appearance.
+ *
+ * WHAT IT FIXES — three defects, each measured on the live staging site
+ * --------------------------------------------------------------------
+ *  1. The site loaded no typeface at all. The stack was
+ *     `ui-sans-serif, system-ui, -apple-system, Inter, sans-serif` — Inter
+ *     sits AFTER system-ui, so it never applied and every visitor saw their
+ *     own OS default (San Francisco, Segoe, Roboto). Nothing else makes a
+ *     product read as unfinished the way having no type voice does.
+ *
+ *  2. The primary conversion button rendered underlined. The parent theme
+ *     (hello-elementor/theme.css) sets `.page-content a { text-decoration:
+ *     underline }` at specificity (0,1,1); custom.css's `a { text-decoration:
+ *     none }` is (0,0,1) and loses. Four links on /pro/ were affected,
+ *     "GABUNG FOUNDING WHITELIST" among them.
+ *
+ *  3. Section headings did not read as headings: h2 rendered at 20.8px
+ *     against 15.2px body copy. The page has no type scale at all — 32
+ *     distinct font sizes, produced by 87 rules each choosing its own rem
+ *     value — but rewriting those 87 rules is a large blind change for
+ *     little visible gain, so this layer sets only the roles that carry the
+ *     page's hierarchy.
+ *
+ * SCOPING RULE THAT MATTERS
+ * -------------------------
+ * The body-copy rule is `p:not([class])`, not `p`. An earlier draft used the
+ * bare selector and silently blew the uppercase eyebrows, whitelist notes and
+ * disclaimer up to 16px, because those are classed <p> elements too. Every
+ * rule below was verified against the live page: unclassed prose moves from
+ * 15.2px to 16px and nothing else changes size.
+ *
+ * WHAT IT DELIBERATELY DOES NOT TOUCH
+ * -----------------------------------
+ * No colour is redefined — the approved teal/orange system is untouched. No
+ * layout, spacing, information architecture or copy. Border radii (8 distinct
+ * values) and font weights (6, including a nonstandard 650) are also
+ * inconsistent, and the remaining off-scale sizes are still off-scale; both
+ * are visual judgements that should be made while looking at the page rather
+ * than inferred from computed styles, so they are left for a pass with eyes
+ * on it.
+ */
+
+:root {
+	/* Archivo: a grotesque with enough character to read as a chosen face
+	   rather than a default, and it carries every weight already in use
+	   (400-800), so nothing on the page shifts weight. */
+	--bm-font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system,
+		"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+	--bm-fs-body:    1rem;      /* 16px — reading size */
+	--bm-fs-body-sm: 0.9375rem; /* 15px — form controls */
+	--bm-fs-h3:      1.25rem;   /* 20px */
+	--bm-fs-h2:      1.75rem;   /* 28px */
+}
+
+/* ---------------------------------------------------------------- 1. face */
+/* Form controls do not inherit font-family, so they are named explicitly —
+   otherwise the whitelist inputs stay on the OS default while everything
+   around them changes, which reads as a broken form. */
+body,
+button,
+input,
+select,
+textarea,
+.bm-pro-sales,
+.bm-wl,
+.bmreg-card,
+.bmreg-history {
+	font-family: var(--bm-font-sans);
+}
+
+/* Figures line up in columns across the stat row, the pricing block and the
+   regime history. Tabular numerals are what stop them shifting as values
+   change. No size change, so nothing reflows. */
+.bm-wl__price,
+.bm-pro-sales__hero-facts strong,
+.bm-pro-sales__price,
+.bmreg-confidence,
+.bmreg-history-modal-list b {
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum" 1;
+}
+
+/* ---------------------------------------------------- 2. control surfaces */
+/* The parent theme underlines every link inside .page-content. That is right
+   for prose links and wrong for anything shaped like a button, so the
+   underline is removed by role rather than switched off wholesale — inline
+   links in body copy keep it, which is correct typography. The .page-content
+   prefix is what beats the parent rule's specificity. */
+a.bm-pro-sales__cta,
+.page-content a.bm-pro-sales__cta,
+a.bm-wl__submit,
+.page-content a.bm-wl__submit,
+a.bmreg-history-open,
+.page-content a.bmreg-history-open,
+.page-content .bm-nav a,
+.page-content .bm-brand-logo {
+	text-decoration: none;
+}
+
+a.bm-pro-sales__cta:hover,
+a.bm-pro-sales__cta:focus-visible {
+	text-decoration: none;
+	filter: brightness(1.06);
+}
+
+/* --------------------------------------------------------- 3. hierarchy */
+.bm-pro-sales h1 {
+	font-size: clamp(2rem, 3.6vw, 2.75rem);
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+	text-wrap: balance;
+}
+
+/* Section headings are marked up with a class as well as an h2, and
+   `.bm-pro-sales__section--editorial .bm-pro-sales__section-title` (0,2,0)
+   outranks a plain `.bm-pro-sales h2` (0,1,1) — hence the third selector,
+   which matches it exactly and wins on load order. */
+.bm-pro-sales h2,
+.bm-pro-sales .bm-pro-sales__section-title,
+.bm-pro-sales__section--editorial .bm-pro-sales__section-title {
+	font-size: var(--bm-fs-h2);
+	line-height: 1.2;
+	letter-spacing: -0.015em;
+	text-wrap: balance;
+}
+
+.bm-pro-sales h3 {
+	font-size: var(--bm-fs-h3);
+	line-height: 1.3;
+	letter-spacing: -0.01em;
+}
+
+/* Unclassed prose only — see the scoping note in the header. 15.2px is small
+   for the copy a prospective member has to read before deciding. */
+.bm-pro-sales p:not([class]),
+.bm-pro-sales li:not([class]) {
+	font-size: var(--bm-fs-body);
+	line-height: 1.65;
+}
+
+/* The whitelist form is the conversion surface: label, input and button
+   should read as one component at one size rather than three near-misses
+   (15.2 / 15.2 / 15). */
+.bm-wl label,
+.bm-wl input,
+.bm-wl__submit {
+	font-size: var(--bm-fs-body-sm);
+}

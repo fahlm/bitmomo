@@ -45,6 +45,38 @@ trait Bitmomo_Assets_Trait {
         $version = $this->get_file_version($custom_css_path);
         wp_enqueue_style('bitmomo-child', $custom_css_uri, ['hello-elementor-style'], $version);
 
+        // Typeface. The site previously loaded none: the stack listed Inter
+        // AFTER system-ui, so it never applied and every visitor saw their own
+        // OS default. Archivo carries the full 400-800 range the design
+        // already uses, so no existing element changes weight.
+        //
+        // Loading this also makes the fonts.gstatic.com preconnect in
+        // add_resource_hints() purposeful — until now it opened a connection
+        // to a host the site never used. Self-hosting the woff2 in the theme
+        // would be better still (no third-party request, nothing leaked to a
+        // CDN) and is the intended follow-up; this gets the face live now.
+        wp_enqueue_style(
+            'bitmomo-fonts',
+            'https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap',
+            [],
+            null
+        );
+
+        // Typography and control-surface layer. Deliberately a separate file
+        // from custom.css: custom.css on staging is far ahead of every branch
+        // here, so it must not be rewritten from source. This one is purely
+        // additive and loads last, so removing it restores the previous look
+        // exactly.
+        $typography_path = get_stylesheet_directory() . '/assets/css/bitmomo-typography.css';
+        if (file_exists($typography_path)) {
+            wp_enqueue_style(
+                'bitmomo-typography',
+                get_stylesheet_directory_uri() . '/assets/css/bitmomo-typography.css',
+                ['bitmomo-child', 'bitmomo-fonts'],
+                $this->get_file_version($typography_path)
+            );
+        }
+
         $frontend_js_path = get_stylesheet_directory() . '/assets/js/bitmomo-frontend.js';
         wp_enqueue_script(
             'bitmomo-frontend',
