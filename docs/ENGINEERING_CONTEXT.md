@@ -18,9 +18,11 @@ needing to open every file again.
 - `main` = production baseline. Never edited directly.
 - One short-lived `feature/*` branch per change, PR into `main`, merge via
   GitHub UI (founder reviews and clicks merge).
-- CI: `.github/workflows/theme-safety.yml` runs PHP syntax + baseline-file
-  checks on PRs and pushes to `main`/`feature/**`/`fix/**`/`chore/**`. It is
-  **not** a deploy pipeline — merging to `main` does not touch the live site.
+- CI: `.github/workflows/theme-safety.yml` runs theme PHP syntax + baseline-file
+  checks. `.github/workflows/php-tests.yml` discovers every plugin
+  `tests/test-*.php` suite and fails if fewer than 17 suites are found, so new
+  tests cannot be added without CI running them. These workflows are **not** a
+  deploy pipeline — merging to `main` does not touch the live site.
 - **Deployment is manual.** Staging is provisioned at
   `seagreen-snail-158456.hostingersite.com`; there is still no CI/CD. Theme
   releases are packaged from a reviewed commit, backed up, uploaded to
@@ -36,10 +38,11 @@ needing to open every file again.
   a remote ref — `reset` without `--hard` only rewrites the index, not the
   working tree, so it avoids the unlink-on-checkout failure entirely when the
   working tree content already matches the target.
-- GitHub PAT (in the local `origin` remote URL) needs both **Contents:
-  Read/write** and **Pull requests: Read/write** scopes to let an assistant
-  session push branches and open PRs end-to-end; Contents-only will 403 on PR
-  creation.
+- GitHub PAT (in the local `origin` remote URL) needs **Contents:
+  Read/write**, **Pull requests: Read/write**, and **workflow** scopes to let an
+  assistant session push branches, open PRs, and update `.github/workflows/*`
+  end-to-end. Contents-only will 403 on PR creation; a token without
+  `workflow` will be rejected when a commit touches GitHub Actions files.
 
 ## What's built so far (P0–P3 of the cash-flow roadmap)
 
@@ -50,7 +53,7 @@ needing to open every file again.
   `expected_high`, `expected_move_pct`, `consensus` {bullish/neutral/bearish},
   `key_drivers[]`, `invalidation`, `risk_level`, `analysts[]` (unused so far).
 - Render: `template-parts/btc-intelligence-card.php` — reads + decodes the
-  JSON itself (self-contained, no dependency on `functions.php`'s trait
+  JSON itself (self-contained, no dependency on `functions.php`' trait
   bootstrap); silently no-ops if the file is missing/invalid so a bad data
   file can never fatal the homepage.
 - Wired into `front-page.php` only (the actual WP front page template — NOT
