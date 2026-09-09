@@ -40,13 +40,12 @@
  *
  * WHAT IT DELIBERATELY DOES NOT TOUCH
  * -----------------------------------
- * No colour is redefined — the approved teal/orange system is untouched. No
- * layout, spacing, information architecture or copy. Border radii (8 distinct
- * values) and font weights (6, including a nonstandard 650) are also
- * inconsistent, and the remaining off-scale sizes are still off-scale; both
- * are visual judgements that should be made while looking at the page rather
- * than inferred from computed styles, so they are left for a pass with eyes
- * on it.
+ * The foundation tokens below declare the approved type, weight, radius,
+ * spacing, breakpoint and colour decisions, but they do not repoint legacy
+ * selectors yet. That migration belongs in the next pass, one component
+ * family at a time. This file still changes only the same rendered surfaces
+ * it already changed: typeface, button underlines, Pro heading hierarchy and
+ * Pro unclassed body copy.
  */
 
 /* ---------------------------------------------------------------- @font-face
@@ -69,20 +68,87 @@
  * end state — it removes the third-party request entirely, which matters for
  * this audience — and needs only these two URLs swapped for local ones.
  */
-@font-face{font-family:'Archivo';font-style:normal;font-weight:400 800;font-stretch:100%;font-display:swap;src:url(https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxKsv4Rn.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:400 800;font-stretch:100%;font-display:swap;src:url(https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxKsv4Rn.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
 @font-face{font-family:'Archivo';font-style:normal;font-weight:400 800;font-stretch:100%;font-display:swap;src:url(https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLyTOxKsv4RnUPU.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
 
 :root {
-	/* Archivo: a grotesque with enough character to read as a chosen face
-	   rather than a default, and it carries every weight already in use
-	   (400-800), so nothing on the page shifts weight. */
+	/* Foundation tokens: definitions only. WP-2 will migrate legacy selectors
+	   onto these values in slices; declaring them here must not change any
+	   rendered colour, layout, radius or spacing by itself. */
+
+	/* Typeface */
 	--bm-font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system,
 		"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--bm-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
 
-	--bm-fs-body:    1rem;      /* 16px — reading size */
+	/* Type scale: ten roles covering the values already used by the current
+	   public surfaces, without preserving the full 32-size drift as tokens. */
+	--bm-fs-micro:   0.625rem;  /* 10px — dense metadata */
+	--bm-fs-eyebrow: 0.75rem;   /* 12px — uppercase labels */
+	--bm-fs-caption: 0.8125rem; /* 13px — secondary UI copy */
 	--bm-fs-body-sm: 0.9375rem; /* 15px — form controls */
+	--bm-fs-body:    1rem;      /* 16px — reading size */
+	--bm-fs-body-lg: 1.125rem;  /* 18px — article body */
 	--bm-fs-h3:      1.25rem;   /* 20px */
 	--bm-fs-h2:      1.75rem;   /* 28px */
+	--bm-fs-h1:      clamp(2rem, 3.6vw, 2.75rem);
+	--bm-fs-display: clamp(2.5rem, 5.2vw, 4.875rem);
+
+	/* Weight scale: the intended four choices. Legacy 800/850/900 usages stay
+	   untouched until their component-family migration decides the right role. */
+	--bm-fw-regular:  400;
+	--bm-fw-medium:   500;
+	--bm-fw-semibold: 600;
+	--bm-fw-bold:     700;
+
+	/* Radii: map the current 3/8/10/14/16/50%/999/9999 spread onto three
+	   reusable roles for the migration pass. */
+	--bm-radius-control: 8px;
+	--bm-radius-card:    16px;
+	--bm-radius-pill:    9999px;
+
+	/* Spacing step: every value below already appears in the current CSS; the
+	   names give future edits one ruler instead of new one-off numbers. */
+	--bm-space-0:  0;
+	--bm-space-1:  4px;
+	--bm-space-2:  8px;
+	--bm-space-3:  12px;
+	--bm-space-4:  16px;
+	--bm-space-5:  20px;
+	--bm-space-6:  24px;
+	--bm-space-7:  32px;
+	--bm-space-8:  40px;
+	--bm-space-9:  48px;
+	--bm-space-10: 56px;
+	--bm-space-11: 64px;
+
+	/* Breakpoints are documented here for consistency. CSS custom properties
+	   cannot be used inside @media queries today, so WP-3 still has to rewrite
+	   the media queries to these literal values. */
+	--bm-bp-xs: 560px;
+	--bm-bp-sm: 640px;
+	--bm-bp-md: 768px;
+	--bm-bp-lg: 980px;
+	--bm-bp-xl: 1000px;
+
+	/* Approved colour decisions, re-declared without changing the legacy
+	   --teal/--cta variables or any rendered selector. */
+	--bm-color-ground:       #0c1c2a;
+	--bm-color-pro-ground:   #0b1220;
+	--bm-color-surface:      #101a2c;
+	--bm-color-card:         #0f2434;
+	--bm-color-border:       #1e2c42;
+	--bm-color-line:         #263b58;
+	--bm-color-text:         #e6edf5;
+	--bm-color-text-site:    #e6f0f2;
+	--bm-color-muted:        #93a4bd;
+	--bm-color-muted-site:   #c7d4db;
+	--bm-color-teal:         #2dd4bf;
+	--bm-color-orange:       #f4ad32;
+	--bm-color-orange-hover: #e69a18;
+	--bm-color-bull:         #34d399;
+	--bm-color-bear:         #ff7b6d;
 }
 
 /* ---------------------------------------------------------------- 1. face */
@@ -138,7 +204,7 @@ a.bm-pro-sales__cta:focus-visible {
 
 /* --------------------------------------------------------- 3. hierarchy */
 .bm-pro-sales h1 {
-	font-size: clamp(2rem, 3.6vw, 2.75rem);
+	font-size: var(--bm-fs-h1);
 	line-height: 1.1;
 	letter-spacing: -0.02em;
 	text-wrap: balance;
