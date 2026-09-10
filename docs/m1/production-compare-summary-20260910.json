@@ -1,0 +1,49 @@
+{
+  "base_commit": "e195619b8030fbe43a8ded48410040a07c2899af",
+  "classification": "semantic conflict: production and M0/staging contain divergent product behavior; do not silently merge or deploy",
+  "conflicts": [
+    "bitmomo-pro production is 0.12.3 while M0/staging source is 0.12.4",
+    "bitmomo-regime production is 0.5.2 while M0/staging source is 0.5.3",
+    "production and M0/staging contain different page ID assumptions for /pro/, /help/, and /btc-intelligence/",
+    "production Bitmomo Pro whitelist lacks the staging WhatsApp deep-link flow/public record action change",
+    "production sales keeps METHODOLOGY_PAGE_LIVE=false while staging has it true",
+    "production theme copy/layout/footer/category/home-hero/BTC Intelligence templates differ from M0/staging source",
+    "production lacks wp-content/themes/bitmomo-child-v3/assets/css/bitmomo-typography.css present in M0/staging source"
+  ],
+  "counts": {
+    "drifted": 18,
+    "extra_in_production": 0,
+    "missing_in_production": 1,
+    "production_files": 101,
+    "repo_known": 102
+  },
+  "date": "2026-09-10",
+  "drifted_files": [
+    "wp-content/plugins/bitmomo-btc-intelligence/assets/css/bitmomo-btc-intelligence.css",
+    "wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php",
+    "wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js",
+    "wp-content/plugins/bitmomo-pro/bitmomo-pro.php",
+    "wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-email-service.php",
+    "wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php",
+    "wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php",
+    "wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php",
+    "wp-content/plugins/bitmomo-regime/bitmomo-regime.php",
+    "wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-shortcodes.php",
+    "wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js",
+    "wp-content/themes/bitmomo-child-v3/category.php",
+    "wp-content/themes/bitmomo-child-v3/custom.css",
+    "wp-content/themes/bitmomo-child-v3/footer.php",
+    "wp-content/themes/bitmomo-child-v3/functions.php",
+    "wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php",
+    "wp-content/themes/bitmomo-child-v3/template-parts/btc-intelligence-card.php",
+    "wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php"
+  ],
+  "extra_in_production": [],
+  "missing_in_production": [
+    "wp-content/themes/bitmomo-child-v3/assets/css/bitmomo-typography.css"
+  ],
+  "production_root": "/home/u689746960/domains/bitmomo.id/public_html",
+  "production_site": "bitmomo.id",
+  "read_only": true,
+  "schema": 1
+}
