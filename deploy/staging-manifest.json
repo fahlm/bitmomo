@@ -11,6 +11,10 @@
     "website/wp-content/plugins/bitmomo-regime": "wp-content/plugins/bitmomo-regime",
     "website/wp-content/plugins/bitmomo-btc-intelligence": "wp-content/plugins/bitmomo-btc-intelligence"
   },
+  "scan_roots": [
+    "wp-content/themes",
+    "wp-content/plugins"
+  ],
   "files": {},
   "excluded_dir_names": [
     ".git",
