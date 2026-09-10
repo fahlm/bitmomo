@@ -1,0 +1,12 @@
+{
+  "site": "bitmomo.id",
+  "host_env": "BITMOMO_PRODUCTION_HOST",
+  "root_env": "BITMOMO_PRODUCTION_ROOT",
+  "default_host": "bitmomo-staging",
+  "default_root": "/home/u689746960/domains/bitmomo.id/public_html",
+  "remote_manifest": ".bitmomo-production-deploy-manifest.json",
+  "baseline_manifest": "docs/m1/production-managed-manifest-20260910.json",
+  "classified_extras": null,
+  "allow_writes": false,
+  "production": true
+}

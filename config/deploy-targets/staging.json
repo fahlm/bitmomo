@@ -1,0 +1,12 @@
+{
+  "site": "seagreen-snail-158456.hostingersite.com",
+  "host_env": "BITMOMO_STAGING_HOST",
+  "root_env": "BITMOMO_STAGING_ROOT",
+  "default_host": "bitmomo-staging",
+  "default_root": "/home/u689746960/domains/seagreen-snail-158456.hostingersite.com/public_html",
+  "remote_manifest": ".bitmomo-m0-deploy-manifest.json",
+  "baseline_manifest": null,
+  "classified_extras": "config/m0-classified-extras.json",
+  "allow_writes": true,
+  "production": false
+}
