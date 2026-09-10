@@ -24,15 +24,25 @@ Those are cleanup items for the founder, not expected deploy content.
 
 1. Confirm staging still matches the branch.
 2. Configure the GitHub secrets listed in `docs/DESIGN_SYSTEM.md`.
-3. Run **Deploy staging** manually with `dry_run=true` and `allow_initialize=true`.
-4. If that passes, run it with `dry_run=false` and `allow_initialize=true`. This creates the first real `deploy/staging-manifest.json` commit.
-5. Run it again with `dry_run=false` and `allow_initialize=false`. It should report no drift and no file changes.
+3. Run **Deploy staging** manually with `dry_run=true`, `allow_initialize=true`, and `allow_extras=false`. The first run should report any server-only extras and exit non-zero.
+4. Remove reviewed stray files by hand, or rerun with `allow_extras=true` only when the extras have been inspected and deliberately tolerated.
+5. If the dry run passes, run it with `dry_run=false` and `allow_initialize=true`. This creates the first real `deploy/staging-manifest.json` commit.
+6. Run it again with `dry_run=false` and `allow_initialize=false`. It should report no drift and no file changes.
 
 ## Normal run
 
 Run **Deploy staging** manually with `dry_run=false` and `allow_initialize=false`.
 
-The script downloads each manifest-tracked remote file and hashes it before upload. If a file differs from the last committed manifest, the job aborts before writing anything.
+The script recursively scans the deploy roots, hashes remote files once, and classifies them before upload:
+
+- known: in the manifest and unchanged
+- drifted: in the manifest but hash changed
+- stale: in the manifest but removed from Git
+- extra: on the server but in neither the manifest nor Git
+
+Drift, stale files, and extras abort by default before writing anything. Use `allow_extras=true` only after inspecting server-only files. Use `allow_delete=true` only when stale files should be removed; the script verifies their hashes against the manifest before deleting.
+
+Old `*.bmdeploy-tmp` files created by interrupted uploads are swept at the start of each run and logged.
 
 ## Smoke check
 
@@ -42,7 +52,11 @@ After a non-dry run, the script purges cache when a purge endpoint is configured
 - `/pro/`
 - `/btc-intelligence/`
 
-It also fetches the first stylesheet from `/pro/` and checks that the combined anonymous CSS still contains `--bm-font-sans`.
+It also asserts `/pro/` serves exactly one stylesheet, fetches it, and checks that the combined anonymous CSS still contains `--bm-font-sans`.
+
+## Half-deploy recovery
+
+If an SFTP connection drops after some files upload but before the manifest commit, the next run should refuse with drift. Treat that as a safety stop: follow `docs/staging-rollback-runbook.md`, compare the server against the last manifest, and either restore the old files or intentionally rerun after recording the correct manifest state.
 
 ## LiteSpeed settings
 

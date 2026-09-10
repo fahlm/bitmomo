@@ -50,7 +50,7 @@ The palette is locked. Token migration may reference these values but must not r
 
 Staging deploys are managed by `.github/workflows/staging-deploy.yml` and `scripts/deploy_staging.py`.
 
-The manifest is `deploy/staging-manifest.json`. It records each deployed file by path, SHA-256, size, deploy time, source commit, and remote root. The deploy script checks the remote file hashes against this manifest before writing. If a remote file has been hand-edited, the deploy aborts before upload.
+The manifest is `deploy/staging-manifest.json`. It records each deployed file by path, SHA-256, size, deploy time, source commit, and remote root. The deploy script checks the remote file hashes against this manifest before writing. It also recursively scans the deploy roots for server-only extras and manifest-tracked stale files. If a remote file has been hand-edited, an untracked file appears on the server, or a deleted file would be orphaned, the deploy aborts before upload unless the operator passes the explicit review flags.
 
 Required GitHub secrets:
 
@@ -60,7 +60,7 @@ Required GitHub secrets:
 | `STAGING_SFTP_PORT` | SFTP port, usually 22 |
 | `STAGING_SFTP_USER` | SFTP username |
 | `STAGING_SFTP_PASSWORD` or `STAGING_SFTP_PRIVATE_KEY` | SFTP authentication |
-| `STAGING_SFTP_KNOWN_HOSTS` | Optional known_hosts line for the SFTP host |
+| `STAGING_SFTP_KNOWN_HOSTS` | Required known_hosts line from `ssh-keyscan -p <PORT> <HOST>` |
 | `STAGING_REMOTE_ROOT` | Absolute remote path to staging `public_html` |
 | `STAGING_CACHE_PURGE_URL` | Optional cache purge endpoint |
 | `STAGING_CACHE_PURGE_METHOD` | Optional purge method, defaults to POST |

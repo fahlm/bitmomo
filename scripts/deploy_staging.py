@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Deploy the Bitmomo staging WordPress code with drift protection.
 
-The script is intentionally boring: it hashes what Git wants to deploy, hashes
-what is already on the staging server by downloading those files over SFTP, and
-refuses to write when the server no longer matches the last committed manifest.
+The deploy is fail-closed by design. It scans the staging deploy roots before
+writing, classifies remote files as known, drifted, stale, or extra, sweeps old
+Bitmomo deploy temp files, and refuses to continue when the server contains
+anything that could be a hand edit or server-only code.
 """
 from __future__ import annotations
 
@@ -14,12 +15,17 @@ import hashlib
 import json
 import os
 import posixpath
+import stat
 import time
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
 
 import paramiko
+
+STAGING_HOST = "seagreen-snail-158456.hostingersite.com"
+REMOTE_ROOT_REQUIRED_PARTS = ("seagreen-snail-158456.hostingersite.com", "public_html")
 
 DEPLOY_ROOTS = {
     "website/wp-content/themes/bitmomo-child-v3": "wp-content/themes/bitmomo-child-v3",
@@ -29,8 +35,16 @@ DEPLOY_ROOTS = {
     "website/wp-content/plugins/bitmomo-btc-intelligence": "wp-content/plugins/bitmomo-btc-intelligence",
 }
 
+# Extra known leftovers outside the five deploy roots. These are scanned so the
+# first bootstrap run can name them, but they are never treated as expected
+# content and must not be added to the manifest.
+EXTRA_SENTINEL_REMOTE_PATHS = ("wp-content/themes/bitmomo-typography.css",)
+
 EXCLUDED_NAMES = {".DS_Store", "Thumbs.db"}
+EXCLUDED_DIR_NAMES = {".git", "node_modules", "tests"}
+EXCLUDED_SEGMENT_PATHS = {("vendor", "bin")}
 EXCLUDED_SUFFIXES = (".zip", ".tar", ".tar.gz")
+TMP_SUFFIX = ".bmdeploy-tmp"
 SMOKE_PATHS = ("/", "/pro/", "/btc-intelligence/")
 TOKEN_NEEDLE = "--bm-font-sans"
 
@@ -40,6 +54,21 @@ class FileRecord:
     local_path: str
     remote_path: str
     sha256: str
+    size: int
+
+
+@dataclasses.dataclass(frozen=True)
+class RemoteRecord:
+    rel_path: str
+    remote_path: str
+    sha256: str
+    size: int
+
+
+@dataclasses.dataclass(frozen=True)
+class RemoteDirRecord:
+    rel_path: str
+    remote_path: str
     size: int
 
 
@@ -55,11 +84,26 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def should_include(path: Path) -> bool:
-    if path.name in EXCLUDED_NAMES:
+def path_segments(path_text: str) -> tuple[str, ...]:
+    return tuple(part for part in path_text.replace("\\", "/").split("/") if part)
+
+
+def should_include_path(path_text: str, *, is_dir: bool = False) -> bool:
+    parts = path_segments(path_text)
+    if not parts:
         return False
-    name = path.name.lower()
-    return not any(name.endswith(suffix) for suffix in EXCLUDED_SUFFIXES)
+    if any(part in EXCLUDED_NAMES for part in parts):
+        return False
+    if any(part in EXCLUDED_DIR_NAMES for part in parts):
+        return False
+    for excluded in EXCLUDED_SEGMENT_PATHS:
+        if any(parts[i : i + len(excluded)] == excluded for i in range(0, max(len(parts) - len(excluded) + 1, 0))):
+            return False
+    if not is_dir:
+        name = parts[-1].lower()
+        if any(name.endswith(suffix) for suffix in EXCLUDED_SUFFIXES):
+            return False
+    return True
 
 
 def collect_local_files(repo_root: Path, remote_root: str) -> dict[str, FileRecord]:
@@ -69,11 +113,13 @@ def collect_local_files(repo_root: Path, remote_root: str) -> dict[str, FileReco
         if not local_root.is_dir():
             raise SystemExit(f"Missing deploy root: {local_root_text}")
         for path in sorted(local_root.rglob("*")):
-            if not path.is_file() or not should_include(path):
+            if not path.is_file():
                 continue
             rel = path.relative_to(local_root).as_posix()
             repo_rel = path.relative_to(repo_root).as_posix()
             remote_rel = posixpath.join(remote_root_text, rel)
+            if not should_include_path(remote_rel):
+                continue
             remote_path = posixpath.join(remote_root, remote_rel)
             files[remote_rel] = FileRecord(repo_rel, remote_path, sha256_file(path), path.stat().st_size)
     return dict(sorted(files.items()))
@@ -93,6 +139,8 @@ def write_manifest(path: Path, *, files: dict[str, FileRecord], remote_root: str
         "deployed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "source_commit": commit_sha,
         "deploy_roots": DEPLOY_ROOTS,
+        "excluded_dir_names": sorted(EXCLUDED_DIR_NAMES),
+        "excluded_suffixes": sorted(EXCLUDED_SUFFIXES),
         "files": {
             rel: {
                 "local_path": record.local_path,
@@ -114,22 +162,37 @@ def required_env(name: str) -> str:
     return value
 
 
+def assert_staging_destination(remote_root: str, site_url: str) -> None:
+    parsed = urllib.parse.urlparse(site_url)
+    if parsed.hostname != STAGING_HOST:
+        raise SystemExit(f"Refusing deploy: STAGING_SITE_URL must point to {STAGING_HOST}, got {site_url!r}")
+    normalized = remote_root.rstrip("/")
+    missing = [part for part in REMOTE_ROOT_REQUIRED_PARTS if part not in normalized]
+    if missing:
+        raise SystemExit(
+            "Refusing deploy before SFTP connection: STAGING_REMOTE_ROOT does not look like the staging public_html path. "
+            f"Expected path containing {REMOTE_ROOT_REQUIRED_PARTS!r}, got {remote_root!r}."
+        )
+
+
 def connect_sftp() -> tuple[paramiko.SSHClient, paramiko.SFTPClient]:
     host = required_env("STAGING_SFTP_HOST")
     username = required_env("STAGING_SFTP_USER")
     password = os.environ.get("STAGING_SFTP_PASSWORD")
     port = int(os.environ.get("STAGING_SFTP_PORT", "22"))
+    known_hosts = os.environ.get("STAGING_SFTP_KNOWN_HOSTS")
+    if not known_hosts:
+        raise SystemExit(
+            "Missing required environment variable: STAGING_SFTP_KNOWN_HOSTS. "
+            f"Generate it with: ssh-keyscan -p {port} {host}"
+        )
 
     client = paramiko.SSHClient()
     client.load_system_host_keys()
-    known_hosts = os.environ.get("STAGING_SFTP_KNOWN_HOSTS")
-    if known_hosts:
-        known_hosts_path = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "bitmomo_staging_known_hosts"
-        known_hosts_path.write_text(known_hosts + "\n", encoding="utf-8")
-        client.load_host_keys(str(known_hosts_path))
-        client.set_missing_host_key_policy(paramiko.RejectPolicy())
-    else:
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    known_hosts_path = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "bitmomo_staging_known_hosts"
+    known_hosts_path.write_text(known_hosts + "\n", encoding="utf-8")
+    client.load_host_keys(str(known_hosts_path))
+    client.set_missing_host_key_policy(paramiko.RejectPolicy())
 
     kwargs: dict[str, Any] = {
         "hostname": host,
@@ -169,6 +232,185 @@ def remote_sha256(sftp: paramiko.SFTPClient, path: str) -> str | None:
     return None if data is None else sha256_bytes(data)
 
 
+def remote_lstat(sftp: paramiko.SFTPClient, path: str) -> paramiko.SFTPAttributes | None:
+    try:
+        return sftp.lstat(path)
+    except FileNotFoundError:
+        return None
+    except IOError as exc:
+        if getattr(exc, "errno", None) == 2:
+            return None
+        raise
+
+
+def walk_remote_root(
+    sftp: paramiko.SFTPClient,
+    *,
+    absolute_root: str,
+    relative_root: str,
+    files: dict[str, RemoteRecord],
+    dirs: dict[str, RemoteDirRecord],
+) -> None:
+    try:
+        entries = sftp.listdir_attr(absolute_root)
+    except FileNotFoundError:
+        return
+    except IOError as exc:
+        if getattr(exc, "errno", None) == 2:
+            return
+        raise
+
+    for entry in entries:
+        rel = posixpath.join(relative_root, entry.filename)
+        remote_path = posixpath.join(absolute_root, entry.filename)
+        mode = entry.st_mode or 0
+        if stat.S_ISLNK(mode):
+            continue
+        if stat.S_ISDIR(mode):
+            if entry.filename.endswith(TMP_SUFFIX):
+                dirs[rel] = RemoteDirRecord(rel, remote_path, int(entry.st_size or 0))
+                continue
+            if not should_include_path(rel, is_dir=True):
+                continue
+            dirs[rel] = RemoteDirRecord(rel, remote_path, int(entry.st_size or 0))
+            walk_remote_root(sftp, absolute_root=remote_path, relative_root=rel, files=files, dirs=dirs)
+            continue
+        if not stat.S_ISREG(mode):
+            continue
+        if not should_include_path(rel):
+            continue
+        digest = remote_sha256(sftp, remote_path)
+        if digest is None:
+            continue
+        files[rel] = RemoteRecord(rel, remote_path, digest, int(entry.st_size or 0))
+
+
+def collect_remote_state(sftp: paramiko.SFTPClient, remote_root: str) -> tuple[dict[str, RemoteRecord], dict[str, RemoteDirRecord]]:
+    files: dict[str, RemoteRecord] = {}
+    dirs: dict[str, RemoteDirRecord] = {}
+    for remote_rel in DEPLOY_ROOTS.values():
+        walk_remote_root(
+            sftp,
+            absolute_root=posixpath.join(remote_root, remote_rel),
+            relative_root=remote_rel,
+            files=files,
+            dirs=dirs,
+        )
+    for remote_rel in EXTRA_SENTINEL_REMOTE_PATHS:
+        remote_path = posixpath.join(remote_root, remote_rel)
+        attrs = remote_lstat(sftp, remote_path)
+        if attrs is None:
+            continue
+        mode = attrs.st_mode or 0
+        if stat.S_ISLNK(mode):
+            continue
+        if stat.S_ISDIR(mode):
+            dirs[remote_rel] = RemoteDirRecord(remote_rel, remote_path, int(attrs.st_size or 0))
+        elif stat.S_ISREG(mode) and should_include_path(remote_rel):
+            digest = remote_sha256(sftp, remote_path)
+            if digest:
+                files[remote_rel] = RemoteRecord(remote_rel, remote_path, digest, int(attrs.st_size or 0))
+    return dict(sorted(files.items())), dict(sorted(dirs.items()))
+
+
+def sweep_temp_files(sftp: paramiko.SFTPClient, remote_files: dict[str, RemoteRecord], remote_dirs: dict[str, RemoteDirRecord], *, dry_run: bool) -> list[str]:
+    swept: list[str] = []
+    for rel, record in remote_files.items():
+        if rel.endswith(TMP_SUFFIX):
+            swept.append(rel)
+            if not dry_run:
+                sftp.remove(record.remote_path)
+    for rel, record in sorted(remote_dirs.items(), reverse=True):
+        if rel.endswith(TMP_SUFFIX):
+            swept.append(rel + "/")
+            if not dry_run:
+                sftp.rmdir(record.remote_path)
+    if swept:
+        action = "Would sweep" if dry_run else "Swept"
+        print(f"{action} {len(swept)} stale deploy temp paths:")
+        for rel in swept[:40]:
+            print(f"  {rel}")
+    return swept
+
+
+def classify_remote(
+    desired: dict[str, FileRecord],
+    previous_manifest: dict[str, Any],
+    remote_files: dict[str, RemoteRecord],
+    remote_dirs: dict[str, RemoteDirRecord],
+) -> tuple[list[str], list[str], list[str], list[str]]:
+    previous_files = previous_manifest.get("files") or {}
+    allowed = set(previous_files) | set(desired)
+    drifted: list[str] = []
+    stale: list[str] = []
+    extra: list[str] = []
+    known: list[str] = []
+
+    for rel, old in sorted(previous_files.items()):
+        if rel not in desired:
+            stale.append(rel)
+        remote = remote_files.get(rel)
+        expected = old["sha256"]
+        if remote and remote.sha256 == expected:
+            known.append(rel)
+        else:
+            drifted.append(f"{rel}: remote={(remote.sha256 if remote else 'missing')} manifest={expected}")
+
+    for rel, record in remote_files.items():
+        if rel not in allowed and not rel.endswith(TMP_SUFFIX):
+            extra.append(f"{rel}: size={record.size} sha256={record.sha256}")
+    for rel, record in remote_dirs.items():
+        if rel not in allowed and not rel.endswith(TMP_SUFFIX):
+            extra.append(f"{rel}/: directory size={record.size}")
+    return known, drifted, stale, sorted(extra)
+
+
+def verify_remote_state(
+    *,
+    desired: dict[str, FileRecord],
+    previous_manifest: dict[str, Any],
+    remote_files: dict[str, RemoteRecord],
+    remote_dirs: dict[str, RemoteDirRecord],
+    allow_initialize: bool,
+    allow_extras: bool,
+    allow_delete: bool,
+) -> None:
+    previous_files = previous_manifest.get("files") or {}
+    if not previous_files:
+        if not allow_initialize:
+            raise SystemExit("No previous deploy manifest exists. Re-run with --allow-initialize only after confirming staging matches the branch.")
+        mismatches = []
+        for rel, record in desired.items():
+            remote = remote_files.get(rel)
+            if not remote or remote.sha256 != record.sha256:
+                mismatches.append(f"{rel}: remote={(remote.sha256 if remote else 'missing')} local={record.sha256}")
+        _, _, _, extra = classify_remote(desired, previous_manifest, remote_files, remote_dirs)
+        if extra and not allow_extras:
+            raise SystemExit("Remote extras detected during baseline initialization; aborting before write:\n" + "\n".join(extra[:40]))
+        if mismatches:
+            raise SystemExit("Cannot initialize manifest; staging differs from Git:\n" + "\n".join(mismatches[:40]))
+        print(f"Initialized drift baseline from {len(desired)} matching files.")
+        if extra:
+            print(f"Allowed {len(extra)} remote extras by explicit operator override.")
+        return
+
+    known, drifted, stale, extra = classify_remote(desired, previous_manifest, remote_files, remote_dirs)
+    failures: list[str] = []
+    if drifted:
+        failures.append("Remote drift detected:\n" + "\n".join(drifted[:40]))
+    if extra and not allow_extras:
+        failures.append("Remote extras detected:\n" + "\n".join(extra[:40]))
+    if stale and not allow_delete:
+        failures.append("Remote stale files would remain; rerun with --allow-delete to remove after review:\n" + "\n".join(stale[:40]))
+    if failures:
+        raise SystemExit("\n\n".join(failures) + "\n\nAborting before write.")
+    print(f"Drift check passed for {len(known)} manifest entries.")
+    if extra:
+        print(f"Allowed {len(extra)} remote extras by explicit operator override.")
+    if stale:
+        print(f"Allowed {len(stale)} stale removals by explicit operator override.")
+
+
 def ensure_remote_dir(sftp: paramiko.SFTPClient, directory: str) -> None:
     parts = [part for part in directory.split("/") if part]
     current = "/" if directory.startswith("/") else ""
@@ -182,7 +424,7 @@ def ensure_remote_dir(sftp: paramiko.SFTPClient, directory: str) -> None:
 
 def upload_file(sftp: paramiko.SFTPClient, repo_root: Path, record: FileRecord) -> None:
     ensure_remote_dir(sftp, posixpath.dirname(record.remote_path))
-    tmp_remote = f"{record.remote_path}.tmp-{int(time.time())}"
+    tmp_remote = f"{record.remote_path}{TMP_SUFFIX}"
     sftp.put(str(repo_root / record.local_path), tmp_remote)
     uploaded = remote_sha256(sftp, tmp_remote)
     if uploaded != record.sha256:
@@ -193,32 +435,22 @@ def upload_file(sftp: paramiko.SFTPClient, repo_root: Path, record: FileRecord) 
     sftp.rename(tmp_remote, record.remote_path)
 
 
-def verify_no_drift(sftp: paramiko.SFTPClient, desired: dict[str, FileRecord], previous: dict[str, Any], *, allow_initialize: bool) -> None:
-    previous_files = previous.get("files") or {}
-    if not previous_files:
-        if not allow_initialize:
-            raise SystemExit("No previous deploy manifest exists. Re-run with --allow-initialize only after confirming staging matches the branch.")
-        mismatches: list[str] = []
-        for rel, record in desired.items():
-            remote_hash = remote_sha256(sftp, record.remote_path)
-            if remote_hash != record.sha256:
-                mismatches.append(f"{rel}: remote={remote_hash or 'missing'} local={record.sha256}")
-        if mismatches:
-            raise SystemExit("Cannot initialize manifest; staging differs from Git:\n" + "\n".join(mismatches[:40]))
-        print(f"Initialized drift baseline from {len(desired)} matching files.")
-        return
-
-    drift: list[str] = []
+def delete_stale_files(sftp: paramiko.SFTPClient, previous_manifest: dict[str, Any], desired: dict[str, FileRecord], remote_files: dict[str, RemoteRecord]) -> int:
+    previous_files = previous_manifest.get("files") or {}
+    removed = 0
     for rel, old in sorted(previous_files.items()):
-        if rel not in desired:
+        if rel in desired:
             continue
-        remote_hash = remote_sha256(sftp, desired[rel].remote_path)
-        expected = old["sha256"]
-        if remote_hash != expected:
-            drift.append(f"{rel}: remote={remote_hash or 'missing'} manifest={expected}")
-    if drift:
-        raise SystemExit("Remote drift detected; aborting before write:\n" + "\n".join(drift[:40]))
-    print(f"Drift check passed for {len(previous_files)} manifest entries.")
+        remote = remote_files.get(rel)
+        if not remote:
+            continue
+        if remote.sha256 != old["sha256"]:
+            raise SystemExit(f"Refusing to delete stale file that drifted after deploy: {rel}")
+        sftp.remove(remote.remote_path)
+        removed += 1
+    if removed:
+        print(f"Deleted {removed} stale files that matched the manifest.")
+    return removed
 
 
 def purge_cache() -> None:
@@ -234,14 +466,15 @@ def purge_cache() -> None:
         print(f"Cache purge returned HTTP {response.status}.")
 
 
-def first_stylesheet_href(html: str) -> str | None:
+def first_stylesheet_hrefs(html: str) -> list[str]:
     import re
 
+    hrefs: list[str] = []
     for match in re.finditer(r"<link[^>]+rel=[\"']stylesheet[\"'][^>]*>", html):
         href = re.search(r"href=[\"']([^\"']+)", match.group(0))
         if href:
-            return href.group(1)
-    return None
+            hrefs.append(href.group(1))
+    return hrefs
 
 
 def smoke_check(site_url: str) -> None:
@@ -253,9 +486,10 @@ def smoke_check(site_url: str) -> None:
             if response.status != 200:
                 raise SystemExit(f"Smoke failed: {path} HTTP {response.status}")
             if path == "/pro/":
-                css_href = first_stylesheet_href(html)
-                if not css_href:
-                    raise SystemExit("Smoke failed: /pro/ has no stylesheet link")
+                hrefs = first_stylesheet_hrefs(html)
+                if len(hrefs) != 1:
+                    raise SystemExit(f"Smoke failed: /pro/ expected 1 stylesheet link, found {len(hrefs)}")
+                css_href = hrefs[0]
                 if css_href.startswith("/"):
                     css_href = base + css_href
                 css_href = css_href.replace("&#038;", "&").replace("&amp;", "&")
@@ -272,30 +506,46 @@ def main() -> int:
     parser.add_argument("--manifest", default="deploy/staging-manifest.json")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--allow-initialize", action="store_true")
+    parser.add_argument("--allow-extras", action="store_true")
+    parser.add_argument("--allow-delete", action="store_true")
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
     manifest_path = repo_root / args.manifest
     remote_root = required_env("STAGING_REMOTE_ROOT").rstrip("/")
-    site_url = os.environ.get("STAGING_SITE_URL", "https://seagreen-snail-158456.hostingersite.com")
+    site_url = os.environ.get("STAGING_SITE_URL", f"https://{STAGING_HOST}")
+    assert_staging_destination(remote_root, site_url)
     commit_sha = os.environ.get("GITHUB_SHA", "unknown")
 
     desired = collect_local_files(repo_root, remote_root)
     previous = load_manifest(manifest_path)
     client, sftp = connect_sftp()
     try:
-        verify_no_drift(sftp, desired, previous, allow_initialize=args.allow_initialize)
-        changed: list[FileRecord] = []
-        for record in desired.values():
-            if remote_sha256(sftp, record.remote_path) != record.sha256:
-                changed.append(record)
-        if not changed:
+        remote_files, remote_dirs = collect_remote_state(sftp, remote_root)
+        swept = sweep_temp_files(sftp, remote_files, remote_dirs, dry_run=args.dry_run)
+        if swept and not args.dry_run:
+            remote_files, remote_dirs = collect_remote_state(sftp, remote_root)
+        verify_remote_state(
+            desired=desired,
+            previous_manifest=previous,
+            remote_files=remote_files,
+            remote_dirs=remote_dirs,
+            allow_initialize=args.allow_initialize,
+            allow_extras=args.allow_extras,
+            allow_delete=args.allow_delete,
+        )
+        changed = [record for rel, record in desired.items() if rel not in remote_files or remote_files[rel].sha256 != record.sha256]
+        stale_count = len([rel for rel in (previous.get("files") or {}) if rel not in desired])
+        print(f"Deploy set contains {len(desired)} files.")
+        if not changed and not (args.allow_delete and stale_count):
             print("No deploy changes; remote already matches Git.")
         elif args.dry_run:
-            print(f"Dry run: {len(changed)} files would be uploaded.")
+            print(f"Dry run: {len(changed)} files would be uploaded and {stale_count if args.allow_delete else 0} stale files would be deleted.")
             for record in changed[:40]:
                 print(record.local_path)
         else:
+            if args.allow_delete:
+                delete_stale_files(sftp, previous, desired, remote_files)
             for record in changed:
                 upload_file(sftp, repo_root, record)
             print(f"Uploaded {len(changed)} files.")

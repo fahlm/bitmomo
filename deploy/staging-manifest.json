@@ -11,5 +11,15 @@
     "website/wp-content/plugins/bitmomo-regime": "wp-content/plugins/bitmomo-regime",
     "website/wp-content/plugins/bitmomo-btc-intelligence": "wp-content/plugins/bitmomo-btc-intelligence"
   },
-  "files": {}
+  "files": {},
+  "excluded_dir_names": [
+    ".git",
+    "node_modules",
+    "tests"
+  ],
+  "excluded_suffixes": [
+    ".tar",
+    ".tar.gz",
+    ".zip"
+  ]
 }
