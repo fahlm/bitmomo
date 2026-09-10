@@ -122,7 +122,15 @@ def connect_sftp() -> tuple[paramiko.SSHClient, paramiko.SFTPClient]:
 
     client = paramiko.SSHClient()
     client.load_system_host_keys()
-    client.set_missing_host_key_policy(paramiko.RejectPolicy())
+    known_hosts = os.environ.get("STAGING_SFTP_KNOWN_HOSTS")
+    if known_hosts:
+        known_hosts_path = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "bitmomo_staging_known_hosts"
+        known_hosts_path.write_text(known_hosts + "\n", encoding="utf-8")
+        client.load_host_keys(str(known_hosts_path))
+        client.set_missing_host_key_policy(paramiko.RejectPolicy())
+    else:
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
     kwargs: dict[str, Any] = {
         "hostname": host,
         "username": username,

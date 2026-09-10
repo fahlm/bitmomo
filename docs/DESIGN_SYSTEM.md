@@ -60,6 +60,7 @@ Required GitHub secrets:
 | `STAGING_SFTP_PORT` | SFTP port, usually 22 |
 | `STAGING_SFTP_USER` | SFTP username |
 | `STAGING_SFTP_PASSWORD` or `STAGING_SFTP_PRIVATE_KEY` | SFTP authentication |
+| `STAGING_SFTP_KNOWN_HOSTS` | Optional known_hosts line for the SFTP host |
 | `STAGING_REMOTE_ROOT` | Absolute remote path to staging `public_html` |
 | `STAGING_CACHE_PURGE_URL` | Optional cache purge endpoint |
 | `STAGING_CACHE_PURGE_METHOD` | Optional purge method, defaults to POST |
