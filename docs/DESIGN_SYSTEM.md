@@ -50,7 +50,9 @@ The palette is locked. Token migration may reference these values but must not r
 
 Staging deploys are managed by `.github/workflows/staging-deploy.yml` and `scripts/deploy_staging.py`.
 
-The manifest is `deploy/staging-manifest.json`. It records each deployed file by path, SHA-256, size, deploy time, source commit, and remote root. The deploy script checks the remote file hashes against this manifest before writing. It also recursively scans the deploy roots for server-only extras and manifest-tracked stale files. If a remote file has been hand-edited, an untracked file appears on the server, or a deleted file would be orphaned, the deploy aborts before upload unless the operator passes the explicit review flags.
+The manifest is `deploy/staging-manifest.json`. It records each deployed file by path, SHA-256, size, deploy time, source commit, remote root, deploy roots, and scan roots. The deploy script checks remote file hashes against this manifest before writing. It scans `wp-content/themes` and `wp-content/plugins`, so server-only archives, test folders, symlinks, misplaced theme folders, and unrelated plugin/theme folders are visible as extras even when they are not deployable content. Uploads still write only the five approved deploy roots.
+
+Remote classification uses these states: known, drifted, stale, reconciled, and extra. If a remote file has been hand-edited, an untracked file appears on the server, or a deleted file would be orphaned, the deploy aborts before upload unless the operator passes the explicit review flags. A manifest entry removed from Git but already absent from the server is marked reconciled instead of blocking the run.
 
 Required GitHub secrets:
 
@@ -59,7 +61,8 @@ Required GitHub secrets:
 | `STAGING_SFTP_HOST` | Hostinger SFTP host |
 | `STAGING_SFTP_PORT` | SFTP port, usually 22 |
 | `STAGING_SFTP_USER` | SFTP username |
-| `STAGING_SFTP_PASSWORD` or `STAGING_SFTP_PRIVATE_KEY` | SFTP authentication |
+| `STAGING_SFTP_PASSWORD` or `STAGING_SFTP_PRIVATE_KEY` | SFTP authentication; private keys may be Ed25519, ECDSA, or RSA |
+| `STAGING_SFTP_PRIVATE_KEY_PASSPHRASE` | Optional passphrase for encrypted private keys |
 | `STAGING_SFTP_KNOWN_HOSTS` | Required known_hosts line from `ssh-keyscan -p <PORT> <HOST>` |
 | `STAGING_REMOTE_ROOT` | Absolute remote path to staging `public_html` |
 | `STAGING_CACHE_PURGE_URL` | Optional cache purge endpoint |
