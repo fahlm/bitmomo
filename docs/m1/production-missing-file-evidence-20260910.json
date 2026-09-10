@@ -1,0 +1,15 @@
+{
+  "base_commit": "e195619b8030fbe43a8ded48410040a07c2899af",
+  "date": "2026-09-10",
+  "decision": "ambiguous; do not write production",
+  "missing_in_production": [
+    {
+      "path": "wp-content/themes/bitmomo-child-v3/assets/css/bitmomo-typography.css",
+      "production_status": "missing",
+      "repo_sha256": null,
+      "staging_m0_status": "present"
+    }
+  ],
+  "production_site": "bitmomo.id",
+  "schema": 1
+}
