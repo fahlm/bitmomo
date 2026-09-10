@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "site": "seagreen-snail-158456.hostingersite.com",
+  "scope": "Bitmomo managed theme/plugin paths only",
+  "extras": [
+    {
+      "path": "wp-content/plugins/bitmomo-btc-intelligence/.DS_Store",
+      "type": "macOS Finder metadata",
+      "sha256": "10ac2a4bd0500cb5ac86eb581bca95381e6d90a9b549de2218d6979898381077",
+      "why_non_canonical": ".DS_Store is local Finder metadata and is not Bitmomo source, WordPress runtime data, or configuration.",
+      "decision": "delete"
+    },
+    {
+      "path": "wp-content/plugins/bitmomo-pro/.DS_Store",
+      "type": "macOS Finder metadata",
+      "sha256": "da2a154a03cb0ca4fa02735bd5d0e10e9c6670bde2023e403f06d04b0f865897",
+      "why_non_canonical": ".DS_Store is local Finder metadata and is not Bitmomo source, WordPress runtime data, or configuration.",
+      "decision": "delete"
+    },
+    {
+      "path": "wp-content/plugins/bitmomo-pro/assets/.DS_Store",
+      "type": "macOS Finder metadata",
+      "sha256": "55756566f86db79253afc18a9928f5b8f5152802acde46628bcd377b2e7e85f7",
+      "why_non_canonical": ".DS_Store is local Finder metadata and is not Bitmomo source, WordPress runtime data, or configuration.",
+      "decision": "delete"
+    }
+  ]
+}
