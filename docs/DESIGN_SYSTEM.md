@@ -50,7 +50,9 @@ The palette is locked. Token migration may reference these values but must not r
 
 Staging deploys are managed by `.github/workflows/staging-deploy.yml` and `scripts/deploy_staging.py`.
 
-The manifest is `deploy/staging-manifest.json`. It records each deployed file by path, SHA-256, size, deploy time, source commit, remote root, deploy roots, and scan roots. The deploy script checks remote file hashes against this manifest before writing. It scans `wp-content/themes` and `wp-content/plugins`, so server-only archives, test folders, symlinks, misplaced theme folders, and unrelated plugin/theme folders are visible as extras even when they are not deployable content. Uploads still write only the five approved deploy roots.
+The manifest is `deploy/staging-manifest.json`. It records each deployed file by path, SHA-256, size, deploy time, source commit, remote root, deploy roots, deep scan roots, and shallow scan roots. The deploy script checks remote file hashes against this manifest before writing.
+
+The scanner has two tiers. It recursively hashes only the five approved Bitmomo deploy roots, so tests, archives, symlinks, and leftovers inside those roots remain visible as extras. It also lists `wp-content/themes` and `wp-content/plugins` one level deep without hashing file contents; that shallow pass reports Bitmomo-namespaced stray entries and root-level files other than `index.php`. Third-party plugin/theme directories such as Elementor, Astra, Rank Math, and Twenty Twenty themes are ignored by the shallow tier and are not downloaded over SFTP.
 
 Remote classification uses these states: known, drifted, stale, reconciled, and extra. If a remote file has been hand-edited, an untracked file appears on the server, or a deleted file would be orphaned, the deploy aborts before upload unless the operator passes the explicit review flags. A manifest entry removed from Git but already absent from the server is marked reconciled instead of blocking the run.
 
