@@ -1,0 +1,632 @@
+[
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/README.md",
+    "sha": "b8557f95dd7d0edeb09e73548182226d0c15f939",
+    "size": 7122,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/docs/tradingview/bitmomo-market-engine-v1.pine",
+    "sha": "3dd53d279699d0513a990aa735012fdb4695d7ff",
+    "size": 5477,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/docs/tradingview/SETUP.md",
+    "sha": "19e605591a379c5c860c13325217ad4864962d4d",
+    "size": 1780,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/docs/tradingview-payload.example.json",
+    "sha": "acf398e292b21039bccd268860f9f1c02c8bbbe0",
+    "size": 647,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/docs/OPERATIONS.md",
+    "sha": "f491df1456db2e01b42f6d9c76aebd2578856b27",
+    "size": 6734,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php",
+    "sha": "3679f5f42b3219d559459e4d9eb3500ab17f0b8a",
+    "size": 14237,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/assets/css/dashboard-layout.css",
+    "sha": "0c70facbd68a86090154d080c54650e2ba1ee0ea",
+    "size": 150,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/assets/css/audience-dashboard.css",
+    "sha": "1150bc56a52fe508ace7eee7f564a8b0243c7997",
+    "size": 2550,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/assets/css/frontend.css",
+    "sha": "9b8d643016c543cdc5797fbd7bae3481e453ae2c",
+    "size": 2533,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/assets/css/admin.css",
+    "sha": "bf3406d52b78b590924a0ff44092aa34de5dd645",
+    "size": 1419,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/assets/css/brief-dashboard.css",
+    "sha": "e62c3dafdde0810dc45050d4af47c66392ce5fd7",
+    "size": 4353,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-shortcodes.php",
+    "sha": "7c3931575a57c9f8557a86023ce90ca106664f44",
+    "size": 15181,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-webhook.php",
+    "sha": "17a1e746e0c054e2a192dc929d9536dd632f2ced",
+    "size": 9704,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scorecard.php",
+    "sha": "5a515592b11e74df380ec0896ea49ca352da20c6",
+    "size": 20450,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-quality-gate.php",
+    "sha": "fda67c1d47a33737e6f0ab62e83cb12f88a8b13e",
+    "size": 6408,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-binance.php",
+    "sha": "c8fdd00a92022710f65dfa8976f91a14692bbc9f",
+    "size": 20878,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-performance.php",
+    "sha": "406db894fb3d5ed7f280b0505dbefd12225d90ab",
+    "size": 7630,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-content-types.php",
+    "sha": "910c4098688f0891342675af42f02f4358feb237",
+    "size": 9485,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-key-drivers.php",
+    "sha": "72746d4b82d66e17b0917ed0765513d24662ae84",
+    "size": 21036,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php",
+    "sha": "97e4adaf6bf16ef98c61ecb71451ebcea82336e7",
+    "size": 8485,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-editorial-gate.php",
+    "sha": "bef44dbfcdb09f6564349edfc4d256465825f093",
+    "size": 4321,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-regime-metrics.php",
+    "sha": "8a94b86c88ee73a6fefded2a3478b450b0682999",
+    "size": 2849,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-admin-notices.php",
+    "sha": "81a4349b1f62ab53774ca8a7069a6c6b2070eae4",
+    "size": 4579,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-signal-engine.php",
+    "sha": "709530fb9a1af9258b56339c43d5caac9ee27d61",
+    "size": 9429,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-report.php",
+    "sha": "01d9e8af00019568aa9ae7811a06aed8248b0e1c",
+    "size": 8006,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php",
+    "sha": "abcaeda19646e79661d60c28ef7a13a450f47fbe",
+    "size": 20779,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-btc-intelligence/.DS_Store",
+    "sha": "c7c822650619be52f47e118c2206d9dc165a4ace",
+    "size": 6148,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php",
+    "sha": "493cb55b123ae104925d77ef0a6a9bb720ac2b31",
+    "size": 2535,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/bitmomo-btc-intelligence.css",
+    "sha": "e44b37d9f5850fdeaec7c1e244a0a72f31a42496",
+    "size": 16258,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-setup.php",
+    "sha": "84f833352d5e86f9368cead55707b07fe8a06260",
+    "size": 4209,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php",
+    "sha": "f2ba18dca845487dc33d31b1c06dad0449c14b37",
+    "size": 52498,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/.DS_Store",
+    "sha": "7a903183abeef4d47d72bc27a5be5e60707fca5f",
+    "size": 6148,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php",
+    "sha": "7a9e7f13ecc6af11038e3b49556a456c2f9a6e3d",
+    "size": 12782,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/assets/.DS_Store",
+    "sha": "42368e42480ea3fcd5b1220433dbb27fca7a5fd1",
+    "size": 6148,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-whitelist.css",
+    "sha": "5c4dcd3c5dd48394befdd57bedabc33d06828ef4",
+    "size": 5382,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css",
+    "sha": "5edd19a752b0304f9851ad6e85359273054bfb05",
+    "size": 1448,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-sales.css",
+    "sha": "a516f3e14719cc0bf8d6f1345d7612fa0e243bc4",
+    "size": 16187,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-help.css",
+    "sha": "c6b45996c7d7b4b5ed059dd4606ca261ca52f4a6",
+    "size": 3923,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro.css",
+    "sha": "f5062a5a8f6323bbb48a2853a4a49f589da4bfc5",
+    "size": 5897,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js",
+    "sha": "fbd15338623d7258b99591bafe38e3f4c0c124cd",
+    "size": 8617,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-setup.php",
+    "sha": "4759f842b10a7c3c8051e9d1c3c7ae4b1d0485b1",
+    "size": 6886,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-brief-readiness.php",
+    "sha": "3f8b3507815fba0e9a39c6736355a8bb147a1ea3",
+    "size": 12744,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-users-list.php",
+    "sha": "6249d7c74ed6b2a3443863320faa74e95c5b7d56",
+    "size": 6397,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-daily.php",
+    "sha": "1f9b9646c03a291404e6d38c15824457f4e79ceb",
+    "size": 26095,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-entitlements.php",
+    "sha": "7d18d3d4d8aa76e8221cf3d0eb322f831eb07bb5",
+    "size": 10157,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-email-service.php",
+    "sha": "25a05050ba8bec48dbbca6388da88e080d00ef38",
+    "size": 23851,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-cache.php",
+    "sha": "cc3598819cad2ff3e105af65f00d2badfc6e8d85",
+    "size": 3027,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-canonical-adapter.php",
+    "sha": "8a4788d350796fe60d7a059b8b71d8a23288e822",
+    "size": 2056,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-shortcodes.php",
+    "sha": "b8a95c9b335a34017f5afbe26925c3e1a8ffaa54",
+    "size": 11268,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-performance.php",
+    "sha": "e2b5566c22f22d4f9d776b64006d63b040f2d304",
+    "size": 4476,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php",
+    "sha": "06d28f31e175ca859573ce053e65a3274eac088b",
+    "size": 24618,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-activation.php",
+    "sha": "67f2b6c27977413319892fff55d79700327dc89c",
+    "size": 22926,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-briefs.php",
+    "sha": "7f607be432dd141816a348a3dc6dadab8203e56c",
+    "size": 11414,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php",
+    "sha": "50fe336566348d32dcc09c65b37fb6e1b30bf1ed",
+    "size": 41707,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-entitlement-service.php",
+    "sha": "b7eb9cbfe37c40d42ccd07c9993b875da23bca1e",
+    "size": 11446,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-usage.php",
+    "sha": "e490fe09f4c217d9553455abe9c2356830eace20",
+    "size": 14249,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-brief-prefill.php",
+    "sha": "5f0a9492303a68662f382e77cf7faaad53625307",
+    "size": 13451,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php",
+    "sha": "6dd2bcb27184204dd77441a07f42201fda1b5474",
+    "size": 6954,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php",
+    "sha": "d3155955469dd73f2f81df2a0aa34b5e3bc6c361",
+    "size": 24969,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-launch-readiness.php",
+    "sha": "36dc2f080a73c79e5c09ee3234c3ff4c3aad42eb",
+    "size": 29320,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/bitmomo-regime.php",
+    "sha": "49b6021141f37b301b35bcb3f61eae73a9176e78",
+    "size": 4544,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-config.php",
+    "sha": "0c00f45d4f398ab7b13da9a23cea23a02ccf1922",
+    "size": 3757,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-state-store.php",
+    "sha": "1c064a0773dac32b486d07492fd01da65710252f",
+    "size": 9738,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-input.php",
+    "sha": "e95827733a5d4160374aa46016583593249f782b",
+    "size": 6377,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-hysteresis.php",
+    "sha": "761865dafac270191dac2731805c01ba1ef220f5",
+    "size": 6204,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-runtime-adapter.php",
+    "sha": "309ad74c2f319906db29d78328c318c45a04b7fe",
+    "size": 1977,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-history.php",
+    "sha": "1bae84252116dc4a2b2ee765b562b68708efa60b",
+    "size": 5300,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-taxonomy.php",
+    "sha": "0e281794715880af9e66ae012edf93d68074995e",
+    "size": 3120,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-admin.php",
+    "sha": "f882996502ea09f768bb6a2160be3a9bd99b961d",
+    "size": 7236,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-scheduler.php",
+    "sha": "7d9a8564cf5f76794029cd57bb89608f121cec1b",
+    "size": 2897,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-classifier.php",
+    "sha": "d8cd51bd8cd2a6f64bd738cff381ac185186fff9",
+    "size": 15609,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/includes/class-bitmomo-regime-shortcodes.php",
+    "sha": "0ce7ad2ddc628017d408a065cdbb0556b4169608",
+    "size": 10656,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/plugins/bitmomo-regime/CODEX_INTEGRATION_CONTRACT.md",
+    "sha": "5efb1c71cf75a7299311d5e94430692463f2b715",
+    "size": 4593,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/category.php",
+    "sha": "e3d72366a6d653526692ce9e0651e336c584238e",
+    "size": 11645,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-images.php",
+    "sha": "c5098edf1a07d76e2a8c387b48fee843af22c470",
+    "size": 6280,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/inc/bitmomo-cta-config.php",
+    "sha": "24bb601f8f17e889a9c2593ad453a17a9214ff90",
+    "size": 2828,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/inc/bitmomo-content-assets.php",
+    "sha": "d71d526042ae5a4c95a7505b3fc3ef4b80fba375",
+    "size": 7726,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php",
+    "sha": "c171d30edb407b2f5ce6e1530d4c821948eaa4b5",
+    "size": 5355,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php",
+    "sha": "fcfc574d8782a37e295549e8b6c07e489bfd8cf1",
+    "size": 1123,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-frontend.php",
+    "sha": "2072c44cb48f6a97c451b24434a4b0cca99c7166",
+    "size": 1892,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php",
+    "sha": "732b6bebe2e6e0b28489a00b3dd7eb7369f97085",
+    "size": 1921,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/data/btc-daily-sample.json",
+    "sha": "0392d051682b531902aa958c14236b298eb87f59",
+    "size": 584,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/home.php",
+    "sha": "3bcf812cce19a91b34906bea29ccb7cb8508541d",
+    "size": 1378,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/style.css",
+    "sha": "4f7da0fab21fa8524141ebf3518708f90013b582",
+    "size": 485,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/tag.php",
+    "sha": "a414eace2d6bb81fb9dd91cbef5f1c12964c8600",
+    "size": 3642,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/header.php",
+    "sha": "6d5a1fcc05fd39caf7b9cb0e0c8b3eca40156bdc",
+    "size": 2046,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/custom.css",
+    "sha": "6fafa23cc2bf18c6efbd699900ea2b990fc3f556",
+    "size": 81870,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/functions.php",
+    "sha": "9ac654b646a720c885631d7a3d61643b724965d3",
+    "size": 6034,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/footer.php",
+    "sha": "d20216dd67148230870f8785b4259e6c5b5f14e2",
+    "size": 3959,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/single.php",
+    "sha": "652b4820533dba1e6316c501e4e0c7db81c277f3",
+    "size": 2661,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/pro-teaser.php",
+    "sha": "7a9826d54fa6eb72d1825ef2dd02d47699d81d8e",
+    "size": 1333,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/whitelist.php",
+    "sha": "e146ee0183cb12ec9917f6034a32c5a38cdb6593",
+    "size": 3329,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/ai-lab.php",
+    "sha": "2fd491f0e96538ed4129207a81c863a70057e0e7",
+    "size": 1695,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/content-card.php",
+    "sha": "007d63b3d8eb67158776dc6a32e8c542ae8a5d78",
+    "size": 2571,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/research.php",
+    "sha": "c0855ab47b190f7f8a3550c5344e653f7c064f31",
+    "size": 4158,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/how-it-works.php",
+    "sha": "e78be5e78c76282bbc8dd2f838aec026e2b1fce4",
+    "size": 4230,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/platform.php",
+    "sha": "d1515b94737cf1f1044410ab8789ea400287d1e3",
+    "size": 1729,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/btc-intelligence-card.php",
+    "sha": "2b6003326aed18726b53295a1370d0779615c31d",
+    "size": 6983,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php",
+    "sha": "52c02948bfdd2652c9ef436c8f02d849d286034f",
+    "size": 13169,
+    "state": "modified"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/why-bitmomo.php",
+    "sha": "fb5319b59a0fb97d7a6a7a8ae8d45fc54e20ecc9",
+    "size": 713,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/template-parts/newsletter.php",
+    "sha": "5d8ecdf49ce73825921de7f281d980c0c1b60bcc",
+    "size": 1470,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/front-page.php",
+    "sha": "20962c07e699089d85ba62a135df75de02a059d1",
+    "size": 1335,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/assets/css/bitmomo-typography.css",
+    "sha": "12aed2ffefa5e5007a5b5973095b64556976a85d",
+    "size": 8371,
+    "state": "extra"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/assets/images/bitmomo-logo.png",
+    "sha": "bb2b87baabca9e7c7cbe77c3eb18b5116cf0b2e1",
+    "size": 786444,
+    "state": "same"
+  },
+  {
+    "path": "website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js",
+    "sha": "9649d5824d395607f64bdc808b9b323b4f6309b4",
+    "size": 15963,
+    "state": "modified"
+  }
+]

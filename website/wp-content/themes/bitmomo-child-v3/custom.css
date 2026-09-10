@@ -371,7 +371,7 @@ img { max-width: 100%; height: auto; display: block; }
 .bm-direction-baseline { position: absolute; z-index: 0; top: 50%; right: 0; left: 0; height: 1px; background: #263b58; }
 .bm-direction-bar { position: relative; z-index: 1; flex: 1 1 0; min-width: 3px; }
 .bm-direction-bar span { position: absolute; left: 0; width: 100%; min-height: 3px; border-radius: 5px; background: #8ba0bd; opacity: .75; }
-.bm-direction-bar.is-bullish span { bottom: 50%; height: calc(var(--direction-size) * .46%); background: var(--teal); }
+.bm-direction-bar.is-bullish span { bottom: 50%; height: calc(var(--direction-size) * .46%); background: #34d399; }
 .bm-direction-bar.is-bearish span { top: 50%; height: calc(var(--direction-size) * .46%); background: #ff7b6d; }
 .bm-direction-bar.is-neutral span { top: calc(50% - 2px); height: 4px; background: #8ba0bd; }
 .bm-direction-empty { align-self: center; width: 100%; margin: 0; color: var(--muted); font-size: 13px; text-align: center; }
@@ -846,10 +846,25 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
 }
 .bm-btc-driver-list {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 0;
+  list-style: none;
   color: var(--ink);
   font-size: 16px;
   line-height: 1.55;
+}
+.bm-btc-driver-list li {
+  position: relative;
+  padding-left: 20px;
+}
+.bm-btc-driver-list li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: .6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
 }
 .bm-btc-driver-list li + li { margin-top: 8px; }
 
@@ -994,27 +1009,27 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
 /* ============= PR63 VISUAL PARITY ============= */
 .bm-header .bm-container { height: 70px; }
 .bm-nav-list { gap: 30px; }
-.bm-hero { padding: clamp(82px, 9vw, 132px) 0 92px; }
+.bm-hero { padding: clamp(82px, 9vw, 132px) 0 clamp(24px, 3vw, 40px); }
 .bm-hero-layout { grid-template-columns: minmax(0, 1.08fr) minmax(450px, .92fr); gap: clamp(48px, 6vw, 88px); }
-.bm-hero-title { max-width: 690px; font-size: clamp(50px, 5.1vw, 74px); }
+.bm-hero-title { max-width: 690px; font-size: clamp(32px, 3.6vw, 48px); }
 .bm-hero-sub { max-width: 710px; font-size: clamp(17px, 1.4vw, 20px); line-height: 1.72; }
 .bm-direction-card { min-height: 302px; padding: 28px 30px 24px; border-radius: 18px; }
 .bm-direction-chart { height: 150px; margin: 22px 0 18px; }
-.bm-state-chart { align-items: flex-end; justify-content: flex-end; border-bottom: 1px solid #263b58; }
-.bm-state-chart .bm-direction-bar { flex: 0 1 44px; width: 44px; min-width: 10px; height: 100%; }
-.bm-state-chart .bm-direction-bar span { bottom: 0; height: calc(var(--direction-size) * 1%); background: linear-gradient(180deg, #35cdbb, #2d8f91); opacity: .95; }
+.bm-state-chart { align-items: flex-end; justify-content: flex-end; border-bottom: 1px solid #263b58; overflow: hidden; }
+.bm-state-chart .bm-direction-bar { flex: 0 1 44px; width: 44px; min-width: 0; height: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.bm-state-chart .bm-direction-bar span { top: auto; bottom: 0; height: calc(var(--direction-size) * 1%); }
 .bm-direction-meta { grid-template-columns: .7fr 1.6fr .7fr; padding-top: 18px; }
 .bm-direction-meta dd { font-size: 14px; }
 .bm-direction-meta-driver dd { -webkit-line-clamp: 1; }
 
-.bm-btc { padding: clamp(46px, 6vw, 82px) 0; }
+.bm-btc { padding-top: clamp(46px, 6vw, 82px); padding-bottom: clamp(24px, 3vw, 40px); }
 .bm-btc-section-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 26px; }
 .bm-btc-section-head h2 { margin: 0; color: var(--teal); font: 800 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: .18em; }
 .bm-btc-section-head p { margin: 0; color: #667b98; font-size: 14px; }
 .bm-btc-card,
 .bm-pro-teaser { width: 100%; max-width: none; margin-inline: 0; box-shadow: none; }
 .bm-btc-card { padding: 0; overflow: hidden; background: rgba(16,30,49,.7); }
-.bm-btc-overview { display: grid; grid-template-columns: 1.05fr 1fr 1fr; }
+.bm-btc-overview { display: grid; grid-template-columns: 1fr 1.15fr 0.95fr 0.65fr; }
 .bm-btc-metric { min-width: 0; padding: clamp(28px, 3.2vw, 46px); }
 .bm-btc-metric + .bm-btc-metric { border-left: 1px solid var(--stroke); }
 .bm-btc-kicker,
@@ -1029,7 +1044,7 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
 .bm-btc-confidence-segments .is-active { background: var(--teal); }
 .bm-btc-driver { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 20px 0; margin: 0; padding: clamp(28px, 3.2vw, 42px); border: 0; border-top: 1px solid var(--stroke); border-radius: 0; background: rgba(24,49,66,.24); }
 .bm-btc-driver > span { margin: 4px 0 0; color: var(--teal); }
-.bm-btc-driver-list { margin: 0; padding-left: 22px; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.55; }
+.bm-btc-driver-list { margin: 0; padding-left: 0; list-style: none; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.55; }
 .bm-btc-driver-list li + li { margin-top: 10px; }
 .bm-btc-driver-empty { margin: 0; color: var(--muted); }
 .bm-btc-status { margin: 0; padding: 24px clamp(28px, 3.2vw, 42px); border-top: 1px solid var(--stroke); }
@@ -1039,9 +1054,9 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
 .bm-btc-freshness i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .bm-btc-disclaimer { max-width: 570px; margin: 0; padding: 0; border: 0; text-align: right; }
 
-.bm-pro-teaser { display: grid; grid-template-columns: .95fr 1.05fr; align-items: center; gap: clamp(38px, 7vw, 100px); margin-top: 70px; padding: clamp(42px, 5vw, 72px); border-radius: 20px; background: rgba(16,30,49,.78); text-align: left; }
+.bm-pro-teaser { display: grid; grid-template-columns: 1.15fr .85fr; align-items: center; gap: clamp(38px, 7vw, 100px); margin-top: 0; padding: clamp(42px, 5vw, 72px); border-radius: 20px; background: rgba(16,30,49,.78); text-align: left; }
 .bm-pro-copy { min-width: 0; }
-.bm-pro-teaser h3 { max-width: 540px; margin: 22px 0 18px; font-size: clamp(32px, 3.4vw, 48px); line-height: 1.18; }
+.bm-pro-teaser h3 { max-width: 540px; margin: 22px 0 18px; font-size: clamp(26px, 2.6vw, 36px); line-height: 1.2;  }
 .bm-pro-teaser .bm-pro-copy > p { max-width: 500px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
 .bm-pro-cta { margin-top: 28px; border-radius: 12px; }
 .bm-pro-locks { margin: 0; gap: 14px; }
@@ -1064,6 +1079,8 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   .bm-hero { padding: 50px 0 58px; }
   .bm-direction-card { min-height: 0; }
   .bm-state-chart .bm-direction-bar { flex-basis: 32px; width: 32px; }
+  .bm-direction-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .bm-direction-meta dt { letter-spacing: .12em; }
   .bm-btc-section-head { align-items: flex-start; flex-direction: column; gap: 8px; }
   .bm-btc-section-head p { font-size: 12px; }
   .bm-btc-overview { grid-template-columns: 1fr; }
@@ -1075,7 +1092,7 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   .bm-btc-status { align-items: flex-start; flex-direction: column; padding: 22px; }
   .bm-btc-status > div { align-items: flex-start; flex-direction: column; }
   .bm-btc-disclaimer { text-align: left; }
-  .bm-pro-teaser { grid-template-columns: 1fr; gap: 34px; margin-top: 42px; padding: 30px 22px; }
+  .bm-pro-teaser { grid-template-columns: 1fr; gap: 34px; margin-top: 0; padding: 30px 22px; }
   .bm-pro-teaser h3 { font-size: 30px; }
   .bm-pro-locks { grid-template-columns: 1fr; }
 }
@@ -1089,6 +1106,13 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
 .bm-direction-metric--bias { align-items: flex-end; text-align: right; }
 
 .bm-btc-bias-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 16px 0 0; }
+.bm-btc-regime-duration { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.bm-btc-bias-note { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+.bm-btc-confidence-label { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.bm-btc-driver-primary { margin: 0; color: var(--ink); font-size: clamp(15px, 1.5vw, 18px); line-height: 1.55; }
+.bm-btc-direction-transition { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bm-btc-direction.is-prev { opacity: .6; }
+.bm-btc-direction-arrow { color: var(--muted); font-size: 14px; }
 .bm-btc-bias-label { color: #71839f; font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: .17em; text-transform: uppercase; }
 
 /* ============= HOMEPAGE HIERARCHY: NEW SECTIONS (customer-facing UI cleanup sprint) =============
@@ -1167,9 +1191,9 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   letter-spacing: .1em;
   text-transform: uppercase;
 }
-.bm-research-item h3 { margin: 0 0 10px; font-size: 18px; line-height: 1.35; }
-.bm-research-item h3 a { color: var(--ink); }
-.bm-research-item h3 a:hover { color: var(--teal); }
+.bm-research-item h2, .bm-research-item h3 { margin: 0 0 10px; font-size: 18px; line-height: 1.35; }
+.bm-research-item h2 a, .bm-research-item h3 a { color: var(--ink); }
+.bm-research-item h2 a:hover, .bm-research-item h3 a:hover { color: var(--teal); }
 .bm-research-item p { margin: 0 0 12px; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
 .bm-research-link { color: var(--teal); font-weight: 700; font-size: 14px; }
 .bm-research-link:hover { color: var(--teal-hover); }
@@ -1310,3 +1334,940 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   .bm-howworks-steps { grid-template-columns: 1fr; }
   .bm-wl-teaser { padding: 24px 20px; }
 }
+
+/* ============= RISET ARCHIVE (category-riset.php) ============= */
+.bm-riset-head { padding: clamp(48px, 6vw, 84px) 20px clamp(32px, 4vw, 56px); }
+.bm-riset-eyebrow {
+  display: block;
+  margin: 0 0 14px;
+  color: var(--teal);
+  font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.bm-riset-sub { max-width: 620px; margin: 14px auto 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
+
+.bm-riset-thumb {
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 0 0 14px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0a1d2a;
+}
+.bm-riset-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.bm-riset-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
+.bm-riset-meta time { color: #71839f; font-size: 12px; }
+
+/* ============= RISET ARTICLE-END BRIDGE (single.php) ============= */
+.bm-riset-bridge { padding-top: 0; padding-bottom: clamp(32px, 5vw, 56px); }
+.bm-riset-bridge-card {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 22px 26px;
+  border: 1px solid rgba(38,208,198,.22);
+  border-radius: var(--radius);
+  background: rgba(38,208,198,.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.bm-riset-bridge-eyebrow {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--teal);
+  font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.bm-riset-bridge-card p { margin: 0; color: var(--ink); font-size: 15px; }
+.bm-riset-bridge-cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 22px;
+  border: 1px solid var(--teal);
+  border-radius: var(--pill);
+  color: var(--teal);
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.bm-riset-bridge-cta:hover { background: var(--teal); color: #08222a; }
+
+@media (max-width: 640px) {
+  .bm-riset-bridge-card { padding: 20px; }
+  .bm-riset-bridge-cta { width: 100%; justify-content: center; }
+}
+
+/* ============= P0 VISUAL CORRECTION v2: RISET REDESIGN (2026-09-04) =============
+   Product-brand market-intelligence page, not an editorial magazine: a
+   compact left-aligned hero, a "Latest Research" primary+secondary
+   spotlight, a distinct "Bitmomo AI Lab" brand/R&D module, and a dense
+   "Arsip Riset" list. No gradients on the AI Lab module (flat tint
+   only), no orange anywhere in Riset (orange stays commercial-only).
+   Homepage chart CSS below this block is untouched -- frozen this pass.
+
+   Final visual correction pass (2026-09-04b): "Latest Research" is now a
+   single compact index list (no giant magazine card); Arsip rows are
+   single clickable anchors with the excerpt removed (this also resolves
+   the old fixed-height + line-clamp text clipping); AI Lab presentation
+   is compressed/de-widgeted with restrained cyan dividers. AI Lab
+   architecture, copy, and pillars are unchanged. */
+
+.bm-riset-hero {
+  text-align: left;
+  padding: clamp(32px, 4vw, 48px) 20px clamp(24px, 3vw, 32px);
+}
+.bm-riset-hero .bm-container { margin: 0 auto; }
+.bm-riset-hero-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.bm-riset-hero-copy { max-width: 560px; }
+.bm-riset-hero .bm-page-title {
+  display: block;
+  max-width: 560px;
+  padding-bottom: 0;
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.22;
+  text-align: left;
+}
+.bm-riset-hero .bm-page-title::after { display: none; }
+.bm-riset-hero .bm-riset-eyebrow { margin: 0 0 10px; }
+.bm-riset-hero .bm-riset-sub { margin: 10px 0 0; max-width: 440px; text-align: left; font-size: 15px; }
+
+.bm-riset-nav {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+  margin: 0;
+}
+.bm-riset-nav a {
+  padding-bottom: 6px;
+  border-bottom: 1px solid transparent;
+  color: var(--muted);
+  font: 700 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.bm-riset-nav a:hover,
+.bm-riset-nav a:focus-visible {
+  border-bottom-color: var(--teal);
+  color: var(--ink);
+}
+
+.bm-riset-section-eyebrow {
+  display: block;
+  margin: 0 0 20px;
+  color: var(--teal);
+  font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* ---- Riset Terbaru: compact research index list, not a magazine
+   spotlight. Title/idea over image; a restrained thumbnail on the
+   latest item only. Whole row is one clickable anchor. ---- */
+.bm-riset-latest { padding: clamp(32px, 4vw, 48px) 0; }
+.bm-riset-index-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--stroke);
+  max-width: 760px;
+}
+.bm-riset-index-item { border-bottom: 1px solid var(--stroke); }
+.bm-riset-index-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 15px 6px;
+  color: inherit;
+  border-radius: 8px;
+}
+.bm-riset-index-row:hover { background: rgba(255, 255, 255, .03); }
+.bm-riset-index-row:hover h3 { color: var(--teal); }
+.bm-riset-index-thumb {
+  flex: 0 0 auto;
+  display: block;
+  width: 84px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0f2434;
+}
+.bm-riset-index-thumb img,
+.bm-riset-index-thumb-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bm-riset-index-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.bm-riset-index-body time { color: #71839f; font-size: 12px; letter-spacing: .01em; }
+.bm-riset-index-body h3 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.bm-riset-index-item--featured .bm-riset-index-body h3 { font-size: clamp(16.5px, 1.4vw, 18.5px); }
+.bm-riset-index-arrow {
+  flex: 0 0 auto;
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 15px;
+  transition: transform .15s ease;
+}
+.bm-riset-index-row:hover .bm-riset-index-arrow { transform: translateX(3px); }
+
+/* ---- Bitmomo AI Lab: brand/R&D module, not an article grid. Flat cyan
+   tint only -- no gradients, no orange, no illustration-as-identity.
+   Architecture/copy/pillars unchanged -- density + click affordance +
+   divider weight only. ---- */
+.bm-ai-lab-brand {
+  padding: clamp(40px, 5vw, 60px) 0;
+  border-top: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--stroke);
+  background: rgba(56, 189, 248, .035);
+}
+.bm-ai-lab-inner { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: start; }
+.bm-ai-lab-kicker { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.bm-ai-lab-kicker span {
+  color: #8ba0bd;
+  font: 800 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
+}
+.bm-ai-lab-kicker strong {
+  color: #38bdf8;
+  font: 800 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
+}
+.bm-ai-lab-intro h2 { margin: 0 0 12px; max-width: 620px; color: #e6f6ff; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.3; }
+.bm-ai-lab-support { margin: 0 0 28px; max-width: 540px; color: var(--muted); font-size: 15px; line-height: 1.65; }
+
+.bm-ai-lab-pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 0; padding: 0; list-style: none; }
+.bm-ai-lab-pillars li { padding-top: 14px; border-top: 2px solid #38bdf8; }
+.bm-ai-lab-pillar-name { display: block; margin: 0 0 8px; color: var(--ink); font-weight: 700; font-size: 14.5px; }
+.bm-ai-lab-pillars p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+.bm-ai-lab-work {
+  padding: 18px 20px;
+  border: 1px solid rgba(56, 189, 248, .18);
+  border-radius: var(--radius);
+  background: rgba(10, 22, 33, .32);
+}
+.bm-ai-lab-work-label {
+  display: block;
+  margin: 0 0 12px;
+  color: #38bdf8;
+  font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.bm-ai-lab-work-list { margin: 0; padding: 0; list-style: none; }
+.bm-ai-lab-work-list li {
+  padding: 10px 8px;
+  margin: 0 -8px;
+  border-top: 1px solid rgba(56, 189, 248, .15);
+  border-radius: 6px;
+  transition: background .15s ease;
+}
+.bm-ai-lab-work-list li:first-child { border-top: 0; }
+.bm-ai-lab-work-list li:hover { background: rgba(56, 189, 248, .06); }
+.bm-ai-lab-work-topic {
+  display: block;
+  margin-bottom: 4px;
+  color: #6fb8d6;
+  font: 800 10px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .1em;
+}
+.bm-ai-lab-work-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.bm-ai-lab-work-list a::after {
+  content: "\2192";
+  flex: 0 0 auto;
+  color: #38bdf8;
+  font-weight: 700;
+  transition: transform .15s ease;
+}
+.bm-ai-lab-work-list a:hover { color: #38bdf8; }
+.bm-ai-lab-work-list a:hover::after { transform: translateX(3px); }
+
+/* ---- Arsip: dense, compact scan list -- no excerpt, single clickable
+   anchor per row. ---- */
+.bm-riset-archive { padding: clamp(32px, 4vw, 48px) 0 clamp(44px, 5.5vw, 64px); }
+.bm-riset-archive-list {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 720px;
+}
+.bm-riset-archive-list li { border-top: 1px solid var(--stroke); }
+.bm-riset-archive-list li:first-child { border-top: 0; }
+.bm-riset-archive-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 6px;
+  color: inherit;
+  border-radius: 8px;
+}
+.bm-riset-archive-row:hover { background: rgba(255, 255, 255, .03); }
+.bm-riset-archive-row:hover .bm-riset-archive-title { color: var(--teal); }
+.bm-riset-archive-row time { flex: 0 0 auto; color: #71839f; font-size: 12px; }
+.bm-riset-archive-title { flex: 1 1 auto; min-width: 0; color: var(--ink); font-weight: 700; font-size: 15px; }
+.bm-riset-archive-arrow { flex: 0 0 auto; color: var(--teal); font-weight: 700; transition: transform .15s ease; }
+.bm-riset-archive-row:hover .bm-riset-archive-arrow { transform: translateX(3px); }
+
+@media (max-width: 1050px) {
+  .bm-ai-lab-inner { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 900px) {
+  .bm-riset-hero-inner { flex-direction: column; align-items: flex-start; gap: 18px; }
+}
+
+@media (max-width: 640px) {
+  .bm-riset-hero { padding: 28px 20px 22px; }
+  .bm-riset-hero .bm-page-title { font-size: 24px; }
+  .bm-riset-nav { gap: 16px; }
+
+  .bm-riset-index-row { gap: 12px; padding: 13px 4px; }
+  .bm-riset-index-thumb { width: 64px; height: 46px; }
+  .bm-riset-index-body h3 { font-size: 14px; }
+  .bm-riset-index-item--featured .bm-riset-index-body h3 { font-size: 15.5px; }
+
+  /* AI Lab: ~20-30% denser on mobile via tighter padding/spacing/type,
+     never cramped. Architecture/copy/pillars unchanged. */
+  .bm-ai-lab-brand { padding: clamp(26px, 7vw, 36px) 0; }
+  .bm-ai-lab-kicker { margin: 0 0 10px; }
+  .bm-ai-lab-intro h2 { font-size: clamp(20px, 5.5vw, 23px); margin: 0 0 8px; }
+  .bm-ai-lab-support { margin: 0 0 18px; font-size: 14px; line-height: 1.55; }
+  .bm-ai-lab-pillars { grid-template-columns: 1fr; gap: 12px; }
+  .bm-ai-lab-pillars li {
+    padding-top: 10px;
+    border-top: 0;
+    position: relative;
+  }
+  .bm-ai-lab-pillars li::before {
+    content: "";
+    display: block;
+    width: 26px;
+    height: 1px;
+    margin-bottom: 9px;
+    background: rgba(56, 189, 248, .45);
+  }
+  .bm-ai-lab-pillar-name { font-size: 13.5px; margin-bottom: 5px; }
+  .bm-ai-lab-pillars p { font-size: 12.5px; line-height: 1.45; }
+  .bm-ai-lab-work { padding: 14px 16px; margin-top: 18px; }
+  .bm-ai-lab-work-label { margin: 0 0 10px; }
+  .bm-ai-lab-work-list li { padding: 9px 6px; margin: 0 -6px; }
+  .bm-ai-lab-work-list a { font-size: 13.5px; }
+  .bm-ai-lab-work-topic { font-size: 9.5px; margin-bottom: 3px; }
+
+  .bm-riset-archive-row { padding: 12px 4px; }
+}
+
+@media (max-width: 480px) {
+  /* Arsip row: arrow must stay pinned to the title block, never its own
+     standalone line -- switch to a 2-col grid (date spans full width,
+     title+arrow share the second row) so the arrow position is independent
+     of how many lines the title text wraps to. */
+  .bm-riset-archive-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "date  date"
+      "title arrow";
+    column-gap: 12px;
+    row-gap: 3px;
+    align-items: center;
+  }
+  .bm-riset-archive-row time { grid-area: date; }
+  .bm-riset-archive-title { grid-area: title; }
+  .bm-riset-archive-arrow { grid-area: arrow; align-self: center; }
+}
+
+
+/* ============= P0 VISUAL CORRECTION: HOMEPAGE CHART POLISH (2026-09) =============
+   CSS-only. No data/semantics changed: color still = Directional Bias,
+   height still = Market State Certainty. .bm-direction-dates and
+   .bm-direction-detail were emitted by home-hero.php with zero CSS
+   defined for them anywhere in this file -- they rendered as unstyled
+   inline spans / a default browser dl, which is what read as "cramped"
+   and "raw stacked output". This adds the missing styling only. */
+.bm-direction-dates {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: clamp(4px, .7vw, 10px);
+  margin: 8px 0 0;
+}
+.bm-direction-dates span {
+  flex: 0 1 44px;
+  width: auto;
+  min-width: 0;
+  padding: 0 2px;
+  text-align: center;
+  color: #71839f;
+  font: 700 9px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0;
+  white-space: nowrap;
+  visibility: hidden;
+}
+.bm-direction-dates span:nth-child(5n+1) { visibility: visible; }
+.bm-direction-dates span:last-child { visibility: visible; color: var(--teal); font-weight: 800; }
+
+.bm-direction-bar.is-current span,
+.bm-direction-bar.is-selected span {
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .22);
+}
+.bm-direction-bar.is-current::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--teal);
+  transform: translateX(-50%);
+}
+
+.bm-direction-detail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 14px 0 0;
+  padding: 16px clamp(16px, 2vw, 22px);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  background: rgba(38, 208, 198, .04);
+}
+.bm-direction-detail div { min-width: 0; }
+.bm-direction-detail dt {
+  margin: 0 0 6px;
+  color: #71839f;
+  font: 800 10px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.bm-direction-detail dd { margin: 0; color: var(--ink); font-size: 14px; font-weight: 750; line-height: 1.3; }
+.bm-direction-detail dd.is-bullish { color: var(--teal); }
+.bm-direction-detail dd.is-bearish { color: #ff7b6d; }
+.bm-direction-detail dd.is-neutral { color: #c7d4db; }
+
+@media (max-width: 760px) {
+  .bm-direction-dates span { flex-basis: 32px; width: 32px; }
+}
+
+@media (max-width: 640px) {
+  .bm-direction-detail { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; padding: 14px 16px; }
+}
+/* ============= FOUNDER VISUAL SYSTEM PASS (2026-09) =============
+   Root-cause / global fixes. See engagement return report for the
+   exact selector each item addresses. */
+
+/* B8: keep "BTC ONLY" (and similarly short trailing phrases) from
+   orphaning onto their own line inside .bm-hero-notes. */
+.bm-nowrap { white-space: nowrap; }
+
+/* A1: neutralize the browser's native red/pink :invalid glow on
+   untouched, pristine required fields (email inputs in the whitelist
+   and Founding Whitelist popup forms) so normal/focus states never
+   acquire an unexplained magenta/pink halo. Real validation errors are
+   already communicated via the widget's own visible error text
+   (#bm-wl-error / #bm-wl-whatsapp-error), so this never hides a real
+   failure -- it only removes the ambient native glow on fields the
+   visitor has not touched yet. */
+.bm-wl__field input:invalid,
+.bm-wl-whatsapp__input:invalid,
+#bm-subscribe-modal input:invalid {
+  box-shadow: none;
+  outline: none;
+}
+.bm-wl__field input:focus-visible,
+.bm-wl-whatsapp__input:focus-visible,
+#bm-subscribe-modal input:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* A1: Hostinger Reach's own subscription block ships a hard-coded
+   purple/violet (#673de6) button and a pink-red error state
+   (rgba(234,71,104,...)) that has nothing to do with Bitmomo's color
+   system. Its CSS/JS load site-wide even where unused. Same
+   higher-specificity-override technique already used elsewhere in
+   this file (see .bm-bi__history-embed) to re-skin a third-party
+   widget's colors without touching its own files. */
+.hostinger-reach-block-dialog__button {
+  background: var(--cta) !important;
+  color: #0b1620 !important;
+}
+.hostinger-reach-block-dialog__button:hover {
+  background: var(--cta-hover) !important;
+}
+.reach-subscription-message.is-error {
+  background: rgba(239, 68, 68, .12) !important;
+}
+.reach-subscription-message.is-success {
+  background: rgba(52, 211, 153, .12) !important;
+}
+
+/* C: Founding Whitelist popup reuses the existing #bm-subscribe-modal
+   shell verbatim (same trigger/close/focus-trap JS). Only the dialog
+   needs to be a little wider and its inner panel transparent so the
+   whitelist widget's own dark card (bm-pro-sales.bm-wl, already styled
+   by bitmomo-pro-sales.css / bitmomo-pro-whitelist.css) shows through
+   instead of the old MailPoet-era white box. */
+#bm-subscribe-modal .bm-subscribe-dialog--wl {
+  width: min(480px, 92vw);
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+#bm-subscribe-modal .bm-subscribe-dialog--wl .bm-subscribe-form {
+  background: transparent;
+  padding: 0;
+  color: var(--ink);
+}
+#bm-subscribe-modal .bm-subscribe-dialog--wl .bm-subscribe-close {
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+}
+
+/* A3: global footer (replaces the old three-link + copyright strip). */
+.bm-footer {
+  border-top: 1px solid var(--stroke);
+  background: #0a1826;
+  padding: 56px 0 28px;
+}
+.bm-footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  gap: 32px;
+  padding-bottom: 32px;
+}
+.bm-footer-brand p {
+  margin: 10px 0 0;
+  max-width: 320px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.bm-footer-wordmark {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+.bm-footer-col h3 {
+  margin: 0 0 14px;
+  color: #71839f;
+  font: 800 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.bm-footer-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.bm-footer-col a { color: var(--muted); font-size: 14px; }
+.bm-footer-col a:hover { color: var(--teal); }
+.bm-footer-social { display: flex; gap: 12px; justify-content: center; }
+.bm-footer-newsletter { margin-top: 18px; }
+.bm-footer-newsletter p { margin: 0 0 10px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.bm-footer-newsletter .bm-newsletter-cta { padding: 9px 18px; font-size: 13px; }
+.bm-footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--stroke);
+  color: var(--muted);
+}
+.bm-footer-social a:hover { color: var(--teal); border-color: var(--teal); }
+.bm-footer-social svg { width: 16px; height: 16px; fill: currentColor; }
+.bm-footer-bottom {
+  padding-top: 20px;
+  border-top: 1px solid var(--stroke);
+  color: #667b98;
+  font-size: 12px;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .bm-footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .bm-footer-grid { grid-template-columns: 1fr; gap: 26px; }
+  .bm-footer { padding: 40px 0 22px; }
+}
+
+/* B10: compact homepage Pro conversion block (replaces the full
+   Founding Whitelist email form previously embedded via
+   template-parts/whitelist.php). Deliberately reuses .bm-pro-teaser's
+   existing card treatment instead of a new component. */
+.bm-home-pro-cta {
+  text-align: center;
+  padding: clamp(36px, 5vw, 56px);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  background: rgba(16,30,49,.7);
+}
+.bm-home-pro-cta .bm-pro-eyebrow { display: block; margin-bottom: 10px; }
+.bm-home-pro-cta h3 { margin: 0 auto 10px; max-width: 560px; color: var(--ink); font-size: clamp(22px, 3vw, 28px); line-height: 1.3; }
+.bm-home-pro-cta > p { margin: 0 auto; max-width: 520px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.bm-home-pro-cta-price { margin: 18px 0 0; color: var(--ink); font-weight: 800; font-size: 15px; }
+.bm-home-pro-cta-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 18px; margin-top: 22px; }
+
+/* =========================================================
+   ABOUT / TENTANG KAMI — Section F rewrite (trust-oriented,
+   compact; replaces legacy "media independen" essay layout).
+   Reuses existing tokens/idioms only: .bm-section/.bm-container
+   rhythm, .bm-pro-eyebrow's kicker pattern (teal instead of the
+   commercial --cta orange, since this isn't a purchase action --
+   teal is the locked "Bitmomo system/research accent"), and the
+   established .bm-pro-cta (commercial/orange) vs .bm-newsletter-cta
+   (secondary/outline) button pairing for the two CTAs below.
+   ========================================================= */
+.bm-about-hero {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+.bm-about-eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.bm-about-hero h1 {
+  margin: 0 0 18px;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: clamp(28px, 3.6vw, 40px);
+  line-height: 1.25;
+}
+.bm-about-hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.65;
+}
+.bm-about-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1000px;
+  margin: clamp(36px, 5vw, 54px) auto 0;
+}
+.bm-about-trust-card {
+  padding: 22px 20px;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: var(--card-bg);
+}
+.bm-about-trust-card h3 {
+  margin: 0 0 8px;
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.bm-about-trust-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.bm-about-lineage {
+  max-width: 760px;
+  margin: clamp(36px, 5vw, 54px) auto 0;
+  padding: clamp(24px, 4vw, 34px);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, rgba(25,55,75,.98), rgba(12,28,42,.98));
+  text-align: center;
+}
+.bm-about-lineage h2 {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.bm-about-lineage p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.bm-about-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: clamp(32px, 5vw, 48px) auto 0;
+}
+@media (max-width: 900px) {
+  .bm-about-trust-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .bm-about-trust-grid { grid-template-columns: 1fr; }
+  .bm-about-cta-row { flex-direction: column; }
+  .bm-about-cta-row .bm-pro-cta,
+  .bm-about-cta-row .bm-newsletter-cta { width: 100%; justify-content: center; }
+}
+
+/* ---------- A1: ROOT CAUSE of the pink/magenta collision ----------
+   Source: wp-content/themes/hello-elementor/assets/css/reset.css
+   selector `a, [type="button"], [type="submit"], button { color:#cc3366 }`.
+   Any button/link not given an explicit color by a more specific Bitmomo
+   rule falls back to that parent-theme reset pink (#cc3366 / rgb(204,51,102))
+   via currentColor -- most visibly as the Founding Whitelist popup's
+   primary submit button text+border. Neutralize the leak at its source
+   (the child theme's stylesheet loads after the parent's reset.css, so
+   this wins the selector-specificity tie by source order) rather than
+   patching each affected button individually. */
+button, [type="button"], [type="submit"] { color: inherit; border-color: currentColor; }
+
+/* ---------- C: Founding Whitelist popup buttons (Bitmomo_Pro_Whitelist
+   widget markup, .bm-wl__submit / .bm-wl-whatsapp__submit) -- the plugin's
+   own CSS sets layout (display/width) but never color, so these were
+   rendering in the reset-leaked pink above. Orange = locked commercial
+   action color for the primary CTA; neutral outline for the secondary
+   WhatsApp opt-in, matching .bm-newsletter-cta's existing treatment. */
+.bm-wl__submit {
+  display: block;
+  width: 100%;
+  margin-top: 14px !important;
+  padding: 13px 22px !important;
+  border: none !important;
+  border-radius: var(--pill) !important;
+  background: var(--cta) !important;
+  color: #1a1206 !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.bm-wl__submit:hover { background: var(--cta-hover) !important; color: #1a1206 !important; }
+.bm-wl-whatsapp__submit {
+  display: block;
+  width: 100%;
+  margin-top: 10px !important;
+  padding: 11px 22px !important;
+  border: 1px solid var(--stroke) !important;
+  border-radius: var(--pill) !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  cursor: pointer;
+}
+.bm-wl-whatsapp__submit:hover { border-color: var(--teal) !important; color: var(--teal) !important; }
+
+/* =========================================================
+   CLOSEOUT FIX 1: legacy WP page title vs sticky mobile header
+   .page-header / .entry-title is the default Hello Elementor page
+   title. About previously duplicated it alongside its own redesigned
+   H1; Privacy/Disclaimer (and any other page without a custom hero)
+   genuinely rely on it. At <=768px its own top offset doesn't clear
+   the sticky .bm-header, so the first ~24px of the title render
+   underneath it. Root fix: give .page-header shared top clearance at
+   that breakpoint -- desktop already clears the header and is left
+   untouched.
+   ========================================================= */
+@media (max-width: 768px) {
+  .page-header { padding-top: 32px; }
+}
+/* About (page 2480) has its own redesigned hero H1 (.bm-about-hero h1).
+   Suppress the legacy duplicate title here only, at every width, so the
+   page keeps exactly one H1 -- do not compensate with margin instead. */
+.page-id-2480 .page-header { display: none; }
+
+/* BTC Intelligence page: the Bitmomo Pro CTA is the last section before the
+   sitewide footer. Its normal .bm-bi__section margin-bottom (14px, from the
+   plugin's own stylesheet) is meant for section-to-section rhythm, not for
+   the harder transition into the footer, which read as cramped. */
+.bm-bi__pro-cta { margin-bottom: 64px; }
+
+/* About page CTA row: the shared bare .bm-pro-cta rule (margin-top: 28px;
+   border-radius: 12px;) was authored for the homepage's stacked Bitmomo Pro
+   teaser column, where it separates the button from the price text above
+   it. Leaking into this side-by-side row makes the button sit lower than
+   its .bm-newsletter-cta sibling and lose its pill shape, reading as a
+   crooked/misaligned pair. Reset both properties for this context only. */
+.bm-about-cta-row .bm-pro-cta {
+  margin-top: 0;
+  border-radius: var(--pill);
+}
+
+/* Footer newsletter: the Hostinger Reach subscription block ships default
+   WP block-editor utility classes (has-color-3-background-color etc.) that
+   this theme's theme.json never defines, and its own subscription.css
+   assumes a light-mode form (white input, no button fill). Restyle for the
+   dark footer using the existing design tokens; scoped under
+   .bm-footer-newsletter so no other Reach form elsewhere is affected. */
+.bm-footer-newsletter { margin-top: 18px; }
+.bm-footer-newsletter .hostinger-reach-block-subscription-form-wrapper { width: 100%; max-width: 260px; }
+.bm-footer-newsletter .hostinger-reach-block-subscription-form .hostinger-reach-block-form-fields { gap: 10px; }
+.bm-footer-newsletter .hostinger-reach-block-subscription-form .hostinger-reach-block-form-field { margin-top: 0; }
+.bm-footer-newsletter .hostinger-reach-block-subscription-form label {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: none;
+}
+.bm-footer-newsletter .hostinger-reach-block-subscription-form label .required { color: var(--teal); }
+.bm-footer-newsletter .hostinger-reach-block-subscription-form input {
+  min-height: 0;
+  padding: 9px 14px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  background: rgba(255,255,255,.03);
+  color: var(--ink);
+  font-size: 13px;
+}
+.bm-footer-newsletter .hostinger-reach-block-subscription-form input::placeholder { color: #5b7189; }
+.bm-footer-newsletter .hostinger-reach-block-subscription-form .hostinger-reach-block-submit {
+  margin-top: 10px;
+  min-height: 0;
+  padding: 9px 18px;
+  border: 1px solid var(--teal);
+  border-radius: var(--pill);
+  background: transparent;
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 800;
+  width: auto;
+}
+.bm-footer-newsletter .hostinger-reach-block-subscription-form .hostinger-reach-block-submit:hover { background: var(--teal); color: #06211f; }
+.bm-footer-newsletter .reach-subscription-message { margin-top: 10px; padding: 0; background: none; font-size: 12px; font-weight: 400; color: var(--muted); }
+.bm-footer-newsletter .reach-subscription-message.is-success { color: var(--teal); }
+.bm-footer-newsletter .reach-subscription-message.is-error { color: #ff7b6d; }
+
+/* Market State History trend chart (/btc-intelligence/): purely
+   presentational CSS for the chart bitmomo-frontend.js builds on top of
+   the [bitmomo_market_regime_history] shortcode's own markup. The
+   shortcode's PHP is untouched; these classes exist only in the theme. */
+.bmreg-trend { margin: 0 0 18px; padding: clamp(16px, 3vw, 22px); border: 1px solid var(--stroke); border-radius: 14px; background: rgba(15,35,52,.55); }
+.bmreg-trend-plot { position: relative; height: 160px; border-bottom: 1px solid #263b58; overflow: hidden; }
+.bmreg-trend-bars { position: absolute; inset: 0; z-index: 1; display: flex; align-items: flex-end; gap: 4px; }
+.bmreg-trend-bar { flex: 1 1 0; min-width: 3px; height: var(--bmreg-h, 4%); border: 0; border-radius: 4px 4px 2px 2px; cursor: pointer; padding: 0; opacity: .78; transition: opacity .15s ease, box-shadow .15s ease; }
+.bmreg-trend-bar:hover { opacity: 1; }
+.bmreg-trend-bar.is-current { opacity: 1; box-shadow: 0 0 0 2px rgba(255,255,255,.22); }
+.bmreg-trend-bar.is-akumulasi, .bmreg-trend-bar.is-accumulation { background: var(--teal); }
+.bmreg-trend-bar.is-ekspansi, .bmreg-trend-bar.is-expansion { background: #34d399; }
+.bmreg-trend-bar.is-distribusi, .bmreg-trend-bar.is-distribution { background: #f2b84c; }
+.bmreg-trend-bar.is-kapitulasi, .bmreg-trend-bar.is-capitulation { background: #ff7b6d; }
+.bmreg-trend-bar.is-transisi, .bmreg-trend-bar.is-transition { background: #8ba0bd; }
+.bmreg-trend-detail { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--stroke); font-size: 13px; }
+.bmreg-trend-detail span { display: block; }
+.bmreg-trend-detail-date { color: var(--muted); font-weight: 700; }
+.bmreg-trend-detail-state { color: var(--ink); font-weight: 700; }
+.bmreg-trend-detail-bias { font-weight: 700; }
+.bmreg-trend-detail-bias.bmreg-bias-bullish { color: #34d399; }
+.bmreg-trend-detail-bias.bmreg-bias-bearish { color: #ff7b6d; }
+.bmreg-trend-detail-bias.bmreg-bias-neutral { color: #8ba0bd; }
+.bmreg-trend-detail-conf { color: var(--teal); font-weight: 800; }
+.bmreg-trend-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; font-size: 12px; color: var(--muted); }
+.bmreg-trend-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.bmreg-trend-legend i { width: 9px; height: 9px; border-radius: 3px; }
+.bmreg-trend-legend i.is-akumulasi { background: var(--teal); }
+.bmreg-trend-legend i.is-ekspansi { background: #34d399; }
+.bmreg-trend-legend i.is-distribusi { background: #f2b84c; }
+.bmreg-trend-legend i.is-kapitulasi { background: #ff7b6d; }
+.bmreg-trend-legend i.is-transisi { background: #8ba0bd; }
+.bmreg-trend-caption { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+/* ============= HOMEPAGE PRO CTA ROW — symmetry fix (round 2, item 6/28) =============
+   .bm-pro-cta picks up margin-top:28px + border-radius:12px from the bare
+   .bm-pro-cta rule above (authored for the old stacked/centered teaser).
+   Scope a correction to just this row so both CTAs render as aligned pills.
+   Above 980px the two-column grid (ratio now 1.15fr/.85fr) has enough room
+   for both buttons on one line at a slightly tighter size; at/below 980px
+   the section already stacks to a single column (existing 760px breakpoint
+   still stacks earlier for small phones), so a dedicated 980px breakpoint
+   is added here to keep the CTA row from wrapping awkwardly in the
+   761-980px tablet range without touching the shared 760px media block
+   used by other components. */
+.bm-home-pro-cta-actions .bm-pro-cta { margin-top: 0; border-radius: 9999px; }
+@media (min-width: 981px) {
+  .bm-home-pro-cta-actions { flex-wrap: nowrap; justify-content: flex-start; gap: 14px; }
+  .bm-home-pro-cta-actions .bm-pro-cta { padding: 12px 22px; white-space: nowrap; }
+  .bm-home-pro-cta-actions .bm-newsletter-cta { padding: 11px 20px; white-space: nowrap; }
+}
+@media (max-width: 980px) {
+  .bm-pro-teaser { grid-template-columns: 1fr; gap: 34px; margin-top: 0; padding: 30px 22px; }
+  .bm-pro-teaser h3 { font-size: 30px; }
+  .bm-pro-locks { grid-template-columns: 1fr; }
+}
+
+/* ============= HOMEPAGE BTC CARD — Directional Bias as its own metric column
+   (round 3, item 2/33). Previously a small pill nested under Market State;
+   now its own column matching Market State / BTC Reference Price / Confidence,
+   showing a prev-→current transition when the bias actually changed
+   (existing PHP logic in template-parts/btc-intelligence-card.php, unchanged
+   here -- purely restyled). Reduced metric padding + a dedicated font-size
+   for the transition text keep four columns fitting the same card width that
+   previously held three; verified against the longest state word
+   ("Akumulasi"), a 6-figure BTC price, and the longest bias-pair combination. */
+.bm-btc-overview .bm-btc-metric { padding: clamp(22px, 2.4vw, 34px); }
+.bm-btc-bias-metric .bm-btc-direction-transition {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  font-size: clamp(20px, 2.1vw, 27px);
+}
+.bm-btc-bias-metric .bm-btc-direction {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.bm-btc-bias-metric .bm-btc-direction-arrow {
+  font-size: inherit;
+  font-weight: 800;
+}
+@media (max-width: 1050px) {
+  .bm-btc-overview { grid-template-columns: 1fr; }
+  .bm-btc-metric + .bm-btc-metric,
+  .bm-btc-confidence { grid-column: auto; border-top: 1px solid var(--stroke); border-left: 0; }
+}
+
+/* BTC price overlay for Market State History trend chart (Round 3, task #34) */
+.bmreg-price { position: absolute; inset: 0; z-index: 2; margin: 0; pointer-events: none; }
+.bmreg-price-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.bmreg-price-line { fill: none; stroke: var(--teal); stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; }
+.bmreg-price-dot { fill: var(--teal); }
+.bmreg-price-dot.is-current { fill: #fff; stroke: var(--teal); stroke-width: 2; }
+.bmreg-price-caption { margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.bmreg-trend-detail-price { color: var(--teal); font-weight: 800; }

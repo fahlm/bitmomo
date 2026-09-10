@@ -383,7 +383,7 @@ class Bitmomo_Pro_Whitelist {
 	 * email-submit success response (see handle_ajax_submit()) — never
 	 * exposed on any public/enumerable surface.
 	 */
-	private static function whatsapp_record_action( $post_id ) {
+	public static function whatsapp_record_action( $post_id ) {
 		return 'bm_wl_whatsapp_record_' . (int) $post_id;
 	}
 
@@ -525,6 +525,7 @@ class Bitmomo_Pro_Whitelist {
 				<p class="bm-wl__sub"><?php esc_html_e( 'Daftar untuk mendapat akses lebih awal saat Bitmomo Pro dibuka. Batch pertama dibatasi 25 anggota.', 'bitmomo-pro' ); ?></p>
 
 				<form id="bm-wl-form"
+					method="post"
 					data-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
 					data-action="<?php echo esc_attr( self::AJAX_ACTION ); ?>"
 					data-nonce="<?php echo esc_attr( wp_create_nonce( self::NONCE_ACTION ) ); ?>"
@@ -554,7 +555,7 @@ class Bitmomo_Pro_Whitelist {
 
 					<p class="bm-wl__error" id="bm-wl-error" hidden></p>
 
-					<button type="submit" class="bm-wl__submit"><?php esc_html_e( 'GABUNG WHITELIST', 'bitmomo-pro' ); ?></button>
+					<button type="submit" class="bm-wl__submit"><?php esc_html_e( 'GABUNG FOUNDING WHITELIST', 'bitmomo-pro' ); ?></button>
 				</form>
 
 				<p class="bm-wl__note"><?php esc_html_e( 'Masuk whitelist tidak menjamin tempat. Membership aktif setelah pembayaran berhasil.', 'bitmomo-pro' ); ?></p>

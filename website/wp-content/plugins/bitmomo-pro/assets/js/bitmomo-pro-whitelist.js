@@ -227,5 +227,33 @@
 					showWhatsappError(i18n.generic_error || 'Something went wrong.');
 				});
 		});
+
+		// Deep-link entry point: a WhatsApp-invite link from the whitelist
+		// confirmation email arrives as ?bm_wl_post=<id>&bm_wl_token=<nonce>.
+		// Reuse the exact same success-panel/WhatsApp-step UI as a fresh
+		// inline submission -- the token itself is only verified server-side
+		// by the existing bm_wl_whatsapp_record_<id> nonce check when the
+		// user actually submits a number, so nothing sensitive is trusted
+		// from the URL alone.
+		try {
+			var params = new URLSearchParams(window.location.search);
+			var linkPostId = params.get('bm_wl_post');
+			var linkToken = params.get('bm_wl_token');
+			if (linkPostId && linkToken) {
+				showSuccess(false, { post_id: linkPostId, record_token: linkToken, has_whatsapp: false });
+				if (waStep && !waStep.hidden && waStep.scrollIntoView) {
+					waStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				}
+				if (window.history && window.history.replaceState) {
+					params.delete('bm_wl_post');
+					params.delete('bm_wl_token');
+					var newQuery = params.toString();
+					var newUrl = window.location.pathname + (newQuery ? '?' + newQuery : '') + window.location.hash;
+					window.history.replaceState(null, '', newUrl);
+				}
+			}
+		} catch (e) {
+			/* noop -- deep-link convenience only, never block normal page load */
+		}
 	});
 }());

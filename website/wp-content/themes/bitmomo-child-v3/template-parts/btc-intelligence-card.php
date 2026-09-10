@@ -105,7 +105,7 @@ $bitmomo_updated = ! empty( $bitmomo_btc['timestamp_iso'] ) ? strtotime( $bitmom
         </footer>
       <?php endif; ?>
     </article>
+    <p class="bm-btc-methodology-bridge"><a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>"><?php esc_html_e( 'Lihat metodologi & track record lengkap →', 'bitmomo' ); ?></a></p>
   </div>
 </section>
 <?php unset( $bitmomo_btc, $bitmomo_status, $bitmomo_available, $bitmomo_key_drivers, $bitmomo_regime, $bitmomo_regime_label, $bitmomo_raw_bias, $bitmomo_bias_valid, $bitmomo_bias_labels, $bitmomo_confidence, $bitmomo_confidence_label, $bitmomo_confidence_segments, $bitmomo_updated, $bitmomo_segment, $bitmomo_driver ); ?>
-

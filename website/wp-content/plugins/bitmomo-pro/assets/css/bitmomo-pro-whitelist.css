@@ -99,23 +99,34 @@
 	line-height: 1.4;
 }
 
-.bm-wl__submit {
+/*
+ * 2026-09 color regression fix: this is a purchase-intent click target
+ * (see bitmomo-pro-sales.css's 2026-09 final polish note -- orange is the
+ * site's single commercial-CTA color). The plain `.bm-wl__submit` class
+ * selector tied Hello Elementor's reset.css (`[type="submit"], button`)
+ * at equal specificity, and source order let the reset's hardcoded
+ * placeholder pink/magenta win outside of `.bm-pro-sales__climax`. Scoping
+ * under `.bm-pro-sales` restores the intended orange everywhere this
+ * widget renders (homepage teaser included), matching the climax-scoped
+ * rule below without duplicating it there.
+ */
+.bm-pro-sales .bm-wl__submit {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	padding: 13px 20px;
 	border: 0;
 	border-radius: 8px;
-	background: var( --bms-teal );
-	color: #06201c;
+	background: var( --bms-orange );
+	color: #0b1620;
 	font-weight: 700;
 	font-size: 0.95rem;
 	cursor: pointer;
 }
 
-.bm-wl__submit:hover {
-	background: var( --bms-teal-dark );
-	color: #eafffb;
+.bm-pro-sales .bm-wl__submit:hover {
+	background: var( --bms-orange-dark );
+	color: #0b1620;
 }
 
 .bm-wl__submit:disabled {

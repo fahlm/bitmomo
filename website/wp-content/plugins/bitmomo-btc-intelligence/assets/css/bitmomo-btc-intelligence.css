@@ -1,0 +1,666 @@
+/*
+ * Bitmomo BTC Intelligence — public proof/methodology page styles.
+ *
+ * Deliberately distinct from /pro's visual language even though both
+ * share the same dark-intelligence family: /pro reserves boxed, glowing,
+ * elevated "peak" treatment for its three commercial peaks (hero, 11
+ * Analysts+Watchtower, Founding Membership+whitelist). This page is a
+ * research/accountability record, not a conversion funnel, so almost
+ * everything here reads as editorial (no box) with hairline dividers and
+ * a cooler, quieter accent color; the two moments that DO get elevated
+ * treatment are the live snapshot (proof the system is live right now)
+ * and the closing Pro CTA (the one place this page actually asks for a
+ * click). A light monospace touch on numeric/status figures reinforces
+ * "recorded evidence" over "marketing."
+ *
+ * 2026-09 final polish (color system): the one commercial click target on
+ * this page — the Pro CTA primary button — uses --bmi-orange, matching
+ * the site-wide commercial-CTA color (custom.css's --cta / #f4ad32, the
+ * same color the navbar BITMOMO PRO button and /pro's own CTA use).
+ *
+ * 2026-09 accent correction: this page had drifted to reading as a
+ * bright-cyan dashboard. --bmi-teal (#2dd4bf, the same teal family as
+ * the theme's --teal and /pro's --bms-teal) is now the dominant
+ * intelligence/system accent -- the eyebrow, signature callout, axis
+ * headings, confidence meter, version tags, and the snapshot/CTA panel
+ * borders all use it. Cyan (--bmi-cyan) is kept only as a sparing
+ * secondary highlight: the "Lihat cara kerja" secondary link, since it
+ * is not the primary conversion path and a single small link doesn't
+ * need the dominant accent. Semantic market colors (bull/bear/neutral)
+ * and the orange commercial CTA are unrelated to this pass and unchanged.
+ */
+
+.bm-bi {
+	--bmi-bg: #0a0f1a;
+	--bmi-surface: #0f1622;
+	--bmi-border: #1c2635;
+	--bmi-text: #e3e9f2;
+	--bmi-text-muted: #8b98ac;
+	--bmi-cyan: #38bdf8;
+	--bmi-cyan-soft: rgba( 56, 189, 248, 0.35 );
+	--bmi-teal: #2dd4bf;
+	--bmi-teal-soft: rgba( 45, 212, 191, 0.35 );
+	--bmi-orange: #f4ad32;
+	--bmi-orange-dark: #e69a18;
+	--bmi-bull: #34d399;
+	--bmi-bull-strong: #059669;
+	--bmi-bear-strong: #dc2626;
+	--bmi-neutral: #8fa3c2;
+	--bmi-bear: #f87171;
+	--bmi-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+	max-width: 760px;
+	margin: 0 auto;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	color: var( --bmi-text );
+	box-sizing: border-box;
+	padding: 0 4px;
+}
+
+.bm-bi * {
+	box-sizing: border-box;
+}
+
+.bm-bi__eyebrow {
+	text-transform: uppercase;
+	letter-spacing: 0.09em;
+	font-size: 0.72rem;
+	font-weight: 700;
+	color: var( --bmi-teal );
+	margin: 0 0 8px;
+}
+
+.bm-bi__section-title {
+	font-size: 1.15rem;
+	font-weight: 800;
+	margin: 0 0 12px;
+	letter-spacing: 0.01em;
+}
+
+.bm-bi__section-title--climax {
+	font-size: 1.5rem;
+}
+
+/* ---------- Hero ---------- */
+
+.bm-bi__hero {
+	text-align: center;
+	padding: 28px 16px 18px;
+}
+
+.bm-bi__hero-title {
+	font-size: 2.1rem;
+	font-weight: 800;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+	margin: 0 0 10px;
+}
+
+.bm-bi__hero-subhead {
+	font-size: 0.98rem;
+	color: var( --bmi-text-muted );
+	line-height: 1.4;
+	margin: 0 0 10px;
+	max-width: 480px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.bm-bi__hero-micro {
+	font-size: 0.76rem;
+	color: var( --bmi-text-muted );
+	font-style: italic;
+	opacity: 0.75;
+	margin: 0;
+}
+
+/* ---------- Editorial voice (default for most sections) ---------- */
+
+.bm-bi__section--editorial {
+	border-top: 1px solid var( --bmi-border );
+	padding: 28px 16px 8px;
+	margin-bottom: 4px;
+}
+
+.bm-bi__section--editorial p {
+	color: var( --bmi-text );
+	line-height: 1.6;
+	font-size: 0.95rem;
+}
+
+.bm-bi__section--quiet .bm-bi__section-title {
+	font-size: 1rem;
+	color: var( --bmi-text-muted );
+	font-weight: 700;
+}
+
+.bm-bi__section--quiet p {
+	font-size: 0.88rem;
+	color: var( --bmi-text-muted );
+}
+
+.bm-bi__disclaimer-line {
+	font-size: 0.85rem !important;
+	font-style: italic;
+	color: var( --bmi-text-muted ) !important;
+}
+
+.bm-bi__signature {
+	background: rgba( 45, 212, 191, 0.07 );
+	border-left: 3px solid var( --bmi-teal );
+	padding: 10px 14px;
+	font-size: 0.92rem;
+	font-weight: 700;
+	border-radius: 0 8px 8px 0;
+}
+
+/* ---------- Boxed "peak" voice: snapshot + pro CTA only ---------- */
+
+.bm-bi__section--peak {
+	background: var( --bmi-surface );
+	border: 1px solid var( --bmi-border );
+	border-radius: 12px;
+	padding: 22px 18px;
+	margin-bottom: 14px;
+}
+
+.bm-bi__snapshot {
+	border-top: 3px solid var( --bmi-teal );
+}
+
+/* ---------- Current snapshot ---------- */
+
+.bm-bi__snapshot-top {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px 12px;
+	margin: 10px 0 18px;
+}
+
+.bm-bi__metric {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.bm-bi__kicker {
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var( --bmi-text-muted );
+}
+
+.bm-bi__metric strong {
+	font-size: 1.05rem;
+	font-family: var( --bmi-mono );
+}
+
+.bm-bi__bias.is-bullish {
+	color: var( --bmi-bull );
+}
+.bm-bi__bias.is-bearish {
+	color: var( --bmi-bear );
+}
+.bm-bi__bias.is-unknown {
+	color: var( --bmi-text-muted );
+	font-family: inherit;
+	font-size: 0.9rem;
+}
+
+/* ---------- Market Direction Spectrum (hero intelligence instrument) ----------
+ * Position on the track encodes Direction + Directional Strength ONLY,
+ * from the adapter's canonical direction_strength zone -- always a single
+ * precise position (the adapter fails closed rather than ever return a
+ * partial/unknown strength). Confidence never moves the marker; it only
+ * changes the marker's own opacity, plus the separate text badge below
+ * the track -- two visibly distinct channels, per the class docblock's
+ * semantic-separation rule. */
+
+.bm-bi__spectrum {
+	margin: 4px 0 16px;
+}
+
+.bm-bi__spectrum-label {
+	font-size: 0.72rem !important;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var( --bmi-text-muted ) !important;
+	margin: 0 0 10px !important;
+}
+
+.bm-bi__spectrum-track {
+	position: relative;
+	display: flex;
+	height: 34px;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid var( --bmi-border );
+}
+
+.bm-bi__spectrum-zone {
+	flex: 1 1 20%;
+	height: 100%;
+}
+.bm-bi__spectrum-zone--strong-bear { background: rgba( 220, 38, 38, 0.16 ); }
+.bm-bi__spectrum-zone--bear { background: rgba( 248, 113, 113, 0.12 ); }
+.bm-bi__spectrum-zone--neutral { background: rgba( 143, 163, 194, 0.14 ); }
+.bm-bi__spectrum-zone--bull { background: rgba( 52, 211, 153, 0.12 ); }
+.bm-bi__spectrum-zone--strong-bull { background: rgba( 5, 150, 105, 0.16 ); }
+
+.bm-bi__spectrum-marker {
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	border-radius: 6px;
+	transition: none;
+}
+
+/* Precise marker: always a single resolved zone -- Neutral, or the
+   canonical direction_strength value the adapter returned. */
+.bm-bi__spectrum-marker--precise {
+	border: 2px solid rgba( 255, 255, 255, 0.85 );
+}
+.bm-bi__spectrum-marker--precise.is-bullish { background: var( --bmi-bull ); }
+.bm-bi__spectrum-marker--precise.is-bearish { background: var( --bmi-bear ); }
+.bm-bi__spectrum-marker--precise.is-neutral { background: var( --bmi-neutral ); }
+
+/* Confidence modifies fill weight only -- never position. */
+.bm-bi__spectrum-marker.is-confidence-rendah { opacity: 0.45; }
+.bm-bi__spectrum-marker.is-confidence-sedang { opacity: 0.7; }
+.bm-bi__spectrum-marker.is-confidence-tinggi { opacity: 1; }
+
+.bm-bi__spectrum-scale {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 6px;
+	font-size: 0.62rem;
+	color: var( --bmi-text-muted );
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+.bm-bi__spectrum-scale span {
+	flex: 1 1 20%;
+	text-align: center;
+}
+.bm-bi__spectrum-scale span:first-child { text-align: left; }
+.bm-bi__spectrum-scale span:last-child { text-align: right; }
+
+.bm-bi__spectrum-readout {
+	margin: 10px 0 0 !important;
+	font-size: 0.95rem !important;
+	color: var( --bmi-text ) !important;
+}
+.bm-bi__spectrum-readout.is-bullish strong { color: var( --bmi-bull ); }
+.bm-bi__spectrum-readout.is-bearish strong { color: var( --bmi-bear ); }
+.bm-bi__spectrum-readout.is-neutral strong { color: var( --bmi-neutral ); }
+
+.bm-bi__confidence-note {
+	margin: 6px 0 0 !important;
+	font-size: 0.76rem !important;
+	color: var( --bmi-text-muted ) !important;
+	line-height: 1.4;
+}
+
+.bm-bi__confidence-badge {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var( --bmi-border );
+}
+.bm-bi__confidence-badge .bm-bi__kicker {
+	margin-right: 2px;
+}
+.bm-bi__confidence-badge strong {
+	font-family: var( --bmi-mono );
+	font-size: 0.88rem;
+}
+
+.bm-bi__confidence-meter {
+	display: inline-flex;
+	gap: 3px;
+}
+.bm-bi__confidence-meter i {
+	display: block;
+	width: 14px;
+	height: 8px;
+	border-radius: 2px;
+	background: var( --bmi-border );
+	font-style: normal;
+}
+.bm-bi__confidence-meter.is-rendah i:nth-child(1) { background: var( --bmi-teal ); }
+.bm-bi__confidence-meter.is-sedang i:nth-child(1),
+.bm-bi__confidence-meter.is-sedang i:nth-child(2) { background: var( --bmi-teal ); }
+.bm-bi__confidence-meter.is-tinggi i { background: var( --bmi-teal ); }
+
+.bm-bi__badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.bm-bi__badge--muted {
+	background: rgba( 139, 152, 172, 0.15 );
+	color: var( --bmi-text-muted );
+}
+
+.bm-bi__driver {
+	margin-bottom: 12px;
+}
+.bm-bi__driver-list {
+	margin: 6px 0 0;
+	padding-left: 18px;
+}
+.bm-bi__driver-list li {
+	font-size: 0.9rem;
+	margin-bottom: 4px;
+}
+.bm-bi__driver-empty {
+	font-size: 0.85rem;
+	color: var( --bmi-text-muted );
+	font-style: italic;
+}
+
+.bm-bi__freshness {
+	font-size: 0.82rem;
+	color: var( --bmi-text-muted );
+	font-family: var( --bmi-mono );
+	margin: 0 0 4px;
+}
+
+.bm-bi__snapshot-note {
+	font-size: 0.8rem !important;
+	color: var( --bmi-text-muted ) !important;
+	border-top: 1px solid var( --bmi-border );
+	padding-top: 10px;
+	margin-top: 12px !important;
+}
+
+.bm-bi__snapshot-unavailable {
+	text-align: center;
+	padding: 12px 4px;
+}
+.bm-bi__snapshot-unavailable h2 {
+	font-size: 1.05rem;
+	margin: 10px 0 6px;
+}
+
+/* ---------- Five axes ---------- */
+
+.bm-bi__axes-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 10px;
+	margin: 14px 0;
+}
+
+.bm-bi__axis-card {
+	border: 1px solid var( --bmi-border );
+	border-radius: 10px;
+	padding: 14px 16px;
+}
+.bm-bi__axis-card h3 {
+	margin: 0 0 6px;
+	font-size: 1rem;
+	color: var( --bmi-teal );
+}
+.bm-bi__axis-q {
+	font-size: 0.85rem !important;
+	font-style: italic;
+	color: var( --bmi-text-muted ) !important;
+	margin-bottom: 6px !important;
+}
+
+/* ---------- How to read ---------- */
+
+.bm-bi__how-to-read h3 {
+	font-size: 0.95rem;
+	margin: 18px 0 6px;
+}
+.bm-bi__how-to-read h3:first-of-type {
+	margin-top: 6px;
+}
+
+/* ---------- History embed ---------- */
+
+.bm-bi__history-embed {
+	margin: 14px 0;
+}
+/* Blend the regime plugin's own default light-mode widget into this
+   page's dark aesthetic without touching bitmomo-regime's own files —
+   same higher-specificity-override technique used on /pro for the
+   whitelist widget. */
+.bm-bi__history-embed .bmreg-card {
+	background: var( --bmi-surface );
+	border-color: var( --bmi-border );
+	color: var( --bmi-text );
+}
+.bm-bi__history-embed .bmreg-history-item {
+	border-color: var( --bmi-border );
+	background: var( --bmi-surface );
+}
+.bm-bi__history-embed .bmreg-history-note {
+	color: var( --bmi-text-muted );
+}
+
+.bm-bi__history-note {
+	font-size: 0.82rem !important;
+	color: var( --bmi-text-muted ) !important;
+}
+
+/* ---------- Blocked-by-adapter boundary state ---------- */
+
+.bm-bi__blocked {
+	border: 1px dashed var( --bmi-border );
+	border-radius: 10px;
+	padding: 14px 16px;
+	margin: 10px 0;
+}
+.bm-bi__blocked p {
+	font-size: 0.85rem !important;
+	color: var( --bmi-text-muted ) !important;
+	margin: 8px 0 0 !important;
+}
+
+.bm-bi__breakdown-labels {
+	margin: 4px 0 0;
+	padding-left: 18px;
+	color: var( --bmi-text-muted );
+	font-size: 0.85rem;
+}
+.bm-bi__breakdown-labels li {
+	margin-bottom: 4px;
+}
+
+/* ---------- Public evaluation metrics (Track Record, Expected Range,
+   Regime Performance, Data Quality) -- rendered from
+   evaluation_summary(), never recomputed here. ---------- */
+
+.bm-bi__version-group {
+	margin: 14px 0;
+}
+.bm-bi__version-group:first-of-type {
+	margin-top: 10px;
+}
+.bm-bi__version-tag {
+	display: inline-block;
+	font-size: 0.7rem !important;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var( --bmi-teal ) !important;
+	background: rgba( 45, 212, 191, 0.1 );
+	border-radius: 6px;
+	padding: 3px 8px;
+	margin: 0 0 8px !important;
+}
+.bm-bi__version-note {
+	font-size: 0.78rem !important;
+	color: var( --bmi-text-muted ) !important;
+	font-style: italic;
+	margin: 4px 0 10px !important;
+}
+
+/* ---------- D3: sample-size framing (SAMPEL BELUM CUKUP) ----------
+ * n is often 1-5 while metrics below show precise percentages; this
+ * flag is the PRIMARY context for that group's metrics -- it must read
+ * before the numbers, not as a footnote after them. Backend already
+ * decides the status string; this only styles it as a clear, teal
+ * (system-accent, not warning-red) flag with a quiet supporting note. */
+.bm-bi__sample-flag {
+	display: inline-block;
+	font-size: 0.7rem !important;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var( --bmi-teal ) !important;
+	background: rgba( 45, 212, 191, 0.1 );
+	border-radius: 6px;
+	padding: 3px 8px;
+	margin: 0 0 6px !important;
+}
+.bm-bi__sample-flag-note {
+	font-size: 0.82rem !important;
+	color: var( --bmi-text-muted ) !important;
+	line-height: 1.4;
+	margin: 0 0 12px !important;
+}
+
+.bm-bi__metric-row {
+	display: grid;
+	grid-template-columns: repeat( 2, 1fr );
+	gap: 12px 16px;
+}
+.bm-bi__metric-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	padding: 10px 0;
+	border-top: 1px solid var( --bmi-border );
+}
+.bm-bi__metric-stat strong {
+	font-size: 0.92rem;
+	font-weight: 600;
+	font-family: var( --bmi-mono );
+	color: var( --bmi-text-muted );
+}
+.bm-bi__metric-meta {
+	font-size: 0.72rem;
+	color: var( --bmi-text-muted );
+}
+
+/* ---------- Confidence evaluation ---------- */
+
+.bm-bi__confidence-headline {
+	font-size: 1.05rem !important;
+	font-weight: 700;
+	color: var( --bmi-text ) !important;
+}
+
+.bm-bi__confidence-buckets {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 10px;
+	margin-top: 14px;
+}
+.bm-bi__confidence-bucket .bm-bi__blocked {
+	margin-top: 6px;
+}
+
+/* ---------- Expected range editorial note ---------- */
+
+.bm-bi__editorial-note {
+	font-size: 0.82rem !important;
+	color: var( --bmi-text-muted ) !important;
+	font-style: italic;
+}
+
+/* ---------- Data quality ---------- */
+
+.bm-bi__quality-row {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+	margin: 14px 0;
+}
+
+/* ---------- Pro CTA ---------- */
+
+.bm-bi__pro-cta {
+	border-top: 3px solid var( --bmi-teal );
+	text-align: left;
+}
+.bm-bi__pro-cta-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 16px;
+}
+.bm-bi__cta-primary {
+	display: block;
+	text-align: center;
+	background: var( --bmi-orange );
+	color: #0b1620;
+	font-weight: 800;
+	padding: 14px 20px;
+	border-radius: 10px;
+	text-decoration: none;
+	font-size: 1rem;
+}
+
+.bm-bi__cta-primary:hover {
+	background: var( --bmi-orange-dark );
+	color: #0b1620;
+}
+.bm-bi__cta-secondary {
+	display: block;
+	text-align: center;
+	color: var( --bmi-cyan );
+	font-weight: 600;
+	padding: 8px;
+	text-decoration: none;
+	font-size: 0.88rem;
+}
+
+/* ---------- Tablet/desktop breakpoint ---------- */
+
+@media ( min-width: 640px ) {
+	.bm-bi__hero {
+		padding: 40px 24px 28px;
+	}
+	.bm-bi__hero-title {
+		font-size: 2.8rem;
+		max-width: 660px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.bm-bi__axes-grid {
+		grid-template-columns: repeat( 3, 1fr );
+	}
+
+	.bm-bi__confidence-buckets {
+		grid-template-columns: repeat( auto-fit, minmax( 130px, 1fr ) );
+	}
+
+	.bm-bi__quality-row {
+		grid-template-columns: repeat( 2, 1fr );
+	}
+
+	.bm-bi__metric-row {
+		grid-template-columns: repeat( auto-fit, minmax( 150px, 1fr ) );
+	}
+
+	.bm-bi__pro-cta-actions {
+		flex-direction: row;
+	}
+	.bm-bi__cta-primary,
+	.bm-bi__cta-secondary {
+		display: inline-block;
+		width: auto;
+	}
+}
