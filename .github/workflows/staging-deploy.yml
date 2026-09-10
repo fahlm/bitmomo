@@ -1,0 +1,77 @@
+name: Deploy staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Check drift and list uploads without writing files"
+        required: true
+        default: "true"
+        type: choice
+        options: ["true", "false"]
+      allow_initialize:
+        description: "Allow creating the first manifest only when staging already matches Git"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Drift-safe staging deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: rescue/staging-recovery-2026-09-09
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deploy dependency
+        run: python -m pip install --disable-pip-version-check paramiko
+
+      - name: Run drift-safe deploy
+        env:
+          STAGING_SFTP_HOST: ${{ secrets.STAGING_SFTP_HOST }}
+          STAGING_SFTP_PORT: ${{ secrets.STAGING_SFTP_PORT }}
+          STAGING_SFTP_USER: ${{ secrets.STAGING_SFTP_USER }}
+          STAGING_SFTP_PASSWORD: ${{ secrets.STAGING_SFTP_PASSWORD }}
+          STAGING_SFTP_PRIVATE_KEY: ${{ secrets.STAGING_SFTP_PRIVATE_KEY }}
+          STAGING_REMOTE_ROOT: ${{ secrets.STAGING_REMOTE_ROOT }}
+          STAGING_SITE_URL: https://seagreen-snail-158456.hostingersite.com
+          STAGING_CACHE_PURGE_URL: ${{ secrets.STAGING_CACHE_PURGE_URL }}
+          STAGING_CACHE_PURGE_METHOD: ${{ secrets.STAGING_CACHE_PURGE_METHOD }}
+          STAGING_CACHE_PURGE_TOKEN: ${{ secrets.STAGING_CACHE_PURGE_TOKEN }}
+        run: |
+          args=()
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          if [ "${{ inputs.allow_initialize }}" = "true" ]; then
+            args+=(--allow-initialize)
+          fi
+          python scripts/deploy_staging.py "${args[@]}"
+
+      - name: Commit updated deploy manifest
+        if: ${{ inputs.dry_run == 'false' }}
+        run: |
+          if git diff --quiet -- deploy/staging-manifest.json; then
+            echo "Manifest unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deploy/staging-manifest.json
+          git commit -m "deploy: record staging manifest for $GITHUB_SHA"
+          git push origin HEAD:rescue/staging-recovery-2026-09-09
