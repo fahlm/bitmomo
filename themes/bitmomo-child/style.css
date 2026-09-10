@@ -1,0 +1,16 @@
+/*
+Theme Name: Bitmomo Child
+Theme URI: https://seagreen-snail-158456.hostingersite.com/
+Description: Child theme of Hello Elementor providing a custom homepage design inspired by ChainOfThought.xyz.
+Author: Bitmomo
+Author URI: https://seagreen-snail-158456.hostingersite.com/
+Template: hello-elementor
+Version: 1.0
+*/
+
+/*
+ * This file is intentionally left almost empty. WordPress will load
+ * the parent theme’s stylesheet and our custom styles are enqueued
+ * via functions.php as a separate file (custom.css). Keeping
+ * style.css small reduces override conflicts.
+ */
