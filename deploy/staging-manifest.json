@@ -11,7 +11,14 @@
     "website/wp-content/plugins/bitmomo-regime": "wp-content/plugins/bitmomo-regime",
     "website/wp-content/plugins/bitmomo-btc-intelligence": "wp-content/plugins/bitmomo-btc-intelligence"
   },
-  "scan_roots": [
+  "deep_scan_roots": [
+    "wp-content/themes/bitmomo-child-v3",
+    "wp-content/plugins/bitmomo-ai",
+    "wp-content/plugins/bitmomo-pro",
+    "wp-content/plugins/bitmomo-regime",
+    "wp-content/plugins/bitmomo-btc-intelligence"
+  ],
+  "shallow_scan_roots": [
     "wp-content/themes",
     "wp-content/plugins"
   ],
