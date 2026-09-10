@@ -61,6 +61,7 @@ jobs:
           STAGING_SFTP_USER: ${{ secrets.STAGING_SFTP_USER }}
           STAGING_SFTP_PASSWORD: ${{ secrets.STAGING_SFTP_PASSWORD }}
           STAGING_SFTP_PRIVATE_KEY: ${{ secrets.STAGING_SFTP_PRIVATE_KEY }}
+          STAGING_SFTP_PRIVATE_KEY_PASSPHRASE: ${{ secrets.STAGING_SFTP_PRIVATE_KEY_PASSPHRASE }}
           STAGING_SFTP_KNOWN_HOSTS: ${{ secrets.STAGING_SFTP_KNOWN_HOSTS }}
           STAGING_REMOTE_ROOT: ${{ secrets.STAGING_REMOTE_ROOT }}
           STAGING_SITE_URL: https://seagreen-snail-158456.hostingersite.com
