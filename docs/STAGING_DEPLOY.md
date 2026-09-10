@@ -12,19 +12,33 @@ The staging deploy workflow writes only these repo roots:
 - `website/wp-content/plugins/bitmomo-regime`
 - `website/wp-content/plugins/bitmomo-btc-intelligence`
 
-The staging deploy workflow scans these wider remote roots before writing:
+## What scans
+
+The scanner has two tiers.
+
+Deep scan recursively hashes only the five managed remote roots:
+
+- `wp-content/themes/bitmomo-child-v3`
+- `wp-content/plugins/bitmomo-ai`
+- `wp-content/plugins/bitmomo-pro`
+- `wp-content/plugins/bitmomo-regime`
+- `wp-content/plugins/bitmomo-btc-intelligence`
+
+This is where tests, archives, temp files, symlinks, and other leftovers inside the deploy roots are detected.
+
+Shallow scan lists these roots one level deep, without hashing file contents:
 
 - `wp-content/themes`
 - `wp-content/plugins`
 
-That wider scan is intentional. Archives, test folders, symlinks, misplaced folders such as `themes/bitmomo-typography.css/`, and unrelated plugin/theme folders are reported as server-only extras unless they are tracked deploy output. The upload filter stays strict; the scan filter stays suspicious.
+The shallow scan reports only Bitmomo-namespaced entries outside the deploy roots and root-level files other than `index.php`. Third-party directories such as Elementor, Astra, Rank Math, Yoast, LiteSpeed, and Twenty Twenty themes must not appear in the output and must not be downloaded over SFTP.
 
 ## First run
 
 1. Confirm staging still matches the branch.
 2. Configure the GitHub secrets listed in `docs/DESIGN_SYSTEM.md`.
 3. Run **Deploy staging** manually with `dry_run=true`, `allow_initialize=true`, and `allow_extras=false`. The first run should report any server-only extras and exit non-zero.
-4. Inspect the reported extras. The report should include any stray archives such as `*.zip`, test paths found on staging, and symlinks with their targets.
+4. Inspect the reported extras. The report should include Bitmomo stray archives/folders and test paths found inside the five managed deploy roots. It should not include third-party package names such as `elementor`, `astra`, `twentytwenty`, or `seo-by-rank-math`.
 5. Remove reviewed stray files by hand, or rerun with `allow_extras=true` only when the extras have been inspected and deliberately tolerated.
 6. If the dry run passes, run it with `dry_run=false` and `allow_initialize=true`. This creates the first real `deploy/staging-manifest.json` commit.
 7. Run it again with `dry_run=false` and `allow_initialize=false`. It should report no drift and no file changes.
@@ -33,7 +47,7 @@ That wider scan is intentional. Archives, test folders, symlinks, misplaced fold
 
 Run **Deploy staging** manually with `dry_run=false` and `allow_initialize=false`.
 
-The script scans the configured scan roots, hashes remote files once, and classifies them before upload:
+The script scans the configured roots and classifies remote paths before upload:
 
 - known: in the manifest and unchanged
 - drifted: in the manifest but hash changed
