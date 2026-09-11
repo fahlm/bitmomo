@@ -140,7 +140,7 @@ final class Bitmomo_AI_Intelligence {
         $quality = is_array($evaluation['quality'] ?? null) ? $evaluation['quality'] : [];
         if (!in_array((string) ($quality['status'] ?? ''), ['complete', 'degraded'], true)) return null;
 
-        $timestamp = strtotime((string) ($preview['time'] ?? ($data['timestamp'] ?? '')));
+        $timestamp = strtotime((string) ($preview['generated_at'] ?? ($preview['time'] ?? ($data['timestamp'] ?? ''))));
         if (!$timestamp || $timestamp > time() + (5 * MINUTE_IN_SECONDS)) return null;
         if ((float) ($data['close'] ?? 0) <= 0) return null;
 
