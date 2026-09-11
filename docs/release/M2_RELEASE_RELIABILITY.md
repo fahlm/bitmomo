@@ -108,3 +108,16 @@ empty. `blog_public=0` remains mandatory. Run
 
 These controls are staging configuration, are not included in the production
 artifact, and must never be installed on production.
+
+The approved latest-state contract stores generation attempts in
+`bitmomo_ai_latest_attempt` and valid canonical snapshots in
+`bitmomo_ai_latest_valid_snapshot`. A blocked attempt updates only the former.
+The customer projection reads the valid snapshot's original `generated_at`:
+up to 6 hours is `fresh`, over 6 through 30 hours is `delayed`, and over 30
+hours is unavailable. Source diagnostics retain concise provider, timestamp,
+age, fallback, normalized error, and safe HTTP-status evidence without response
+bodies or credentials.
+
+Artifact-to-staging parity is checked with
+`scripts/check-staging-artifact.py <manifest>`. A valid re-baseline requires
+all three counters (`missing`, `changed`, and `unexpected`) to be zero.
