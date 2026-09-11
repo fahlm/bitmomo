@@ -187,18 +187,18 @@ reset_whitelist_state();
 update_option( 'bitmomo_pro_checkout_url', '' ); // fail-closed: checkout not configured
 $html_unavailable = Bitmomo_Pro_Sales::instance()->render_sales( array() );
 check( 'CHECKOUT UNAVAILABLE: whitelist widget is rendered on the Pro sales page', false !== strpos( $html_unavailable, 'id="bm-pro-whitelist"' ) );
-check( 'CHECKOUT UNAVAILABLE: whitelist CTA copy "GABUNG WHITELIST" is shown', false !== strpos( $html_unavailable, 'GABUNG WHITELIST' ) );
+check( 'CHECKOUT UNAVAILABLE: whitelist CTA copy "GABUNG FOUNDING WHITELIST" is shown', false !== strpos( $html_unavailable, 'GABUNG FOUNDING WHITELIST' ) );
 check( 'CHECKOUT UNAVAILABLE: founding price copy is present', false !== strpos( $html_unavailable, 'Rp149.000 / bulan' ) && false !== strpos( $html_unavailable, 'Rp1.490.000 / tahun' ) );
 check( 'CHECKOUT UNAVAILABLE: 149 cap / batch-of-25 copy is present', false !== strpos( $html_unavailable, '149 Founding Members' ) && false !== strpos( $html_unavailable, 'Batch pertama: 25 anggota' ) );
 check( 'CHECKOUT UNAVAILABLE: quiet no-guarantee clarification is present', false !== strpos( $html_unavailable, 'Masuk whitelist tidak menjamin tempat.' ) );
 check( 'CHECKOUT UNAVAILABLE: no fake urgency / seat-reserved language leaks in', false === stripos( $html_unavailable, 'tinggal' ) && false === stripos( $html_unavailable, 'seat reserved' ) && false === stripos( $html_unavailable, 'amankan tempat' ) );
-check( 'CHECKOUT UNAVAILABLE: the real purchase CTA is NOT shown', false === strpos( $html_unavailable, 'Kunci Harga Founding Beta' ) );
+check( 'CHECKOUT UNAVAILABLE: the real purchase CTA is NOT shown', false === strpos( $html_unavailable, 'Kunci Harga Founding' ) );
 
 update_option( 'bitmomo_pro_checkout_url', 'https://pay.example.com/bitmomo-pro' );
 $html_available = Bitmomo_Pro_Sales::instance()->render_sales( array() );
-check( 'CHECKOUT AVAILABLE: real purchase CTA is shown', false !== strpos( $html_available, 'Kunci Harga Founding Beta' ) && false !== strpos( $html_available, 'https://pay.example.com/bitmomo-pro' ) );
+check( 'CHECKOUT AVAILABLE: real purchase CTA is shown', false !== strpos( $html_available, 'Kunci Harga Founding' ) && false !== strpos( $html_available, 'https://pay.example.com/bitmomo-pro' ) );
 check( 'CHECKOUT AVAILABLE: whitelist widget is NOT shown (purchase CTA takes priority, not "also" shown)', false === strpos( $html_available, 'id="bm-pro-whitelist"' ) );
-check( 'CHECKOUT AVAILABLE: "GABUNG WHITELIST" copy is not present', false === strpos( $html_available, 'GABUNG WHITELIST' ) );
+check( 'CHECKOUT AVAILABLE: "GABUNG FOUNDING WHITELIST" copy is not present', false === strpos( $html_available, 'GABUNG FOUNDING WHITELIST' ) );
 
 update_option( 'bitmomo_pro_checkout_url', '' ); // restore fail-closed default for subsequent tests
 

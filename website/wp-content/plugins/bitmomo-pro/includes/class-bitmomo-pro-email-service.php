@@ -94,7 +94,7 @@ class Bitmomo_Pro_Email_Service {
 		$lines[] = wp_lostpassword_url();
 		$lines[] = '';
 
-		$lines[] = __( 'Ini adalah bagian dari Bitmomo Pro Founding Beta — sebagian proses (termasuk aktivasi dan pembatalan) masih dilakukan manual selama kami menyempurnakan produk di masa beta.', 'bitmomo-pro' );
+		$lines[] = __( 'Ini adalah bagian dari Bitmomo Pro Founding Membership — sebagian proses (termasuk aktivasi dan pembatalan) masih dilakukan manual selama kami menyempurnakan produk di masa beta.', 'bitmomo-pro' );
 		$lines[] = '';
 		/* translators: %s: support email address */
 		$lines[] = sprintf( __( 'Butuh bantuan atau ingin membatalkan perpanjangan? Balas email ini atau hubungi %s. Akses tetap aktif sampai akhir periode yang sudah dibayar.', 'bitmomo-pro' ), $support_email );
@@ -472,6 +472,17 @@ class Bitmomo_Pro_Email_Service {
 		$lines[] = sprintf( __( 'Batch pertama: %d anggota', 'bitmomo-pro' ), $batch );
 		$lines[] = '';
 		$lines[] = __( 'Kami akan mengirim pemberitahuan melalui email ini dan, jika kamu menambahkan nomor WhatsApp, melalui WhatsApp saat akses dibuka.', 'bitmomo-pro' );
+		if ( ! get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_WHATSAPP_NUMBER, true ) && method_exists( 'Bitmomo_Pro_Whitelist', 'whatsapp_record_action' ) ) {
+			$whatsapp_url = add_query_arg(
+				array(
+					'bm_wl_post'  => (int) $post_id,
+					'bm_wl_token' => wp_create_nonce( Bitmomo_Pro_Whitelist::whatsapp_record_action( $post_id ) ),
+				),
+				home_url( '/pro/' )
+			);
+			$lines[] = __( 'Tambahkan nomor WhatsApp (opsional):', 'bitmomo-pro' );
+			$lines[] = esc_url_raw( $whatsapp_url );
+		}
 		$lines[] = '';
 		$lines[] = __( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' );
 		$lines[] = '';
