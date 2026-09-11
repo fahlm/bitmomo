@@ -38,7 +38,7 @@ final class Bitmomo_AI_Webhook {
         $gate = Bitmomo_AI_Quality_Gate::check($validated, $evaluation);
         $gate_result = (array) get_option('bitmomo_ai_latest_quality_gate', []);
         if (is_wp_error($gate)) {
-            Bitmomo_AI_Runtime_State::record_attempt('us_session', 'blocked', $validated, $gate_result, $gate);
+            Bitmomo_AI_Runtime_State::record_attempt(Bitmomo_AI_Session_Intelligence::POST_CLOSE, 'blocked', $validated, $gate_result, $gate);
             self::record_webhook('blocked', $gate->get_error_message());
             return $gate;
         }
@@ -51,20 +51,18 @@ final class Bitmomo_AI_Webhook {
         set_transient('bitmomo_ai_seen_' . $fingerprint, 1, DAY_IN_SECONDS * 7);
 
         $generated_at = gmdate('c');
-        $record = [
-            'data' => $validated,
-            'evaluation' => $evaluation,
-            'time' => $generated_at,
-            'generated_at' => $generated_at,
-            'edition' => 'us_session',
-            'source_record_id' => 'bitmomo-ai:webhook:' . $fingerprint,
-            'comparison_source_record_id' => '',
-            'quality' => $evaluation['quality'] ?? [],
-            'provenance' => 'recorded_live',
-        ];
+        $record = Bitmomo_AI_Session_Intelligence::build_record(
+            Bitmomo_AI_Session_Intelligence::POST_CLOSE,
+            $validated,
+            $evaluation,
+            $gate_result,
+            $generated_at
+        );
+        $record['valid_snapshot_lineage']['webhook_fingerprint'] = $fingerprint;
+        Bitmomo_AI_Session_Intelligence::append_record($record);
         Bitmomo_AI_Runtime_State::record_valid_snapshot($record, $gate_result);
-        Bitmomo_AI_Runtime_State::record_attempt('us_session', ($gate_result['status'] ?? '') === 'degraded' ? 'degraded' : 'success', $validated, $gate_result);
-        $post_id = self::create_draft($validated, $evaluation, $fingerprint);
+        Bitmomo_AI_Runtime_State::record_attempt(Bitmomo_AI_Session_Intelligence::POST_CLOSE, ($gate_result['status'] ?? '') === 'degraded' ? 'degraded' : 'success', $validated, $gate_result);
+        $post_id = self::create_draft($validated, $evaluation, $fingerprint, Bitmomo_AI_Session_Intelligence::POST_CLOSE);
         if (is_wp_error($post_id)) {
             self::record_webhook('error', $post_id->get_error_message());
             return $post_id;
@@ -122,18 +120,32 @@ final class Bitmomo_AI_Webhook {
         return $clean;
     }
 
-    public static function create_draft(array $data, array $evaluation, $fingerprint) {
+    public static function create_draft(array $data, array $evaluation, $fingerprint, $edition = 'us_post_close') {
+        $session_type = Bitmomo_AI_Session_Intelligence::normalize_session_type($edition);
+        $session = Bitmomo_AI_Session_Intelligence::session_context($session_type, $data['timestamp']);
         $title_direction = ($evaluation['bias'] ?? 'neutral') === 'bullish' ? 'Arah Masih Menguat' : (($evaluation['bias'] ?? 'neutral') === 'bearish' ? 'Arah Masih Turun' : 'Arah Belum Pasti');
-        $title = sprintf('Analisis Bitcoin %s — %s', wp_date('d F Y', strtotime($data['timestamp']), new DateTimeZone('Asia/Jakarta')), $title_direction);
+        $title = sprintf('%s - %s - %s', $session['session_label'], wp_date('d F Y', strtotime($data['timestamp']), new DateTimeZone('Asia/Jakarta')), $title_direction);
         $content = Bitmomo_AI_Report::content($data, $evaluation);
         $timezone = new DateTimeZone('Asia/Jakarta');
         $analysis_date = wp_date('Y-m-d', strtotime($data['timestamp']), $timezone);
-        $existing = get_posts(['post_type' => Bitmomo_AI_Content_Types::SIGNAL, 'post_status' => 'any', 'meta_key' => '_bm_analysis_date', 'meta_value' => $analysis_date, 'fields' => 'ids', 'posts_per_page' => 1]);
+        $existing = get_posts([
+            'post_type' => Bitmomo_AI_Content_Types::SIGNAL,
+            'post_status' => 'any',
+            'fields' => 'ids',
+            'posts_per_page' => 1,
+            'meta_query' => [
+                'relation' => 'AND',
+                ['key' => '_bm_analysis_date', 'value' => $analysis_date],
+                ['key' => '_bm_edition', 'value' => [$session_type, Bitmomo_AI_Session_Intelligence::legacy_edition($session_type)], 'compare' => 'IN'],
+            ],
+        ]);
         if (!$existing) {
             $recent = get_posts(['post_type' => Bitmomo_AI_Content_Types::SIGNAL, 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => 10, 'orderby' => 'date', 'order' => 'DESC']);
             foreach ($recent as $candidate) {
                 $generated = get_post_meta($candidate, '_bm_generated_at', true);
-                if ($generated && wp_date('Y-m-d', strtotime($generated), $timezone) === $analysis_date) {
+                $candidate_edition = (string) get_post_meta($candidate, '_bm_edition', true);
+                if ($generated && wp_date('Y-m-d', strtotime($generated), $timezone) === $analysis_date
+                    && in_array($candidate_edition, [$session_type, Bitmomo_AI_Session_Intelligence::legacy_edition($session_type)], true)) {
                     $existing = [(int) $candidate];
                     break;
                 }
@@ -151,6 +163,9 @@ final class Bitmomo_AI_Webhook {
         update_post_meta($post_id, '_bm_market_price', (string) $data['close']);
         update_post_meta($post_id, '_bm_generated_at', $data['timestamp']);
         update_post_meta($post_id, '_bm_analysis_date', $analysis_date);
+        update_post_meta($post_id, '_bm_edition', $session_type);
+        update_post_meta($post_id, '_bm_session_anchor', $session['session_anchor']);
+        update_post_meta($post_id, '_bm_us_market_status', $session['us_market_status']);
         update_post_meta($post_id, '_bm_model', 'rules-mtf-v1');
         update_post_meta($post_id, '_bm_payload_hash', $fingerprint);
         update_post_meta($post_id, '_bm_axis_snapshot', wp_json_encode($evaluation['axes']));

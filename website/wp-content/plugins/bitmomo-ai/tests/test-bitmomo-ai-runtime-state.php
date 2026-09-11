@@ -27,6 +27,7 @@ class WP_Error {
 $plugin_source = file_get_contents(__DIR__ . '/../bitmomo-ai.php');
 $boundary = strpos($plugin_source, 'require_once BITMOMO_AI_DIR');
 eval('?>' . substr($plugin_source, 0, $boundary));
+require __DIR__ . '/../includes/class-bitmomo-ai-session-intelligence.php';
 require __DIR__ . '/../includes/class-bitmomo-ai-runtime-state.php';
 require __DIR__ . '/../includes/class-bitmomo-ai-signal-engine.php';
 require __DIR__ . '/../includes/class-bitmomo-ai-key-drivers.php';
@@ -97,4 +98,3 @@ $failed = array_filter($checks, function ($row) { return !$row[1]; });
 foreach ($checks as $row) echo ($row[1] ? 'PASS' : 'FAIL') . ': ' . $row[0] . PHP_EOL;
 if ($failed) exit(1);
 echo 'All ' . count($checks) . " runtime-state checks passed.\n";
-

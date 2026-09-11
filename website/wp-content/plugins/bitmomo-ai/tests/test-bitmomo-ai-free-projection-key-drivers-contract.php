@@ -88,6 +88,7 @@ if (!class_exists('Bitmomo_AI_Intelligence')) {
 
 require __DIR__ . '/../includes/class-bitmomo-ai-signal-engine.php';
 require __DIR__ . '/../includes/class-bitmomo-ai-key-drivers.php';
+require __DIR__ . '/../includes/class-bitmomo-ai-session-intelligence.php';
 
 $checks = array();
 function check_fp($label, $condition) {
@@ -149,6 +150,14 @@ $stale_result = Bitmomo_AI_Intelligence::free_projection();
 check_fp('stale data: status is unavailable', 'unavailable' === ($stale_result['status'] ?? null));
 check_fp('stale data: key_drivers is absent (fail-closed, matches primary_driver)', !array_key_exists('key_drivers', $stale_result));
 check_fp('stale data: primary_driver is absent (existing fail-closed behavior unchanged)', !array_key_exists('primary_driver', $stale_result));
+
+// Canonical session records carry generated_at alongside the legacy time field.
+// Freshness must follow generated_at so a stale canonical edition cannot be
+// made current by an older compatibility field.
+set_preview(fp_signal_input(), 'passed', gmdate('c'));
+$GLOBALS['__fake_options']['bitmomo_ai_latest_preview']['generated_at'] = gmdate('c', time() - (31 * HOUR_IN_SECONDS));
+$canonical_stale_result = Bitmomo_AI_Intelligence::free_projection();
+check_fp('canonical generated_at takes precedence over legacy time for freshness', 'unavailable' === ($canonical_stale_result['status'] ?? null));
 
 // --- Case 4: a later blocked gate cannot invalidate a previously accepted
 // --- canonical preview. The blocked attempt is tracked independently.

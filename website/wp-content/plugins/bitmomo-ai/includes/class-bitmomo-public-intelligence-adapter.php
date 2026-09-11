@@ -14,6 +14,10 @@ final class Bitmomo_Public_Intelligence_Adapter {
         $strength = self::strength_or_null($projection['direction_strength'] ?? null);
         $bias = self::bias_or_null($projection['bias'] ?? null);
         if ($bias === null || $strength === null) return null;
+        $session_intelligence = is_array($projection['session_intelligence'] ?? null) ? $projection['session_intelligence'] : [];
+        if (is_array($session_intelligence['current_setup'] ?? null)) {
+            $session_intelligence['current_setup']['market_state'] = self::regime_or_null($regime['regime'] ?? null);
+        }
 
         return [
             'status' => (string) $projection['status'],
@@ -33,6 +37,15 @@ final class Bitmomo_Public_Intelligence_Adapter {
             ],
             'latest_attempt' => is_array($projection['latest_attempt'] ?? null) ? $projection['latest_attempt'] : [],
             'key_drivers' => self::public_drivers($projection['key_drivers'] ?? []),
+            'session' => [
+                'edition_id' => sanitize_text_field((string) ($projection['edition_id'] ?? '')),
+                'type' => Bitmomo_AI_Session_Intelligence::normalize_session_type($projection['session_type'] ?? ''),
+                'label' => sanitize_text_field((string) ($projection['session_label'] ?? '')),
+                'anchor' => sanitize_text_field((string) ($projection['session_anchor'] ?? '')),
+                'market_timezone' => Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE,
+                'us_market_status' => sanitize_key((string) ($projection['us_market_status'] ?? 'regular_session_day')),
+            ],
+            'session_intelligence' => $session_intelligence,
             'versions' => [
                 'engine' => defined('BITMOMO_AI_VERSION') ? BITMOMO_AI_VERSION : 'unknown',
                 'classifier' => self::version_or_unknown($regime['classifier_version'] ?? ''),

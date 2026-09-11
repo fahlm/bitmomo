@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Bitmomo AI
  * Description: Editorial foundation for AI Market Insight and Bitcoin Signal.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: Bitmomo
  * Text Domain: bitmomo-ai
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BITMOMO_AI_VERSION', '1.3.0');
+define('BITMOMO_AI_VERSION', '1.4.0');
 define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
@@ -57,6 +57,13 @@ final class Bitmomo_AI_Intelligence {
             'timestamp_iso' => gmdate('c', $timestamp),
             'freshness_label' => self::freshness_label($timestamp, $state),
             'latest_attempt' => self::public_attempt(),
+            'edition_id' => $source['edition_id'],
+            'session_type' => $source['session_type'],
+            'session_label' => $source['session_label'],
+            'session_anchor' => $source['session_anchor'],
+            'market_timezone' => $source['market_timezone'],
+            'us_market_status' => $source['us_market_status'],
+            'session_intelligence' => Bitmomo_AI_Session_Intelligence::free_fields($source['record']),
         ];
     }
 
@@ -74,7 +81,7 @@ final class Bitmomo_AI_Intelligence {
         $evaluation = $source['evaluation'];
         $risk = is_array($evaluation['risk'] ?? null) ? $evaluation['risk'] : [];
 
-        return [
+        return array_merge([
             'timestamp' => $source['timestamp'],
             'score' => (int) ($evaluation['score'] ?? 0),
             'axes' => is_array($evaluation['axes'] ?? null) ? $evaluation['axes'] : [],
@@ -91,7 +98,12 @@ final class Bitmomo_AI_Intelligence {
             'edition' => $source['edition'],
             'source_record_id' => $source['source_record_id'],
             'comparison_source_record_id' => $source['comparison_source_record_id'],
-        ];
+            'edition_id' => $source['edition_id'],
+            'session_type' => $source['session_type'],
+            'session_anchor' => $source['session_anchor'],
+            'market_timezone' => $source['market_timezone'],
+            'us_market_status' => $source['us_market_status'],
+        ], Bitmomo_AI_Session_Intelligence::pro_fields($source['record']));
     }
 
     public static function regime_projection() {
@@ -105,7 +117,8 @@ final class Bitmomo_AI_Intelligence {
         return [
             'source_record_id' => 'bitmomo-ai:regime:' . $analysis_date . ':' . $source['edition'],
             'timestamp_iso' => gmdate('c', $source_timestamp),
-            'edition' => $source['edition'],
+            'edition' => Bitmomo_AI_Session_Intelligence::legacy_edition($source['session_type']),
+            'session_type' => $source['session_type'],
             'provenance' => 'recorded_live',
             'metrics' => $source['data']['regime_metrics'],
             'directional_bias' => (string) ($evaluation['bias'] ?? 'neutral'),
@@ -127,17 +140,25 @@ final class Bitmomo_AI_Intelligence {
         $quality = is_array($evaluation['quality'] ?? null) ? $evaluation['quality'] : [];
         if (!in_array((string) ($quality['status'] ?? ''), ['complete', 'degraded'], true)) return null;
 
-        $timestamp = strtotime((string) ($preview['time'] ?? ($data['timestamp'] ?? '')));
+        $timestamp = strtotime((string) ($preview['generated_at'] ?? ($preview['time'] ?? ($data['timestamp'] ?? ''))));
         if (!$timestamp || $timestamp > time() + (5 * MINUTE_IN_SECONDS)) return null;
         if ((float) ($data['close'] ?? 0) <= 0) return null;
 
+        $session_type = Bitmomo_AI_Session_Intelligence::normalize_session_type($preview['session_type'] ?? ($preview['edition'] ?? ''));
         return [
             'data' => $data,
             'evaluation' => $evaluation,
             'timestamp' => $timestamp,
-            'edition' => in_array(($preview['edition'] ?? ''), ['morning', 'us_session'], true) ? $preview['edition'] : 'us_session',
+            'edition' => $session_type,
+            'edition_id' => sanitize_text_field((string) ($preview['edition_id'] ?? ($preview['source_record_id'] ?? ''))),
+            'session_type' => $session_type,
+            'session_label' => sanitize_text_field((string) ($preview['session_label'] ?? Bitmomo_AI_Session_Intelligence::presentation_label($session_type, $preview['us_market_status'] ?? 'regular_session_day'))),
+            'session_anchor' => sanitize_text_field((string) ($preview['session_anchor'] ?? '')),
+            'market_timezone' => sanitize_text_field((string) ($preview['market_timezone'] ?? Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE)),
+            'us_market_status' => sanitize_key((string) ($preview['us_market_status'] ?? 'regular_session_day')),
             'source_record_id' => sanitize_text_field((string) ($preview['source_record_id'] ?? '')),
             'comparison_source_record_id' => sanitize_text_field((string) ($preview['comparison_source_record_id'] ?? '')),
+            'record' => $preview,
         ];
     }
 
@@ -148,6 +169,8 @@ final class Bitmomo_AI_Intelligence {
         return [
             'attempted_at' => sanitize_text_field((string) ($attempt['attempted_at'] ?? '')),
             'edition' => sanitize_key((string) ($attempt['edition'] ?? '')),
+            'session_type' => Bitmomo_AI_Session_Intelligence::normalize_session_type($attempt['session_type'] ?? ($attempt['edition'] ?? '')),
+            'session_anchor' => sanitize_text_field((string) ($attempt['session_anchor'] ?? '')),
             'status' => sanitize_key((string) ($attempt['status'] ?? 'unknown')),
             'quality_status' => sanitize_key((string) ($attempt['quality_gate']['status'] ?? 'unknown')),
         ];
@@ -246,6 +269,7 @@ require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-shortcodes.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-signal-engine.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-key-drivers.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-quality-gate.php';
+require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-session-intelligence.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-runtime-state.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-performance.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-scorecard.php';
