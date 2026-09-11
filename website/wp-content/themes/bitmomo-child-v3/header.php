@@ -31,7 +31,7 @@
       ?>
       <div class="bm-nav-groups">
         <ul class="bm-nav-list bm-nav-list--content">
-          <li><a href="<?php echo esc_url( home_url( '/#bm-btc-title' ) ); ?>">BTC Intelligence</a></li>
+          <li><a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">BTC Intelligence</a></li>
           <li><a href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Bitmomo Pro</a></li>
           <li><a href="<?php echo esc_url( $bm_riset_url ); ?>">Riset</a></li>
           <li><a href="<?php echo esc_url( $bm_about_url ); ?>">Tentang</a></li>

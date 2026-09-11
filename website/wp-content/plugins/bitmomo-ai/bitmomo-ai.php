@@ -56,6 +56,7 @@ final class Bitmomo_AI_Intelligence {
             'timestamp' => $timestamp,
             'timestamp_iso' => gmdate('c', $timestamp),
             'freshness_label' => self::freshness_label($timestamp, $state),
+            'latest_attempt' => self::public_attempt(),
         ];
     }
 
@@ -117,10 +118,8 @@ final class Bitmomo_AI_Intelligence {
     }
 
     private static function validated_source() {
-        $preview = get_option('bitmomo_ai_latest_preview', []);
-        $gate = get_option('bitmomo_ai_latest_quality_gate', []);
-        if (!is_array($preview) || !is_array($gate)) return null;
-        if (!in_array((string) ($gate['status'] ?? ''), ['passed', 'degraded'], true)) return null;
+        $preview = class_exists('Bitmomo_AI_Runtime_State') ? Bitmomo_AI_Runtime_State::latest_valid_snapshot() : get_option('bitmomo_ai_latest_preview', []);
+        if (!is_array($preview)) return null;
         if (empty($preview['data']) || empty($preview['evaluation'])) return null;
 
         $data = is_array($preview['data']) ? $preview['data'] : [];
@@ -142,6 +141,18 @@ final class Bitmomo_AI_Intelligence {
         ];
     }
 
+    private static function public_attempt() {
+        if (!class_exists('Bitmomo_AI_Runtime_State')) return [];
+        $attempt = Bitmomo_AI_Runtime_State::latest_attempt();
+        if (!$attempt) return [];
+        return [
+            'attempted_at' => sanitize_text_field((string) ($attempt['attempted_at'] ?? '')),
+            'edition' => sanitize_key((string) ($attempt['edition'] ?? '')),
+            'status' => sanitize_key((string) ($attempt['status'] ?? 'unknown')),
+            'quality_status' => sanitize_key((string) ($attempt['quality_gate']['status'] ?? 'unknown')),
+        ];
+    }
+
     private static function source_is_stale(array $source) {
         return (time() - (int) ($source['timestamp'] ?? 0)) > self::DELAYED_AGE_SECONDS;
     }
@@ -151,6 +162,7 @@ final class Bitmomo_AI_Intelligence {
             'status' => 'unavailable',
             'message' => __('Update BTC terbaru belum tersedia.', 'bitmomo-ai'),
             'detail' => __('Sistem sedang menunggu data yang memenuhi standar kualitas Bitmomo.', 'bitmomo-ai'),
+            'latest_attempt' => self::public_attempt(),
         ];
     }
 
@@ -234,6 +246,7 @@ require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-shortcodes.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-signal-engine.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-key-drivers.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-quality-gate.php';
+require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-runtime-state.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-performance.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-scorecard.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-public-intelligence-adapter.php';

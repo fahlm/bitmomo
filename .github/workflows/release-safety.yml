@@ -1,0 +1,89 @@
+name: Full release safety
+
+on:
+  pull_request:
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-ai/**"
+      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
+      - "website/wp-content/plugins/bitmomo-pro/**"
+      - "website/wp-content/plugins/bitmomo-regime/**"
+      - "config/production-runtime.json"
+      - "scripts/build-production-artifact.py"
+      - "scripts/check-m2-launch-surfaces.mjs"
+      - ".github/workflows/release-safety.yml"
+  push:
+    branches: [main, "release/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Runtime, contracts, and artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint every managed PHP file
+        shell: bash
+        run: |
+          set -euo pipefail
+          roots=(
+            website/wp-content/themes/bitmomo-child-v3
+            website/wp-content/plugins/bitmomo-ai
+            website/wp-content/plugins/bitmomo-btc-intelligence
+            website/wp-content/plugins/bitmomo-pro
+            website/wp-content/plugins/bitmomo-regime
+          )
+          find "${roots[@]}" -type f -name '*.php' -print0 | sort -z | xargs -0 -n1 php -l
+
+      - name: Run every supported deterministic PHP suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          for plugin in bitmomo-ai bitmomo-btc-intelligence bitmomo-pro bitmomo-regime; do
+            plugin_dir="website/wp-content/plugins/${plugin}"
+            while IFS= read -r test; do
+              echo "::group::${test}"
+              (cd "${plugin_dir}" && php "${test#${plugin_dir}/}")
+              echo "::endgroup::"
+            done < <(find "${plugin_dir}/tests" -maxdepth 1 -type f -name 'test-*.php' | sort)
+          done
+
+      - name: Syntax-check every first-party JavaScript file
+        shell: bash
+        run: |
+          set -euo pipefail
+          find website/wp-content/themes/bitmomo-child-v3 website/wp-content/plugins/bitmomo-ai website/wp-content/plugins/bitmomo-btc-intelligence website/wp-content/plugins/bitmomo-pro website/wp-content/plugins/bitmomo-regime \
+            -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
+
+      - name: Check M2 launch contract
+        run: node scripts/check-m2-launch-surfaces.mjs
+
+      - name: Build deterministic production artifact twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/build-production-artifact.py --output-dir dist/first
+          python3 scripts/build-production-artifact.py --output-dir dist/second
+          cmp dist/first/bitmomo-runtime.tar dist/second/bitmomo-runtime.tar
+          test "$(tar -tf dist/first/bitmomo-runtime.tar | wc -l)" -eq 96
+          ! tar -tf dist/first/bitmomo-runtime.tar | grep -Eq '(^|/)tests/|\.md$|\.env($|\.)|\.(key|pem|tmp|temp)$'
+
+      - name: Upload reviewed runtime artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bitmomo-runtime-${{ github.sha }}
+          path: |
+            dist/first/bitmomo-runtime.tar
+            dist/first/bitmomo-runtime-manifest.json
+          if-no-files-found: error
+          retention-days: 14

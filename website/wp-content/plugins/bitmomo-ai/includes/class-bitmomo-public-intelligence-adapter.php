@@ -26,10 +26,12 @@ final class Bitmomo_Public_Intelligence_Adapter {
                 'label' => self::confidence_label($projection['confidence'] ?? 0),
             ],
             'freshness' => [
+                'state' => (string) $projection['status'],
                 'label' => (string) ($projection['freshness_label'] ?? ''),
                 'timestamp' => (int) ($projection['timestamp'] ?? 0),
                 'timestamp_iso' => (string) ($projection['timestamp_iso'] ?? ''),
             ],
+            'latest_attempt' => is_array($projection['latest_attempt'] ?? null) ? $projection['latest_attempt'] : [],
             'key_drivers' => self::public_drivers($projection['key_drivers'] ?? []),
             'versions' => [
                 'engine' => defined('BITMOMO_AI_VERSION') ? BITMOMO_AI_VERSION : 'unknown',

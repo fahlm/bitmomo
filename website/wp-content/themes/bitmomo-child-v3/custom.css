@@ -1310,3 +1310,88 @@ img:not([src]), img[src=""], img[src="#"] { display: none !important; }
   .bm-howworks-steps { grid-template-columns: 1fr; }
   .bm-wl-teaser { padding: 24px 20px; }
 }
+
+/* ============= P0: Homepage 30D direction chart — per-observation ============= */
+/* bias colour + tap/click detail state. Scoped entirely to .bm-state-chart      */
+/* (used only by template-parts/home-hero.php — see class docblock there); does  */
+/* not touch the generic .bm-direction-bar rules above, which are unused dead    */
+/* code for this component and are left exactly as-is.                          */
+.bm-state-chart .bm-direction-bar {
+  padding: 0;
+  border: 0;
+  background: none;
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+}
+.bm-state-chart .bm-direction-bar span { background: linear-gradient(180deg, #8a9bb4, #5c6f88); opacity: .85; }
+.bm-state-chart .bm-direction-bar.is-bullish span { background: linear-gradient(180deg, #35cdbb, #1f8f86); }
+.bm-state-chart .bm-direction-bar.is-bearish span { background: linear-gradient(180deg, #ff8a7a, #c04c3c); }
+.bm-state-chart .bm-direction-bar.is-neutral span { background: linear-gradient(180deg, #8a9bb4, #5c6f88); }
+.bm-state-chart .bm-direction-bar:hover span { opacity: 1; filter: brightness(1.1); }
+.bm-state-chart .bm-direction-bar:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 6px; }
+.bm-state-chart .bm-direction-bar.is-selected span { opacity: 1; box-shadow: 0 0 0 2px rgba(230,240,242,.6) inset; }
+.bm-state-chart .bm-direction-bar.is-current { position: relative; }
+.bm-state-chart .bm-direction-bar.is-current::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 3px rgba(38,208,198,.22);
+}
+
+.bm-direction-dates { display: flex; align-items: flex-start; gap: clamp(4px, .7vw, 10px); margin-top: 8px; }
+.bm-direction-dates span { flex: 0 1 44px; width: 44px; min-width: 10px; color: #5b6f8a; font-size: 10px; text-align: center; }
+
+.bm-direction-detail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 16px 0 0; padding-top: 16px; border-top: 1px solid var(--stroke); }
+.bm-direction-detail div { min-width: 0; }
+.bm-direction-detail dt { margin: 0; color: #71839f; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; letter-spacing: .1em; }
+.bm-direction-detail dd { margin: 7px 0 0; color: var(--ink); font-size: 14px; font-weight: 750; line-height: 1.3; }
+.bm-direction-detail dd.is-bullish { color: #4fe0c9; }
+.bm-direction-detail dd.is-bearish { color: #ff9686; }
+
+@media (max-width: 760px) {
+  .bm-direction-dates span { flex-basis: 32px; width: 32px; font-size: 9px; }
+}
+
+@media (max-width: 640px) {
+  .bm-direction-detail { grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+  .bm-direction-detail dd { font-size: 13px; }
+}
+
+/* Public Market State history: chart plus click-to-inspect detail only. */
+.bmreg-trend { margin: 0 0 18px; padding: clamp(16px, 3vw, 22px); border: 1px solid var(--stroke); border-radius: 14px; background: rgba(15,35,52,.55); }
+.bmreg-trend-plot { position: relative; height: 160px; border-bottom: 1px solid #263b58; overflow: hidden; }
+.bmreg-trend-bars { position: absolute; inset: 0; z-index: 1; display: flex; align-items: flex-end; gap: 4px; }
+.bmreg-trend-bar { flex: 1 1 0; min-width: 3px; height: var(--bmreg-h, 4%); border: 0; border-radius: 4px 4px 2px 2px; cursor: pointer; padding: 0; opacity: .78; transition: opacity .15s ease, box-shadow .15s ease; }
+.bmreg-trend-bar:hover { opacity: 1; }
+.bmreg-trend-bar.is-current { opacity: 1; box-shadow: 0 0 0 2px rgba(255,255,255,.22); }
+.bmreg-trend-bar.is-akumulasi,.bmreg-trend-bar.is-accumulation { background: var(--teal); }
+.bmreg-trend-bar.is-ekspansi,.bmreg-trend-bar.is-expansion { background: #34d399; }
+.bmreg-trend-bar.is-distribusi,.bmreg-trend-bar.is-distribution { background: #f2b84c; }
+.bmreg-trend-bar.is-kapitulasi,.bmreg-trend-bar.is-capitulation { background: #ff7b6d; }
+.bmreg-trend-bar.is-transisi,.bmreg-trend-bar.is-transition { background: #8ba0bd; }
+.bmreg-price { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.bmreg-price-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.bmreg-price-line { fill: none; stroke: #2dd4bf; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.bmreg-price-dot { fill: #2dd4bf; }
+.bmreg-price-dot.is-current { fill: #fff; stroke: #2dd4bf; stroke-width: 2; }
+.bmreg-trend-detail { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--stroke); font-size: 13px; }
+.bmreg-trend-detail span { display: block; }
+.bmreg-trend-detail-date { color: var(--muted); font-weight: 700; }
+.bmreg-trend-detail-state { color: var(--ink); font-weight: 700; }
+.bmreg-trend-detail-bias { font-weight: 700; }
+.bmreg-trend-detail-bias.bmreg-bias-bullish { color: #34d399; }
+.bmreg-trend-detail-bias.bmreg-bias-bearish { color: #ff7b6d; }
+.bmreg-trend-detail-bias.bmreg-bias-neutral { color: #8ba0bd; }
+.bmreg-trend-detail-conf { color: var(--teal); font-weight: 800; }
+.bmreg-trend-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; color: var(--muted); font-size: 12px; }
+.bmreg-trend-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.bmreg-trend-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.bmreg-trend-legend i.is-akumulasi { background: var(--teal); }.bmreg-trend-legend i.is-ekspansi { background: #34d399; }.bmreg-trend-legend i.is-distribusi { background: #f2b84c; }.bmreg-trend-legend i.is-kapitulasi { background: #ff7b6d; }.bmreg-trend-legend i.is-transisi { background: #8ba0bd; }
+.bmreg-trend-caption { margin: 14px 0 0; color: var(--muted); font-size: 13px; }
