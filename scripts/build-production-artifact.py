@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import hashlib
+import io
 import json
 import subprocess
 import tarfile
@@ -82,7 +83,7 @@ def collect(config: dict) -> tuple[list[dict], list[dict]]:
     return sorted(included, key=lambda item: item["path"]), excluded
 
 
-def write_tar(path: Path, files: list[dict], source_epoch: int) -> None:
+def write_tar(path: Path, files: list[dict]) -> None:
     with tarfile.open(path, "w", format=tarfile.PAX_FORMAT) as archive:
         for item in files:
             data = item["source"].read_bytes()
@@ -93,9 +94,7 @@ def write_tar(path: Path, files: list[dict], source_epoch: int) -> None:
             info.gid = 0
             info.uname = "root"
             info.gname = "root"
-            info.mtime = source_epoch
-            import io
-
+            info.mtime = 0
             archive.addfile(info, io.BytesIO(data))
 
 
@@ -115,7 +114,7 @@ def main() -> int:
     output = (ROOT / args.output_dir).resolve()
     output.mkdir(parents=True, exist_ok=True)
     artifact = output / config["artifact_name"]
-    write_tar(artifact, files, source_epoch)
+    write_tar(artifact, files)
 
     manifest = {
         "schema": 1,
