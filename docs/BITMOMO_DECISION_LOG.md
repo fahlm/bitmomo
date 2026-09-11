@@ -42,7 +42,7 @@ Accepted.
 
 **Decision**
 
-Do not assign intuitive fixed weights to BTC Core, Market Regime, or Bond Intelligence before research. Build a point-in-time historical dataset, evaluate forward BTC outcomes, run conditional analysis, compare simpler and richer baselines, and validate out of sample before freezing `btc-mode-v1`.
+Do not assign intuitive fixed weights to BTC Core, Market Regime, or Bond Intelligence before research. Build a point-in-time historical dataset, evaluate forward BTC outcomes, run conditional analysis, compare simpler and richer baselines, and validate chronologically before freezing `btc-mode-v1`.
 
 **Status**
 
@@ -61,7 +61,42 @@ Research must compare:
 - C: BTC Core + Market Regime
 - D: BTC Core + Market Regime + Bond Intelligence
 
-A more complex model is adopted only if it provides meaningful incremental out-of-sample value, especially for downside-risk discrimination and stability.
+A more complex model is adopted only if it provides meaningful incremental value, especially for downside-risk discrimination and stability.
+
+**Status**
+
+Accepted.
+
+---
+
+## 2026-09-11 — BTC Mode V1 uses a 30-day synchronized full-feature calibration window
+
+**Decision**
+
+For launch calibration, prioritize the latest defensible 30 days containing the full intended short-horizon feature stack rather than a multi-year dataset that omits derivatives fields used by the live engine.
+
+Use two samples:
+
+- production-aligned observations at 08:10 and 20:10 `America/New_York` (~60 before exclusions)
+- 4-hour robustness observations (~180 before exclusions)
+
+Primary outcome horizons are +6h, +12h, and +24h, with +72h as a secondary persistence check. MAE, MFE, and realized volatility are part of the evaluation.
+
+**Rationale**
+
+BTC Mode is intended for short-horizon active decision support. Full feature fidelity is more valuable for V1 calibration than long history with materially different inputs. The small sample makes precise fitted weights inappropriate, so research should prefer conditional confirmation/conflict rules and conservative state mapping.
+
+**Status**
+
+Accepted for P0.2B research. Results remain provisional until empirical execution is complete.
+
+---
+
+## 2026-09-11 — Forward validation becomes the long-run evidence base
+
+**Decision**
+
+After `btc-mode-v1` is frozen and launched, every official 08:10/20:10 session output and subsequent outcome must be stored append-only. V1 historical records are immutable. This forward dataset becomes the primary long-run validation asset.
 
 **Status**
 
