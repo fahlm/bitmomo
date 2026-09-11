@@ -175,3 +175,26 @@ Bitmomo's intended differentiation is short-horizon BTC decision intelligence fo
 **Status**
 
 Accepted. This supersedes the earlier P0.2B cadence/outcome emphasis. No BTC Mode production formula is frozen yet.
+
+---
+
+## 2026-09-12 — Intraday replay separates opportunity from direction
+
+**Decision**
+
+Do not treat the existing BTC Core directional label as a direct Risk-On/Risk-Off mapping. Research will separate:
+
+- **Opportunity / Activity**: whether a meaningful tradable move is likely soon
+- **Directional Stance**: whether evidence is strong enough to prefer upside or downside, with explicit abstention allowed
+
+BTC Mode remains the single customer-facing compression layer. Risk-On/Risk-Off require sufficient directional evidence; otherwise the state is Wait & See even when movement probability is high.
+
+**Evidence**
+
+The corrected replay produced 720 hourly observations and 2,880 exploratory 15-minute observations. Existing inputs were materially more robust for future movement/volatility than for return direction. The exploratory tactical layer achieved roughly 0.75 / 0.79 / 0.84 holdout AUC for detecting a >=0.3% excursion within 30m / 1h / 2h, while directional AUC remained close to chance.
+
+Transition regime also behaved as a conflict/abstention context, and full multi-timeframe directional agreement could arrive too late for intraday continuation. Existing Confidence therefore remains evidence-agreement confidence, not win probability.
+
+**Status**
+
+Accepted for continued research architecture. Production methodology remains unfrozen. See `docs/research/btc-mode/RESULTS_V1.md` and ADR-004.
