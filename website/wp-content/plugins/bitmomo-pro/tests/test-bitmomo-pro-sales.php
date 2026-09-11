@@ -144,14 +144,13 @@ check( 'ECONOMICS: HARI INI / SEGERA HADIR / KE DEPAN progression present', fals
 check( 'ECONOMICS: "Tahap saat ini: Founding Whitelist" present', false !== strpos( $html, 'Tahap saat ini: Founding Whitelist' ) );
 
 // ==========================================================================
-// ACCOUNTABILITY -> no invented accuracy %; /btc-intelligence/ link is
-// deferred to plain text while that page 404s on the live site (staging
-// visual QA, 2026-09) -- see Bitmomo_Pro_Sales::METHODOLOGY_PAGE_LIVE.
+// ACCOUNTABILITY -> no invented accuracy %; the live methodology page is
+// linked and the former deferred note is absent.
 // ==========================================================================
 
 check( 'ACCOUNTABILITY: no invented accuracy percentage (e.g. "XX% akurat")', 0 === preg_match( '/\d+%\s*akurat/i', $html ) );
-check( 'ACCOUNTABILITY: does NOT link to /btc-intelligence/ while METHODOLOGY_PAGE_LIVE is false (avoids a public 404)', false === strpos( $html, 'href="' . home_url( '/btc-intelligence/' ) . '"' ) );
-check( 'ACCOUNTABILITY: shows the deferred plain-text note instead', false !== strpos( $html, 'Metodologi & track record lengkap segera tersedia sebagai halaman terpisah.' ) );
+check( 'ACCOUNTABILITY: links to the live /btc-intelligence/ methodology page', false !== strpos( $html, 'href="' . home_url( '/btc-intelligence/' ) . '"' ) );
+check( 'ACCOUNTABILITY: removes the deferred plain-text note', false === strpos( $html, 'Metodologi & track record lengkap segera tersedia sebagai halaman terpisah.' ) );
 
 // ==========================================================================
 // FAQ -> the 10-item buying-objection selection renders with SEGERA HADIR
