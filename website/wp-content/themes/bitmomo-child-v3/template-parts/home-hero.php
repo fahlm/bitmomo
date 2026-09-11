@@ -67,6 +67,7 @@ $bm_hero_drivers = $bm_hero_available && is_array( $bm_hero_intel['key_drivers']
     : array();
 $bm_hero_driver = trim( (string) ( $bm_hero_drivers[0] ?? '' ) );
 $bm_hero_updated = ! empty( $bm_hero_intel['timestamp_iso'] ) ? strtotime( $bm_hero_intel['timestamp_iso'] ) : false;
+$bm_session_label = $bm_hero_available ? trim( (string) ( $bm_hero_intel['session_label'] ?? '' ) ) : '';
 
 // Plain-language 0-100 -> level bucket. Pure display math, not itself tied to
 // either concept -- used BOTH for canonical Confidence (below, when available)
@@ -193,6 +194,7 @@ if ( $bm_hero_official ) {
       </div>
       <?php endif; ?>
       <dl class="bm-direction-meta">
+        <?php if ( '' !== $bm_session_label ) : ?><div><dt>SESSION</dt><dd><?php echo esc_html( $bm_session_label ); ?></dd></div><?php endif; ?>
         <div><dt>CONFIDENCE</dt><dd><?php echo esc_html( $bm_confidence_label ); ?></dd></div>
         <div class="bm-direction-meta-driver"><dt>DRIVER</dt><dd><?php echo esc_html( $bm_hero_driver ?: 'Belum tersedia' ); ?></dd></div>
         <div><dt>UPDATED</dt><dd><?php echo esc_html( $bm_hero_updated ? wp_date( 'H:i', $bm_hero_updated ) . ' WIB' : 'Belum tersedia' ); ?></dd></div>

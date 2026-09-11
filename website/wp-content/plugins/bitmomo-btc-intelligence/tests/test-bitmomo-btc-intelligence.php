@@ -154,6 +154,15 @@ function make_snapshot( $bias, $strength, $confidence_value, $confidence_label, 
 		'confidence'           => array( 'value' => $confidence_value, 'label' => $confidence_label ),
 		'freshness'            => array( 'label' => 'Tertunda · diperbarui 8 jam lalu', 'timestamp' => 1788394207, 'timestamp_iso' => '2026-09-03T00:10:07+00:00' ),
 		'key_drivers'          => array( 'Funding rate elevated', 'Spot volume rising' ),
+		'session'              => array( 'type' => 'us_post_close', 'label' => 'US POST-CLOSE', 'anchor' => '2026-09-02T20:10:00-04:00', 'market_timezone' => 'America/New_York', 'us_market_status' => 'regular_session_day' ),
+		'session_intelligence' => array(
+			'current_setup' => array( 'directional_bias' => $bias, 'structural_state' => 'hh_hl' ),
+			'what_happened' => array( 'btc_change_pct' => 1.25 ),
+			'what_changed' => array( array( 'field' => 'directional_bias', 'from' => 'neutral', 'to' => $bias ) ),
+			'comparison' => array( 'status' => 'compared' ),
+			'known_events' => array(),
+			'what_to_watch' => array( 'directional_consistency' ),
+		),
 		'versions'             => array( 'engine' => '1.2.4', 'classifier' => 'classifier-v1' ),
 	), $extra );
 }
@@ -200,6 +209,12 @@ check( 'ADAPTER SNAPSHOT CONSUMED: Faktor Utama rendered from snapshot() key_dri
 check( 'ADAPTER SNAPSHOT CONSUMED: backend freshness label rendered verbatim', false !== strpos( $html_wired, 'Tertunda · diperbarui 8 jam lalu' ) );
 check( 'FRESHNESS: exact timestamp converted to WIB', false !== strpos( $html_wired, '03 Sep 2026, 07:10 WIB' ) );
 check( 'FRESHNESS: never falsely claims current data', false === strpos( $html_wired, 'Data terkini' ) );
+check( 'SESSION UI: canonical post-close identity and structured sections render', false !== strpos( $html_wired, 'US POST-CLOSE' ) && false !== strpos( $html_wired, 'What Happened' ) && false !== strpos( $html_wired, 'What Changed' ) && false !== strpos( $html_wired, 'Next Context' ) );
+$closed_snapshot = make_snapshot( 'neutral', 'neutral', 55, 'medium', array( 'session' => array( 'type' => 'us_pre_open', 'label' => 'US MARKETS CLOSED - BTC UPDATE', 'anchor' => '2026-09-12T08:10:00-04:00', 'market_timezone' => 'America/New_York', 'us_market_status' => 'weekend' ) ) );
+Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = $closed_snapshot;
+$html_closed = render_fresh( $reflection );
+check( 'SESSION UI: weekend BTC update avoids false US pre-open language', false !== strpos( $html_closed, 'US MARKETS CLOSED - BTC UPDATE' ) && false !== strpos( $html_closed, 'BTC tetap diperdagangkan 24/7' ) && false === strpos( $html_closed, '>US PRE-OPEN<' ) );
+Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'bullish', 'strong_bullish', 82, 'high' );
 check( 'Hero intelligence visualization (spectrum) renders', false !== strpos( $html_wired, 'bm-bi__spectrum-track' ) && false !== strpos( $html_wired, 'MARKET DIRECTION SPECTRUM' ) );
 check( 'Spectrum shows all five canonical zone labels', false !== strpos( $html_wired, 'Strong Bear' ) && false !== strpos( $html_wired, 'Strong Bull' ) && false !== strpos( $html_wired, '>Neutral<' ) );
 

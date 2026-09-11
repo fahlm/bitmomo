@@ -7,6 +7,8 @@ final class Bitmomo_AI_Runtime_State {
     const VALID_OPTION = 'bitmomo_ai_latest_valid_snapshot';
 
     public static function record_attempt($edition, $status, array $data = [], array $gate = [], $error = null) {
+        $session_type = Bitmomo_AI_Session_Intelligence::normalize_session_type($edition);
+        $session = Bitmomo_AI_Session_Intelligence::session_context($session_type);
         $diagnostics = is_array($data['source_diagnostics'] ?? null) ? $data['source_diagnostics'] : [];
         if ($error instanceof WP_Error) {
             $error_data = $error->get_error_data();
@@ -25,7 +27,11 @@ final class Bitmomo_AI_Runtime_State {
 
         $attempt = [
             'attempted_at' => gmdate('c'),
-            'edition' => in_array($edition, ['morning', 'us_session'], true) ? $edition : 'us_session',
+            'edition' => $session_type,
+            'session_type' => $session_type,
+            'session_anchor' => $session['session_anchor'],
+            'market_timezone' => Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE,
+            'us_market_status' => $session['us_market_status'],
             'status' => sanitize_key((string) $status),
             'completeness' => max(0, min(100, (int) ($data['quality']['completeness_pct'] ?? 0))),
             'quality_gate' => self::safe_gate($gate),
@@ -77,6 +83,11 @@ final class Bitmomo_AI_Runtime_State {
         return [
             'canonical_record_id' => sanitize_text_field((string) ($record['source_record_id'] ?? '')),
             'edition' => sanitize_key((string) ($record['edition'] ?? '')),
+            'edition_id' => sanitize_text_field((string) ($record['edition_id'] ?? ($record['source_record_id'] ?? ''))),
+            'session_type' => Bitmomo_AI_Session_Intelligence::normalize_session_type($record['session_type'] ?? ($record['edition'] ?? '')),
+            'session_anchor' => sanitize_text_field((string) ($record['session_anchor'] ?? '')),
+            'market_timezone' => sanitize_text_field((string) ($record['market_timezone'] ?? Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE)),
+            'schema_version' => sanitize_text_field((string) ($record['schema_version'] ?? '1.0')),
             'generated_at' => $generated_at,
             'source_provenance' => sanitize_key((string) ($record['provenance'] ?? '')),
             'quality_result' => sanitize_key((string) ($record['quality_gate']['status'] ?? 'unknown')),

@@ -88,6 +88,7 @@ if (!class_exists('Bitmomo_AI_Intelligence')) {
 
 require __DIR__ . '/../includes/class-bitmomo-ai-signal-engine.php';
 require __DIR__ . '/../includes/class-bitmomo-ai-key-drivers.php';
+require __DIR__ . '/../includes/class-bitmomo-ai-session-intelligence.php';
 
 $checks = array();
 function check_fp($label, $condition) {

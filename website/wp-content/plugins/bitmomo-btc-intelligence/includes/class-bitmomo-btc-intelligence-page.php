@@ -462,10 +462,24 @@ class Bitmomo_Btc_Intelligence_Page {
 		$key_drivers = $resolved && is_array( $snapshot['key_drivers'] ?? null )
 			? array_values( array_filter( array_map( 'strval', $snapshot['key_drivers'] ) ) )
 			: array();
+		$session = $resolved && is_array( $snapshot['session'] ?? null ) ? $snapshot['session'] : array();
+		$session_intelligence = $resolved && is_array( $snapshot['session_intelligence'] ?? null ) ? $snapshot['session_intelligence'] : array();
+		$session_type = sanitize_key( (string) ( $session['type'] ?? '' ) );
+		$session_label = trim( (string) ( $session['label'] ?? '' ) );
+		$us_market_status = sanitize_key( (string) ( $session['us_market_status'] ?? 'regular_session_day' ) );
+		$closed_us_market = in_array( $us_market_status, array( 'weekend', 'holiday', 'closed' ), true );
+		$what_happened = is_array( $session_intelligence['what_happened'] ?? null ) ? $session_intelligence['what_happened'] : array();
+		$changes = is_array( $session_intelligence['what_changed'] ?? null ) ? $session_intelligence['what_changed'] : array();
+		$comparison = is_array( $session_intelligence['comparison'] ?? null ) ? $session_intelligence['comparison'] : array();
+		$watch_codes = is_array( $session_intelligence['what_to_watch'] ?? null ) ? $session_intelligence['what_to_watch'] : array();
+		$watch_labels = array(
+			'directional_consistency' => __( 'konsistensi arah pasar', 'bitmomo-btc-intelligence' ),
+			'structure_continuity'    => __( 'kelanjutan struktur harga', 'bitmomo-btc-intelligence' ),
+		);
 
 		?>
 		<section class="bm-bi__section bm-bi__section--peak bm-bi__snapshot">
-			<p class="bm-bi__eyebrow">KONDISI BTC SAAT INI</p>
+			<p class="bm-bi__eyebrow"><?php echo esc_html( $session_label ?: 'KONDISI BTC SAAT INI' ); ?></p>
 			<?php if ( ! $resolved ) : ?>
 				<div class="bm-bi__snapshot-unavailable" role="status">
 					<span class="bm-bi__badge bm-bi__badge--muted"><?php esc_html_e( 'Belum tersedia', 'bitmomo-btc-intelligence' ); ?></span>
@@ -473,6 +487,9 @@ class Bitmomo_Btc_Intelligence_Page {
 					<p><?php esc_html_e( 'Sistem sedang menunggu data yang memenuhi standar kualitas Bitmomo.', 'bitmomo-btc-intelligence' ); ?></p>
 				</div>
 			<?php else : ?>
+				<?php if ( $closed_us_market ) : ?>
+					<p class="bm-bi__market-context"><?php esc_html_e( 'Pasar saham AS tutup hari ini; BTC tetap diperdagangkan 24/7.', 'bitmomo-btc-intelligence' ); ?></p>
+				<?php endif; ?>
 				<div class="bm-bi__snapshot-top">
 					<div class="bm-bi__metric bm-bi__metric--price">
 						<span class="bm-bi__kicker"><?php esc_html_e( 'BTC Reference', 'bitmomo-btc-intelligence' ); ?></span>
@@ -545,6 +562,38 @@ class Bitmomo_Btc_Intelligence_Page {
 					<?php else : ?>
 						<p class="bm-bi__driver-empty"><?php esc_html_e( 'Faktor utama belum tersedia untuk snapshot ini.', 'bitmomo-btc-intelligence' ); ?></p>
 					<?php endif; ?>
+				</div>
+
+				<div class="bm-bi__session-context">
+					<div>
+						<span class="bm-bi__kicker">
+							<?php echo esc_html( 'us_post_close' === $session_type ? __( 'What Happened', 'bitmomo-btc-intelligence' ) : __( 'Current Setup', 'bitmomo-btc-intelligence' ) ); ?>
+						</span>
+						<?php if ( 'us_post_close' === $session_type && isset( $what_happened['btc_change_pct'] ) && is_numeric( $what_happened['btc_change_pct'] ) ) : ?>
+							<p><?php printf( esc_html__( 'BTC bergerak %s%% dalam jendela observasi 24 jam; tidak ada klaim sebab-akibat yang diasumsikan.', 'bitmomo-btc-intelligence' ), esc_html( number_format_i18n( (float) $what_happened['btc_change_pct'], 2 ) ) ); ?></p>
+						<?php else : ?>
+							<p><?php echo esc_html( sprintf( __( 'Bias saat ini %1$s dengan struktur %2$s.', 'bitmomo-btc-intelligence' ), ucfirst( $raw_bias ), str_replace( '_', ' ', (string) ( $session_intelligence['current_setup']['structural_state'] ?? __( 'belum tersedia', 'bitmomo-btc-intelligence' ) ) ) ) ); ?></p>
+						<?php endif; ?>
+					</div>
+					<div>
+						<span class="bm-bi__kicker"><?php esc_html_e( 'What Changed', 'bitmomo-btc-intelligence' ); ?></span>
+						<?php if ( $changes ) : ?>
+							<ul>
+								<?php foreach ( $changes as $change ) : ?>
+									<li><?php echo esc_html( sprintf( '%s: %s -> %s', str_replace( '_', ' ', (string) ( $change['field'] ?? '' ) ), (string) ( $change['from'] ?? '' ), (string) ( $change['to'] ?? '' ) ) ); ?></li>
+								<?php endforeach; ?>
+							</ul>
+						<?php else : ?>
+							<p><?php echo esc_html( ( $comparison['status'] ?? '' ) === 'insufficient_history' ? __( 'Riwayat sesi pembanding belum cukup.', 'bitmomo-btc-intelligence' ) : __( 'Tidak ada perubahan terstruktur yang tercatat.', 'bitmomo-btc-intelligence' ) ); ?></p>
+						<?php endif; ?>
+					</div>
+					<div>
+						<span class="bm-bi__kicker"><?php esc_html_e( 'Next Context', 'bitmomo-btc-intelligence' ); ?></span>
+						<p><?php esc_html_e( 'Belum ada agenda terjadwal dari sumber tepercaya.', 'bitmomo-btc-intelligence' ); ?></p>
+						<?php if ( $watch_codes ) : ?>
+							<p><?php echo esc_html( sprintf( __( 'Pantau: %s.', 'bitmomo-btc-intelligence' ), implode( ', ', array_values( array_intersect_key( $watch_labels, array_flip( $watch_codes ) ) ) ) ) ); ?></p>
+						<?php endif; ?>
+					</div>
 				</div>
 
 				<p class="bm-bi__freshness">

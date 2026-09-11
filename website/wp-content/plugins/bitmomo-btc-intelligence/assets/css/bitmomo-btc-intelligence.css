@@ -365,6 +365,35 @@
 	font-style: italic;
 }
 
+.bm-bi__market-context {
+	margin: 0 0 16px !important;
+	padding: 10px 12px;
+	border-left: 3px solid var( --bmi-orange );
+	color: var( --bmi-text-muted ) !important;
+	font-size: 0.86rem !important;
+}
+
+.bm-bi__session-context {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr );
+	gap: 14px;
+	margin: 16px 0;
+	padding-top: 16px;
+	border-top: 1px solid var( --bmi-border );
+}
+.bm-bi__session-context > div {
+	min-width: 0;
+}
+.bm-bi__session-context p,
+.bm-bi__session-context ul {
+	margin: 6px 0 0 !important;
+	font-size: 0.85rem !important;
+	line-height: 1.5;
+}
+.bm-bi__session-context ul {
+	padding-left: 18px;
+}
+
 .bm-bi__freshness {
 	font-size: 0.82rem;
 	color: var( --bmi-text-muted );
@@ -627,6 +656,10 @@
 
 	.bm-bi__metric-row {
 		grid-template-columns: repeat( auto-fit, minmax( 150px, 1fr ) );
+	}
+
+	.bm-bi__session-context {
+		grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
 	}
 
 	.bm-bi__pro-cta-actions {

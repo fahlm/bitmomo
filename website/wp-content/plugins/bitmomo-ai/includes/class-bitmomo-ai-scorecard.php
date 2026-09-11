@@ -36,7 +36,7 @@ final class Bitmomo_AI_Scorecard {
         $editions = [];
         $regimes = [];
         foreach ($rows as $row) {
-            $edition = in_array(($row['edition'] ?? ''), ['morning', 'us_session'], true) ? $row['edition'] : 'unknown';
+            $edition = in_array(($row['edition'] ?? ''), ['morning', 'us_session', 'us_pre_open', 'us_post_close'], true) ? $row['edition'] : 'unknown';
             $regime = trim((string) ($row['regime'] ?? '')) ?: 'unknown';
             $editions[$edition][] = $row;
             $regimes[$regime][] = $row;

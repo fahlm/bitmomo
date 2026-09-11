@@ -39,6 +39,7 @@ class Bitmomo_AI_Scorecard_Repository {
 $plugin_source = file_get_contents(__DIR__ . '/../bitmomo-ai.php');
 $boundary = strpos($plugin_source, 'require_once BITMOMO_AI_DIR');
 eval('?>' . substr($plugin_source, 0, $boundary));
+require __DIR__ . '/../includes/class-bitmomo-ai-session-intelligence.php';
 require __DIR__ . '/../includes/class-bitmomo-public-intelligence-adapter.php';
 
 $input = [
