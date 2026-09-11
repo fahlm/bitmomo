@@ -111,12 +111,15 @@ final class Bitmomo_AI_Scheduler {
         $edition = in_array($edition, ['morning', 'us_session'], true) ? $edition : 'us_session';
         $data = Bitmomo_AI_Binance::snapshot();
         if (is_wp_error($data)) {
+            Bitmomo_AI_Runtime_State::record_attempt($edition, 'error', [], [], $data);
             self::record('error', $data->get_error_message());
             return $data;
         }
         $evaluation = Bitmomo_AI_Signal_Engine::evaluate($data);
         $gate = Bitmomo_AI_Quality_Gate::check($data, $evaluation);
+        $gate_result = (array) get_option('bitmomo_ai_latest_quality_gate', []);
         if (is_wp_error($gate)) {
+            Bitmomo_AI_Runtime_State::record_attempt($edition, 'blocked', $data, $gate_result, $gate);
             self::record('blocked', $gate->get_error_message());
             return $gate;
         }
@@ -138,7 +141,8 @@ final class Bitmomo_AI_Scheduler {
         ];
         $editions[$analysis_date . ':' . $edition] = $record;
         update_option('bitmomo_ai_editions', array_slice($editions, -90, null, true), false);
-        update_option('bitmomo_ai_latest_preview', $record, false);
+        Bitmomo_AI_Runtime_State::record_valid_snapshot($record, $gate_result);
+        Bitmomo_AI_Runtime_State::record_attempt($edition, ($gate_result['status'] ?? '') === 'degraded' ? 'degraded' : 'success', $data, $gate_result);
         $fingerprint = hash('sha256', 'binance-public|' . $analysis_date . '|' . $edition);
         $post_id = Bitmomo_AI_Webhook::create_draft($data, $evaluation, $fingerprint);
         if (is_wp_error($post_id)) {

@@ -77,7 +77,7 @@ $encoded = json_encode([$snapshot, $history, $summary]);
 foreach (['axes', 'risk', 'source_record_id', 'evidence', 'private_note', 'baselines'] as $forbidden) adapter_check("no {$forbidden} leak", strpos($encoded, '"' . $forbidden . '"') === false);
 
 $GLOBALS['adapter_options']['bitmomo_ai_latest_quality_gate'] = ['status' => 'blocked'];
-adapter_check('snapshot fails closed when canonical gate blocks', Bitmomo_Public_Intelligence_Adapter::snapshot() === null);
+adapter_check('new blocked attempt does not hide the previous valid snapshot', Bitmomo_Public_Intelligence_Adapter::snapshot() !== null);
 
 $failed = array_filter($checks, function ($row) { return !$row[1]; });
 foreach ($checks as $row) echo ($row[1] ? 'PASS' : 'FAIL') . ': ' . $row[0] . PHP_EOL;

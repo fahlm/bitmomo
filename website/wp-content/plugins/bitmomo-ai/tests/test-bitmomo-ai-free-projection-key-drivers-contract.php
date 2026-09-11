@@ -5,7 +5,7 @@
  *
  * Proves the additive data-contract change end-to-end: key_drivers is
  * present alongside the untouched primary_driver, the fail-closed/quality-
- * gate boundary is unchanged, and no Pro-only field leaks into the Free
+ * valid-snapshot boundary is preserved, and no Pro-only field leaks into the Free
  * shape — using the REAL Bitmomo_AI_Intelligence class body (sliced
  * verbatim out of the real bitmomo-ai.php at test time, not hand-copied,
  * so this test can never silently drift from the shipped file) plus the
@@ -150,13 +150,12 @@ check_fp('stale data: status is unavailable', 'unavailable' === ($stale_result['
 check_fp('stale data: key_drivers is absent (fail-closed, matches primary_driver)', !array_key_exists('key_drivers', $stale_result));
 check_fp('stale data: primary_driver is absent (existing fail-closed behavior unchanged)', !array_key_exists('primary_driver', $stale_result));
 
-// --- Case 4: quality gate blocked -> validated_source() returns null ->
-// --- same fail-closed shape. Proves the quality gate boundary this class
-// --- already enforced is completely unchanged by this additive field.
+// --- Case 4: a later blocked gate cannot invalidate a previously accepted
+// --- canonical preview. The blocked attempt is tracked independently.
 set_preview(fp_signal_input(), 'blocked');
 $blocked_result = Bitmomo_AI_Intelligence::free_projection();
-check_fp('quality gate blocked: status is unavailable', 'unavailable' === ($blocked_result['status'] ?? null));
-check_fp('quality gate blocked: key_drivers is absent', !array_key_exists('key_drivers', $blocked_result));
+check_fp('later blocked gate: previous valid snapshot remains fresh', 'fresh' === ($blocked_result['status'] ?? null));
+check_fp('later blocked gate: previous valid key_drivers remain present', isset($blocked_result['key_drivers']) && is_array($blocked_result['key_drivers']));
 
 // --- Case 5: degraded quality gate still passes through (existing
 // --- behavior) and still carries key_drivers.

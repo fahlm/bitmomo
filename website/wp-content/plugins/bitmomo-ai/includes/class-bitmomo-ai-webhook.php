@@ -36,7 +36,9 @@ final class Bitmomo_AI_Webhook {
 
         $evaluation = Bitmomo_AI_Signal_Engine::evaluate($validated);
         $gate = Bitmomo_AI_Quality_Gate::check($validated, $evaluation);
+        $gate_result = (array) get_option('bitmomo_ai_latest_quality_gate', []);
         if (is_wp_error($gate)) {
+            Bitmomo_AI_Runtime_State::record_attempt('us_session', 'blocked', $validated, $gate_result, $gate);
             self::record_webhook('blocked', $gate->get_error_message());
             return $gate;
         }
@@ -48,7 +50,20 @@ final class Bitmomo_AI_Webhook {
         }
         set_transient('bitmomo_ai_seen_' . $fingerprint, 1, DAY_IN_SECONDS * 7);
 
-        update_option('bitmomo_ai_latest_preview', ['data' => $validated, 'evaluation' => $evaluation, 'time' => gmdate('c')], false);
+        $generated_at = gmdate('c');
+        $record = [
+            'data' => $validated,
+            'evaluation' => $evaluation,
+            'time' => $generated_at,
+            'generated_at' => $generated_at,
+            'edition' => 'us_session',
+            'source_record_id' => 'bitmomo-ai:webhook:' . $fingerprint,
+            'comparison_source_record_id' => '',
+            'quality' => $evaluation['quality'] ?? [],
+            'provenance' => 'recorded_live',
+        ];
+        Bitmomo_AI_Runtime_State::record_valid_snapshot($record, $gate_result);
+        Bitmomo_AI_Runtime_State::record_attempt('us_session', ($gate_result['status'] ?? '') === 'degraded' ? 'degraded' : 'success', $validated, $gate_result);
         $post_id = self::create_draft($validated, $evaluation, $fingerprint);
         if (is_wp_error($post_id)) {
             self::record_webhook('error', $post_id->get_error_message());
