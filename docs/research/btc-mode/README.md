@@ -1,90 +1,92 @@
 # BTC Mode Research
 
-Status: RESEARCH FOUNDATION / EXECUTION-READY
+Status: ACTIVE — INTRADAY CALIBRATION
 
 This folder is the canonical research record for Bitmomo BTC Mode.
 
 ## Product question
 
-BTC Mode compresses the current BTC risk environment into exactly one of three customer-facing states:
+BTC Mode compresses BTC market intelligence into three customer-facing states:
 
-- `risk_on`
-- `wait_and_see`
-- `risk_off`
+- Risk-On
+- Wait & See
+- Risk-Off
 
 The intended use is short-horizon decision support for active BTC users/traders. It is not a long-cycle allocation model and not a direct buy/sell signal.
 
-## V1 research scope
+## Current empirical direction
 
-Primary calibration window: the latest defensible **30 days of synchronized full-feature data**.
+The corrected P0.2B intraday replay shows that the existing BTC Core / Regime stack is more robust at describing **future movement intensity / volatility** than future price direction.
 
-This is intentional. The V1 product is session-aware and short horizon; a shorter window with complete BTC derivatives + regime + macro context is preferred over a much longer window that silently drops the inputs actually used by the live engine.
+A 15-minute exploratory tactical layer built from existing 5-minute Binance data materially improves discrimination for whether a meaningful move is likely, but has not yet demonstrated robust directional edge.
 
-Two observation sets are required:
+Research therefore separates four layers:
 
-1. **Production-aligned sample** — observations at the canonical 08:10 and 20:10 `America/New_York` anchors, approximately 60 observations over 30 days.
-2. **Research robustness sample** — replay every 4 hours using only closed/known data, approximately 180 observations over 30 days. This sample is for relationship robustness only; it does not change the two-edition production cadence.
+1. **Opportunity / Activity** — is a meaningful tradable move likely soon?
+2. **Directional Stance** — is upside or downside evidence strong enough, or should the system abstain?
+3. **Context** — Market Regime and, later, horizon-appropriate Bond/Macro context
+4. **BTC Mode** — one customer-facing compression layer that emits Risk-On/Risk-Off only when evidence aligns, otherwise Wait & See
+
+See `RESULTS_V1.md` and ADR-004 for current evidence and rationale.
+
+## Corrected V1 research scope
+
+Primary calibration window remains the latest defensible **30 days of synchronized full-feature data**.
+
+Current canonical-style replay:
+
+- hourly PIT-safe feature snapshots for current slow/structural engine semantics
+- primary outcome horizons: +15m, +30m, +1h, +2h, +4h, +6h
+- MAE, MFE, realized volatility, time-to-excursion, and path ordering
+- 08:10 / 20:10 `America/New_York` editions remain deep-context product checkpoints rather than the only statistical sample
+
+Exploratory tactical research may use 15-minute snapshots only when the underlying data genuinely supports that cadence. This does not silently redefine the current production engine cadence.
 
 ## Candidate intelligence pillars
 
-1. **BTC Core** — existing Bitmomo Signal Engine outputs: direction, structure, carry, crowding, volatility, aggregate directional score/strength, and canonical confidence.
-2. **Market Regime** — existing Bitmomo Regime outputs: accumulation, expansion, distribution, capitulation, transition, regime certainty, evidence, and conflicts.
-3. **Bond / Macro** — Bond Intelligence outputs: policy repricing, real-rate pressure, inflation repricing, curve state, bond volatility, provenance, maturity, and data quality.
+- **BTC Core / structural context** — current Direction, Structure, Carry, Crowding, Volatility, aggregate score and evidence-agreement Confidence
+- **Market Regime** — Accumulation, Expansion, Distribution, Capitulation, Transition, certainty/evidence/conflicts
+- **Opportunity / Activity** — faster BTC-native price/range/volatility/flow/derivatives activity research
+- **Bond / Macro** — tested by horizon rather than forced into every intraday decision
 
-The pillars remain semantically distinct. Distribution does not automatically mean Risk-Off; accumulation does not automatically mean Risk-On. Bond may confirm, conflict with, or add no useful decision information.
+The pillars remain semantically distinct. Distribution does not automatically mean Risk-Off; Accumulation does not automatically mean Risk-On. Existing Confidence is not a trade win probability.
 
-## Outcome horizons
+## Canonical files
 
-Primary horizons:
+- `DATA_DICTIONARY.md` — research fields and lineage
+- `METHODOLOGY.md` — accepted research method
+- `EXECUTION_SPEC.md` — execution/acceptance contract
+- `EXPERIMENT_LOG.md` — append-only experiment history
+- `RESULTS_V1.md` — current empirical findings
+- `LIMITATIONS.md` — known limitations and replay caveats
 
-- +6h
-- +12h — especially important because it approximately spans one Bitmomo edition to the next
-- +24h
-
-Secondary persistence check:
-
-- +72h
-
-For every defensible horizon also evaluate:
-
-- maximum adverse excursion (MAE)
-- maximum favorable excursion (MFE)
-- realized volatility
-
-BTC Mode is therefore evaluated as a short-horizon risk-environment classification, not merely a next-period up/down predictor.
-
-## Research sequence
-
-Compare progressively richer models:
-
-- **A — Direction only**
-- **B — BTC Core**
-- **C — BTC Core + Market Regime**
-- **D — BTC Core + Market Regime + Bond**
-
-Do not promote a more complex model unless it adds meaningful information or risk discrimination.
-
-## V1 calibration principle
-
-Do not fit precise-looking weights from a small sample. Use the 30-day sample primarily to discover robust conditional relationships, confirmation/conflict behavior, and downgrade/veto candidates.
-
-Example research question: does a bullish BTC Core retain favorable +12h/+24h return and MAE distribution when Market Regime is Distribution and real-rate pressure is Rising?
-
-The desired production result is an explainable deterministic rule, not an overfit numerical score.
+Production methodology remains separate in `docs/intelligence/BTC_MODE_V1.md` and must not be frozen until research acceptance is explicit.
 
 ## Non-negotiable rules
 
-- Strict point-in-time construction; no look-ahead.
-- Use closed/available observations only.
-- Preserve source timestamps and knowledge-time semantics.
-- Do not fabricate historical intraday availability.
-- Report sample counts for every conditional result.
-- Overlapping outcomes are dependent observations and must not be presented as independent evidence.
-- Failed experiments are retained in `EXPERIMENT_LOG.md`.
-- No production BTC Mode formula is frozen until research is reviewed and accepted.
-- Any accepted production methodology gets an immutable version such as `btc-mode-v1`; later semantic changes require a new version.
-- After launch, append-only forward validation becomes the primary evidence base and grows twice daily.
+- strict point-in-time construction; no look-ahead
+- no hidden substitution of missing inputs
+- no arbitrary fitted weights from one short window
+- overlapping intraday rows are dependent observations, not independent trials
+- failed/rejected experiments remain documented
+- no hard alias such as Distribution = Risk-Off or Accumulation = Risk-On
+- no presentation of existing Confidence as probability a trade will win
+- production methodology is immutable/versioned after freeze
+- append-only forward validation becomes the long-run evidence base
 
-## Current platform status
+## Current next step
 
-P0.2A Session-Aware BTC Intelligence was merged to `main` via PR #72. Production deployment has not been authorized. The existing `bond_context` extension point remains `null`; Bond is not yet integrated into WordPress/session generation.
+Research selective **Directional Stance** rules using the corrected replay and existing public Binance inputs. Start with:
+
+- Transition/conflict downgrade
+- early versus mature Expansion
+- price/OI/taker-flow divergence and material state changes
+- explicit abstention
+
+Only add another microstructure provider if existing data cannot support a defensible directional layer.
+
+Bond Intelligence is evaluated after the BTC-native selective-direction study and by horizon rather than as a forced universal input.
+
+## Platform status
+
+P0.2A Session-Aware BTC Intelligence is merged to `main`. Production deployment remains unauthorized. The current `bond_context` extension point remains `null`; Bond is not yet integrated into WordPress/session generation.
