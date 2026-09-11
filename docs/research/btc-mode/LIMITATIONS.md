@@ -2,58 +2,61 @@
 
 Status: ACTIVE
 
-This file tracks limitations that may affect interpretation, reproducibility, or production suitability.
+These limitations must accompany any interpretation of P0.2B results.
 
-## Known limitations before research begins
+## Data window and dependence
 
-### Short calibration window
+- Initial V1 calibration uses one 30-day market window. It contains many intraday rows but far fewer independent market regimes/days.
+- Hourly and 15-minute forward outcomes overlap. Raw row count must never be presented as independent-sample count.
+- Chronological evaluation, embargo/purging, day/event-level checks, and append-only forward validation are required.
+- The observed window contains Accumulation, Expansion, Transition, and Distribution but no Capitulation candidate. Risk-Off behavior cannot be considered fully calibrated from this window alone.
 
-V1 intentionally prioritizes the latest defensible 30 days of synchronized full-feature data because the product is short-horizon and the live engine depends on derivatives inputs with limited historical depth.
+## Historical replay parity
 
-This creates a material sample-size limitation. Approximately 60 production-aligned session observations and ~180 four-hour robustness observations are expected before exclusions. Results must not be marketed as universal multi-cycle evidence.
+The corrected replay uses repository Signal Engine and Regime rules, but historical source reconstruction is not perfectly identical to live production:
 
-Mitigation: use simple conditional/confirmation rules rather than fitted precise weights; report `n` for every conditional finding; begin append-only twice-daily forward validation immediately after launch.
+- historical basis uses hourly mark/index closes rather than an instantaneous historical premium-index observation
+- the portable archive supplies roughly April-August daily warm-up, shorter than the production code's maximum 252-day percentile lookback for some volatility/volume percentile calculations
+- derivatives knowledge time is reconstructed under a conservative availability assumption; alternate zero-delay sensitivity changes some numeric scores but did not change the main research conclusions
+- historical liquidation pressure is unavailable
+- Market Regime receives `crowding_score = null`, matching the current production runtime adapter
 
-### Outcome dependence / overlap
+Results that depend strongly on these fields require additional sensitivity or forward validation.
 
-+6h/+12h/+24h/+72h windows overlap for closely spaced observations, especially in the 4-hour robustness sample. Rows are therefore not independent trials.
+## Direction versus movement
 
-Mitigation: do not use naive significance claims based on row count alone; compare production-aligned and robustness samples; emphasize effect consistency and path-risk distributions.
+The corrected study finds materially stronger evidence for forecasting near-term movement magnitude than for forecasting direction.
 
-### Historical derivatives coverage
+Do not convert movement probability into an implied directional signal. A high probability of a >=0.3% move can still be compatible with either upside or downside.
 
-Funding, premium/basis, open interest, global long/short ratio, and taker buy/sell history may not share identical availability and continuity even within the 30-day window. Research must report actual coverage and must not silently treat unavailable fields as neutral observations.
+## Confidence semantics
 
-### Treasury knowledge-time precision
+Existing Bitmomo Confidence measures agreement/strength of current evidence. It is not calibrated as win probability or expected return probability.
 
-Historical Treasury observations may be defensible at daily resolution while exact intraday publication/availability time is unknown for some backfilled observations. Such rows must not be used to fabricate intraday point-in-time macro context.
+Observed multi-timeframe agreement can occur late in an intraday move. Customer-facing language must not imply that `70% confidence` means a 70% chance a bullish/bearish view will be profitable.
 
-### Experimental Yahoo-derived sources
+## Tactical layer
 
-MOVE, DXY, and Nasdaq data in Bond Intelligence are currently experimental. They may be analyzed separately, but V1 should not become operationally dependent on them without stronger reliability evidence.
+The exploratory 15-minute layer demonstrates potential for Opportunity/Activity detection from existing 5-minute public data. It does not yet prove a production recomputation cadence or a standalone Directional Stance engine.
 
-### Regime and engine versioning
+Simple and shallow nonlinear directional models remained near chance on the later chronological period. Additional complexity must not be added merely to improve in-sample fit.
 
-Historical replay must use documented engine/classifier rules. If research encounters rule-version differences, results must be separated or explicitly normalized; incompatible versions must not be silently pooled.
+## Regime/state imbalance
 
-### Regime/state frequency imbalance
+Some states are concentrated in different parts of the 30-day window. Accumulation dominates earlier observations; Distribution and much of Transition appear later; Capitulation is absent. Apparent conditional effects can therefore be confounded with time/regime shifts.
 
-Some Market Regime, direction, or macro states may be rare within a 30-day window. Conditional results with very small `n` must be labeled exploratory and must not drive strong production rules.
+No conditional rule should be treated as universally validated solely because it performs in one segment of this window.
 
-### Market-cycle dependence
+## Bond / macro
 
-A relationship seen in one volatile month can fail in another environment. The 30-day V1 calibration is a launch calibration, not proof of cross-cycle durability.
+Bond incremental value has not yet been evaluated under the corrected intraday target. It should be tested by horizon. Lack of usefulness at 15m-1h would not imply lack of usefulness at 4h-12h or for session narrative/context.
 
-Mitigation: freeze V1 conservatively and evaluate every future production observation append-only. Future methodology changes require a new version.
+Historical Treasury knowledge-time precision remains a constraint: daily observations without defensible intraday availability cannot be back-projected into earlier timestamps.
 
-### Research robustness cadence differs from product cadence
+MOVE, DXY, and Nasdaq inputs remain experimental and must not silently become mandatory V1 dependencies.
 
-The 4-hour research sample exists only to test whether relationships persist beyond the two official publication anchors. It is not a production schedule and must never be presented as six Bitmomo calls per day.
+## Forward validation
 
-### Classification vs prediction
+Any accepted V1 rule remains launch-calibrated rather than universally validated. Material state outputs and outcomes must be stored append-only after launch. Forward evidence should supersede repeated retrospective retuning.
 
-BTC Mode is intended to classify the current BTC risk environment for short-horizon decision support. It must not be evaluated or marketed solely as a binary next-price-direction prediction.
-
-## Rule for new limitations
-
-Append newly discovered limitations here as research proceeds. Do not erase a limitation merely because a workaround is later implemented; document the mitigation and the version/date instead.
+Future methodology changes require an explicit new Mode version rather than silently rewriting historical V1 behavior.
