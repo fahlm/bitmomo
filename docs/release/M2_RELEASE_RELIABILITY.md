@@ -92,3 +92,19 @@ CTO semantic decision before implementation. Expected files are:
 - existing public-projection and public-adapter contract tests
 
 No runtime semantic correction has been deployed to staging or production.
+
+## Staging side-effect controls
+
+The canonical staging guard is `config/staging/bitmomo-staging-safety.php` and
+is installed outside the managed runtime artifact as
+`wp-content/mu-plugins/bitmomo-staging-safety.php`. The staging `wp-config.php`
+must define `BITMOMO_AI_AUTO_PUBLISH` as `false` before the guard is installed.
+
+The guard short-circuits all `wp_mail()` delivery, blocks outbound HTTP methods
+other than GET/HEAD while preserving read-only market-data access, rejects the
+inbound TradingView write webhook, and forces the Pro checkout URL to remain
+empty. `blog_public=0` remains mandatory. Run
+`scripts/check-staging-safety.sh` after any staging configuration change.
+
+These controls are staging configuration, are not included in the production
+artifact, and must never be installed on production.
