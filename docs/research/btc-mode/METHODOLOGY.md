@@ -1,41 +1,52 @@
 # BTC Mode Research — Methodology
 
-Status: DRAFT FOR EXECUTION
+Status: DRAFT FOR INTRADAY RE-EXECUTION
 
 ## Objective
 
-Determine whether BTC Core, Market Regime, and Bond Intelligence provide stable, incremental information about BTC's **short-horizon** forward risk environment, and use that evidence to design an explainable deterministic `btc-mode-v1` classification.
+Determine whether BTC Core, Market Regime, derivatives context, and Bond Intelligence provide stable, incremental information about BTC's **intraday risk environment** and use that evidence to design an explainable deterministic `btc-mode-v1` classification.
 
-The objective is not to maximize in-sample accuracy and not to derive arbitrary weights.
+BTC Mode is intended for active short-horizon decision support. The research target is therefore not buy-and-hold performance over one to three days and not maximum in-sample directional accuracy.
+
+The primary questions are:
+
+- Is upside or downside path asymmetry favorable over the next minutes to hours?
+- How large is favorable versus adverse excursion before the state changes?
+- How quickly does the opportunity or invalidation appear?
+- Does a richer context layer improve those intraday distinctions after BTC-native information is already known?
+
+Do not derive arbitrary weights.
 
 ## Calibration window
 
-V1 primary research window: the latest defensible **30 days** for which the full intended feature stack can be synchronized point-in-time.
+V1 primary research window remains the latest defensible **30 contiguous days** for which the intended feature stack can be synchronized point-in-time.
 
-A complete short window is preferred over a longer history that drops live derivatives inputs. This choice must be disclosed as a limitation and followed by append-only forward validation after launch.
+A 30-day window is acceptable for intraday calibration because the research uses many point-in-time observations inside each day. The limitation is not calendar length alone; it is dependence between overlapping observations and the number of distinct market regimes represented. These limitations must be disclosed and followed by append-only forward validation.
 
 ## Observation sets
 
-### Production-aligned sample
+### Primary intraday replay
 
-Replay only at the canonical Bitmomo decision anchors:
+Replay the canonical feature stack at the highest cadence that is faithful to the underlying production inputs.
+
+For the current V1 engine, **1-hour decision snapshots are the primary replay cadence** because Direction/Structure and several derivatives inputs are based on closed 1H/4H/D1 or hourly observations. Expected order of magnitude: ~720 observations over 30 days before exclusions.
+
+Do not manufacture 15-minute feature updates from inputs that only update hourly. Higher-frequency feature sampling may be studied only for components whose source timestamps genuinely support it.
+
+### Production-anchor subset
+
+Retain the canonical Bitmomo session anchors as a product-specific subset:
 
 - 08:10 `America/New_York`
 - 20:10 `America/New_York`
 
-Expected order of magnitude: ~60 observations over 30 days.
+These observations test how the intraday model behaves at the two deep-context publication anchors. They are no longer the primary statistical sample for BTC Mode calibration.
 
-This sample has highest product relevance and is the primary acceptance sample.
+### State-change/event subset
 
-### Research robustness sample
+Where defensible, identify observations around material changes in canonical inputs or candidate BTC Mode state. This subset is used to study whether state changes contain more information than repeated unchanged snapshots.
 
-Replay every 4 hours using only information available at each timestamp.
-
-Expected order of magnitude: ~180 observations over 30 days.
-
-This sample exists to test whether observed relationships are directionally robust beyond the two publication anchors. It must not be used to imply Bitmomo publishes six editions per day.
-
-BTC remains a 24/7 market. Weekend and US-holiday observations are included; US cash-equity calendar state is context, not a generation kill switch.
+BTC remains a 24/7 market. Weekend and US-holiday observations remain included; US cash-equity calendar state is context, not a generation kill switch.
 
 ## Point-in-time safety
 
@@ -46,101 +57,126 @@ For every feature at decision time `T`:
 3. Rolling statistics must use only observations available by `T`.
 4. Swing/structure logic must use only closed candles available by `T`.
 5. Forward BTC outcomes are labels only and may never influence feature construction.
-6. Any daily macro observation without defensible intraday knowledge time must be carried only according to a documented availability rule; never back-project the day's final observation into earlier timestamps.
+6. Any daily macro observation without defensible intraday knowledge time may enter only after a documented availability rule; never back-project the day's final observation into earlier timestamps.
 7. Missing data stays missing; do not silently convert missing fields to neutral/zero unless that behavior exactly matches the canonical production engine and is documented.
+8. Replay code must reproduce the repository's production formulas exactly. A semantically similar substitute indicator is not canonical evidence.
 
 ## Outcomes
 
-Primary horizons for every observation:
+### Primary intraday horizons
 
-- forward return at +6h
-- forward return at +12h
-- forward return at +24h
+For every valid decision snapshot calculate:
 
-Secondary persistence horizon:
+- +15m
+- +30m
+- +1h
+- +2h
+- +4h
+- +6h
 
-- forward return at +72h
+### Secondary context horizons
+
+- +12h
+- +24h
+
+Longer horizons such as +72h are optional persistence context only and must not drive V1 intraday Mode calibration.
+
+### Path metrics
 
 For each horizon calculate where defensible:
 
-- maximum adverse excursion (MAE)
+- forward return
 - maximum favorable excursion (MFE)
+- maximum adverse excursion (MAE)
+- time to MFE
+- time to MAE
 - realized volatility
+- path ordering where useful: whether meaningful favorable or adverse movement occurred first
 
-Report distributions, not only averages. At minimum include sample count, median, mean where useful, positive-return rate, lower-tail behavior, MAE/MFE summaries, and relevant quantiles.
+Report distributions, not only averages. Include sample count, median, relevant quantiles, positive-return rate, MAE/MFE summaries, and low-tail behavior.
 
-The +12h horizon is particularly important because it approximates the interval from one canonical Bitmomo edition to the next.
+Because observations overlap heavily, raw row count must never be presented as independent sample size.
+
+## Tradability / cost sensitivity
+
+BTC Mode is not an execution bot, but an intraday classification is only useful if the detected move is economically meaningful.
+
+Evaluate outcome sensitivity to plausible trading-friction bands without assuming a specific exchange or strategy. Report whether observed MFE/MAE differences remain material after representative fee/slippage thresholds. Do not optimize the Mode rule to one fee schedule.
 
 ## Baselines and model families
 
 Evaluate in this order:
 
 ### A — Direction only
-Use the canonical directional output/strength as a minimal baseline.
+Use the canonical production directional output/strength as a minimal baseline.
 
 ### B — BTC Core
-Use the existing Signal Engine outputs and canonical quality/confidence semantics, including available derivatives inputs.
+Use the exact existing Signal Engine outputs and canonical quality/confidence semantics, including available derivatives inputs.
 
 ### C — BTC Core + Market Regime
-Test whether regime context changes the forward distribution conditional on BTC Core state. Do not equate regime labels directly with Risk-On/Risk-Off.
+Test whether regime context changes intraday return/path-risk distributions conditional on BTC Core state. Do not equate regime labels directly with Risk-On/Risk-Off.
 
 ### D — BTC Core + Market Regime + Bond
-Test whether Bond axes add incremental information after BTC-native information and regime are already known.
+Test whether Bond axes add incremental information after BTC-native information and regime are already known. Bond may matter more at 4h–12h than at 15m–1h; evaluate by horizon rather than forcing one universal effect.
 
 Experimental cross-asset fields such as DXY/Nasdaq/MOVE may be studied separately but must not silently become required V1 inputs.
 
 ## Conditional analysis before weighting
 
-Do not optimize precise weights from this sample. First inspect conditional outcome distributions, including:
+Do not optimize precise weights from this sample. First inspect conditional intraday outcome distributions, including:
 
-- strong bullish vs strong bearish directional states
-- bullish BTC Core during expansion vs distribution
-- bearish BTC Core during accumulation vs capitulation
-- bullish/expansion with rising vs falling real-rate pressure
-- bearish/distribution with tightening vs supportive rates context
-- transition regime with conflicting BTC Core evidence
-- crowded/elevated derivatives conditions versus cleaner positioning
+- canonical direction strength versus 15m/30m/1h/2h/4h/6h path outcomes
+- BTC Core state versus MFE/MAE asymmetry
+- bullish BTC Core during expansion versus distribution
+- bearish BTC Core during accumulation versus capitulation
+- crowded versus cleaner positioning
+- rising versus falling OI conditional on price direction
+- taker imbalance conditional on structure
 - high/extreme volatility versus normal/low volatility
+- supportive versus tightening real-rate context by horizon
+- state-change observations versus unchanged repeated observations
 
-The purpose is to discover when a variable is informative, redundant, contradictory, or context-dependent.
+The purpose is to discover when a variable is informative, redundant, contradictory, horizon-dependent, or context-dependent.
 
-## Rule discovery approach
+## BTC Mode research interpretation
 
-Prefer simple confirmation/conflict logic over fitted weights.
+Candidate state semantics to test empirically:
 
-Examples of candidate rule forms to test, not assume:
+- **Risk-On:** upside/favorable excursion is meaningfully dominant relative to adverse path risk over the relevant intraday horizon.
+- **Wait & See:** path asymmetry is weak, mixed, unstable, or too small to be useful after realistic friction.
+- **Risk-Off:** downside/adverse excursion is meaningfully dominant or the environment is hostile to long risk over the relevant intraday horizon.
 
-- BTC Core Risk-On candidate + supportive Regime + supportive/neutral Macro -> retain Risk-On.
-- BTC Core Risk-On candidate + conflicting Regime or tightening Macro -> downgrade to Wait & See if outcome distributions support the downgrade.
-- BTC Core Risk-Off candidate + Distribution/Capitulation + tightening Macro -> retain Risk-Off if downside/MAE evidence confirms.
+These are hypotheses for empirical testing, not frozen production definitions.
 
-A rule is accepted only from documented empirical evidence.
+## Validation for overlapping intraday observations
 
-## Validation for a short sample
+Do not use random train/test splits.
 
-Classic multi-year walk-forward validation is not available for the synchronized full-feature V1 sample. Use instead:
+Use:
 
-1. strict chronological splits; never random splits
-2. production-aligned versus 4-hour robustness comparison
-3. first-part versus later-part stability checks
-4. sensitivity checks that small threshold changes do not radically flip the conclusion
-5. minimum-sample labeling for all conditional cells
-6. no repeated tuning against the final chronological holdout
-
-The final segment must remain untouched until candidate rules are substantially specified.
+1. strict chronological development and final holdout segments
+2. purging/embargo where forward outcome windows overlap the split boundary
+3. hourly primary replay versus production-anchor subset comparison
+4. state-change/event subset versus repeated unchanged-state observations
+5. first-part versus later-part stability checks
+6. sensitivity checks that small threshold changes do not radically flip conclusions
+7. minimum-sample labeling for every conditional cell
+8. cluster/day-level bootstrap or equivalent dependence-aware uncertainty where feasible
+9. no repeated tuning against the final chronological holdout
 
 ## Complexity rule
 
 A richer model is accepted only if it provides meaningful improvement in at least one important dimension without materially degrading the others:
 
-- directional discrimination
+- intraday directional/path discrimination
 - downside-risk discrimination
 - upside participation
-- stability across timestamps
-- calibration/consistency
+- MFE/MAE asymmetry
+- time-to-opportunity / time-to-invalidation
+- stability across time and market conditions
 - data availability and operational reliability
 
-If Bond or another pillar does not add clear information, it remains context/explanation rather than receiving decision power in BTC Mode.
+If Bond, Regime, or another pillar does not add clear information at a given horizon, it remains context/explanation for that horizon rather than receiving decision power.
 
 ## From research to production rule
 
@@ -148,12 +184,13 @@ Research may use richer descriptive statistics, but the customer-facing producti
 
 Before freezing `btc-mode-v1`:
 
+- reproduce canonical production semantics exactly
 - document accepted evidence and rejected alternatives
-- record sample sizes and confidence limitations
-- compare production-aligned and robustness samples
-- run historical state-distribution sanity checks
+- record sample sizes and dependence limitations
+- compare hourly intraday replay, production anchors, and state-change subsets
 - define fail-closed behavior for stale/missing required inputs
 - define exact lineage/version fields
-- explicitly state which pillars have decision power versus explanation-only status
+- explicitly state which pillars have decision power at which horizon versus explanation-only status
+- define the production recomputation cadence separately from the 08:10/20:10 deep-context publication cadence
 
-After freeze, methodology changes require a new mode version rather than silently rewriting V1. Forward validation then accumulates append-only twice daily and becomes the main long-run evidence base.
+After freeze, methodology changes require a new mode version rather than silently rewriting V1. Forward validation should accumulate on every official Mode evaluation/state change, while 08:10/20:10 sessions remain the canonical deep-context reports.
