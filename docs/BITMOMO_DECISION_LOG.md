@@ -75,20 +75,16 @@ Accepted.
 
 For launch calibration, prioritize the latest defensible 30 days containing the full intended short-horizon feature stack rather than a multi-year dataset that omits derivatives fields used by the live engine.
 
-Use two samples:
+The original P0.2B execution used two samples:
 
-- production-aligned observations at 08:10 and 20:10 `America/New_York` (~60 before exclusions)
-- 4-hour robustness observations (~180 before exclusions)
+- production-aligned observations at 08:10 and 20:10 `America/New_York`
+- 4-hour robustness observations
 
-Primary outcome horizons are +6h, +12h, and +24h, with +72h as a secondary persistence check. MAE, MFE, and realized volatility are part of the evaluation.
-
-**Rationale**
-
-BTC Mode is intended for short-horizon active decision support. Full feature fidelity is more valuable for V1 calibration than long history with materially different inputs. The small sample makes precise fitted weights inappropriate, so research should prefer conditional confirmation/conflict rules and conservative state mapping.
+and emphasized +6h/+12h/+24h outcomes with +72h as persistence.
 
 **Status**
 
-Accepted for P0.2B research. Results remain provisional until empirical execution is complete.
+The 30-day full-feature window remains accepted. The original observation cadence/outcome emphasis is **superseded** by the 2026-09-12 intraday research correction below.
 
 ---
 
@@ -96,11 +92,11 @@ Accepted for P0.2B research. Results remain provisional until empirical executio
 
 **Decision**
 
-After `btc-mode-v1` is frozen and launched, every official 08:10/20:10 session output and subsequent outcome must be stored append-only. V1 historical records are immutable. This forward dataset becomes the primary long-run validation asset.
+After `btc-mode-v1` is frozen and launched, every official output and subsequent outcome must be stored append-only. V1 historical records are immutable. This forward dataset becomes the primary long-run validation asset.
 
 **Status**
 
-Accepted.
+Accepted. The exact Mode evaluation cadence is to be determined by intraday research; the 08:10/20:10 editions remain deep-context checkpoints.
 
 ---
 
@@ -153,3 +149,29 @@ Staging is a disposable validation environment, not a source of truth. Productio
 **Status**
 
 Accepted operating principle.
+
+---
+
+## 2026-09-12 — BTC Mode research corrected to intraday decision horizons
+
+**Decision**
+
+The first P0.2B A/B/C run is retained as an exploratory research artifact but is not accepted as canonical calibration evidence for `btc-mode-v1`.
+
+The corrected research design keeps the 30-day full-feature window but changes the primary target to active intraday decision support:
+
+- primary feature replay: hourly PIT-safe snapshots, unless a source genuinely supports a higher canonical update cadence
+- primary outcome horizons: +15m, +30m, +1h, +2h, +4h, +6h
+- secondary context: +12h and +24h
+- required path metrics: return, MAE, MFE, time-to-MAE, time-to-MFE, realized volatility, and path ordering where defensible
+- the 08:10/20:10 session editions remain deep-context/product checkpoints, not the sole statistical sample for Mode calibration
+- overlapping observations must be handled with chronological validation, purging/embargo, and dependence-aware uncertainty
+- the replay must reproduce repository production semantics exactly; substitute indicators are exploratory only
+
+**Rationale**
+
+Bitmomo's intended differentiation is short-horizon BTC decision intelligence for active traders. A 30-day dataset is not inherently too short if sampled at an appropriate intraday cadence, but using +24h/+72h outcomes as the primary target discards the path information active traders care about. Intraday MFE/MAE and time-to-move are more aligned with the product than buy-and-hold close-to-close returns.
+
+**Status**
+
+Accepted. This supersedes the earlier P0.2B cadence/outcome emphasis. No BTC Mode production formula is frozen yet.
