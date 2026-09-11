@@ -4,7 +4,7 @@ Status: RESEARCH / NOT FROZEN
 
 ## Purpose
 
-BTC Mode is Bitmomo's top-level compression of the current BTC risk environment into one of three states:
+BTC Mode is Bitmomo's top-level compression of the **current short-horizon BTC risk environment** into one of three states:
 
 - `risk_on`
 - `wait_and_see`
@@ -16,7 +16,23 @@ Customer-facing labels:
 - **WAIT & SEE**
 - **RISK-OFF**
 
-BTC Mode is a market-intelligence classification. It is not a direct buy/sell signal, allocation recommendation, or guaranteed price-direction forecast.
+BTC Mode is a market-intelligence classification for active BTC decision support. It is not a direct buy/sell signal, allocation recommendation, or guaranteed price-direction forecast.
+
+## Intended horizon
+
+V1 is designed primarily around the next few hours to one day, aligned with Bitmomo's twice-daily session intelligence.
+
+Primary research outcomes:
+
+- +6h
+- +12h
+- +24h
+
+Secondary persistence check:
+
+- +72h
+
+The +12h horizon is especially relevant because it approximately spans one canonical Bitmomo edition to the next.
 
 ## Relationship to existing Bitmomo intelligence
 
@@ -59,6 +75,19 @@ A canonical session record should eventually support:
 - source lineage
 - `mode_version`
 
+## Research basis for V1
+
+Initial launch calibration uses the latest defensible **30-day synchronized full-feature window**.
+
+Two datasets are used:
+
+- production-aligned 08:10/20:10 observations for direct product relevance
+- 4-hour robustness observations to test whether conditional relationships persist beyond publication anchors
+
+The robustness cadence is research-only and does not change production cadence.
+
+Because the synchronized sample is intentionally small, V1 research must not fit precise-looking weights merely to maximize in-sample performance. Prefer simple deterministic confirmation/conflict/downgrade rules supported by outcome distributions and path-risk evidence.
+
 ## Primary Drivers terminology
 
 Customer-facing explanatory label: **PRIMARY DRIVERS**.
@@ -72,13 +101,20 @@ No exact weighting, veto, confirmation, or mapping rule is frozen in this docume
 Before changing status to FROZEN / ACCEPTED, `docs/research/btc-mode/RESULTS_V1.md` must document:
 
 - point-in-time dataset audit
+- actual 30-day coverage and exclusions
 - baseline comparisons A/B/C/D
 - conditional analysis
-- walk-forward/out-of-sample results
-- downside/upside path-risk results
+- production-aligned versus 4-hour robustness results
+- +6h/+12h/+24h risk-return distributions and +72h persistence
+- MAE/MFE/realized-volatility behavior
+- chronological holdout/sensitivity checks
 - state-distribution sanity check
 - accepted and rejected decision rules
 - known limitations
+
+## Forward validation
+
+Once V1 is frozen and launched, every official session classification and subsequent outcome must be stored append-only. Historical V1 records are immutable. Twice-daily forward observations become Bitmomo's main long-run validation dataset and accountability surface.
 
 ## Versioning
 
