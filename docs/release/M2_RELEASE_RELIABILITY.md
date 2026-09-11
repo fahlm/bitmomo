@@ -121,3 +121,19 @@ bodies or credentials.
 Artifact-to-staging parity is checked with
 `scripts/check-staging-artifact.py <manifest>`. A valid re-baseline requires
 all three counters (`missing`, `changed`, and `unexpected`) to be zero.
+
+### P0.1 staging evidence (2026-09-11)
+
+- Candidate source: `ea804b394af1d425e338df2f1c0a0cf067b0e35e`.
+- Runtime artifact SHA-256:
+  `b417c634f26a4db25ff3aa5183832ca0857acbc32fbbd2c65f92adc8dd5f4e77`.
+- Managed parity: `missing=0`, `changed=0`, `unexpected=0`.
+- Staging safety: auto-publication, email, outbound HTTP writes, AI write
+  webhook, and checkout are disabled; `blog_public=0` remains set.
+- Runtime fixtures: healthy, blocked fallback, preserved timestamp, delayed,
+  and expired states passed; original options were restored afterward.
+- HTTP smoke: `/`, `/btc-intelligence/`, `/pro/`, `/help/`, and
+  `/tentang-kami/` returned 200 without visible PHP/runtime errors and each
+  emitted `noindex`.
+- Pre-deploy server rollback directory:
+  `/home/u689746960/bitmomo-staging-rollbacks/pre-ea804b3-20260911T105000Z`.
