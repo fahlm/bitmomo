@@ -18,7 +18,7 @@ Read-only backup capture ID: `20260911T090710Z`.
 - Managed-files SHA-256: `17cc0b735250df4e75a9fb5cea19e52982b632c2d65144d739edcea71698c360`
 - Database snapshot: `production-database.sql.gz`
 - Database SHA-256: `4c27bcda7be6a53f5e9a43a5746177fafcef0b8e37c465794774aa9aaa7e5732`
-- Production-equivalent runtime artifact SHA-256: `ec9925c4083c9eca9ff4542d0837da09be752987152c7c7e6d89d672ae9f4f2f`
+- Production-equivalent runtime artifact SHA-256: `cee5a8137381e108519b3391f366478de6e5086d0a16febfae2980a1d24699d5`
 - Storage: protected local release-backup directory outside the repository
 - File archive integrity and clean extraction: passed
 - Database gzip integrity: passed
