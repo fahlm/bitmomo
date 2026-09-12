@@ -123,6 +123,14 @@ check(
   /Harga, struktur pasar, funding\/basis, positioning derivatives, momentum, dan volatilitas BTC diproses dari data pasar yang tersedia\./.test(proSalesOutput)
     && !/order book|sinyal on-chain BTC dikumpulkan secara berkelanjutan/i.test(proSalesOutput)
 );
+const proRenderMatch = proSales.match(/public function render_sales[\s\S]*?return ob_get_clean\(\);/);
+const proRender = proRenderMatch ? proRenderMatch[0] : '';
+check(
+  '/pro tells cold visitors what exists today before roadmap capabilities',
+  proRender.indexOf('render_what_exists_today()') > -1 &&
+  proRender.indexOf('render_altcoin_intelligence()') > -1 &&
+  proRender.indexOf('render_what_exists_today()') < proRender.indexOf('render_altcoin_intelligence()')
+);
 check('/pro removes the duplicate final conversion block structurally, not with CSS', !/render_final_cta\s*\(/.test(proSalesOutput) && !/bm-pro-sales__final-cta/.test(publicSurfacesCss));
 check('/pro pricing terms match M2 founding package', /Rp149\.000/.test(proSales) && /Rp1\.490\.000/.test(proSales) && /const SEAT_CAP\s*=\s*149/.test(proSales) && /const BATCH_ONE\s*=\s*25/.test(proSales));
 check('/pro avoids removed placeholder preview values', !/XX%|\$XX,XXX|\(placeholder\)|Contoh Tampilan Decision View/.test(proSales));
@@ -156,7 +164,10 @@ check(
     && /Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record/.test(themeFunctions)
     && !/Opportunity, Directional Bias, Confidence, Market State/.test(themeFunctions)
 );
-check('Product surfaces suppress the legacy newsletter modal', /is_front_page\(\)\s*\|\|\s*is_page\(\['pro', 'btc-intelligence'\]\)/.test(frontendTrait));
+check(
+  'Legacy newsletter modal is structurally disabled globally',
+  /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontendTrait) && !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontendTrait)
+);
 check(
   'Homepage Research stays BTC-first, concise, and excludes AI Lab posts from fallback',
   /array\( 'bitcoin', 'makro', 'market-structure' \)/.test(research)
