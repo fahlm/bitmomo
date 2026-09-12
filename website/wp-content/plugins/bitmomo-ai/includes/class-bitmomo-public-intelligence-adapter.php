@@ -5,21 +5,33 @@ if (!defined('ABSPATH')) exit;
 final class Bitmomo_Public_Intelligence_Adapter {
     const HISTORY_LIMIT = 30;
     const PUBLIC_DISPLAY_TIMEZONE = 'Asia/Jakarta';
+    const ALLOWED_REGIMES = ['accumulation', 'expansion', 'distribution', 'capitulation', 'transition'];
 
     public static function snapshot() {
         if (!class_exists('Bitmomo_AI_Intelligence')) return null;
         $projection = Bitmomo_AI_Intelligence::free_projection();
         if (!is_array($projection) || !in_array(($projection['status'] ?? ''), ['fresh', 'delayed'], true)) return null;
 
-        $regime = self::latest_regime();
+        $canonical_source_id = sanitize_text_field((string) ($projection['edition_id'] ?? ''));
+        $regime = self::regime_for_source($canonical_source_id);
         $strength = self::strength_or_null($projection['direction_strength'] ?? null);
         $bias = self::bias_or_null($projection['bias'] ?? null);
         $public_source = sanitize_text_field((string) ($projection['source'] ?? ''));
         $as_of = sanitize_text_field((string) ($projection['timestamp_iso'] ?? ''));
-        if ($bias === null || $strength === null || $public_source === '' || $as_of === '') return null;
+        if ($bias === null || $strength === null || $public_source === '' || $as_of === '' || $canonical_source_id === '') return null;
+
+        // Market State is optional unless the Regime record carries the exact
+        // same canonical source id. Never substitute the latest unrelated
+        // Regime record: a missing classification is more truthful than a
+        // coherent-looking snapshot assembled from different editions.
+        $market_state = self::regime_or_null($regime['regime'] ?? null);
+        $market_state_certainty = $market_state !== null && isset($regime['regime_confidence'])
+            ? min(100, max(0, (int) $regime['regime_confidence']))
+            : null;
+
         $session_intelligence = is_array($projection['session_intelligence'] ?? null) ? $projection['session_intelligence'] : [];
         if (is_array($session_intelligence['current_setup'] ?? null)) {
-            $session_intelligence['current_setup']['market_state'] = self::regime_or_null($regime['regime'] ?? null);
+            $session_intelligence['current_setup']['market_state'] = $market_state;
         }
         $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
             ? Bitmomo_AI_Opportunity_Store::public_latest()
@@ -29,7 +41,8 @@ final class Bitmomo_Public_Intelligence_Adapter {
             'status' => (string) $projection['status'],
             'btc_reference_price' => (float) ($projection['price'] ?? 0),
             'opportunity' => $opportunity,
-            'market_state' => self::regime_or_null($regime['regime'] ?? null),
+            'market_state' => $market_state,
+            'market_state_certainty' => $market_state_certainty,
             'directional_bias' => $bias,
             'direction_strength' => $strength,
             'confidence' => [
@@ -160,16 +173,21 @@ final class Bitmomo_Public_Intelligence_Adapter {
         ];
     }
 
-    private static function latest_regime() {
-        if (!class_exists('Bitmomo_Regime_State_Store')) return [];
-        $record = Bitmomo_Regime_State_Store::instance()->get_latest();
-        return is_array($record) && ($record['provenance'] ?? '') === 'recorded_live' ? $record : [];
+    private static function regime_for_source($source_record_id) {
+        $source_record_id = sanitize_text_field((string) $source_record_id);
+        if ($source_record_id === '' || !class_exists('Bitmomo_Regime_State_Store')) return [];
+        $records = Bitmomo_Regime_State_Store::instance()->get_recent(self::HISTORY_LIMIT * 2);
+        foreach ((array) $records as $record) {
+            if (!is_array($record) || ($record['provenance'] ?? '') !== 'recorded_live') continue;
+            if (hash_equals($source_record_id, (string) ($record['source_record_id'] ?? ''))) return $record;
+        }
+        return [];
     }
 
     private static function empty_history() { return ['target_days' => self::HISTORY_LIMIT, 'available_days' => 0, 'days' => []]; }
     private static function bias_or_null($value) { $value = sanitize_key((string) $value); return in_array($value, ['bearish', 'neutral', 'bullish'], true) ? $value : null; }
     private static function strength_or_null($value) { $value = sanitize_key((string) $value); return in_array($value, ['strong_bearish', 'bearish', 'neutral', 'bullish', 'strong_bullish'], true) ? $value : null; }
-    private static function regime_or_null($value) { $value = sanitize_key((string) $value); return $value === '' ? null : $value; }
+    private static function regime_or_null($value) { $value = sanitize_key((string) $value); return in_array($value, self::ALLOWED_REGIMES, true) ? $value : null; }
     private static function version_or_unknown($value) { $value = sanitize_text_field((string) $value); return trim($value) === '' ? 'unknown' : $value; }
     private static function confidence_label($value) { $value = min(100, max(0, (int) $value)); return $value >= 70 ? 'high' : ($value >= 40 ? 'medium' : 'low'); }
     private static function public_drivers($drivers) { return array_slice(array_values(array_filter(array_map('sanitize_text_field', is_array($drivers) ? $drivers : []))), 0, 5); }
