@@ -55,8 +55,11 @@ function requireContrast(label, foreground, background, minimum = WCAG_AA_NORMAL
 const requiredFiles = [
   'functions.php',
   'custom.css',
+  'page.php',
+  'inc/template-functions.php',
   'assets/css/home-opportunity.css',
   'assets/css/public-readability.css',
+  'assets/css/public-surfaces.css',
   'assets/js/bitmomo-frontend.js',
 ];
 
@@ -87,6 +90,24 @@ for (const marker of p0Markers) {
   }
 }
 
+const pageTemplate = fs.readFileSync(path.join(themeDir, 'page.php'), 'utf8');
+const templateFunctions = fs.readFileSync(path.join(themeDir, 'inc/template-functions.php'), 'utf8');
+if (
+  !templateFunctions.includes('bitmomo_normalize_public_page_body_headings') ||
+  !templateFunctions.includes("array('<h2$1>', '</h2>')")
+) {
+  fail('ordinary-page heading normalizer is missing; legacy DB H1 would duplicate the template-owned H1');
+}
+if (
+  !pageTemplate.includes("apply_filters( 'the_content', $bm_content )") ||
+  !pageTemplate.includes('bitmomo_normalize_public_page_body_headings( $bm_rendered_content )')
+) {
+  fail('ordinary page.php must render filtered content through the canonical body-heading normalizer');
+}
+if (!pageTemplate.includes('if ( $bm_is_product_surface )') || !pageTemplate.includes('<?php the_content(); ?>')) {
+  fail('product shortcode pages must retain renderer-owned heading/content pass-through');
+}
+
 const opportunityCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-opportunity.css'), 'utf8');
 if (!opportunityCss.includes('.bm-hero-opportunity') || !opportunityCss.includes('.bm-btc-opportunity')) {
   fail('homepage Opportunity CSS does not contain the required hero/card selectors');
@@ -97,6 +118,14 @@ for (const marker of ['--bm-text-subtle-readable', '.bm-bi', '--bmi-text-muted',
   if (!readabilityCss.includes(marker)) {
     fail(`public readability contract is missing marker: ${marker}`);
   }
+}
+
+const publicSurfacesCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-surfaces.css'), 'utf8');
+if (!/\.bm-wl-unified__intro,\s*\.bm-wl-unified__form\s*\{[^}]*min-width:\s*0;[^}]*\}/s.test(publicSurfacesCss)) {
+  fail('unified homepage whitelist grid children must be shrinkable to prevent narrow-viewport overflow');
+}
+if (!/\.bm-wl-unified__form > \.bm-pro-sales\.bm-wl\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%\s*!important;[^}]*padding-inline:\s*0;[^}]*\}/s.test(publicSurfacesCss)) {
+  fail('homepage whitelist wrapper containment is missing; shared Pro wrapper sizing can escape the unified grid');
 }
 
 const homepageSubtle = '#8294ae';
