@@ -70,7 +70,11 @@ jobs:
             "assets/css/public-surfaces.css"
             "assets/css/navigation-footer.css"
             "assets/css/public-readability.css"
+            "assets/css/research.css"
+            "assets/css/about.css"
             "template-parts/archive-index.php"
+            "template-parts/research-hub.php"
+            "template-parts/about-authority.php"
           )
 
           for file in "${expected[@]}"; do
@@ -107,6 +111,36 @@ jobs:
               exit 1
             }
           done
+
+          grep -q "template-parts/research" "${theme_dir}/category.php" || {
+            echo "::error file=${theme_dir}/category.php::Riset must route to the canonical Research Hub"
+            exit 1
+          }
+
+          grep -q "template-parts/about" "${theme_dir}/page.php" || {
+            echo "::error file=${theme_dir}/page.php::About must use code-owned authority content"
+            exit 1
+          }
+
+          grep -qi "research & intelligence platform" "${theme_dir}/template-parts/about-authority.php" || {
+            echo "::error file=${theme_dir}/template-parts/about-authority.php::About lost research/intelligence positioning"
+            exit 1
+          }
+
+          if grep -Eqi "media independen|media independent" "${theme_dir}/template-parts/about-authority.php"; then
+            echo "::error file=${theme_dir}/template-parts/about-authority.php::Publisher-first positioning must not return"
+            exit 1
+          fi
+
+          grep -q "tag__not_in" "${theme_dir}/template-parts/research-hub.php" || {
+            echo "::error file=${theme_dir}/template-parts/research-hub.php::Market Research must exclude AI Lab-tagged posts"
+            exit 1
+          }
+
+          if grep -q "while ( have_posts()" "${theme_dir}/template-parts/research-hub.php"; then
+            echo "::error file=${theme_dir}/template-parts/research-hub.php::Do not promote the unclassified legacy Riset loop as institutional research"
+            exit 1
+          fi
 
           grep -q "template-parts/whitelist" "${theme_dir}/front-page.php" || {
             echo "::error file=${theme_dir}/front-page.php::Homepage must keep one canonical Pro conversion surface"
