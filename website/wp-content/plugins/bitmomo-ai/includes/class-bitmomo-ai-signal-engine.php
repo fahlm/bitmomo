@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) exit;
 
 final class Bitmomo_AI_Signal_Engine {
+    const MODEL_VERSION = 'binance-public-five-axis-v3-coherence';
+
     public static function evaluate(array $data) {
         $direction = self::direction_score($data['direction']);
         $carry = self::carry_score($data['carry']);
