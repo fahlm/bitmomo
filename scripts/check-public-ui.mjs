@@ -16,6 +16,8 @@ const surfaces = [
   { name: 'about', path: '/tentang-kami/', marker: 'Tentang Kami', active: 'Tentang' },
   { name: 'privacy', path: '/kebijakan-privasi/', marker: 'Kebijakan Privasi' },
   { name: 'disclaimer', path: '/disclaimer/', marker: 'Disclaimer' },
+  { name: 'search', path: '/?s=bitcoin', marker: 'Hasil untuk “bitcoin”' },
+  { name: 'not-found', path: '/__bitmomo-ui-contract-not-found__/', marker: 'Halaman tidak ditemukan.', expectedStatus: 404 },
 ];
 const viewports = [
   { width: 360, height: 800 },
@@ -33,7 +35,10 @@ const expectedSocial = {
 const requiredSurfaceSelectors = {
   home: ['.bm-direction-card', '.bm-authority__pillars', '.bm-research-list', '.bm-ai-lab-themes'],
   research: ['.bm-research-hub__hero', '.bm-research-disciplines', '.bm-research-principles__grid', '.bm-research-streams', '.bm-research-archive'],
+  article: ['.bm-article-head', '.bm-article-body', '.bm-article-standard'],
   about: ['.bm-about-authority'],
+  search: ['.bm-archive-v2'],
+  'not-found': ['.bm-public-page--error'],
 };
 
 const failures = [];
@@ -46,6 +51,39 @@ function addFailure(surface, viewport, message) {
 }
 
 try {
+  /* Discover a real published research article instead of hard-coding a slug.
+     This keeps the browser contract aligned with WordPress as source of truth. */
+  const discoveryContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const discoveryPage = await discoveryContext.newPage();
+  try {
+    const discoveryResponse = await discoveryPage.goto(`${baseUrl}/category/riset/`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    if (!discoveryResponse || discoveryResponse.status() !== 200) {
+      failures.push(`article-discovery: Research Hub HTTP ${discoveryResponse ? discoveryResponse.status() : 0}`);
+    } else {
+      const articleLink = discoveryPage.locator('.bm-research-featured__body h3 a, .bm-research-card h3 a').first();
+      if (await articleLink.count()) {
+        const href = await articleLink.getAttribute('href');
+        const title = (await articleLink.innerText()).trim();
+        if (href && title) {
+          const resolved = new URL(href, baseUrl);
+          if (resolved.origin !== new URL(baseUrl).origin) {
+            failures.push(`article-discovery: representative research link leaves audited origin (${resolved.origin})`);
+          } else {
+            surfaces.push({ name: 'article', url: resolved.href, marker: title, active: 'Research' });
+          }
+        } else {
+          failures.push('article-discovery: representative research article has no usable href/title');
+        }
+      } else {
+        failures.push('article-discovery: Research Hub exposes no published article to audit');
+      }
+    }
+  } catch (error) {
+    failures.push(`article-discovery: ${error.message}`);
+  } finally {
+    await discoveryContext.close();
+  }
+
   for (const surface of surfaces) {
     for (const viewport of viewports) {
       const context = await browser.newContext({ viewport, deviceScaleFactor: 1 });
@@ -55,7 +93,7 @@ try {
       page.on('console', (msg) => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
       page.on('pageerror', (error) => pageErrors.push(error.message));
 
-      const url = `${baseUrl}${surface.path}`;
+      const url = surface.url || `${baseUrl}${surface.path}`;
       let response;
       try {
         response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
@@ -68,7 +106,8 @@ try {
       }
 
       const status = response ? response.status() : 0;
-      if (status !== 200) addFailure(surface, viewport, `HTTP ${status}`);
+      const expectedStatus = surface.expectedStatus || 200;
+      if (status !== expectedStatus) addFailure(surface, viewport, `HTTP ${status}; expected ${expectedStatus}`);
       const bodyText = await page.locator('body').innerText().catch(() => '');
       if (!bodyText.includes(surface.marker)) addFailure(surface, viewport, `missing content marker: ${surface.marker}`);
 
@@ -173,7 +212,7 @@ try {
         } catch (error) { addFailure(surface, viewport, `axe scan failed: ${error.message}`); }
       }
 
-      report.push({ surface: surface.name, url, viewport, status, metrics, consoleErrors, pageErrors, axeViolations: axeViolations.map((violation) => ({ id: violation.id, impact: violation.impact, help: violation.help, helpUrl: violation.helpUrl, nodeCount: violation.nodes.length })) });
+      report.push({ surface: surface.name, url, viewport, status, expectedStatus, metrics, consoleErrors, pageErrors, axeViolations: axeViolations.map((violation) => ({ id: violation.id, impact: violation.impact, help: violation.help, helpUrl: violation.helpUrl, nodeCount: violation.nodes.length })) });
       console.log(`PASS ${surface.name} ${viewport.width}x${viewport.height} HTTP ${status} overflow=${Math.max(0, overflow)}px H1=${metrics.h1Count}`);
       await context.close();
     }
