@@ -3,6 +3,8 @@ import path from 'node:path';
 
 const root = process.cwd();
 const themeDir = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
+const LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES = 50300;
+const WCAG_AA_NORMAL_TEXT = 4.5;
 
 function fail(message) {
   console.error(`::error title=UI architecture contract::${message}`);
@@ -16,10 +18,45 @@ function walk(dir) {
   });
 }
 
+function hexToRgb(hex) {
+  const value = hex.replace('#', '');
+  return [0, 2, 4].map((offset) => Number.parseInt(value.slice(offset, offset + 2), 16));
+}
+
+function relativeLuminance(hex) {
+  const channels = hexToRgb(hex).map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+function contrastRatio(foreground, background) {
+  const a = relativeLuminance(foreground);
+  const b = relativeLuminance(background);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+
+function alphaBlend(foreground, background, opacity) {
+  const fg = hexToRgb(foreground);
+  const bg = hexToRgb(background);
+  const blended = fg.map((channel, index) => Math.round(opacity * channel + (1 - opacity) * bg[index]));
+  return `#${blended.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function requireContrast(label, foreground, background, minimum = WCAG_AA_NORMAL_TEXT) {
+  const ratio = contrastRatio(foreground, background);
+  if (ratio < minimum) {
+    fail(`${label} contrast ${ratio.toFixed(2)}:1 is below ${minimum}:1 (${foreground} on ${background})`);
+  }
+  return ratio;
+}
+
 const requiredFiles = [
   'functions.php',
   'custom.css',
   'assets/css/home-opportunity.css',
+  'assets/css/public-readability.css',
   'assets/js/bitmomo-frontend.js',
 ];
 
@@ -55,12 +92,35 @@ if (!opportunityCss.includes('.bm-hero-opportunity') || !opportunityCss.includes
   fail('homepage Opportunity CSS does not contain the required hero/card selectors');
 }
 
+const readabilityCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-readability.css'), 'utf8');
+for (const marker of ['--bm-text-subtle-readable', '.bm-bi', '--bmi-text-muted', '.bm-pro-sales', '--bms-text-muted', '.bm-wl__submit']) {
+  if (!readabilityCss.includes(marker)) {
+    fail(`public readability contract is missing marker: ${marker}`);
+  }
+}
+
+const homepageSubtle = '#8294ae';
+requireContrast('homepage subtle label / card', homepageSubtle, '#0f1d2f');
+requireContrast('homepage subtle label / page', homepageSubtle, '#0c1c2a');
+requireContrast('homepage subtle label / opportunity', homepageSubtle, '#0c1928');
+
+const productMutedSource = '#a8b7ca';
+requireContrast('BTC micro text after 0.75 opacity', alphaBlend(productMutedSource, '#0c1c2a', 0.75), '#0c1c2a');
+requireContrast('Pro price terms after 0.72 opacity', alphaBlend(productMutedSource, '#101a2c', 0.72), '#101a2c');
+requireContrast('commercial CTA text', '#0b1620', '#f4ad32');
+
 const customCssPath = path.join(themeDir, 'custom.css');
 const customCssBytes = fs.statSync(customCssPath).size;
-if (customCssBytes > 60000) {
-  fail(`custom.css exceeded the temporary 60 KB debt ceiling (${customCssBytes} bytes); split/refactor instead of adding overrides`);
+if (customCssBytes > LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES) {
+  fail(
+    `custom.css grew beyond the frozen legacy debt ceiling ` +
+    `(${customCssBytes} > ${LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES} bytes); ` +
+    'put new visual work in explicit component/page assets and reduce the monolith instead of adding overrides'
+  );
 }
 
 if (!process.exitCode) {
-  console.log(`PASS UI architecture contract; custom.css=${customCssBytes} bytes`);
+  console.log(
+    `PASS UI architecture contract; custom.css=${customCssBytes}/${LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES} bytes (frozen debt ceiling)`
+  );
 }
