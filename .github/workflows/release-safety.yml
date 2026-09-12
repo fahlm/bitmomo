@@ -10,6 +10,7 @@ on:
       - "website/wp-content/plugins/bitmomo-regime/**"
       - "config/production-runtime.json"
       - "scripts/build-production-artifact.py"
+      - "scripts/check-frontend-foundation.mjs"
       - "scripts/check-m2-launch-surfaces.mjs"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-navigation-footer.mjs"
@@ -67,6 +68,9 @@ jobs:
           set -euo pipefail
           find website/wp-content/themes/bitmomo-child-v3 website/wp-content/plugins/bitmomo-ai website/wp-content/plugins/bitmomo-btc-intelligence website/wp-content/plugins/bitmomo-pro website/wp-content/plugins/bitmomo-regime \
             -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
+
+      - name: Check frontend foundation ownership
+        run: node scripts/check-frontend-foundation.mjs
 
       - name: Check root-cause UI architecture
         run: node scripts/check-ui-architecture.mjs
