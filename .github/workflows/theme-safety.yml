@@ -5,6 +5,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
   push:
     branches:
@@ -15,6 +16,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
   workflow_dispatch:
 
@@ -27,7 +29,7 @@ concurrency:
 
 jobs:
   php-syntax:
-    name: PHP syntax and UI architecture
+    name: PHP syntax, public-surface and UI architecture
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -38,7 +40,7 @@ jobs:
       - name: Show PHP version
         run: php --version
 
-      - name: Verify production baseline file set
+      - name: Verify public template ownership
         shell: bash
         run: |
           set -euo pipefail
@@ -48,20 +50,77 @@ jobs:
             "functions.php"
             "custom.css"
             "front-page.php"
+            "page.php"
             "single.php"
             "home.php"
+            "archive.php"
             "category.php"
             "tag.php"
+            "search.php"
+            "404.php"
+            "index.php"
+            "header.php"
+            "footer.php"
             "style.css"
             "assets/css/home-opportunity.css"
+            "assets/css/public-surfaces.css"
+            "template-parts/archive-index.php"
           )
 
           for file in "${expected[@]}"; do
             test -f "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Required baseline file is missing"
+              echo "::error file=${theme_dir}/${file}::Required public-surface file is missing"
               exit 1
             }
           done
+
+          test -f "docs/PUBLIC_SURFACE_CONTRACT.md" || {
+            echo "::error file=docs/PUBLIC_SURFACE_CONTRACT.md::Public surface contract is missing"
+            exit 1
+          }
+
+      - name: Prevent legacy UI regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme_dir="website/wp-content/themes/bitmomo-child-v3"
+
+          if grep -q "Informasi AI &" "${theme_dir}/home.php"; then
+            echo "::error file=${theme_dir}/home.php::Legacy media positioning returned to the posts index"
+            exit 1
+          fi
+
+          if grep -q "big-stories" "${theme_dir}/tag.php"; then
+            echo "::error file=${theme_dir}/tag.php::Legacy Big Stories special-case returned"
+            exit 1
+          fi
+
+          for file in home.php archive.php category.php tag.php search.php index.php; do
+            grep -q "template-parts/archive" "${theme_dir}/${file}" || {
+              echo "::error file=${theme_dir}/${file}::Archive route must consume the shared archive surface"
+              exit 1
+            }
+          done
+
+          grep -q "template-parts/whitelist" "${theme_dir}/front-page.php" || {
+            echo "::error file=${theme_dir}/front-page.php::Homepage must keep one canonical Pro conversion surface"
+            exit 1
+          }
+
+          if grep -q "template-parts/pro.*teaser" "${theme_dir}/front-page.php"; then
+            echo "::error file=${theme_dir}/front-page.php::Do not restore separate Pro teaser + whitelist duplication"
+            exit 1
+          fi
+
+          if grep -q "bm-howworks-future" "${theme_dir}/template-parts/how-it-works.php"; then
+            echo "::error file=${theme_dir}/template-parts/how-it-works.php::Do not restore duplicated future-capability panel"
+            exit 1
+          fi
+
+          grep -q "public-surfaces.css" "${theme_dir}/header.php" || {
+            echo "::error file=${theme_dir}/header.php::Canonical public-surface stylesheet is not loaded"
+            exit 1
+          }
 
       - name: Lint theme PHP
         shell: bash
