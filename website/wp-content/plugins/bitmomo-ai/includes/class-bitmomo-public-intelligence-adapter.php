@@ -146,6 +146,8 @@ final class Bitmomo_Public_Intelligence_Adapter {
         foreach ((array) ($scorecard['versions'] ?? []) as $version => $metrics) {
             if (!is_array($metrics)) continue;
             $versions[self::version_or_unknown($version)] = [
+                'latest_generated_at' => sanitize_text_field((string) ($metrics['latest_generated_at'] ?? '')),
+                'outcome_methodology' => self::version_or_unknown($metrics['outcome_methodology'] ?? ''),
                 'all' => self::metric($metrics['all'] ?? []),
                 'rolling_30' => self::metric($metrics['rolling_30'] ?? []),
                 'by_direction' => self::metric_map($metrics['by_direction'] ?? []),
@@ -194,7 +196,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
 
     private static function metric($row) {
         if (!is_array($row)) return ['n' => 0, 'sample_status' => 'INSUFFICIENT SAMPLE'];
-        $allowed = ['n', 'conclusive_n', 'correct', 'incorrect', 'inconclusive', 'accuracy_pct', 'range', 'range_hit_pct', 'low_breach_pct', 'high_breach_pct', 'average_width_pct', 'average_forward_return_pct', 'average_forward_volatility_pct', 'stale_rate_pct', 'blocked_degraded_rate_pct', 'missing_data_rate_pct', 'settlement_n', 'settlement_completeness_pct', 'sample_status'];
+        $allowed = ['n', 'conclusive_n', 'correct', 'incorrect', 'inconclusive', 'accuracy_pct', 'range', 'range_hit_pct', 'low_breach_pct', 'high_breach_pct', 'average_width_pct', 'average_forward_return_pct', 'average_forward_volatility_pct', 'stale_rate_pct', 'blocked_degraded_rate_pct', 'missing_data_rate_pct', 'settlement_n', 'settlement_evaluated_n', 'settlement_missed_n', 'settlement_pending_n', 'settlement_completeness_pct', 'sample_status'];
         return array_intersect_key($row, array_flip($allowed));
     }
 
