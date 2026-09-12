@@ -145,13 +145,13 @@ check(
     && !/payload\.email|payload\.first_name|payload\.whatsapp|payload\.post_id|payload\.record_token/.test(proWhitelistJs)
 );
 check(
-  'Launch-critical SEO titles remain product-led',
-  /Bitmomo — BTC Market Intelligence/.test(themeFunctions) && /Bitmomo Pro — BTC Market Intelligence/.test(themeFunctions)
+  'Launch-critical SEO titles remain product-and-research led',
+  /Bitmomo — Bitcoin Market Intelligence & Research/.test(themeFunctions) && /Bitmomo Pro — BTC Market Intelligence/.test(themeFunctions)
     && /BTC Intelligence — Bitmomo/.test(themeFunctions) && /rank_math\/frontend\/title/.test(themeFunctions) && /pre_get_document_title/.test(themeFunctions)
 );
 check(
   'Launch-critical SEO descriptions use visitor language rather than engine terms',
-  /Bitmomo merangkum arah BTC, tingkat keyakinan analisis, dan alasan utamanya/.test(themeFunctions)
+  /Riset dan market intelligence Bitcoin berbasis evidence/.test(themeFunctions)
     && /kapan pandangan pasar perlu berubah/.test(themeFunctions)
     && /Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record/.test(themeFunctions)
     && !/Opportunity, Directional Bias, Confidence, Market State/.test(themeFunctions)
