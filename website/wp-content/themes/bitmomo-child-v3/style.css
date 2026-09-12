@@ -1,15 +1,21 @@
 /*
 Theme Name: Bitmomo Child
 Theme URI: https://bitmomo.id/
-Description: Child theme of Hello Elementor providing a custom homepage design.
+Description: Canonical Bitmomo research, market-intelligence, and product frontend built on Hello Elementor compatibility primitives.
 Author: Bitmomo
 Author URI: https://bitmomo.id/
 Template: hello-elementor
-Version: 1.0
+Version: 5.0.0
 */
 /*
- * This file is intentionally left almost empty. WordPress will load
- * the parent theme’s stylesheet and our custom styles are enqueued
- * via functions.php as a separate file (custom.css). Keeping
- * style.css small reduces override conflicts.
+ * WordPress requires this file for child-theme metadata.
+ *
+ * Public visual ownership lives in assets/css/:
+ * - foundation.css
+ * - navigation-footer.css
+ * - public-surfaces.css
+ * - route-owned home.css / research.css / about.css
+ *
+ * Do not add visual patches here or to legacy custom.css. The canonical
+ * dependency graph is owned by inc/trait-bitmomo-assets.php.
  */
