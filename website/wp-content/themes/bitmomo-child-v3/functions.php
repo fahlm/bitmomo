@@ -59,6 +59,52 @@ function bitmomo_filter_help_page_title($show_title) {
 }
 add_filter('hello_elementor_page_title', 'bitmomo_filter_help_page_title');
 
+/**
+ * Canonical public SEO positioning for the three launch-critical surfaces.
+ * Rank Math receives the same title contract as WordPress core so the browser
+ * title and indexed title cannot drift back to the old media/news positioning.
+ */
+function bitmomo_public_seo_title($title) {
+    if (is_front_page()) {
+        return 'Bitmomo — BTC Market Intelligence';
+    }
+    if (is_page('pro')) {
+        return 'Bitmomo Pro — BTC Market Intelligence';
+    }
+    if (is_page('btc-intelligence')) {
+        return 'BTC Intelligence — Bitmomo';
+    }
+    return $title;
+}
+add_filter('pre_get_document_title', 'bitmomo_public_seo_title', 20);
+add_filter('rank_math/frontend/title', 'bitmomo_public_seo_title', 20);
+
+/**
+ * Descriptions stay factual and product-led. The Pro/BTC plugins retain their
+ * non-Rank-Math fallback tags; this filter only normalizes Rank Math output.
+ */
+function bitmomo_public_seo_description($description) {
+    if (is_front_page()) {
+        return 'Bitmomo merangkum kondisi BTC, Opportunity, Directional Bias, Confidence, dan faktor utama agar perubahan pasar lebih mudah dipahami.';
+    }
+    if (is_page('pro')) {
+        return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan thesis pasar berubah.';
+    }
+    if (is_page('btc-intelligence')) {
+        return 'BTC Intelligence Bitmomo merangkum Opportunity, Directional Bias, Confidence, Market State, sumber data, riwayat, dan evaluasi secara transparan.';
+    }
+    return $description;
+}
+add_filter('rank_math/frontend/description', 'bitmomo_public_seo_description', 20);
+
+/** Homepage fallback when Rank Math is inactive. */
+function bitmomo_render_home_meta_description() {
+    if (is_front_page() && !defined('RANK_MATH_VERSION')) {
+        echo '<meta name="description" content="' . esc_attr(bitmomo_public_seo_description('')) . '" />' . "\n";
+    }
+}
+add_action('wp_head', 'bitmomo_render_home_meta_description', 2);
+
 
 class Bitmomo_Performance_Optimizer {
 
