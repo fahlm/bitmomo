@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "artifact_name": "bitmomo-runtime.tar",
-  "expected_file_count": 106,
+  "expected_file_count": 107,
   "include": [
     "*.php",
     "**/*.php",
@@ -41,8 +41,8 @@
       "name": "bitmomo-child-v3",
       "source": "website/wp-content/themes/bitmomo-child-v3",
       "destination": "wp-content/themes/bitmomo-child-v3",
-      "expected_file_count": 39,
-      "required": ["style.css", "functions.php", "front-page.php", "page.php", "archive.php", "index.php", "assets/css/home-opportunity.css", "assets/css/public-surfaces.css", "assets/css/public-readability.css", "template-parts/archive-index.php", "assets/js/bitmomo-frontend.js", "assets/js/bitmomo-retention.js"]
+      "expected_file_count": 40,
+      "required": ["style.css", "functions.php", "front-page.php", "page.php", "archive.php", "index.php", "assets/css/home-opportunity.css", "assets/css/public-surfaces.css", "assets/css/navigation-footer.css", "assets/css/public-readability.css", "template-parts/archive-index.php", "assets/js/bitmomo-frontend.js", "assets/js/bitmomo-retention.js"]
     },
     {
       "name": "bitmomo-ai",
