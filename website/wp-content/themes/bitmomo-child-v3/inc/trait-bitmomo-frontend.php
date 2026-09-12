@@ -4,26 +4,27 @@
 if (!defined('ABSPATH')) exit;
 
 trait Bitmomo_Frontend_Trait {
-    /* ---------- Fallback CSS ---------- */
+    /**
+     * Legacy hook compatibility only.
+     * Missing-image presentation is owned by foundation.css; PHP must never
+     * emit visual CSS into wp_head.
+     */
     public function inline_img_fallback_css() {
-        echo "<style>img:not([src]),img[src=''],img[src='#']{display:none!important}</style>\n";
-    }
-
-    /* ---------- Legacy modal compatibility ---------- */
-    public function render_mailpoet_modal() {
-        // Newsletter subscription now has one permanent, compact home in the
-        // global footer. Keep this method as a no-op because older boot code
-        // still calls it at wp_footer; emitting modal markup here would create
-        // a second subscription surface and compete with the primary product
-        // conversion paths.
         return;
     }
 
-    /* ---------- Debug ---------- */
+    /**
+     * Legacy modal compatibility only.
+     * Newsletter subscription has one permanent owner in the global footer.
+     */
+    public function render_mailpoet_modal() {
+        return;
+    }
+
     public function performance_debug() {
         if (!BM_DEBUG) return;
-        $ms = (microtime(true)-$this->performance_timer)*1000;
-        $mem = memory_get_peak_usage(true)/1048576;
-        printf("\n<!-- Bitmomo Performance: %.2fms | Memory: %.2fMB -->\n",$ms,$mem);
+        $ms = (microtime(true) - $this->performance_timer) * 1000;
+        $mem = memory_get_peak_usage(true) / 1048576;
+        printf("\n<!-- Bitmomo Performance: %.2fms | Memory: %.2fMB -->\n", $ms, $mem);
     }
 }
