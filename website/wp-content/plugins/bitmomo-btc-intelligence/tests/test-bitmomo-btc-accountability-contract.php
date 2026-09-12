@@ -1,5 +1,6 @@
 <?php
 $source = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-accountability.php' );
+$pro_readiness_source = file_get_contents( dirname( __DIR__, 2 ) . '/bitmomo-pro/includes/class-bitmomo-pro-brief-readiness.php' );
 $pass = 0;
 $fail = 0;
 function accountability_check( $label, $condition ) {
@@ -18,6 +19,8 @@ accountability_check( 'Decision Ledger only exposes matured evaluated or missed-
 accountability_check( 'Decision Ledger explicitly includes unscored missed windows', false !== strpos( $source, "'window_missed' === \$status" ) && false !== strpos( $source, "return 'unscored'" ) );
 accountability_check( 'Decision Ledger policy is result-neutral', false !== strpos( $source, 'RECENT_MATURED_NO_RESULT_FILTER' ) );
 accountability_check( 'Delayed Pro proof has a hard 48-hour minimum', preg_match( '/const PROOF_DELAY_HOURS\s*=\s*48\s*;/', $source ) === 1 );
+accountability_check( 'Current Pro display becomes unavailable after 24 hours', false !== strpos( $pro_readiness_source, 'if ( $age_hours <= 24 )' ) && false !== strpos( $pro_readiness_source, 'return self::TIER_UNAVAILABLE;' ) );
+accountability_check( 'Public proof delay remains strictly outside the current Pro freshness window', preg_match( '/const PROOF_DELAY_HOURS\s*=\s*(\d+)\s*;/', $source, $proof_delay ) === 1 && (int) $proof_delay[1] > 24 );
 accountability_check( 'Delayed Pro proof reads immutable publish snapshot', false !== strpos( $source, 'Bitmomo_Pro_Performance::ORIGINAL_META' ) && false !== strpos( $source, "['published_at']" ) );
 accountability_check( 'Delayed Pro proof never calls the current paid display getter', false === strpos( $source, 'get_current_brief_for_display' ) && false === strpos( $source, 'get_latest_brief' ) );
 accountability_check( 'Delayed Pro proof requires matured settlement', substr_count( $source, "array( 'evaluated', 'window_missed' )" ) >= 2 );
