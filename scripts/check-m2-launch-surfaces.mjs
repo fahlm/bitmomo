@@ -24,6 +24,8 @@ const themeFunctions = read('website/wp-content/themes/bitmomo-child-v3/function
 const header = read('website/wp-content/themes/bitmomo-child-v3/header.php');
 const homeHero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const btcCard = read('website/wp-content/themes/bitmomo-child-v3/template-parts/btc-intelligence-card.php');
+const research = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research.php');
+const frontendTrait = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-frontend.php');
 const publicAdapter = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php');
 const btcIntelligencePlugin = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
@@ -133,6 +135,16 @@ check(
 		&& /BTC Intelligence Bitmomo merangkum Opportunity, Directional Bias, Confidence, Market State/.test(themeFunctions)
 		&& /rank_math\/frontend\/description/.test(themeFunctions)
 		&& /bitmomo_render_home_meta_description/.test(themeFunctions)
+);
+check(
+	'Product surfaces suppress the legacy newsletter modal so it cannot compete with retention and whitelist paths',
+	/is_page\(\['pro', 'btc-intelligence'\]\)/.test(frontendTrait)
+);
+check(
+	'Homepage Research stays BTC-first and excludes AI Lab posts from the fallback path',
+	/BTC \/ MARKET RESEARCH/.test(research)
+		&& /get_term_by\( 'slug', 'ai-lab', 'post_tag' \)/.test(research)
+		&& /tag__not_in/.test(research)
 );
 
 let pass = 0;
