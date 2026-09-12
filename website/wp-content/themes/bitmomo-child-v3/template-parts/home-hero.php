@@ -33,14 +33,14 @@ $bm_updated_label = $bm_updated_ts
 <section class="bm-hero" aria-labelledby="bm-home-title">
   <div class="bm-container bm-hero-layout">
     <div class="bm-hero-copy">
-      <p class="bm-hero-eyebrow"><span aria-hidden="true"></span>BTC INTELLIGENCE</p>
-      <h1 class="bm-hero-title" id="bm-home-title">Pahami kondisi BTC tanpa membaca semuanya sendiri.</h1>
-      <p class="bm-hero-sub">Arah BTC, tingkat keyakinan analisis, dan alasan utamanya — diringkas dari data pasar terbaru.</p>
+      <p class="bm-hero-eyebrow"><span aria-hidden="true"></span>BITMOMO · BTC INTELLIGENCE</p>
+      <h1 class="bm-hero-title" id="bm-home-title">Baca kondisi BTC tanpa tenggelam dalam noise.</h1>
+      <p class="bm-hero-sub">Bitmomo merangkum arah pasar, tingkat keyakinan analisis, alasan utama, dan track record dari data terbaru — dalam satu Decision View.</p>
       <div class="bm-hero-actions">
-        <a class="bm-hero-btn" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat konteks lengkap</a>
-        <a class="bm-hero-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Bitmomo Pro →</a>
+        <a class="bm-hero-btn" href="#founding-whitelist">Gabung Founding Whitelist</a>
+        <a class="bm-hero-link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat BTC Intelligence →</a>
       </div>
-      <p class="bm-hero-notes">BTC ONLY <span>·</span> BUKAN SINYAL BELI/JUAL</p>
+      <p class="bm-hero-notes">BTC ONLY <span>·</span> EVIDENCE-DRIVEN <span>·</span> BUKAN SINYAL BELI/JUAL</p>
     </div>
 
     <article class="bm-direction-card" aria-label="Ringkasan kondisi BTC saat ini">
