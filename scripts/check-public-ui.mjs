@@ -59,6 +59,7 @@ async function collectMetrics(page) {
     const header = document.querySelector('.bm-header');
     const headerRect = header && visible(header) ? header.getBoundingClientRect() : null;
     const firstH1Rect = h1s[0] ? h1s[0].getBoundingClientRect() : null;
+    const firstH1Style = h1s[0] ? getComputedStyle(h1s[0]) : null;
     const navLinks = [...document.querySelectorAll('#bm-nav a')].map((link) => ({
       text: (link.textContent || '').trim(), href: link.href, current: link.getAttribute('aria-current') || '',
     }));
@@ -76,6 +77,12 @@ async function collectMetrics(page) {
       .filter((link) => !String(link.getAttribute('href') || '').trim())
       .map((link) => (link.textContent || '').trim() || '(unlabelled)');
 
+    const articleBody = document.querySelector('.bm-article-body');
+    const articleBodyRect = articleBody && visible(articleBody) ? articleBody.getBoundingClientRect() : null;
+    const articleBodyStyle = articleBodyRect ? getComputedStyle(articleBody) : null;
+    const articleMeta = document.querySelector('.bm-article-meta');
+    const articleEyebrow = document.querySelector('.bm-article .bm-public-eyebrow');
+
     return {
       clientWidth: document.documentElement.clientWidth,
       scrollWidth: document.documentElement.scrollWidth,
@@ -83,6 +90,7 @@ async function collectMetrics(page) {
       h1Count: h1s.length,
       headerBottom: headerRect ? headerRect.bottom : null,
       firstH1Top: firstH1Rect ? firstH1Rect.top : null,
+      firstH1FontSize: firstH1Style ? parseFloat(firstH1Style.fontSize) : null,
       title: document.title,
       navLinks,
       proNavCount,
@@ -93,6 +101,18 @@ async function collectMetrics(page) {
       emptyLinks,
       homeResearchLabels: [...document.querySelectorAll('.bm-research .bm-research-category')].map((el) => (el.textContent || '').trim()),
       homeResearchItems: document.querySelectorAll('.bm-research .bm-research-item').length,
+      article: {
+        present: !!articleBodyRect,
+        width: articleBodyRect ? articleBodyRect.width : null,
+        fontSize: articleBodyStyle ? parseFloat(articleBodyStyle.fontSize) : null,
+        lineHeight: articleBodyStyle ? parseFloat(articleBodyStyle.lineHeight) : null,
+        meta: articleMeta ? (articleMeta.textContent || '').replace(/\s+/g, ' ').trim() : '',
+        eyebrow: articleEyebrow ? (articleEyebrow.textContent || '').trim() : '',
+        breadcrumbCount: document.querySelectorAll('.bm-article-breadcrumb').length,
+        researchStandardCount: document.querySelectorAll('.bm-article-standard').length,
+        genericPostNavCount: document.querySelectorAll('.bm-post-nav').length,
+        relatedEditorialCount: document.querySelectorAll('.bm-related--editorial').length,
+      },
     };
   });
 }
@@ -208,7 +228,7 @@ try {
   // Audit one real qualified Research article when the runtime has one.
   const discovery = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await discovery.goto(`${baseUrl}/category/riset/`, { waitUntil: 'domcontentloaded', timeout: 45000 });
-  const articleHref = await discovery.locator('.bm-research-featured__body h3 a, .bm-research-stream__item h3 a').first().getAttribute('href').catch(() => null);
+  const articleHref = await discovery.locator('.bm-research-lead__title a, .bm-research-library__copy h3 a').first().getAttribute('href').catch(() => null);
   await discovery.close();
 
   if (articleHref) {
@@ -223,12 +243,29 @@ try {
       page.on('pageerror', (error) => pageErrors.push(error.message));
       const response = await page.goto(articleUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
       await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      await page.waitForTimeout(350);
       const status = response ? response.status() : 0;
       if (status !== 200) addFailure(surface, viewport, `HTTP ${status}`);
       const metrics = await collectMetrics(page);
       const overflow = Math.max(metrics.scrollWidth, metrics.bodyScrollWidth) - metrics.clientWidth;
       if (overflow > 2) addFailure(surface, viewport, `horizontal overflow ${overflow}px`);
       if (metrics.h1Count !== 1) addFailure(surface, viewport, `expected exactly one visible H1, found ${metrics.h1Count}`);
+
+      if (!metrics.article.present) addFailure(surface, viewport, 'canonical .bm-article-body reading surface missing');
+      if (metrics.article.width !== null && metrics.article.width > 740) addFailure(surface, viewport, `reading column too wide: ${metrics.article.width.toFixed(1)}px`);
+      if (metrics.article.fontSize !== null && metrics.article.fontSize < 17) addFailure(surface, viewport, `article body font too small: ${metrics.article.fontSize}px`);
+      if (metrics.article.fontSize && metrics.article.lineHeight && metrics.article.lineHeight / metrics.article.fontSize < 1.65) {
+        addFailure(surface, viewport, `article line-height too tight: ${(metrics.article.lineHeight / metrics.article.fontSize).toFixed(2)}`);
+      }
+      if (metrics.firstH1FontSize !== null && metrics.firstH1FontSize > 54) addFailure(surface, viewport, `article H1 too large for reading surface: ${metrics.firstH1FontSize}px`);
+      if (!/Bitmomo Research/.test(metrics.article.meta)) addFailure(surface, viewport, `research publisher context missing: ${metrics.article.meta || 'empty'}`);
+      if (!/Dipublikasikan/.test(metrics.article.meta)) addFailure(surface, viewport, `publication date context missing: ${metrics.article.meta || 'empty'}`);
+      if (!/menit baca/.test(metrics.article.meta)) addFailure(surface, viewport, `reading-time context missing: ${metrics.article.meta || 'empty'}`);
+      if (!['MARKET RESEARCH', 'INTELLIGENCE SYSTEMS RESEARCH'].includes(metrics.article.eyebrow)) addFailure(surface, viewport, `qualified article has wrong institutional label: ${metrics.article.eyebrow || 'missing'}`);
+      if (metrics.article.breadcrumbCount !== 1) addFailure(surface, viewport, `expected one research-context breadcrumb, found ${metrics.article.breadcrumbCount}`);
+      if (metrics.article.researchStandardCount !== 1) addFailure(surface, viewport, `expected one research-standard trust block, found ${metrics.article.researchStandardCount}`);
+      if (metrics.article.genericPostNavCount !== 0) addFailure(surface, viewport, `generic previous/next post navigation returned (${metrics.article.genericPostNavCount})`);
+
       for (const error of consoleErrors) addFailure(surface, viewport, `console error: ${error}`);
       for (const error of pageErrors) addFailure(surface, viewport, `uncaught page error: ${error}`);
       const axeViolations = await auditAxe(page, surface, viewport);
