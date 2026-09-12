@@ -9,10 +9,23 @@ final class Bitmomo_AI_Signal_Engine {
         $crowding = self::crowding_score($data['crowding']);
         $directional_score = (int) round(($direction * 0.35) + ($carry * 0.15) + ($structure * 0.30) + ($crowding * 0.20));
         $bias = $directional_score >= 20 ? 'bullish' : ($directional_score <= -20 ? 'bearish' : 'neutral');
-        $agreement = (abs($direction) + abs($carry) + abs($structure) + abs($crowding)) / 400;
+
+        // Confidence is evidence coherence, not raw evidence activity and not a
+        // probability of success. The previous formula summed absolute axis
+        // magnitudes and called that "agreement", which could rate two strong
+        // opposing axes as highly confident even while they cancelled in the
+        // actual directional score. Keep magnitude as one input, but require
+        // the weighted net evidence to remain coherent as well.
+        $evidence_magnitude = (abs($direction) * 0.35)
+            + (abs($carry) * 0.15)
+            + (abs($structure) * 0.30)
+            + (abs($crowding) * 0.20);
+        $net_magnitude = abs($directional_score);
         $confirmation = self::confirmation_score($data['direction']);
         $volatility_penalty = ($data['volatility']['regime'] ?? '') === 'extreme' ? 15 : 0;
-        $confidence = (int) round(min(90, max(25, 35 + ($agreement * 45) + $confirmation - $volatility_penalty)));
+        $confidence = (int) round(min(90, max(25,
+            25 + ($evidence_magnitude * 0.35) + ($net_magnitude * 0.40) + $confirmation - $volatility_penalty
+        )));
 
         $volatility = self::volatility_score($data['volatility']);
         $risk = self::risk_levels($data, $bias);
