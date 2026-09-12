@@ -1,0 +1,92 @@
+name: Authority surface safety
+
+on:
+  pull_request:
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/page.php"
+      - "website/wp-content/themes/bitmomo-child-v3/category.php"
+      - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
+      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
+      - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
+      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
+      - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
+      - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
+      - "docs/content/tentang-kami.md"
+      - "config/production-runtime.json"
+      - ".github/workflows/authority-surface-safety.yml"
+  push:
+    branches:
+      - main
+      - "fix/**"
+      - "feature/**"
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/page.php"
+      - "website/wp-content/themes/bitmomo-child-v3/category.php"
+      - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
+      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
+      - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
+      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
+      - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
+      - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
+      - "docs/content/tentang-kami.md"
+      - "config/production-runtime.json"
+      - ".github/workflows/authority-surface-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: authority-surface-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  authority-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint authority PHP
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l website/wp-content/themes/bitmomo-child-v3/page.php
+          php -l website/wp-content/themes/bitmomo-child-v3/category.php
+          php -l website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php
+          php -l website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php
+          php -l website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php
+          php -l website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php
+
+      - name: Enforce authority positioning and classification boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme="website/wp-content/themes/bitmomo-child-v3"
+          about="${theme}/template-parts/about-authority.php"
+          research="${theme}/template-parts/research-hub.php"
+          helpers="${theme}/inc/template-functions.php"
+          assets="${theme}/inc/trait-bitmomo-assets.php"
+
+          grep -q "template-parts/about" "${theme}/page.php"
+          grep -q "template-parts/research" "${theme}/category.php"
+          grep -Eqi "research .* intelligence platform" "${about}"
+          ! grep -Eqi "media independen|media independent" "${about}"
+          grep -q "bitmomo_market_research_taxonomy_slugs" "${helpers}"
+          grep -q "tag__not_in" "${research}"
+          ! grep -q "while ( have_posts()" "${research}"
+          grep -q "research.css" "${assets}"
+          grep -q "about.css" "${assets}"
+          grep -q "is_category('riset')" "${assets}"
+          grep -q "is_page('tentang-kami')" "${assets}"
+          grep -q "Crypto Market & AI Systems Research" "${helpers}"
+          grep -q '"expected_file_count": 111' config/production-runtime.json
+          grep -q '"expected_file_count": 44' config/production-runtime.json
+
+      - name: Prevent publisher-first source-of-truth regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "canonical brand/source-of-truth" docs/content/tentang-kami.md
+          grep -q "research & intelligence platform" docs/content/tentang-kami.md
+          grep -q 'Copy publik Bitmomo tidak boleh menggunakan positioning seperti "media independen"' docs/content/tentang-kami.md

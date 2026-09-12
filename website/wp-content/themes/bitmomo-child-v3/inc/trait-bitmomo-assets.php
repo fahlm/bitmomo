@@ -118,6 +118,33 @@ trait Bitmomo_Assets_Trait {
             }
         }
 
+        // Institutional authority surfaces own their page-specific layers.
+        // Keep these out of frozen custom.css and after the shared chrome so
+        // their hierarchy cannot be diluted by legacy archive/page rules.
+        if (is_category('riset')) {
+            $research_css_path = get_stylesheet_directory() . '/assets/css/research.css';
+            if (file_exists($research_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-research',
+                    get_stylesheet_directory_uri() . '/assets/css/research.css',
+                    $public_surface_deps,
+                    $this->get_file_version($research_css_path)
+                );
+            }
+        }
+
+        if (is_page('tentang-kami')) {
+            $about_css_path = get_stylesheet_directory() . '/assets/css/about.css';
+            if (file_exists($about_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-about',
+                    get_stylesheet_directory_uri() . '/assets/css/about.css',
+                    $public_surface_deps,
+                    $this->get_file_version($about_css_path)
+                );
+            }
+        }
+
         $frontend_js_path = get_stylesheet_directory() . '/assets/js/bitmomo-frontend.js';
         wp_enqueue_script(
             'bitmomo-frontend',
