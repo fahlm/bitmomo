@@ -43,11 +43,14 @@ check(
 );
 check('Homepage does not let AI Lab compete with the launch funnel', !/template-parts\/ai[^\n]*lab/.test(frontPage));
 check(
-  'Homepage Pro conversion remains provider-neutral and reaches /pro/ when checkout is unavailable',
-  /home_url\(\s*'\/pro\/'\s*\)/.test(homeHero)
+  'Homepage journey is product-first while Pro conversion remains provider-neutral',
+  /home_url\(\s*'\/btc-intelligence\/'\s*\)/.test(homeHero)
+    && /href="#founding-whitelist"/.test(homeHero)
+    && /\/btc-intelligence\/#decision-ledger/.test(homeHero)
     && /bitmomo_pro_get_checkout_url\(\)/.test(homeWhitelist)
     && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(homeWhitelist)
     && /home_url\(\s*'\/pro\/'\s*\)/.test(homeWhitelist)
+    && /homepage_pro_interest/.test(homeWhitelist)
 );
 check(
   'Homepage whitelist is an integrated conversion surface instead of a nested standalone card',
@@ -77,8 +80,10 @@ check(
 );
 check(
   'Homepage explanation uses visitor language instead of engine vocabulary',
-  /Baca pasar/.test(howItWorks) && /Ringkas konteks/.test(howItWorks) && /Pahami langkah berikutnya/.test(howItWorks)
-    && !/quality gate|logic deterministik|classifier|axis|funding\/basis/i.test(howItWorks)
+  /Puluhan data pasar diringkas/.test(howItWorks)
+    && /BTC Intelligence menjelaskan kondisi sekarang/.test(howItWorks)
+    && /Setiap insight dicatat, diuji, dan dievaluasi terhadap hasil aktual/.test(howItWorks)
+    && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
 );
 check(
   'Synthetic HTML contract mirrors visible public facts only',
@@ -151,9 +156,9 @@ check(
 );
 check(
   'Launch-critical SEO descriptions use visitor language rather than engine terms',
-  /Bitmomo merangkum arah BTC, tingkat keyakinan analisis, dan alasan utamanya/.test(themeFunctions)
+  /Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan riwayat evaluasi/.test(themeFunctions)
     && /kapan pandangan pasar perlu berubah/.test(themeFunctions)
-    && /Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record/.test(themeFunctions)
+    && /Lihat kondisi BTC saat ini, perubahan penting, konteks 30 hari, riwayat evaluasi/.test(themeFunctions)
     && !/Opportunity, Directional Bias, Confidence, Market State/.test(themeFunctions)
 );
 check('Product surfaces suppress the legacy newsletter modal', /is_front_page\(\)\s*\|\|\s*is_page\(\['pro', 'btc-intelligence'\]\)/.test(frontendTrait));
