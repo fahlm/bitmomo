@@ -7,6 +7,10 @@
  * embedded context so the homepage never falls back to card-inside-card UI.
  */
 
+#founding-whitelist {
+  scroll-margin-top: 78px;
+}
+
 .bm-wl-home .bm-container {
   max-width: 1180px;
 }
@@ -102,21 +106,35 @@
   line-height: 1.45;
 }
 
-.bm-wl-home .bm-wl-unified__detail-link {
-  align-self: flex-start;
+.bm-wl-home .bm-wl-unified__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
   margin-top: 22px;
+}
+
+.bm-wl-home .bm-wl-unified__detail-link,
+.bm-wl-home .bm-wl-unified__proof-link {
   color: #9eb0c2;
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
 }
 
-.bm-wl-home .bm-wl-unified__detail-link:hover,
-.bm-wl-home .bm-wl-unified__detail-link:focus-visible {
+.bm-wl-home .bm-wl-unified__proof-link {
   color: var(--bm-accent, #26d0c6);
 }
 
-.bm-wl-home .bm-wl-unified__detail-link:focus-visible {
+.bm-wl-home .bm-wl-unified__detail-link:hover,
+.bm-wl-home .bm-wl-unified__detail-link:focus-visible,
+.bm-wl-home .bm-wl-unified__proof-link:hover,
+.bm-wl-home .bm-wl-unified__proof-link:focus-visible {
+  color: #edf4f6;
+}
+
+.bm-wl-home .bm-wl-unified__detail-link:focus-visible,
+.bm-wl-home .bm-wl-unified__proof-link:focus-visible {
   outline: 2px solid var(--bm-accent, #26d0c6);
   outline-offset: 4px;
   border-radius: 4px;
@@ -169,17 +187,22 @@
   display: none;
 }
 
+/* Homepage acquisition is deliberately email-first. The plugin continues to
+ * accept first_name for other surfaces/backward compatibility; the homepage
+ * removes this optional pre-conversion field to minimize commitment cost. */
+.bm-wl-home .bm-wl__field:has(input[name="first_name"]) {
+  display: none;
+}
+
 .bm-wl-home #bm-wl-form {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
-  gap: 11px 10px;
+  grid-template-columns: 1fr;
+  gap: 11px;
   margin: 0;
 }
 
-.bm-wl-home #bm-wl-form > .bm-wl__consent,
-.bm-wl-home #bm-wl-form > .bm-wl__error,
-.bm-wl-home #bm-wl-form > .bm-wl__submit {
-  grid-column: 1 / -1;
+.bm-wl-home #bm-wl-form > * {
+  grid-column: 1;
 }
 
 .bm-wl-home .bm-wl__field {
@@ -231,13 +254,68 @@
 
 .bm-wl-home .bm-wl__note {
   margin: 9px 0 0;
-  color: #7f91a6;
+  color: #8294ae;
   font-size: 10px;
   line-height: 1.5;
 }
 
 .bm-wl-home .bm-wl__success {
   max-width: 520px;
+}
+
+.bm-wl-home .bm-wl__continuation {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.10);
+}
+
+.bm-wl-home .bm-wl__continuation strong {
+  display: block;
+  color: #edf4f6;
+  font-size: 14px;
+}
+
+.bm-wl-home .bm-wl__continuation p {
+  margin: 5px 0 12px;
+  color: #9eb0c2;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bm-wl-home .bm-wl__continuation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bm-wl-home .bm-wl__continuation-actions a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 8px;
+  color: #c8d4e2;
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.bm-wl-home .bm-wl__continuation-actions a:first-child {
+  border-color: rgba(38,208,198,.35);
+  color: var(--bm-accent, #26d0c6);
+}
+
+.bm-wl-home .bm-wl__continuation-actions a:hover,
+.bm-wl-home .bm-wl__continuation-actions a:focus-visible {
+  border-color: var(--bm-accent, #26d0c6);
+  color: #edf4f6;
+}
+
+.bm-wl-home .bm-wl__continuation-actions a:focus-visible {
+  outline: 2px solid var(--bm-accent, #26d0c6);
+  outline-offset: 2px;
 }
 
 .bm-wl-home .bm-wl-teaser {
@@ -283,6 +361,10 @@
 }
 
 @media (max-width: 640px) {
+  #founding-whitelist {
+    scroll-margin-top: 72px;
+  }
+
   .bm-wl-home .bm-wl-unified__facts {
     grid-template-columns: 1fr 1fr;
     row-gap: 16px;
@@ -299,11 +381,13 @@
     border-left: 0;
   }
 
-  .bm-wl-home #bm-wl-form {
-    grid-template-columns: 1fr;
+  .bm-wl-home .bm-wl-unified__links,
+  .bm-wl-home .bm-wl__continuation-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 
-  .bm-wl-home #bm-wl-form > * {
-    grid-column: 1 !important;
+  .bm-wl-home .bm-wl__continuation-actions a {
+    width: 100%;
   }
 }
