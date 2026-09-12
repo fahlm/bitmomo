@@ -28,10 +28,20 @@ class Bitmomo_AI_Scorecard_Repository {
         return [
             'version_policy' => 'SEPARATED_INCOMPATIBLE_VERSIONS',
             'sample_rules' => ['minimum' => 10, 'strong' => 30],
-            'versions' => ['engine-v1 | classifier-v1' => ['all' => $metric, 'rolling_30' => $metric, 'by_direction' => ['bullish' => $metric], 'confidence_calibration' => [array_merge($metric, ['range' => '0–100'])], 'baselines' => ['internal' => $metric]]],
+            'versions' => [
+                'engine-v1 | classifier-v1 | observed-close-24h-v2' => [
+                    'latest_generated_at' => '2026-09-12T20:10:00+00:00',
+                    'outcome_methodology' => 'observed-close-24h-v2',
+                    'all' => $metric,
+                    'rolling_30' => $metric,
+                    'by_direction' => ['bullish' => $metric],
+                    'confidence_calibration' => [array_merge($metric, ['range' => '0–100'])],
+                    'baselines' => ['internal' => $metric],
+                ],
+            ],
             'expected_range' => ['policy' => 'FROZEN_ORIGINAL_ONLY', 'version_policy' => 'SINGLE_VERSION', 'versions' => ['engine-v1' => array_merge($metric, ['range_hit_pct' => 50])]],
-            'regime_evaluation' => ['append_only_n' => 4, 'transition_n' => 1, 'transition_frequency_pct' => 33.3, 'versions' => ['classifier-v1' => ['accumulation' => array_merge($metric, ['average_forward_return_pct' => 1.2])]]],
-            'data_quality' => array_merge($metric, ['stale_rate_pct' => 0]),
+            'regime_evaluation' => ['append_only_n' => 4, 'transition_n' => 1, 'transition_frequency_pct' => 33.3, 'versions' => ['classifier-v1 | observed-close-24h-v2' => ['accumulation' => array_merge($metric, ['average_forward_return_pct' => 1.2])]]],
+            'data_quality' => array_merge($metric, ['stale_rate_pct' => 0, 'settlement_n' => 3, 'settlement_evaluated_n' => 2, 'settlement_missed_n' => 1, 'settlement_pending_n' => 1, 'settlement_completeness_pct' => 66.7]),
         ];
     }
 }
@@ -55,7 +65,6 @@ $canonical_id = 'bitmomo-ai:canonical-v2-edition';
 $GLOBALS['adapter_options']['bitmomo_ai_latest_preview'] = ['time' => gmdate('c'), 'data' => $input, 'evaluation' => $evaluation, 'edition' => 'morning', 'source_record_id' => $canonical_id];
 $GLOBALS['adapter_options']['bitmomo_ai_latest_quality_gate'] = ['status' => 'passed'];
 Bitmomo_Regime_State_Store::$records = [
-    // Deliberately newer but unrelated: current snapshot MUST NOT borrow it.
     ['as_of' => '2026-09-04 19:10:00', 'source_record_id' => 'different-edition', 'regime' => 'distribution', 'directional_bias' => 'bearish', 'regime_confidence' => 88, 'classifier_version' => 'classifier-v1', 'edition' => 'us_session', 'provenance' => 'recorded_live'],
     ['as_of' => '2026-09-03 19:10:00', 'source_record_id' => $canonical_id, 'regime' => 'accumulation', 'directional_bias' => 'bullish', 'regime_confidence' => 70, 'classifier_version' => 'classifier-v1', 'edition' => 'us_session', 'provenance' => 'recorded_live', 'evidence' => ['secret']],
     ['as_of' => '2026-09-03 07:10:00', 'source_record_id' => 'older-morning', 'regime' => 'distribution', 'directional_bias' => 'bearish', 'classifier_version' => 'classifier-v1', 'edition' => 'morning', 'provenance' => 'recorded_live'],
@@ -68,6 +77,7 @@ function adapter_check($label, $condition) { global $checks; $checks[] = [$label
 $snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
 $history = Bitmomo_Public_Intelligence_Adapter::history();
 $summary = Bitmomo_Public_Intelligence_Adapter::evaluation_summary();
+$current_version = 'engine-v1 | classifier-v1 | observed-close-24h-v2';
 adapter_check('snapshot binds Market State to the matching canonical edition rather than newest unrelated regime', $snapshot['market_state'] === 'accumulation' && ($snapshot['market_state_certainty'] ?? null) === 70 && $snapshot['direction_strength'] === $evaluation['direction_strength']);
 adapter_check('snapshot exposes public-safe source/as-of/timezone', ($snapshot['provenance']['source'] ?? '') === 'Binance public market data' && ($snapshot['provenance']['as_of'] ?? '') !== '' && ($snapshot['provenance']['timezone'] ?? '') === 'Asia/Jakarta');
 adapter_check('snapshot explicit allowlist hides internal data', !isset($snapshot['source_record_id'], $snapshot['axes'], $snapshot['score'], $snapshot['risk'], $snapshot['edition']));
@@ -77,8 +87,10 @@ adapter_check('history exposes bounded market-state certainty for public charts'
 adapter_check('history excludes reconstructed records', !in_array('2026-09-01', array_column($history['days'], 'date'), true));
 adapter_check('history does not fabricate missing strength', !isset($history['days'][0]['direction_strength']));
 adapter_check('history preserves unknown version', $history['days'][0]['version_group'] === 'unknown');
-adapter_check('evaluation preserves version separation', $summary['version_policy'] === 'SEPARATED_INCOMPATIBLE_VERSIONS' && isset($summary['directional_evaluation']['engine-v1 | classifier-v1']));
-adapter_check('evaluation preserves conclusive denominator and sample status', $summary['directional_evaluation']['engine-v1 | classifier-v1']['all']['conclusive_n'] === 3 && $summary['directional_evaluation']['engine-v1 | classifier-v1']['all']['sample_status'] === 'INSUFFICIENT SAMPLE');
+adapter_check('evaluation preserves outcome-methodology version separation', $summary['version_policy'] === 'SEPARATED_INCOMPATIBLE_VERSIONS' && isset($summary['directional_evaluation'][$current_version]));
+adapter_check('evaluation exposes safe outcome methodology metadata', $summary['directional_evaluation'][$current_version]['outcome_methodology'] === 'observed-close-24h-v2' && $summary['directional_evaluation'][$current_version]['latest_generated_at'] !== '');
+adapter_check('evaluation preserves conclusive denominator and sample status', $summary['directional_evaluation'][$current_version]['all']['conclusive_n'] === 3 && $summary['directional_evaluation'][$current_version]['all']['sample_status'] === 'INSUFFICIENT SAMPLE');
+adapter_check('settlement proof exposes matured/evaluated/missed/pending counts', $summary['data_quality']['settlement_n'] === 3 && $summary['data_quality']['settlement_evaluated_n'] === 2 && $summary['data_quality']['settlement_missed_n'] === 1 && $summary['data_quality']['settlement_pending_n'] === 1 && $summary['data_quality']['settlement_completeness_pct'] === 66.7);
 adapter_check('Expected Range is aggregate frozen-original evaluation only', $summary['expected_range_evaluation']['policy'] === 'FROZEN_ORIGINAL_ONLY' && !isset($summary['expected_range_evaluation']['current_range']));
 $encoded = json_encode([$snapshot, $history, $summary]);
 foreach (['axes', 'risk', 'source_record_id', 'source_diagnostics', 'evidence', 'private_note', 'baselines'] as $forbidden) adapter_check("no {$forbidden} leak", strpos($encoded, '"' . $forbidden . '"') === false);
