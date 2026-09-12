@@ -11,7 +11,11 @@ const surfaces = [
   { name: 'home', path: '/', marker: 'BTC Intelligence' },
   { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Pahami BTC dalam konteks.' },
   { name: 'pro', path: '/pro/', marker: 'FOUNDING MEMBERSHIP' },
+  { name: 'help', path: '/help/', marker: 'Help Center' },
   { name: 'research', path: '/category/riset/', marker: 'Riset' },
+  { name: 'about', path: '/tentang-kami/', marker: 'Tentang Kami' },
+  { name: 'privacy', path: '/kebijakan-privasi/', marker: 'Kebijakan Privasi' },
+  { name: 'disclaimer', path: '/disclaimer/', marker: 'Disclaimer' },
 ];
 
 const viewports = [
@@ -98,9 +102,6 @@ try {
         addFailure(surface, viewport, `expected exactly one visible H1, found ${metrics.h1Count}`);
       }
 
-      // A sticky header may overlap content only while scrolling, not at the
-      // initial layout. A first H1 beginning underneath the header is a common
-      // regression on Bitmomo mobile pages, so keep it explicit.
       if (
         metrics.headerBottom !== null &&
         metrics.firstH1Top !== null &&
@@ -114,9 +115,6 @@ try {
         addFailure(surface, viewport, `uncaught page error: ${error}`);
       }
 
-      // Third-party scripts occasionally log blocked-resource errors. Record
-      // console errors in the artifact rather than failing on every one; true
-      // uncaught runtime errors above remain blocking.
       const screenshotPath = path.join(outputDir, `${surface.name}-${viewport.width}.png`);
       await page.screenshot({ path: screenshotPath, fullPage: true });
 
@@ -126,7 +124,16 @@ try {
           const axe = await new AxeBuilder({ page }).analyze();
           axeViolations = axe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
           for (const violation of axeViolations) {
-            addFailure(surface, viewport, `a11y ${violation.impact}: ${violation.id} — ${violation.help}`);
+            const targets = violation.nodes
+              .slice(0, 8)
+              .map((node) => (node.target || []).join(' '))
+              .filter(Boolean)
+              .join(', ');
+            addFailure(
+              surface,
+              viewport,
+              `a11y ${violation.impact}: ${violation.id} — ${violation.help}` + (targets ? `; targets: ${targets}` : '')
+            );
           }
         } catch (error) {
           addFailure(surface, viewport, `axe scan failed: ${error.message}`);
@@ -145,7 +152,17 @@ try {
           id: violation.id,
           impact: violation.impact,
           help: violation.help,
-          nodes: violation.nodes.length,
+          helpUrl: violation.helpUrl,
+          nodeCount: violation.nodes.length,
+          nodes: violation.nodes.map((node) => ({
+            target: node.target,
+            html: node.html,
+            failureSummary: node.failureSummary,
+            impact: node.impact,
+            any: node.any,
+            all: node.all,
+            none: node.none,
+          })),
         })),
       });
 
