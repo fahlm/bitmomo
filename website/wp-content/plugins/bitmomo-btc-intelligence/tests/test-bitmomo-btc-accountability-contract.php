@@ -21,9 +21,9 @@ accountability_check( 'Delayed Pro proof has a hard 48-hour minimum', preg_match
 accountability_check( 'Delayed Pro proof reads immutable publish snapshot', false !== strpos( $source, 'Bitmomo_Pro_Performance::ORIGINAL_META' ) && false !== strpos( $source, "['published_at']" ) );
 accountability_check( 'Delayed Pro proof never calls the current paid display getter', false === strpos( $source, 'get_current_brief_for_display' ) && false === strpos( $source, 'get_latest_brief' ) );
 accountability_check( 'Delayed Pro proof requires matured settlement', substr_count( $source, "array( 'evaluated', 'window_missed' )" ) >= 2 );
-accountability_check( 'Public contracts never return canonical source record IDs', false === preg_match( "/['\"]source_record_id['\"]\s*=>/", $source ) );
-accountability_check( 'Public contracts contain no user identity fields', false === preg_match( '/email|whatsapp|first_name|user_id|phone|nonce/i', $source ) );
-accountability_check( 'Public proof remains read-only', false === preg_match( '/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/', $source ) );
+accountability_check( 'Public contracts never return canonical source record IDs', 0 === preg_match( "/['\"]source_record_id['\"]\s*=>/", $source ) );
+accountability_check( 'Public contracts contain no user identity fields', 0 === preg_match( '/email|whatsapp|first_name|user_id|phone|nonce/i', $source ) );
+accountability_check( 'Public proof remains read-only', 0 === preg_match( '/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/', $source ) );
 
 printf( "\n%d/%d passed.\n", $pass, $pass + $fail );
 exit( 0 === $fail ? 0 : 1 );
