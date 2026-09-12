@@ -20,6 +20,7 @@ function withoutCommentLines(source) {
 }
 
 const frontPage = read('website/wp-content/themes/bitmomo-child-v3/front-page.php');
+const themeFunctions = read('website/wp-content/themes/bitmomo-child-v3/functions.php');
 const header = read('website/wp-content/themes/bitmomo-child-v3/header.php');
 const homeHero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const btcCard = read('website/wp-content/themes/bitmomo-child-v3/template-parts/btc-intelligence-card.php');
@@ -29,6 +30,7 @@ const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bit
 const proSalesOutput = withoutCommentLines(proSales);
 const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
 const proWhitelist = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php');
+const proWhitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
 
 check('Homepage template includes BTC Intelligence before Pro teaser', frontPage.indexOf("template-parts/btc-intelligence', 'card'") > -1 && frontPage.indexOf("template-parts/btc-intelligence', 'card'") < frontPage.indexOf("template-parts/pro', 'teaser'"));
 check('Homepage Pro CTAs point to /pro/', /home_url\(\s*'\/pro\/'\s*\)/.test(homeHero) && /home_url\(\s*'\/pro\/'\s*\)/.test(read('website/wp-content/themes/bitmomo-child-v3/template-parts/pro-teaser.php')));
@@ -92,7 +94,46 @@ check('/pro avoids removed placeholder preview values', !/XX%|\$XX,XXX|\(placeho
 check('/pro avoids old public 7-day refund promise', !/7\s*(hari|day)|refund 7|7-day/i.test(proSales + proHelp));
 check('/pro avoids fabricated accuracy percentage', !/\d+%\s*akurat/i.test(proSales + proHelp));
 check('Whitelist says joining does not guarantee a seat', /Masuk whitelist tidak menjamin tempat/.test(proWhitelist));
-check('Whitelist submit JS can survive LiteSpeed-localization issues via data attributes', /data-ajax-url/.test(proWhitelist) && /data-nonce/.test(proWhitelist) && /bitmomoProWhitelist/.test(read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js')));
+check('Whitelist submit JS can survive LiteSpeed-localization issues via data attributes', /data-ajax-url/.test(proWhitelist) && /data-nonce/.test(proWhitelist) && /bitmomoProWhitelist/.test(proWhitelistJs));
+
+check(
+	'Cold-audience browser telemetry covers the whitelist funnel without binding to an analytics provider',
+	/pro_cta_click/.test(proWhitelistJs)
+		&& /whitelist_view/.test(proWhitelistJs)
+		&& /whitelist_submit/.test(proWhitelistJs)
+		&& /whitelist_created/.test(proWhitelistJs)
+		&& /whitelist_duplicate/.test(proWhitelistJs)
+		&& /whitelist_error/.test(proWhitelistJs)
+		&& /CustomEvent\('bitmomo:analytics'/.test(proWhitelistJs)
+		&& /Array\.isArray\(window\.dataLayer\)/.test(proWhitelistJs)
+		&& !/gtag\(|google-analytics|googletagmanager/.test(proWhitelistJs)
+);
+check(
+	'Cold-audience telemetry context is acquisition-only and excludes submitted identity fields',
+	/event_version:\s*1/.test(proWhitelistJs)
+		&& /source:\s*fieldValue\('source'\)/.test(proWhitelistJs)
+		&& /utm_source:\s*fieldValue\('utm_source'\)/.test(proWhitelistJs)
+		&& /utm_medium:\s*fieldValue\('utm_medium'\)/.test(proWhitelistJs)
+		&& /utm_campaign:\s*fieldValue\('utm_campaign'\)/.test(proWhitelistJs)
+		&& /page_path:\s*window\.location\.pathname/.test(proWhitelistJs)
+		&& !/payload\.email|payload\.first_name|payload\.whatsapp|payload\.post_id|payload\.record_token/.test(proWhitelistJs)
+);
+check(
+	'Launch-critical SEO titles are product-led rather than legacy media positioning',
+	/Bitmomo — BTC Market Intelligence/.test(themeFunctions)
+		&& /Bitmomo Pro — BTC Market Intelligence/.test(themeFunctions)
+		&& /BTC Intelligence — Bitmomo/.test(themeFunctions)
+		&& /rank_math\/frontend\/title/.test(themeFunctions)
+		&& /pre_get_document_title/.test(themeFunctions)
+);
+check(
+	'Launch-critical SEO descriptions are normalized through Rank Math with a homepage fallback',
+	/Bitmomo merangkum kondisi BTC, Opportunity, Directional Bias, Confidence/.test(themeFunctions)
+		&& /Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan/.test(themeFunctions)
+		&& /BTC Intelligence Bitmomo merangkum Opportunity, Directional Bias, Confidence, Market State/.test(themeFunctions)
+		&& /rank_math\/frontend\/description/.test(themeFunctions)
+		&& /bitmomo_render_home_meta_description/.test(themeFunctions)
+);
 
 let pass = 0;
 for (const result of checks) {
