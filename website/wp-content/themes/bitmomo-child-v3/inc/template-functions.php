@@ -22,8 +22,47 @@ if (!function_exists('bitmomo_render_menu_toggle')) {
     function bitmomo_render_menu_toggle() {
         printf(
             '<button class="bm-hamburger" id="bm-hamburger" type="button" aria-label="%s" aria-controls="bm-nav" aria-expanded="false"><span></span><span></span><span></span></button>',
-            esc_attr__('Menu', 'bitmomo')
+            esc_attr__('Buka menu', 'bitmomo')
         );
+    }
+}
+
+if (!function_exists('bitmomo_public_social_links')) {
+    /**
+     * Canonical public social destinations.
+     *
+     * Telegram intentionally has no guessed default. The public channel URL
+     * must be explicitly supplied via `bitmomo_telegram_url` once the official
+     * destination is locked. X and YouTube already have canonical Bitmomo
+     * handles and remain filterable if those destinations ever change.
+     *
+     * @return array<string,array{label:string,url:string}>
+     */
+    function bitmomo_public_social_links() {
+        $links = array(
+            'telegram' => array(
+                'label' => 'Telegram',
+                'url'   => (string) apply_filters('bitmomo_telegram_url', ''),
+            ),
+            'youtube' => array(
+                'label' => 'YouTube',
+                'url'   => (string) apply_filters('bitmomo_youtube_url', 'https://www.youtube.com/@bitmomoid'),
+            ),
+            'x' => array(
+                'label' => 'X',
+                'url'   => (string) apply_filters('bitmomo_x_url', 'https://x.com/bitmomoid'),
+            ),
+        );
+
+        foreach ($links as $key => $link) {
+            if ('' === trim((string) $link['url'])) {
+                $links[$key]['url'] = '';
+                continue;
+            }
+            $links[$key]['url'] = esc_url_raw($link['url']);
+        }
+
+        return $links;
     }
 }
 
