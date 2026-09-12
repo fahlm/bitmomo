@@ -94,6 +94,7 @@ jobs:
         run: |
           set -euo pipefail
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
+          asset_trait="${theme_dir}/inc/trait-bitmomo-assets.php"
 
           if grep -q "Informasi AI &" "${theme_dir}/home.php"; then
             echo "::error file=${theme_dir}/home.php::Legacy media positioning returned to the posts index"
@@ -157,13 +158,33 @@ jobs:
             exit 1
           fi
 
-          grep -q "public-surfaces.css" "${theme_dir}/header.php" || {
-            echo "::error file=${theme_dir}/header.php::Canonical public-surface stylesheet is not loaded"
+          if grep -q "public-surfaces.css" "${theme_dir}/header.php"; then
+            echo "::error file=${theme_dir}/header.php::Public stylesheets must be enqueued, not hard-coded after wp_head"
+            exit 1
+          fi
+
+          grep -q "public-surfaces.css" "${asset_trait}" || {
+            echo "::error file=${asset_trait}::Canonical public-surface stylesheet is not enqueued"
             exit 1
           }
 
-          grep -q "navigation-footer.css" "${theme_dir}/header.php" || {
-            echo "::error file=${theme_dir}/header.php::Navigation/footer stylesheet is not loaded"
+          grep -q "navigation-footer.css" "${asset_trait}" || {
+            echo "::error file=${asset_trait}::Navigation/footer stylesheet is not enqueued"
+            exit 1
+          }
+
+          grep -q "home-conversion.css" "${asset_trait}" || {
+            echo "::error file=${asset_trait}::Homepage conversion stylesheet must remain enqueued after shared public styles"
+            exit 1
+          }
+
+          grep -q "research.css" "${asset_trait}" || {
+            echo "::error file=${asset_trait}::Research Hub stylesheet is not route-enqueued"
+            exit 1
+          }
+
+          grep -q "about.css" "${asset_trait}" || {
+            echo "::error file=${asset_trait}::About authority stylesheet is not route-enqueued"
             exit 1
           }
 
