@@ -10,6 +10,7 @@ on:
       - "website/wp-content/plugins/bitmomo-regime/**"
       - "config/production-runtime.json"
       - "scripts/build-production-artifact.py"
+      - "scripts/check-public-ui.mjs"
       - "scripts/check-frontend-foundation.mjs"
       - "scripts/check-m2-launch-surfaces.mjs"
       - "scripts/check-ui-architecture.mjs"
@@ -62,12 +63,17 @@ jobs:
             done < <(find "${plugin_dir}/tests" -maxdepth 1 -type f -name 'test-*.php' | sort)
           done
 
-      - name: Syntax-check every first-party JavaScript file
+      - name: Syntax-check first-party JavaScript and release harnesses
         shell: bash
         run: |
           set -euo pipefail
           find website/wp-content/themes/bitmomo-child-v3 website/wp-content/plugins/bitmomo-ai website/wp-content/plugins/bitmomo-btc-intelligence website/wp-content/plugins/bitmomo-pro website/wp-content/plugins/bitmomo-regime \
             -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
+          node --check scripts/check-public-ui.mjs
+          node --check scripts/check-frontend-foundation.mjs
+          node --check scripts/check-ui-architecture.mjs
+          node --check scripts/check-m2-launch-surfaces.mjs
+          node --check scripts/check-navigation-footer.mjs
 
       - name: Check frontend foundation ownership
         run: node scripts/check-frontend-foundation.mjs
