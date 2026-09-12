@@ -98,13 +98,13 @@ check(
 		&& /Riwayat &amp; track record/.test(homeHero)
 );
 check(
-	'Public BTC Intelligence renders provenance natively from the adapter without hardcoded providers',
-	/Bitmomo_Public_Intelligence_Adapter::surface_context\(\)/.test(btcIntelligencePage)
-		&& /\$surface\['provenance'\]/.test(btcIntelligencePage)
-		&& /bm-bi__snapshot-provenance/.test(btcIntelligencePage)
+	'Public BTC Intelligence renders provenance from the same canonical snapshot as current intelligence',
+	/Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(btcIntelligencePage)
+		&& /\$snapshot\['provenance'\]/.test(btcIntelligencePage)
+		&& /bm-bi__provenance/.test(btcIntelligencePage)
 		&& /SOURCE/.test(btcIntelligencePage)
 		&& /AS OF/.test(btcIntelligencePage)
-		&& !/surface_context\(\)/.test(btcIntelligencePlugin)
+		&& !/do_shortcode_tag|Bitmomo_Btc_Opportunity_UI/.test(btcIntelligencePlugin)
 		&& !/Binance public market data|Bybit derivatives fallback/.test(homeHero + btcIntelligencePlugin + btcIntelligencePage)
 );
 
