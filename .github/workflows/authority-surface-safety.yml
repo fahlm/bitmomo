@@ -3,29 +3,32 @@ name: Authority surface safety
 on:
   pull_request:
     paths:
+      - "website/wp-content/themes/bitmomo-child-v3/functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/page.php"
+      - "website/wp-content/themes/bitmomo-child-v3/single.php"
       - "website/wp-content/themes/bitmomo-child-v3/category.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
+      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research.php"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "docs/content/tentang-kami.md"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
   push:
-    branches:
-      - main
-      - "fix/**"
-      - "feature/**"
+    branches: [main, "fix/**", "feature/**"]
     paths:
+      - "website/wp-content/themes/bitmomo-child-v3/functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/page.php"
+      - "website/wp-content/themes/bitmomo-child-v3/single.php"
       - "website/wp-content/themes/bitmomo-child-v3/category.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
+      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research.php"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "docs/content/tentang-kami.md"
@@ -51,37 +54,69 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          php -l website/wp-content/themes/bitmomo-child-v3/page.php
-          php -l website/wp-content/themes/bitmomo-child-v3/category.php
-          php -l website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php
-          php -l website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php
-          php -l website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php
-          php -l website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php
+          for file in \
+            website/wp-content/themes/bitmomo-child-v3/functions.php \
+            website/wp-content/themes/bitmomo-child-v3/page.php \
+            website/wp-content/themes/bitmomo-child-v3/single.php \
+            website/wp-content/themes/bitmomo-child-v3/category.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/research.php; do
+            php -l "$file"
+          done
 
-      - name: Enforce authority positioning and classification boundary
+      - name: Enforce one institutional classification boundary
         shell: bash
         run: |
           set -euo pipefail
           theme="website/wp-content/themes/bitmomo-child-v3"
-          about="${theme}/template-parts/about-authority.php"
-          research="${theme}/template-parts/research-hub.php"
           helpers="${theme}/inc/template-functions.php"
+          about="${theme}/template-parts/about-authority.php"
+          hub="${theme}/template-parts/research-hub.php"
+          home_research="${theme}/template-parts/research.php"
+          single="${theme}/single.php"
           assets="${theme}/inc/trait-bitmomo-assets.php"
 
           grep -q "template-parts/about" "${theme}/page.php"
           grep -q "template-parts/research" "${theme}/category.php"
           grep -Eqi "research .* intelligence platform" "${about}"
           ! grep -Eqi "media independen|media independent" "${about}"
+
           grep -q "bitmomo_market_research_taxonomy_slugs" "${helpers}"
-          grep -q "tag__not_in" "${research}"
-          ! grep -q "while ( have_posts()" "${research}"
+          grep -q "bitmomo_post_is_market_research" "${helpers}"
+          grep -q "bitmomo_post_is_ai_systems_research" "${helpers}"
+          grep -q "bitmomo_post_research_classification" "${helpers}"
+
+          grep -q "tag__not_in" "${hub}"
+          grep -q "bitmomo_post_is_market_research" "${home_research}"
+          grep -q "bitmomo_post_research_classification" "${single}"
+          grep -q "Market Research Terkait" "${single}"
+          grep -q "AI Systems Research Terkait" "${single}"
+          ! grep -q "Riset Terkait" "${single}"
+
           grep -q "research.css" "${assets}"
           grep -q "about.css" "${assets}"
           grep -q "is_category('riset')" "${assets}"
           grep -q "is_page('tentang-kami')" "${assets}"
-          grep -q "Crypto Market & AI Systems Research" "${helpers}"
           grep -q '"expected_file_count": 111' config/production-runtime.json
           grep -q '"expected_file_count": 44' config/production-runtime.json
+
+      - name: Enforce single SEO owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme="website/wp-content/themes/bitmomo-child-v3"
+          functions="${theme}/functions.php"
+          helpers="${theme}/inc/template-functions.php"
+
+          grep -q "Tentang Bitmomo — Crypto Market & AI Systems Research" "${functions}"
+          grep -q "Bitmomo Research — Crypto Markets & AI Systems" "${functions}"
+          grep -q "rank_math/frontend/title" "${functions}"
+          grep -q "rank_math/frontend/description" "${functions}"
+          ! grep -q "rank_math/frontend/title" "${helpers}"
+          ! grep -q "rank_math/frontend/description" "${helpers}"
 
       - name: Prevent publisher-first source-of-truth regression
         shell: bash

@@ -31,10 +31,6 @@ if (!function_exists('bitmomo_public_social_links')) {
     /**
      * Canonical public social destinations.
      *
-     * These are the official Bitmomo public channels. Filters are kept as a
-     * narrow configuration seam so a future handle migration does not require
-     * touching footer markup.
-     *
      * @return array<string,array{label:string,url:string}>
      */
     function bitmomo_public_social_links() {
@@ -68,8 +64,7 @@ if (!function_exists('bitmomo_public_social_links')) {
 if (!function_exists('bitmomo_market_research_taxonomy_slugs')) {
     /**
      * Explicit vocabulary that qualifies a Riset post as Market Research.
-     * Merely belonging to the broad Riset category is intentionally not enough:
-     * old general-AI/editorial content must not inherit institutional labels.
+     * Broad Riset membership alone is intentionally insufficient.
      *
      * @return string[]
      */
@@ -93,11 +88,8 @@ if (!function_exists('bitmomo_market_research_taxonomy_slugs')) {
 
 if (!function_exists('bitmomo_post_is_market_research')) {
     /**
-     * Market Research requires the Riset category, no AI Lab tag, and at
-     * least one explicit market taxonomy term.
-     *
-     * @param int $post_id Post ID, defaults to the current post.
-     * @return bool
+     * Market Research requires Riset + an explicit market taxonomy term and
+     * must not carry the AI Systems tag.
      */
     function bitmomo_post_is_market_research($post_id = 0) {
         $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
@@ -111,19 +103,31 @@ if (!function_exists('bitmomo_post_is_market_research')) {
     }
 }
 
-if (!function_exists('bitmomo_normalize_public_page_body_headings')) {
+if (!function_exists('bitmomo_post_is_ai_systems_research')) {
+    /** AI Systems Research requires both Riset and the explicit ai-lab tag. */
+    function bitmomo_post_is_ai_systems_research($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        return $post_id && has_category('riset', $post_id) && has_tag('ai-lab', $post_id);
+    }
+}
+
+if (!function_exists('bitmomo_post_research_classification')) {
     /**
-     * Keep the canonical ordinary-page title as the only H1.
+     * Canonical public classification. Never infer institutional research from
+     * a generic category label or category ordering.
      *
-     * Legacy WordPress/Elementor page bodies can retain their own H1 even
-     * after the child theme takes ownership of the outer page template. On
-     * ordinary pages, those body headings are content hierarchy and are
-     * therefore demoted to H2. Product shortcode surfaces bypass this helper
-     * and retain ownership of their own heading structure.
-     *
-     * @param string $html Rendered WordPress page-body HTML.
-     * @return string
+     * @return string market|ai-systems|unclassified
      */
+    function bitmomo_post_research_classification($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        if (bitmomo_post_is_market_research($post_id)) return 'market';
+        if (bitmomo_post_is_ai_systems_research($post_id)) return 'ai-systems';
+        return 'unclassified';
+    }
+}
+
+if (!function_exists('bitmomo_normalize_public_page_body_headings')) {
+    /** Keep the canonical ordinary-page title as the only H1. */
     function bitmomo_normalize_public_page_body_headings($html) {
         $source = (string) $html;
         $normalized = preg_replace(
@@ -135,39 +139,3 @@ if (!function_exists('bitmomo_normalize_public_page_body_headings')) {
         return is_string($normalized) ? $normalized : $source;
     }
 }
-
-/** Authority routes must never inherit old publisher-first SEO metadata. */
-if (!function_exists('bitmomo_authority_seo_title')) {
-    function bitmomo_authority_seo_title($title) {
-        if (is_page('tentang-kami')) {
-            return 'Tentang Bitmomo — Crypto Market & AI Systems Research';
-        }
-        if (is_category('riset')) {
-            return 'Bitmomo Research — Crypto Markets & AI Systems';
-        }
-        return $title;
-    }
-}
-add_filter('pre_get_document_title', 'bitmomo_authority_seo_title', 25);
-add_filter('rank_math/frontend/title', 'bitmomo_authority_seo_title', 25);
-
-if (!function_exists('bitmomo_authority_seo_description')) {
-    function bitmomo_authority_seo_description($description) {
-        if (is_page('tentang-kami')) {
-            return 'Bitmomo adalah research & intelligence platform untuk crypto markets dan AI systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
-        }
-        if (is_category('riset')) {
-            return 'Bitmomo Research menggabungkan crypto market research dan AI systems research untuk menghasilkan intelligence yang dapat ditelusuri, diuji, dan diperbaiki.';
-        }
-        return $description;
-    }
-}
-add_filter('rank_math/frontend/description', 'bitmomo_authority_seo_description', 25);
-
-if (!function_exists('bitmomo_render_authority_meta_fallback')) {
-    function bitmomo_render_authority_meta_fallback() {
-        if (defined('RANK_MATH_VERSION') || (!is_page('tentang-kami') && !is_category('riset'))) return;
-        echo '<meta name="description" content="' . esc_attr(bitmomo_authority_seo_description('')) . '" />' . "\n";
-    }
-}
-add_action('wp_head', 'bitmomo_render_authority_meta_fallback', 2);

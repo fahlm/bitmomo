@@ -4,21 +4,23 @@ on:
   pull_request:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-navigation-footer.mjs"
+      - "scripts/check-public-ui.mjs"
       - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
   push:
-    branches:
-      - main
-      - "chore/**"
-      - "feature/**"
-      - "fix/**"
+    branches: [main, "chore/**", "feature/**", "fix/**"]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-navigation-footer.mjs"
+      - "scripts/check-public-ui.mjs"
       - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
@@ -48,128 +50,68 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           expected=(
-            "functions.php"
-            "custom.css"
-            "front-page.php"
-            "page.php"
-            "single.php"
-            "home.php"
-            "archive.php"
-            "category.php"
-            "tag.php"
-            "search.php"
-            "404.php"
-            "index.php"
-            "header.php"
-            "footer.php"
-            "style.css"
-            "assets/css/home-opportunity.css"
-            "assets/css/public-surfaces.css"
-            "assets/css/navigation-footer.css"
-            "assets/css/public-readability.css"
-            "template-parts/archive-index.php"
+            "functions.php" "custom.css" "front-page.php" "page.php" "single.php" "home.php"
+            "archive.php" "category.php" "tag.php" "search.php" "404.php" "index.php"
+            "header.php" "footer.php" "style.css" "assets/css/home-opportunity.css"
+            "assets/css/public-surfaces.css" "assets/css/navigation-footer.css"
+            "assets/css/public-readability.css" "template-parts/archive-index.php"
           )
-
           for file in "${expected[@]}"; do
-            test -f "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Required public-surface file is missing"
-              exit 1
-            }
+            test -f "${theme_dir}/${file}" || { echo "::error file=${theme_dir}/${file}::Required public-surface file is missing"; exit 1; }
           done
+          test -f "docs/PUBLIC_SURFACE_CONTRACT.md" || { echo "::error::Public surface contract is missing"; exit 1; }
 
-          test -f "docs/PUBLIC_SURFACE_CONTRACT.md" || {
-            echo "::error file=docs/PUBLIC_SURFACE_CONTRACT.md::Public surface contract is missing"
-            exit 1
-          }
-
-      - name: Prevent legacy UI regressions
+      - name: Prevent legacy UI and semantic regressions
         shell: bash
         run: |
           set -euo pipefail
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           asset_trait="${theme_dir}/inc/trait-bitmomo-assets.php"
+          account="website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
 
-          if grep -q "Informasi AI &" "${theme_dir}/home.php"; then
-            echo "::error file=${theme_dir}/home.php::Legacy media positioning returned to the posts index"
-            exit 1
-          fi
-
-          if grep -q "big-stories" "${theme_dir}/tag.php"; then
-            echo "::error file=${theme_dir}/tag.php::Legacy Big Stories special-case returned"
-            exit 1
-          fi
+          ! grep -q "Informasi AI &" "${theme_dir}/home.php"
+          ! grep -q "big-stories" "${theme_dir}/tag.php"
 
           for file in home.php archive.php category.php tag.php search.php index.php; do
-            grep -q "template-parts/archive" "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Archive route must consume the shared archive surface"
-              exit 1
-            }
+            grep -q "template-parts/archive" "${theme_dir}/${file}" || { echo "::error file=${theme_dir}/${file}::Archive route must consume the shared archive surface"; exit 1; }
           done
 
-          grep -q "template-parts/whitelist" "${theme_dir}/front-page.php" || {
-            echo "::error file=${theme_dir}/front-page.php::Homepage must keep one canonical Pro conversion surface"
+          grep -q "template-parts/whitelist" "${theme_dir}/front-page.php"
+          ! grep -q "template-parts/pro.*teaser" "${theme_dir}/front-page.php"
+          ! grep -q "bm-howworks-future" "${theme_dir}/template-parts/how-it-works.php"
+          ! grep -q "public-surfaces.css" "${theme_dir}/header.php"
+          grep -q "public-surfaces.css" "${asset_trait}"
+          grep -q "navigation-footer.css" "${asset_trait}"
+          grep -q "home-conversion.css" "${asset_trait}"
+
+          test ! -f "${theme_dir}/template-parts/pro-teaser.php"
+          test ! -f "${theme_dir}/template-parts/why-bitmomo.php"
+
+          # Product page.php suppresses the ordinary page H1, so every product
+          # renderer must own a canonical route-level H1 itself.
+          grep -q "<h1 class=\"bm-pro-account__title\"" "${account}" || {
+            echo "::error file=${account}::Pro account product surface must render its own H1"
             exit 1
           }
 
-          if grep -q "template-parts/pro.*teaser" "${theme_dir}/front-page.php"; then
-            echo "::error file=${theme_dir}/front-page.php::Do not restore separate Pro teaser + whitelist duplication"
-            exit 1
-          fi
+          # Never let generic editorial content inherit institutional labels.
+          grep -q "bitmomo_post_research_classification" "${theme_dir}/single.php"
+          ! grep -q "Riset Terkait" "${theme_dir}/single.php"
 
-          if grep -q "bm-howworks-future" "${theme_dir}/template-parts/how-it-works.php"; then
-            echo "::error file=${theme_dir}/template-parts/how-it-works.php::Do not restore duplicated future-capability panel"
-            exit 1
-          fi
-
-          if grep -q "public-surfaces.css" "${theme_dir}/header.php"; then
-            echo "::error file=${theme_dir}/header.php::Public stylesheets must be enqueued, not hard-coded after wp_head"
-            exit 1
-          fi
-
-          grep -q "public-surfaces.css" "${asset_trait}" || {
-            echo "::error file=${asset_trait}::Canonical public-surface stylesheet is not enqueued"
-            exit 1
-          }
-
-          grep -q "navigation-footer.css" "${asset_trait}" || {
-            echo "::error file=${asset_trait}::Navigation/footer stylesheet is not enqueued"
-            exit 1
-          }
-
-          grep -q "home-conversion.css" "${asset_trait}" || {
-            echo "::error file=${asset_trait}::Homepage conversion stylesheet must remain enqueued after shared public styles"
-            exit 1
-          }
-
-          test ! -f "${theme_dir}/template-parts/pro-teaser.php" || {
-            echo "::error file=${theme_dir}/template-parts/pro-teaser.php::Obsolete standalone Pro teaser relic must not exist"
-            exit 1
-          }
-
-          test ! -f "${theme_dir}/template-parts/why-bitmomo.php" || {
-            echo "::error file=${theme_dir}/template-parts/why-bitmomo.php::Obsolete Why Bitmomo relic must not exist"
-            exit 1
-          }
-
-      - name: Lint theme PHP
+      - name: Lint theme and account PHP
         shell: bash
         run: |
           set -euo pipefail
-
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
+          test "${#php_files[@]}" -gt 0
+          for file in "${php_files[@]}"; do php -l "${file}"; done
+          php -l website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php
 
-          if [ "${#php_files[@]}" -eq 0 ]; then
-            echo "::error::No PHP files found in ${theme_dir}"
-            exit 1
-          fi
-
-          for file in "${php_files[@]}"; do
-            php -l "${file}"
-          done
+      - name: Syntax-check browser audit source
+        run: node --check scripts/check-public-ui.mjs
 
       - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
