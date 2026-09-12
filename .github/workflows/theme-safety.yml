@@ -56,6 +56,7 @@ jobs:
             "tag.php"
             "style.css"
             "assets/css/home-opportunity.css"
+            "assets/css/public-readability.css"
           )
 
           for file in "${expected[@]}"; do
@@ -82,7 +83,7 @@ jobs:
             php -l "${file}"
           done
 
-      - name: Enforce UI architecture contract
+      - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
 
       - name: Report CSS debt baseline
