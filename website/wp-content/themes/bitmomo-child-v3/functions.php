@@ -114,6 +114,24 @@ function bitmomo_research_filter_robots($robots) {
 }
 add_filter('wp_robots', 'bitmomo_research_filter_robots', 20);
 
+/** Generic legacy Riset is an archive state, not proof of institutional research. */
+function bitmomo_legacy_research_robots($robots) {
+    if (!is_single()) return $robots;
+
+    $post_id = (int) get_queried_object_id();
+    if (!$post_id || !has_category('riset', $post_id)) return $robots;
+
+    $classification = function_exists('bitmomo_post_research_classification')
+        ? bitmomo_post_research_classification($post_id)
+        : 'unclassified';
+    if ('unclassified' !== $classification) return $robots;
+
+    $robots['noindex'] = true;
+    $robots['follow'] = true;
+    return $robots;
+}
+add_filter('wp_robots', 'bitmomo_legacy_research_robots', 21);
+
 function bitmomo_research_rank_math_canonical($canonical) {
     if (!bitmomo_is_filtered_research_view()) return $canonical;
     $term = get_category_by_slug('riset');
