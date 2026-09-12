@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const themeDir = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
+const LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES = 50300;
 
 function fail(message) {
   console.error(`::error title=UI architecture contract::${message}`);
@@ -57,10 +58,16 @@ if (!opportunityCss.includes('.bm-hero-opportunity') || !opportunityCss.includes
 
 const customCssPath = path.join(themeDir, 'custom.css');
 const customCssBytes = fs.statSync(customCssPath).size;
-if (customCssBytes > 60000) {
-  fail(`custom.css exceeded the temporary 60 KB debt ceiling (${customCssBytes} bytes); split/refactor instead of adding overrides`);
+if (customCssBytes > LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES) {
+  fail(
+    `custom.css grew beyond the frozen legacy debt ceiling ` +
+    `(${customCssBytes} > ${LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES} bytes); ` +
+    'put new visual work in explicit component/page assets and reduce the monolith instead of adding overrides'
+  );
 }
 
 if (!process.exitCode) {
-  console.log(`PASS UI architecture contract; custom.css=${customCssBytes} bytes`);
+  console.log(
+    `PASS UI architecture contract; custom.css=${customCssBytes}/${LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES} bytes (frozen debt ceiling)`
+  );
 }
