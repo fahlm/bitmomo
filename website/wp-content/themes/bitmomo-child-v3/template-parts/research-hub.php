@@ -2,9 +2,9 @@
 /**
  * Canonical Bitmomo Research Hub.
  *
- * Uses the existing Riset category as the publication source of truth while
- * separating market research from AI Lab by the ai-lab tag. No article is
- * fabricated and no unpublished capability is presented as existing work.
+ * Riset remains the publication archive, but Market Research and AI Lab are
+ * explicit disciplines. Legacy/general Riset content is allowed in the full
+ * archive without being silently promoted into either discipline.
  *
  * @package Bitmomo
  */
@@ -14,6 +14,9 @@ $bm_riset_term = get_category_by_slug( 'riset' );
 $bm_riset_id   = $bm_riset_term ? (int) $bm_riset_term->term_id : 0;
 $bm_ai_tag     = get_term_by( 'slug', 'ai-lab', 'post_tag' );
 $bm_ai_tag_id  = ( $bm_ai_tag && ! is_wp_error( $bm_ai_tag ) ) ? (int) $bm_ai_tag->term_id : 0;
+$bm_market_slugs = function_exists( 'bitmomo_market_research_taxonomy_slugs' )
+    ? bitmomo_market_research_taxonomy_slugs()
+    : array( 'bitcoin', 'btc', 'makro', 'macro', 'market-structure', 'derivatives', 'funding-rate', 'etf', 'liquidity', 'fundamental' );
 
 $bm_featured_posts = $bm_riset_id ? get_posts( array(
     'post_type'              => 'post',
@@ -33,15 +36,34 @@ $bm_market_args = array(
     'post_type'              => 'post',
     'post_status'            => 'publish',
     'posts_per_page'         => 4,
-    'cat'                    => $bm_riset_id,
     'orderby'                => 'date',
     'order'                  => 'DESC',
     'ignore_sticky_posts'    => true,
     'no_found_rows'          => true,
     'update_post_meta_cache' => false,
     'update_post_term_cache' => true,
+    'tax_query'              => array(
+        'relation' => 'AND',
+        array(
+            'taxonomy' => 'category',
+            'field'    => 'term_id',
+            'terms'    => array( $bm_riset_id ),
+        ),
+        array(
+            'relation' => 'OR',
+            array(
+                'taxonomy' => 'category',
+                'field'    => 'slug',
+                'terms'    => $bm_market_slugs,
+            ),
+            array(
+                'taxonomy' => 'post_tag',
+                'field'    => 'slug',
+                'terms'    => $bm_market_slugs,
+            ),
+        ),
+    ),
 );
-if ( $bm_ai_tag_id ) $bm_market_args['tag__not_in'] = array( $bm_ai_tag_id );
 if ( $bm_featured ) $bm_market_args['post__not_in'] = array( (int) $bm_featured->ID );
 $bm_market_posts = $bm_riset_id ? get_posts( $bm_market_args ) : array();
 
@@ -90,14 +112,15 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
     </div>
 
     <?php if ( $bm_featured ) :
-      $bm_featured_categories = get_the_category( $bm_featured->ID );
-      $bm_featured_label = $bm_featured_categories ? $bm_featured_categories[0]->name : __( 'Research', 'bitmomo' );
+      $bm_featured_is_ai = has_tag( 'ai-lab', $bm_featured->ID );
+      $bm_featured_is_market = function_exists( 'bitmomo_post_is_market_research' ) && bitmomo_post_is_market_research( $bm_featured->ID );
+      $bm_featured_label = $bm_featured_is_ai ? 'AI LAB' : ( $bm_featured_is_market ? 'MARKET RESEARCH' : 'BITMOMO RESEARCH' );
       $bm_featured_excerpt = wp_trim_words( get_the_excerpt( $bm_featured ), 34, '…' );
     ?>
       <section class="bm-research-featured" aria-labelledby="bm-featured-research-title">
         <header class="bm-research-section-head">
-          <div><span class="bm-eyebrow">FEATURED RESEARCH</span><h2 id="bm-featured-research-title">Riset unggulan terbaru</h2></div>
-          <p>Analisis yang kami anggap paling relevan untuk memahami perubahan pasar atau sistem intelligence saat ini.</p>
+          <div><span class="bm-eyebrow">LATEST RESEARCH</span><h2 id="bm-featured-research-title">Publikasi terbaru</h2></div>
+          <p>Publikasi terbaru dalam arsip Bitmomo Research. Klasifikasi disiplin ditampilkan secara eksplisit ketika taxonomy-nya memenuhi standar.</p>
         </header>
         <article class="bm-research-featured__card">
           <a class="bm-research-featured__media" href="<?php echo esc_url( get_permalink( $bm_featured ) ); ?>" aria-label="<?php echo esc_attr( get_the_title( $bm_featured ) ); ?>">
@@ -134,7 +157,7 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
       <section class="bm-research-stream" aria-labelledby="bm-market-research-stream">
         <header class="bm-research-stream__head">
           <h2 id="bm-market-research-stream">Market Research</h2>
-          <p>Crypto markets, macro, structure, positioning, volatility, dan fundamentals.</p>
+          <p>Hanya publikasi Riset dengan taxonomy market yang eksplisit: Bitcoin, macro, structure, derivatives, liquidity, ETF, funding, atau fundamentals.</p>
         </header>
         <?php if ( $bm_market_posts ) : ?>
           <ol class="bm-research-stream__list">
@@ -146,7 +169,7 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
               </li>
             <?php endforeach; ?>
           </ol>
-        <?php else : ?><p class="bm-research-stream__empty">Belum ada publikasi Market Research yang dapat ditampilkan.</p><?php endif; ?>
+        <?php else : ?><p class="bm-research-stream__empty">Belum ada publikasi yang memenuhi taxonomy Market Research. Artikel legacy tetap tersedia di arsip tanpa dilabeli sebagai market research.</p><?php endif; ?>
       </section>
 
       <section class="bm-research-stream" aria-labelledby="bm-ai-research-stream">
@@ -164,21 +187,22 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
               </li>
             <?php endforeach; ?>
           </ol>
-        <?php else : ?><p class="bm-research-stream__empty">Publikasi AI Lab akan muncul di sini setelah artikel dengan tag <strong>ai-lab</strong> diterbitkan.</p><?php endif; ?>
+        <?php else : ?><p class="bm-research-stream__empty">Publikasi AI Lab akan muncul di sini setelah artikel Riset dengan tag <strong>ai-lab</strong> diterbitkan.</p><?php endif; ?>
       </section>
     </div>
 
     <section class="bm-research-archive" aria-labelledby="bm-all-research-title">
       <header class="bm-research-section-head">
         <div><span class="bm-eyebrow">ARCHIVE</span><h2 id="bm-all-research-title">Seluruh publikasi</h2></div>
-        <p>Arsip kronologis seluruh artikel dalam kategori Riset.</p>
+        <p>Arsip kronologis seluruh artikel kategori Riset, termasuk materi legacy yang belum diklasifikasikan ke disiplin baru.</p>
       </header>
 
       <?php if ( have_posts() ) : ?>
         <div class="bm-research-grid">
           <?php while ( have_posts() ) : the_post();
-            $bm_card_categories = get_the_category();
-            $bm_card_label = $bm_card_categories ? $bm_card_categories[0]->name : __( 'Research', 'bitmomo' );
+            $bm_card_is_ai = has_tag( 'ai-lab' );
+            $bm_card_is_market = function_exists( 'bitmomo_post_is_market_research' ) && bitmomo_post_is_market_research( get_the_ID() );
+            $bm_card_label = $bm_card_is_ai ? 'AI LAB' : ( $bm_card_is_market ? 'MARKET RESEARCH' : 'RESEARCH ARCHIVE' );
           ?>
             <article <?php post_class( 'bm-research-card' ); ?>>
               <a class="bm-research-card__art" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
@@ -203,8 +227,9 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
 </section>
 <?php
 unset(
-  $bm_riset_term, $bm_riset_id, $bm_ai_tag, $bm_ai_tag_id, $bm_featured_posts, $bm_featured,
-  $bm_market_args, $bm_market_posts, $bm_ai_posts, $bm_featured_categories, $bm_featured_label,
-  $bm_featured_excerpt, $bm_post, $bm_card_categories, $bm_card_label
+  $bm_riset_term, $bm_riset_id, $bm_ai_tag, $bm_ai_tag_id, $bm_market_slugs,
+  $bm_featured_posts, $bm_featured, $bm_market_args, $bm_market_posts, $bm_ai_posts,
+  $bm_featured_is_ai, $bm_featured_is_market, $bm_featured_label, $bm_featured_excerpt,
+  $bm_post, $bm_card_is_ai, $bm_card_is_market, $bm_card_label
 );
 ?>
