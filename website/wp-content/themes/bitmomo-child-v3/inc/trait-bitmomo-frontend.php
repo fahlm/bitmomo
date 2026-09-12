@@ -9,30 +9,14 @@ trait Bitmomo_Frontend_Trait {
         echo "<style>img:not([src]),img[src=''],img[src='#']{display:none!important}</style>\n";
     }
 
-    /* ---------- Modal ---------- */
+    /* ---------- Legacy modal compatibility ---------- */
     public function render_mailpoet_modal() {
-        if (is_admin() || !shortcode_exists('mailpoet_form')) return;
-        if (!$this->should_load_modal()) return;
-
-        // Launch-critical product surfaces have one primary job: help visitors
-        // understand BTC Intelligence / Pro and move toward the founding
-        // whitelist. The legacy publisher-style newsletter modal is suppressed
-        // on the homepage and dedicated product pages so it cannot compete with
-        // the canonical conversion and retention paths.
-        if (is_front_page() || is_page(['pro', 'btc-intelligence'])) return;
-
-        $form_id = BM_MAILPOET_FORM_ID; ?>
-        <span id="subscribe" hidden></span><span id="newsletter" hidden></span>
-        <div id="bm-subscribe-modal" aria-hidden="true">
-            <button class="bm-subscribe-backdrop" type="button" data-close="1" aria-label="<?php echo esc_attr__('Tutup','bitmomo'); ?>"></button>
-            <div class="bm-subscribe-dialog" role="dialog" aria-modal="true" aria-labelledby="bm-subscribe-title" tabindex="-1">
-                <button class="bm-subscribe-close" type="button" data-close="1" aria-label="<?php echo esc_attr__('Tutup','bitmomo'); ?>">×</button>
-                <h3 class="bm-subscribe-title" id="bm-subscribe-title"><?php echo esc_html__('Gabung Newsletter Bitmomo','bitmomo'); ?></h3>
-                <div class="bm-subscribe-form"><?php echo do_shortcode("[mailpoet_form id=\"{$form_id}\"]"); ?></div>
-                <p class="bm-subscribe-note"><?php echo esc_html__('Kami anti spam. Bisa unsubscribe kapan saja.','bitmomo'); ?></p>
-            </div>
-        </div>
-        <?php
+        // Newsletter subscription now has one permanent, compact home in the
+        // global footer. Keep this method as a no-op because older boot code
+        // still calls it at wp_footer; emitting modal markup here would create
+        // a second subscription surface and compete with the primary product
+        // conversion paths.
+        return;
     }
 
     /* ---------- Debug ---------- */
