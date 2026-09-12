@@ -44,53 +44,78 @@ jobs:
           set -euo pipefail
           echo "run_audit=true" >> "${GITHUB_OUTPUT}"
 
-          # Scheduled runs are production monitors: always audit the runtime
-          # that is actually live. Manual runs may intentionally target staging
-          # or another candidate URL, so they also always run.
+          # Scheduled runs monitor whatever is actually live. Manual runs may
+          # intentionally target staging, so both always audit. Push runs must
+          # first prove that production contains the exact public runtime bytes
+          # represented by this checkout.
           if [[ "${EVENT_NAME}" != "push" ]]; then
             echo "Browser audit enabled for ${EVENT_NAME}."
             exit 0
           fi
 
-          source_version="$(php -r '
-            $source = file_get_contents("website/wp-content/themes/bitmomo-child-v3/functions.php");
-            if (!preg_match("/define\\(\\x27BM_VERSION\\x27,\\s*\\x27([^\\x27]+)\\x27\\)/", $source, $m)) { exit(2); }
-            echo $m[1];
-          ')"
+          source_fingerprint="$(python3 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
 
-          health="$(mktemp)"
+          root = Path('website/wp-content/themes/bitmomo-child-v3')
+          contract = json.loads((root / 'data/runtime-fingerprint.json').read_text(encoding='utf-8'))
+          files = sorted(set(str(item).lstrip('/').replace('\\\\', '/') for item in contract.get('files', []) if str(item).strip()))
+          if not files:
+              raise SystemExit('runtime fingerprint contract has no files')
+
+          digest = hashlib.sha256()
+          for relative in files:
+              if '..' in Path(relative).parts:
+                  raise SystemExit(f'unsafe fingerprint path: {relative}')
+              path = root / relative
+              if not path.is_file():
+                  raise SystemExit(f'missing fingerprint source file: {relative}')
+              file_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+              digest.update(relative.encode('utf-8'))
+              digest.update(b'\0')
+              digest.update(file_hash.encode('ascii'))
+              digest.update(b'\0')
+          print(digest.hexdigest())
+          PY
+          )"
+
+          runtime_payload="$(mktemp)"
           code="$(curl --location --silent --show-error --max-time 20 \
-            --output "${health}" --write-out '%{http_code}' \
-            'https://bitmomo.id/wp-admin/admin-ajax.php?action=bitmomo_health')"
+            --output "${runtime_payload}" --write-out '%{http_code}' \
+            'https://bitmomo.id/wp-admin/admin-ajax.php?action=bitmomo_runtime_fingerprint')"
 
           if [[ "${code}" != "200" ]]; then
-            echo "Production health endpoint returned HTTP ${code}; run the browser audit so availability/UI failures remain visible."
+            echo "run_audit=false" >> "${GITHUB_OUTPUT}"
+            echo "SKIP push browser audit: production has not proven the runtime-fingerprint contract (HTTP ${code})."
+            echo "Manual staging audits and scheduled production monitoring remain enabled."
             exit 0
           fi
 
-          runtime_version="$(python3 - "${health}" <<'PY'
+          runtime_fingerprint="$(python3 - "${runtime_payload}" <<'PY'
           import json
           import sys
           try:
               payload = json.load(open(sys.argv[1], encoding='utf-8'))
-              print(payload.get('version', ''))
+              print(payload.get('data', {}).get('fingerprint', '') if payload.get('success') else '')
           except Exception:
               print('')
           PY
           )"
 
-          if [[ -z "${runtime_version}" ]]; then
-            echo "Production health response had no version; run the browser audit rather than silently skipping."
+          if [[ -z "${runtime_fingerprint}" ]]; then
+            echo "run_audit=false" >> "${GITHUB_OUTPUT}"
+            echo "SKIP push browser audit: production returned no verifiable runtime fingerprint."
             exit 0
           fi
 
-          echo "Source theme version: ${source_version}"
-          echo "Production theme version: ${runtime_version}"
+          echo "Source public-runtime fingerprint: ${source_fingerprint}"
+          echo "Production public-runtime fingerprint: ${runtime_fingerprint}"
 
-          if [[ "${source_version}" != "${runtime_version}" ]]; then
+          if [[ "${source_fingerprint}" != "${runtime_fingerprint}" ]]; then
             echo "run_audit=false" >> "${GITHUB_OUTPUT}"
-            echo "SKIP push browser audit: source ${source_version} is not yet deployed to production ${runtime_version}."
-            echo "Scheduled production monitoring remains enabled and manual staging audits remain available."
+            echo "SKIP push browser audit: source bytes are not yet the bytes deployed to production."
+            echo "Manual staging audits and scheduled production monitoring remain enabled."
           fi
 
       - name: Install browser audit dependencies
