@@ -65,9 +65,9 @@ add_filter('pre_get_document_title', 'bitmomo_public_seo_title', 20);
 add_filter('rank_math/frontend/title', 'bitmomo_public_seo_title', 20);
 
 function bitmomo_public_seo_description($description) {
-    if (is_front_page()) return 'Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan Decision Ledger untuk melihat bagaimana pembacaan sebelumnya dievaluasi.';
+    if (is_front_page()) return 'Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan riwayat evaluasi agar pembacaan sebelumnya dapat diuji.';
     if (is_page('pro')) return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan pandangan pasar perlu berubah.';
-    if (is_page('btc-intelligence')) return 'Kondisi BTC saat ini, perubahan penting, konteks 30 hari, Decision Ledger, dan bukti historis Bitmomo Pro.';
+    if (is_page('btc-intelligence')) return 'Lihat kondisi BTC saat ini, perubahan penting, konteks 30 hari, riwayat evaluasi, dan bukti historis Bitmomo Pro.';
     if (is_page('tentang-kami')) return 'Bitmomo adalah research & intelligence platform untuk digital-asset markets dan intelligence systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
     if (is_category('riset')) return 'Bitmomo Research menyajikan market research dan intelligence systems research yang berfokus pada evidence, thesis, provenance, dan evaluation.';
 
