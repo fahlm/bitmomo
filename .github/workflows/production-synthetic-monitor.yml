@@ -82,8 +82,8 @@ jobs:
             echo "PASS ${url}"
           }
 
-          check_page "https://bitmomo.id/" "BTC Intelligence"
-          check_page "https://bitmomo.id/btc-intelligence/" "Pahami BTC dalam konteks."
+          check_page "https://bitmomo.id/" "Pahami kondisi BTC tanpa membaca semuanya sendiri."
+          check_page "https://bitmomo.id/btc-intelligence/" "Pahami kondisi BTC sekarang"
           check_page "https://bitmomo.id/pro/" "FOUNDING MEMBERSHIP"
           check_page "https://bitmomo.id/help/" "Help Center"
           check_page "https://bitmomo.id/category/riset/" "Riset"
@@ -91,18 +91,17 @@ jobs:
           check_page "https://bitmomo.id/kebijakan-privasi/" "Kebijakan Privasi"
           check_page "https://bitmomo.id/disclaimer/" "Disclaimer"
 
-      - name: Verify BTC Intelligence provenance contract
+      - name: Verify BTC Intelligence public trust metadata
         shell: bash
         run: |
           set -euo pipefail
           body="$(mktemp)"
           code="$(curl --location --silent --show-error --max-time 20 --output "${body}" --write-out '%{http_code}' 'https://bitmomo.id/btc-intelligence/')"
           test "${code}" = "200"
-          grep -Fq 'SOURCE' "${body}"
-          grep -Fq 'AS OF' "${body}"
+          grep -Fq 'Sumber data:' "${body}"
           grep -Fq 'WIB' "${body}"
           rm -f "${body}"
-          echo 'PASS provenance SOURCE / AS OF / WIB'
+          echo 'PASS concise source + WIB trust metadata'
 
       - name: Verify canonical snapshot consistency across public surfaces
         if: github.event_name != 'pull_request'
@@ -125,10 +124,11 @@ jobs:
           PY
           )"
 
-          # The contract was introduced in theme v4.3. Do not create a false
-          # alarm during the merge-to-deploy window while production is older.
-          if [[ "$(printf '%s\n' '4.3' "${deployed_version}" | sort -V | head -n1)" != '4.3' ]]; then
-            echo "SKIP snapshot consistency contract: production theme ${deployed_version} < 4.3"
+          # Schema 2 deliberately narrows the public contract to facts visible
+          # on the launch surfaces. Skip during merge-to-deploy while production
+          # is still running the older v4.3 schema.
+          if [[ "$(printf '%s\n' '4.4' "${deployed_version}" | sort -V | head -n1)" != '4.4' ]]; then
+            echo "SKIP snapshot consistency contract: production theme ${deployed_version} < 4.4"
             exit 0
           fi
 
@@ -177,16 +177,15 @@ jobs:
           if not isinstance(live, dict):
               raise SystemExit('canonical snapshot endpoint returned an invalid payload')
 
-          fields = (
-              'schema', 'available', 'status', 'as_of', 'market_state',
-              'directional_bias', 'direction_strength', 'confidence',
-              'opportunity_status', 'opportunity_state',
-          )
+          fields = ('schema', 'available', 'status', 'as_of', 'directional_bias', 'confidence')
 
           def project(value):
               return {field: value.get(field) for field in fields}
 
           expected = project(live)
+          if expected.get('schema') != 2:
+              raise SystemExit(f'unexpected public snapshot schema: {expected.get("schema")}')
+
           comparisons = {'homepage': project(home), 'btc-intelligence': project(btc)}
           failures = []
           for label, observed in comparisons.items():
@@ -199,7 +198,7 @@ jobs:
                   print(f'{label} contract:      ', json.dumps(observed, sort_keys=True))
               raise SystemExit('public intelligence surfaces disagree with the canonical live adapter')
 
-          print('PASS homepage == btc-intelligence == canonical live snapshot')
+          print('PASS homepage == btc-intelligence == canonical narrow public snapshot')
           PY
 
       - name: Diagnose public Binance USD-M reachability
