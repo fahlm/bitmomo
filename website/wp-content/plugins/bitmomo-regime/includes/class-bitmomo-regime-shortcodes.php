@@ -56,8 +56,8 @@ class Bitmomo_Regime_Shortcodes {
 	public function render_history( $atts ) {
 		$atts = shortcode_atts( array( 'days' => Bitmomo_Regime_History::DEFAULT_DAYS ), $atts, 'bitmomo_market_regime_history' );
 		$requested = (int) $atts['days'];
-		$records = Bitmomo_Regime_State_Store::instance()->get_recent( Bitmomo_Regime_History::TARGET_DAYS );
-		$full = Bitmomo_Regime_History::for_frontend( $records, $requested );
+		$requested = in_array( $requested, Bitmomo_Regime_History::ALLOWED_DAYS, true ) ? $requested : Bitmomo_Regime_History::DEFAULT_DAYS;
+		$full = $this->public_history( $requested );
 		$days = isset( $full['days'] ) && is_array( $full['days'] ) ? $full['days'] : array();
 		ob_start(); ?>
 		<div class="bmreg-history">
@@ -83,6 +83,37 @@ class Bitmomo_Regime_Shortcodes {
 			<?php endif; ?>
 		</div>
 		<?php return $this->style() . $this->history_script() . trim( (string) ob_get_clean() );
+	}
+
+	/** Use the same public-safe history contract as the homepage whenever available. */
+	private function public_history( $requested ) {
+		if ( class_exists( 'Bitmomo_Public_Intelligence_Adapter' ) && method_exists( 'Bitmomo_Public_Intelligence_Adapter', 'history' ) ) {
+			$history = Bitmomo_Public_Intelligence_Adapter::history();
+			$raw_days = is_array( $history['days'] ?? null ) ? $history['days'] : array();
+			$slice = count( $raw_days ) > $requested ? array_slice( $raw_days, -$requested ) : $raw_days;
+			$days = array();
+			foreach ( $slice as $day ) {
+				$state = sanitize_key( (string) ( $day['market_state'] ?? '' ) );
+				$bias = sanitize_key( (string) ( $day['directional_bias'] ?? '' ) );
+				if ( '' === $state || ! in_array( $bias, array( 'bullish', 'neutral', 'bearish' ), true ) ) continue;
+				$days[] = array(
+					'date' => (string) ( $day['date'] ?? '' ),
+					'regime' => $state,
+					'regime_label_id' => Bitmomo_Regime_Taxonomy::regime_label_id( $state ),
+					'directional_bias' => $bias,
+					'regime_confidence' => max( 0, min( 100, (int) ( $day['market_state_certainty'] ?? 0 ) ) ),
+				);
+			}
+			return array(
+				'requested_days' => $requested,
+				'target_days' => (int) ( $history['target_days'] ?? Bitmomo_Regime_History::TARGET_DAYS ),
+				'available_days' => (int) ( $history['available_days'] ?? count( $raw_days ) ),
+				'days' => $days,
+			);
+		}
+
+		$records = Bitmomo_Regime_State_Store::instance()->get_recent( Bitmomo_Regime_History::TARGET_DAYS * 2 );
+		return Bitmomo_Regime_History::for_frontend( $records, $requested );
 	}
 
 	private function history_script() {
