@@ -15,7 +15,7 @@ get_header();
   if ( 'market' === $bm_classification ) {
     $bm_article_label = __( 'MARKET RESEARCH', 'bitmomo' );
   } elseif ( 'ai-systems' === $bm_classification ) {
-    $bm_article_label = __( 'AI SYSTEMS RESEARCH', 'bitmomo' );
+    $bm_article_label = __( 'INTELLIGENCE SYSTEMS RESEARCH', 'bitmomo' );
   } else {
     $bm_article_label = $bm_cats ? $bm_cats[0]->name : __( 'BITMOMO', 'bitmomo' );
   }
@@ -83,7 +83,7 @@ get_header();
     if ( $bm_riset && $bm_ai_tag && ! is_wp_error( $bm_ai_tag ) ) {
       $bm_related_args['cat'] = (int) $bm_riset->term_id;
       $bm_related_args['tag__in'] = array( (int) $bm_ai_tag->term_id );
-      $bm_related_title = __( 'AI Systems Research Terkait', 'bitmomo' );
+      $bm_related_title = __( 'Intelligence Systems Research Terkait', 'bitmomo' );
     } else {
       $bm_related_args['post__in'] = array( 0 );
     }
