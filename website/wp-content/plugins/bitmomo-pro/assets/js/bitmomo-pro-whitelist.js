@@ -162,26 +162,20 @@
 			setupWhatsappStep(postId, recordToken, hasWhatsapp);
 		}
 
-		var query = new URLSearchParams(window.location.search);
-		var deepPost = query.get('bm_wl_post');
-		var deepToken = query.get('bm_wl_token');
-		if (deepPost && deepToken) {
-			showSuccess(false, { post_id: deepPost, record_token: deepToken, has_whatsapp: false });
-			window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
-		} else {
-			emitTelemetry('whitelist_view');
-		}
+		emitTelemetry('whitelist_view');
 
 		form.addEventListener('submit', function (event) {
 			event.preventDefault();
 			hideError();
 
+			var i18n = config.i18n || {};
+
 			if (!config || !config.ajaxUrl || !config.action || !config.nonce) {
+				showError(i18n.generic_error || 'Something went wrong.');
 				emitTelemetry('whitelist_error', { error_code: 'configuration' });
 				return;
 			}
 
-			var i18n = config.i18n || {};
 			var emailField = form.querySelector('input[name="email"]');
 			var consentField = form.querySelector('input[name="consent"]');
 
@@ -245,11 +239,13 @@
 		waSubmitBtn.addEventListener('click', function () {
 			hideWhatsappError();
 
+			var i18n = config.i18n || {};
+
 			if (!config || !config.ajaxUrl || !config.whatsappAction || !config.whatsappNonce) {
+				showWhatsappError(i18n.generic_error || 'Something went wrong.');
 				return;
 			}
 
-			var i18n = config.i18n || {};
 			var postId = waStep.getAttribute('data-post-id');
 			var recordToken = waStep.getAttribute('data-record-token');
 			var rawNumber = waNumberInput ? waNumberInput.value : '';
