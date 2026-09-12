@@ -11,15 +11,6 @@
   <meta charset="<?php bloginfo('charset'); ?>">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <?php wp_head(); ?>
-  <?php
-  $bm_public_css_path = get_stylesheet_directory() . '/assets/css/public-surfaces.css';
-  $bm_public_css_version = file_exists( $bm_public_css_path ) ? (string) filemtime( $bm_public_css_path ) : BM_VERSION;
-  $bm_nav_footer_css_path = get_stylesheet_directory() . '/assets/css/navigation-footer.css';
-  $bm_nav_footer_css_version = file_exists( $bm_nav_footer_css_path ) ? (string) filemtime( $bm_nav_footer_css_path ) : BM_VERSION;
-  ?>
-  <link rel="stylesheet" id="bitmomo-public-surfaces-css" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/css/public-surfaces.css?ver=' . rawurlencode( $bm_public_css_version ) ); ?>">
-  <link rel="stylesheet" id="bitmomo-navigation-footer-css" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/css/navigation-footer.css?ver=' . rawurlencode( $bm_nav_footer_css_version ) ); ?>">
-  <?php unset( $bm_public_css_path, $bm_public_css_version, $bm_nav_footer_css_path, $bm_nav_footer_css_version ); ?>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
