@@ -60,13 +60,16 @@ scorecard_check('rolling metric is capped at 30', 30 === $large_score['versions'
 scorecard_check('adequate sample uses four calibration buckets', 4 === count($large_score['versions'][$v1_key]['confidence_calibration']));
 
 $ranges = [
-    ['status' => 'evaluated', 'frozen_original' => true, 'range_low' => 95, 'range_high' => 105, 'reference_price' => 100, 'range_hit' => 'yes', 'breached_low' => 'no', 'breached_high' => 'yes'],
-    ['status' => 'evaluated', 'frozen_original' => false, 'range_low' => 95, 'range_high' => 105, 'reference_price' => 100, 'range_hit' => 'yes'],
-    ['status' => 'evaluated', 'frozen_original' => true, 'range_low' => 0, 'range_high' => 105, 'reference_price' => 100, 'range_hit' => 'yes'],
+    ['status' => 'evaluated', 'frozen_original' => true, 'range_methodology' => 'range-model-v1', 'range_low' => 95, 'range_high' => 105, 'reference_price' => 100, 'range_hit' => 'yes', 'breached_low' => 'no', 'breached_high' => 'yes'],
+    ['status' => 'evaluated', 'frozen_original' => true, 'range_methodology' => '', 'range_low' => 95, 'range_high' => 105, 'reference_price' => 100, 'range_hit' => 'yes'],
+    ['status' => 'evaluated', 'frozen_original' => false, 'range_methodology' => 'range-model-v1', 'range_low' => 95, 'range_high' => 105, 'reference_price' => 100, 'range_hit' => 'yes'],
+    ['status' => 'evaluated', 'frozen_original' => true, 'range_methodology' => 'range-model-v1', 'range_low' => 0, 'range_high' => 105, 'reference_price' => 100, 'range_hit' => 'yes'],
 ];
-$range_score = Bitmomo_AI_Scorecard::evaluate([], $ranges)['expected_range']['versions']['unknown-model'];
-scorecard_check('only genuinely frozen valid ranges are evaluated', 1 === $range_score['n']);
-scorecard_check('range hit is measured', 100.0 === $range_score['range_hit_pct']);
+$range_package = Bitmomo_AI_Scorecard::evaluate([], $ranges)['expected_range'];
+$range_score = $range_package['versions']['unknown-model | range-model-v1'];
+scorecard_check('Expected Range policy requires frozen versioned methodology', 'FROZEN_VERSIONED_ORIGINAL_ONLY' === $range_package['policy']);
+scorecard_check('unversioned/manual ranges are excluded from public-comparable evaluation', 1 === $range_score['n']);
+scorecard_check('range hit is measured only after methodology eligibility', 100.0 === $range_score['range_hit_pct']);
 scorecard_check('low and high breaches are separate', 0.0 === $range_score['low_breach_pct'] && 100.0 === $range_score['high_breach_pct']);
 scorecard_check('range width is normalized to reference price', 10.0 === $range_score['average_width_pct']);
 
