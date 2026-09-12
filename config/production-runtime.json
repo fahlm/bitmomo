@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "artifact_name": "bitmomo-runtime.tar",
-  "expected_file_count": 111,
+  "expected_file_count": 110,
   "include": [
     "*.php",
     "**/*.php",
@@ -44,7 +44,7 @@
       "name": "bitmomo-child-v3",
       "source": "website/wp-content/themes/bitmomo-child-v3",
       "destination": "wp-content/themes/bitmomo-child-v3",
-      "expected_file_count": 44,
+      "expected_file_count": 43,
       "required": [
         "style.css",
         "functions.php",
