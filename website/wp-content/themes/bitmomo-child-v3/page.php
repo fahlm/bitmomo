@@ -2,9 +2,9 @@
 /**
  * Canonical public page template.
  *
- * Prevents ordinary WordPress pages from silently falling back to the Hello
- * Elementor parent theme. Product shortcodes keep their own H1/layout while
- * About/legal/editorial pages use the shared Bitmomo public surface.
+ * Product shortcodes own their own H1/layout. Ordinary pages use the shared
+ * Bitmomo public surface. The About page is intentionally code-owned so stale
+ * WordPress/Elementor copy cannot silently reposition Bitmomo as a media site.
  *
  * @package Bitmomo
  */
@@ -30,6 +30,7 @@ get_header();
       break;
     }
   }
+  $bm_is_about = is_page( 'tentang-kami' );
   ?>
 
   <?php if ( $bm_is_product_surface ) : ?>
@@ -37,28 +38,33 @@ get_header();
       <?php the_content(); ?>
     </article>
   <?php else : ?>
-    <?php
-    $bm_rendered_content = apply_filters( 'the_content', $bm_content );
-    $bm_rendered_content = bitmomo_normalize_public_page_body_headings( $bm_rendered_content );
-    ?>
     <article <?php post_class( 'bm-public-page' ); ?>>
       <div class="bm-public-page__inner">
         <header class="bm-public-head bm-public-head--page">
-          <p class="bm-public-eyebrow"><?php esc_html_e( 'BITMOMO', 'bitmomo' ); ?></p>
+          <p class="bm-public-eyebrow"><?php echo esc_html( $bm_is_about ? 'BITMOMO · RESEARCH & INTELLIGENCE' : 'BITMOMO' ); ?></p>
           <h1 class="bm-public-title"><?php the_title(); ?></h1>
         </header>
-        <div class="bm-public-body">
+
+        <?php if ( $bm_is_about ) : ?>
+          <?php get_template_part( 'template-parts/about', 'authority' ); ?>
+        <?php else : ?>
           <?php
-          // WordPress post content is rendered through the canonical the_content filter stack above.
-          // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-          echo $bm_rendered_content;
+          $bm_rendered_content = apply_filters( 'the_content', $bm_content );
+          $bm_rendered_content = bitmomo_normalize_public_page_body_headings( $bm_rendered_content );
           ?>
-        </div>
+          <div class="bm-public-body">
+            <?php
+            // WordPress post content is rendered through the canonical filter stack above.
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $bm_rendered_content;
+            ?>
+          </div>
+        <?php endif; ?>
       </div>
     </article>
   <?php endif; ?>
 
-  <?php unset( $bm_content, $bm_rendered_content, $bm_product_shortcodes, $bm_shortcode, $bm_is_product_surface ); ?>
+  <?php unset( $bm_content, $bm_rendered_content, $bm_product_shortcodes, $bm_shortcode, $bm_is_product_surface, $bm_is_about ); ?>
 <?php endwhile; endif; ?>
 </main>
 <?php get_footer(); ?>
