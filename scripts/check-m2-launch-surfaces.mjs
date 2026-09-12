@@ -76,7 +76,8 @@ check(
 );
 check(
 	'Public BTC Intelligence renders provenance from the adapter without hardcoded providers',
-	/\$snapshot\['provenance'\]/.test(btcIntelligencePlugin)
+	/surface_context\(\)/.test(btcIntelligencePlugin)
+		&& /\$surface\['provenance'\]/.test(btcIntelligencePlugin)
 		&& /bm-bi__snapshot-provenance/.test(btcIntelligencePlugin)
 		&& /SOURCE/.test(btcIntelligencePlugin)
 		&& /AS OF/.test(btcIntelligencePlugin)

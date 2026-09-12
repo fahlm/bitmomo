@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo BTC Intelligence
  * Plugin URI: https://bitmomo.id
  * Description: The public /btc-intelligence/ proof-and-methodology page — how Bitmomo reads BTC, and its track record. Pure presentation/consumption layer: reads the public intelligence adapter and regime-history presentation, never recalculates engine logic or exposes protected Bitmomo Pro values.
- * Version: 0.1.1
+ * Version: 0.1.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.1.1' );
+define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.1.2' );
 define( 'BITMOMO_BTC_INTELLIGENCE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_BTC_INTELLIGENCE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -54,9 +54,12 @@ final class Bitmomo_Btc_Opportunity_UI {
 	private static function render_panel() {
 		if ( ! class_exists( 'Bitmomo_Public_Intelligence_Adapter' ) ) return '';
 		$snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
-		if ( ! is_array( $snapshot ) ) return '';
+		$surface = method_exists( 'Bitmomo_Public_Intelligence_Adapter', 'surface_context' )
+			? Bitmomo_Public_Intelligence_Adapter::surface_context()
+			: array();
+		if ( ! is_array( $surface ) ) $surface = array();
 
-		$opportunity = is_array( $snapshot['opportunity'] ?? null ) ? $snapshot['opportunity'] : array();
+		$opportunity = is_array( $surface['opportunity'] ?? null ) ? $surface['opportunity'] : array();
 		$available = 'available' === sanitize_key( (string) ( $opportunity['status'] ?? '' ) );
 		$state = $available ? sanitize_key( (string) ( $opportunity['state'] ?? '' ) ) : '';
 		$labels = array( 'high' => 'HIGH', 'normal' => 'NORMAL', 'low' => 'LOW' );
@@ -74,16 +77,35 @@ final class Bitmomo_Btc_Opportunity_UI {
 			? $copy[ $state ]
 			: __( 'Opportunity sedang menunggu baseline dan data 5 menit yang memenuhi standar kualitas Bitmomo.', 'bitmomo-btc-intelligence' );
 
-		$provenance = is_array( $snapshot['provenance'] ?? null ) ? $snapshot['provenance'] : array();
+		$provenance = is_array( $surface['provenance'] ?? null ) ? $surface['provenance'] : array();
 		$source = trim( (string) ( $provenance['source'] ?? '' ) );
 		$as_of = trim( (string) ( $provenance['as_of'] ?? '' ) );
 		$timezone = trim( (string) ( $provenance['timezone'] ?? '' ) );
-		if ( '' === $source || '' === $as_of || 'Asia/Jakarta' !== $timezone ) return '';
-		$as_of_timestamp = strtotime( $as_of );
-		if ( ! $as_of_timestamp ) return '';
-		$as_of_display = ( new DateTimeImmutable( '@' . $as_of_timestamp ) )
+		$source_display = '' !== $source ? $source : __( 'Belum tersedia', 'bitmomo-btc-intelligence' );
+		$as_of_timestamp = $as_of ? strtotime( $as_of ) : false;
+		$as_of_display = $as_of_timestamp ? ( new DateTimeImmutable( '@' . $as_of_timestamp ) )
 			->setTimezone( new DateTimeZone( 'Asia/Jakarta' ) )
-			->format( 'd M Y · H:i' );
+			->format( 'd M Y · H:i' ) : __( 'Belum tersedia', 'bitmomo-btc-intelligence' );
+		$timezone_label = 'WIB';
+
+		$snapshot_available = is_array( $snapshot );
+		$strength_labels = array(
+			'strong_bearish' => __( 'Strong Bearish', 'bitmomo-btc-intelligence' ),
+			'bearish' => __( 'Moderate Bearish', 'bitmomo-btc-intelligence' ),
+			'neutral' => __( 'Neutral', 'bitmomo-btc-intelligence' ),
+			'bullish' => __( 'Moderate Bullish', 'bitmomo-btc-intelligence' ),
+			'strong_bullish' => __( 'Strong Bullish', 'bitmomo-btc-intelligence' ),
+		);
+		$confidence_labels = array( 'high' => __( 'Tinggi', 'bitmomo-btc-intelligence' ), 'medium' => __( 'Sedang', 'bitmomo-btc-intelligence' ), 'low' => __( 'Rendah', 'bitmomo-btc-intelligence' ) );
+		$direction = $snapshot_available ? sanitize_key( (string) ( $snapshot['direction_strength'] ?? '' ) ) : '';
+		$confidence = $snapshot_available ? sanitize_key( (string) ( $snapshot['confidence']['label'] ?? '' ) ) : '';
+		$market_state = $snapshot_available ? sanitize_key( (string) ( $snapshot['market_state'] ?? '' ) ) : '';
+		$market_state_display = '' !== $market_state
+			? ( class_exists( 'Bitmomo_Regime_Taxonomy' ) ? Bitmomo_Regime_Taxonomy::regime_label_id( $market_state ) : ucfirst( str_replace( '_', ' ', $market_state ) ) )
+			: __( 'Belum tersedia', 'bitmomo-btc-intelligence' );
+		$key_drivers = $snapshot_available && is_array( $snapshot['key_drivers'] ?? null )
+			? array_slice( array_values( array_filter( array_map( 'strval', $snapshot['key_drivers'] ) ) ), 0, 5 )
+			: array();
 
 		ob_start();
 		?>
@@ -108,9 +130,19 @@ final class Bitmomo_Btc_Opportunity_UI {
 			</div>
 			<p class="bm-bi__opportunity-note"><?php esc_html_e( 'Opportunity menjawab apakah market sedang cukup aktif untuk menghasilkan pergerakan yang bermakna. Directional Bias di bawah menjawab pertanyaan yang berbeda: ke mana evidence saat ini condong.', 'bitmomo-btc-intelligence' ); ?></p>
 		</div>
+		<div class="bm-bi__surface-frame" aria-label="<?php esc_attr_e( 'Current BTC Intelligence', 'bitmomo-btc-intelligence' ); ?>">
+			<div><span class="bm-bi__kicker"><?php esc_html_e( 'Directional Bias', 'bitmomo-btc-intelligence' ); ?></span><strong><?php echo esc_html( $strength_labels[ $direction ] ?? __( 'Belum tersedia', 'bitmomo-btc-intelligence' ) ); ?></strong></div>
+			<div><span class="bm-bi__kicker"><?php esc_html_e( 'Confidence', 'bitmomo-btc-intelligence' ); ?></span><strong><?php echo esc_html( $confidence_labels[ $confidence ] ?? __( 'Belum tersedia', 'bitmomo-btc-intelligence' ) ); ?></strong></div>
+			<div><span class="bm-bi__kicker"><?php esc_html_e( 'Market State', 'bitmomo-btc-intelligence' ); ?></span><strong><?php echo esc_html( $market_state_display ); ?></strong></div>
+			<div><span class="bm-bi__kicker"><?php esc_html_e( 'Primary Drivers', 'bitmomo-btc-intelligence' ); ?></span><?php if ( $key_drivers ) : ?><ul><?php foreach ( $key_drivers as $driver ) : ?><li><?php echo esc_html( $driver ); ?></li><?php endforeach; ?></ul><?php else : ?><strong><?php esc_html_e( 'Belum tersedia', 'bitmomo-btc-intelligence' ); ?></strong><?php endif; ?></div>
+		</div>
 		<div class="bm-bi__snapshot-provenance" aria-label="<?php esc_attr_e( 'Sumber dan waktu data BTC', 'bitmomo-btc-intelligence' ); ?>">
-			<span><strong><?php esc_html_e( 'SOURCE', 'bitmomo-btc-intelligence' ); ?></strong> <?php echo esc_html( $source ); ?></span>
-			<time datetime="<?php echo esc_attr( $as_of ); ?>"><strong><?php esc_html_e( 'AS OF', 'bitmomo-btc-intelligence' ); ?></strong> <?php echo esc_html( $as_of_display . ' WIB' ); ?></time>
+			<span><strong><?php esc_html_e( 'SOURCE', 'bitmomo-btc-intelligence' ); ?></strong> <?php echo esc_html( $source_display ); ?></span>
+			<?php if ( $as_of_timestamp ) : ?>
+				<time datetime="<?php echo esc_attr( $as_of ); ?>"><strong><?php esc_html_e( 'AS OF', 'bitmomo-btc-intelligence' ); ?></strong> <?php echo esc_html( $as_of_display . ' · ' . $timezone_label ); ?></time>
+			<?php else : ?>
+				<span><strong><?php esc_html_e( 'AS OF', 'bitmomo-btc-intelligence' ); ?></strong> <?php echo esc_html( $as_of_display . ' · ' . $timezone_label ); ?></span>
+			<?php endif; ?>
 		</div>
 		<?php
 		return (string) ob_get_clean();
@@ -129,9 +161,13 @@ final class Bitmomo_Btc_Opportunity_UI {
 .bm-bi__opportunity-copy{max-width:650px;margin:14px 0 0!important;color:var(--bmi-text)!important;font-size:.92rem!important;line-height:1.55!important}
 .bm-bi__opportunity-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:15px;color:var(--bmi-text-muted);font:700 .64rem/1.4 var(--bmi-mono);letter-spacing:.06em}
 .bm-bi__opportunity-note{margin:10px 0 0!important;color:var(--bmi-text-muted)!important;font-size:.74rem!important;line-height:1.45!important}
+.bm-bi__surface-frame{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;margin:0 0 20px;background:var(--bmi-border);border:1px solid var(--bmi-border)}
+.bm-bi__surface-frame>div{min-width:0;padding:16px;background:var(--bmi-surface)}
+.bm-bi__surface-frame strong{display:block;margin-top:6px;color:var(--bmi-text);font-size:.9rem;line-height:1.4}
+.bm-bi__surface-frame ul{margin:6px 0 0;padding-left:18px;color:var(--bmi-text)}
 .bm-bi__snapshot-provenance{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 20px;padding:0 0 18px;border-bottom:1px solid var(--bmi-border);color:var(--bmi-text-muted);font:700 .66rem/1.45 var(--bmi-mono);letter-spacing:.04em}
 .bm-bi__snapshot-provenance strong{color:var(--bmi-text);font-weight:800}
-@media(max-width:520px){.bm-bi__opportunity-head{flex-direction:column;gap:12px}.bm-bi__opportunity-tag{align-self:flex-start}.bm-bi__opportunity-meta,.bm-bi__snapshot-provenance{align-items:flex-start;flex-direction:column;gap:6px}}
+@media(max-width:520px){.bm-bi__opportunity-head{flex-direction:column;gap:12px}.bm-bi__opportunity-tag{align-self:flex-start}.bm-bi__opportunity-meta,.bm-bi__snapshot-provenance{align-items:flex-start;flex-direction:column;gap:6px}.bm-bi__surface-frame{grid-template-columns:1fr}}
 CSS;
 		wp_add_inline_style( 'bitmomo-btc-intelligence', $css );
 	}
