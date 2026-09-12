@@ -11,15 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     <ol class="bm-howworks-steps">
       <li>
-        <span class="bm-howworks-step-label"><?php esc_html_e( '01 · Compression', 'bitmomo' ); ?></span>
+        <span class="bm-howworks-step-label"><?php esc_html_e( '01 · Baca pasar', 'bitmomo' ); ?></span>
         <p><?php esc_html_e( 'Harga, struktur pasar, volatilitas, momentum, dan derivatif diringkas menjadi insight yang jelas dan mudah dibaca.', 'bitmomo' ); ?></p>
       </li>
       <li>
-        <span class="bm-howworks-step-label"><?php esc_html_e( '02 · Decision Support', 'bitmomo' ); ?></span>
+        <span class="bm-howworks-step-label"><?php esc_html_e( '02 · Ringkas konteks', 'bitmomo' ); ?></span>
         <p><?php esc_html_e( 'Gratis menjawab apa yang terjadi sekarang. Pro menambahkan skenario paling relevan, apa yang perlu dipantau, dan kapan thesis berubah.', 'bitmomo' ); ?></p>
       </li>
       <li>
-        <span class="bm-howworks-step-label"><?php esc_html_e( '03 · Accountability', 'bitmomo' ); ?></span>
+        <span class="bm-howworks-step-label"><?php esc_html_e( '03 · Pahami langkah berikutnya', 'bitmomo' ); ?></span>
         <p><?php esc_html_e( 'Setiap insight diberi timestamp, dicatat, dan dievaluasi terhadap hasil aktual. Data stale atau tidak valid tidak dipaksakan menjadi insight.', 'bitmomo' ); ?></p>
       </li>
     </ol>
