@@ -162,14 +162,14 @@
 			setupWhatsappStep(postId, recordToken, hasWhatsapp);
 		}
 
-		emitTelemetry('whitelist_view');
-
 		var query = new URLSearchParams(window.location.search);
 		var deepPost = query.get('bm_wl_post');
 		var deepToken = query.get('bm_wl_token');
 		if (deepPost && deepToken) {
 			showSuccess(false, { post_id: deepPost, record_token: deepToken, has_whatsapp: false });
 			window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+		} else {
+			emitTelemetry('whitelist_view');
 		}
 
 		form.addEventListener('submit', function (event) {
