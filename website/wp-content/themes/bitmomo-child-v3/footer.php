@@ -7,7 +7,7 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
     <div class="bm-footer-grid">
       <div class="bm-footer-brand">
         <strong>bitmomo</strong>
-        <p><?php esc_html_e( 'BTC market intelligence yang mengubah data menjadi konteks, decision support, dan accountability.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Research & intelligence untuk crypto markets dan AI systems — dibangun untuk konteks, provenance, dan accountability.', 'bitmomo' ); ?></p>
       </div>
 
       <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Produk', 'bitmomo' ); ?>">
@@ -17,9 +17,10 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
         <a href="<?php echo esc_url( home_url( '/help/' ) ); ?>"><?php esc_html_e( 'Help Center', 'bitmomo' ); ?></a>
       </nav>
 
-      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Riset', 'bitmomo' ); ?>">
-        <strong><?php esc_html_e( 'RISET', 'bitmomo' ); ?></strong>
-        <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Riset & Analisis', 'bitmomo' ); ?></a>
+      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Research', 'bitmomo' ); ?>">
+        <strong><?php esc_html_e( 'RESEARCH', 'bitmomo' ); ?></strong>
+        <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Research Hub', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/category/riset/' ) . '#bm-market-research-stream' ); ?>"><?php esc_html_e( 'Market Research', 'bitmomo' ); ?></a>
         <a href="<?php echo esc_url( home_url( '/#ai-lab' ) ); ?>"><?php esc_html_e( 'AI Lab', 'bitmomo' ); ?></a>
       </nav>
 
@@ -36,7 +37,7 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
       <div class="bm-footer-newsletter">
         <div class="bm-footer-connect__copy">
           <strong><?php esc_html_e( 'EMAIL BRIEF', 'bitmomo' ); ?></strong>
-          <span><?php esc_html_e( 'Ringkasan BTC dan riset terbaru.', 'bitmomo' ); ?></span>
+          <span><?php esc_html_e( 'BTC intelligence dan research terbaru.', 'bitmomo' ); ?></span>
         </div>
         <div class="bm-footer-newsletter__form">
           <?php if ( shortcode_exists( 'mailpoet_form' ) ) : ?>
@@ -60,7 +61,7 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
 
     <div class="bm-footer-bottom">
       <p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>.</p>
-      <p><?php esc_html_e( 'Market intelligence, bukan nasihat keuangan.', 'bitmomo' ); ?></p>
+      <p><?php esc_html_e( 'Research & market intelligence, bukan nasihat keuangan.', 'bitmomo' ); ?></p>
     </div>
   </div>
 </footer>
