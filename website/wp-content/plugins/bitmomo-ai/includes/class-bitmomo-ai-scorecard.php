@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) exit;
 final class Bitmomo_AI_Scorecard {
     const MIN_SAMPLE = 10;
     const STRONG_SAMPLE = 30;
+    const LEGACY_OUTCOME_METHOD = 'legacy-window-v1';
 
     public static function evaluate(array $signals, array $pro_ranges = [], array $regimes = [], array $quality_events = []) {
         usort($signals, function ($a, $b) { return strcmp((string) ($a['generated_at'] ?? ''), (string) ($b['generated_at'] ?? '')); });
@@ -16,6 +17,9 @@ final class Bitmomo_AI_Scorecard {
         }
         $versions = [];
         foreach ($version_groups as $key => $rows) $versions[$key] = self::direction_package($rows);
+        uasort($versions, function ($a, $b) {
+            return strcmp((string) ($b['latest_generated_at'] ?? ''), (string) ($a['latest_generated_at'] ?? ''));
+        });
 
         return [
             'version_policy' => count($versions) > 1 ? 'SEPARATED_INCOMPATIBLE_VERSIONS' : 'SINGLE_VERSION',
@@ -43,8 +47,16 @@ final class Bitmomo_AI_Scorecard {
         }
         foreach ($editions as $key => $set) $editions[$key] = self::accuracy($set);
         foreach ($regimes as $key => $set) $regimes[$key] = self::accuracy($set);
+        $latest_generated_at = '';
+        foreach ($rows as $row) {
+            $generated_at = (string) ($row['generated_at'] ?? '');
+            if ($generated_at > $latest_generated_at) $latest_generated_at = $generated_at;
+        }
+        $method = self::outcome_method($rows ? $rows[0] : []);
 
         return [
+            'latest_generated_at' => $latest_generated_at,
+            'outcome_methodology' => $method,
             'all' => self::accuracy($rows),
             'rolling_30' => self::accuracy($rolling),
             'by_direction' => $by_direction,
@@ -166,18 +178,19 @@ final class Bitmomo_AI_Scorecard {
             $previous = $regime;
             $signal = $signal_index[self::normalize_source_id($row['source_record_id'] ?? '')] ?? null;
             if (!$signal) continue;
+            $evaluation_version = $classifier . ' | ' . self::outcome_method($signal);
             $entry = (float) ($signal['entry_price'] ?? 0); $high = (float) ($signal['high_24h'] ?? 0); $low = (float) ($signal['low_24h'] ?? 0);
-            $groups[$classifier][$regime][] = [
+            $groups[$evaluation_version][$regime][] = [
                 'return_pct' => (float) ($signal['return_pct'] ?? 0),
                 'volatility_pct' => $entry > 0 && $high > 0 && $low > 0 ? 100 * ($high - $low) / $entry : null,
             ];
         }
         $metrics = [];
-        foreach ($groups as $classifier => $by_regime) foreach ($by_regime as $regime => $rows) {
+        foreach ($groups as $version => $by_regime) foreach ($by_regime as $regime => $rows) {
             $returns = array_column($rows, 'return_pct');
             $vols = array_values(array_filter(array_column($rows, 'volatility_pct'), function ($v) { return $v !== null; }));
             $n = count($rows);
-            $metrics[$classifier][$regime] = ['n' => $n, 'average_forward_return_pct' => round(array_sum($returns) / $n, 3), 'average_forward_volatility_pct' => $vols ? round(array_sum($vols) / count($vols), 3) : null, 'sample_status' => self::sample_status($n)];
+            $metrics[$version][$regime] = ['n' => $n, 'average_forward_return_pct' => round(array_sum($returns) / $n, 3), 'average_forward_volatility_pct' => $vols ? round(array_sum($vols) / count($vols), 3) : null, 'sample_status' => self::sample_status($n)];
         }
         return ['versions' => $metrics, 'append_only_n' => count($live), 'transition_n' => $transitions, 'transition_frequency_pct' => count($live) > 1 ? round(100 * $transitions / (count($live) - 1), 1) : null];
     }
@@ -189,15 +202,33 @@ final class Bitmomo_AI_Scorecard {
             $stale += $quality === 'stale' ? 1 : 0; $blocked += $gate === 'blocked' ? 1 : 0; $degraded += ($quality === 'degraded' || $gate === 'degraded') ? 1 : 0;
             $missing += !empty($row['missing_data']) ? 1 : 0;
         }
-        $settled = count(array_filter($signals, function ($row) { return in_array(($row['outcome_status'] ?? ''), ['evaluated', 'window_missed'], true); }));
-        $signal_n = count($signals);
-        return ['n' => $n, 'stale_rate_pct' => $n ? round(100 * $stale / $n, 1) : null, 'blocked_degraded_rate_pct' => $n ? round(100 * ($blocked + $degraded) / $n, 1) : null, 'missing_data_rate_pct' => $n ? round(100 * $missing / $n, 1) : null, 'settlement_n' => $signal_n, 'settlement_completeness_pct' => $signal_n ? round(100 * $settled / $signal_n, 1) : null, 'sample_status' => self::sample_status($n)];
+        $evaluated = count(array_filter($signals, function ($row) { return ($row['outcome_status'] ?? '') === 'evaluated'; }));
+        $missed = count(array_filter($signals, function ($row) { return ($row['outcome_status'] ?? '') === 'window_missed'; }));
+        $pending = count(array_filter($signals, function ($row) { return in_array(($row['outcome_status'] ?? ''), ['', 'pending'], true); }));
+        $matured = $evaluated + $missed;
+        return [
+            'n' => $n,
+            'stale_rate_pct' => $n ? round(100 * $stale / $n, 1) : null,
+            'blocked_degraded_rate_pct' => $n ? round(100 * ($blocked + $degraded) / $n, 1) : null,
+            'missing_data_rate_pct' => $n ? round(100 * $missing / $n, 1) : null,
+            'settlement_n' => $matured,
+            'settlement_evaluated_n' => $evaluated,
+            'settlement_missed_n' => $missed,
+            'settlement_pending_n' => $pending,
+            'settlement_completeness_pct' => $matured ? round(100 * $evaluated / $matured, 1) : null,
+            'sample_status' => self::sample_status($n),
+        ];
     }
 
     private static function version_key(array $row) {
         $model = trim((string) ($row['model_version'] ?? '')) ?: 'unknown-model';
         $classifier = trim((string) ($row['classifier_version'] ?? '')) ?: 'unknown-classifier';
-        return $model . ' | ' . $classifier;
+        return $model . ' | ' . $classifier . ' | ' . self::outcome_method($row);
+    }
+
+    private static function outcome_method(array $row) {
+        $method = trim((string) ($row['outcome_methodology'] ?? ''));
+        return $method !== '' ? $method : self::LEGACY_OUTCOME_METHOD;
     }
 
     private static function normalize_source_id($id) { return str_replace('bitmomo-ai:regime:', 'bitmomo-ai:', (string) $id); }
@@ -222,7 +253,7 @@ final class Bitmomo_AI_Scorecard_Repository {
                 'source_record_id' => $source_id, 'direction' => (string) get_post_meta($id, '_bm_direction', true),
                 'confidence' => (int) get_post_meta($id, '_bm_confidence', true), 'edition' => (string) get_post_meta($id, '_bm_edition', true),
                 'model_version' => (string) get_post_meta($id, '_bm_model', true), 'classifier_version' => (string) ($regime['classifier_version'] ?? ''), 'regime' => (string) ($regime['regime'] ?? ''),
-                'outcome_status' => (string) get_post_meta($id, '_bm_outcome_status', true), 'outcome_direction' => (string) get_post_meta($id, '_bm_outcome_direction', true),
+                'outcome_status' => (string) get_post_meta($id, '_bm_outcome_status', true), 'outcome_methodology' => (string) get_post_meta($id, '_bm_outcome_methodology', true), 'outcome_direction' => (string) get_post_meta($id, '_bm_outcome_direction', true),
                 'return_pct' => get_post_meta($id, '_bm_outcome_return_pct', true), 'entry_price' => (float) get_post_meta($id, '_bm_market_price', true),
                 'high_24h' => (float) get_post_meta($id, '_bm_outcome_high_24h', true), 'low_24h' => (float) get_post_meta($id, '_bm_outcome_low_24h', true),
                 'momentum_direction' => (string) ($input['direction']['bias_4h'] ?? ''), 'trend_direction' => (string) ($input['direction']['bias_1d'] ?? ''),
@@ -265,7 +296,7 @@ final class Bitmomo_AI_Scorecard_Repository {
     public static function render_admin() {
         $scorecard = self::build();
         echo '<h2>' . esc_html__('Intelligence evaluation scorecard', 'bitmomo-ai') . '</h2>';
-        echo '<p><em>' . esc_html__('Private diagnostic only. Metrics are separated by model/classifier version and are not marketing claims.', 'bitmomo-ai') . '</em></p>';
+        echo '<p><em>' . esc_html__('Private diagnostic only. Metrics are separated by model/classifier/outcome methodology and are not marketing claims.', 'bitmomo-ai') . '</em></p>';
         foreach ($scorecard['versions'] as $version => $metrics) {
             echo '<h3>' . esc_html($version) . '</h3>';
             self::render_metric_table(__('Directional accuracy', 'bitmomo-ai'), [
