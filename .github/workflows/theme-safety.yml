@@ -5,6 +5,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
   push:
@@ -16,6 +17,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
   workflow_dispatch:
@@ -64,6 +66,7 @@ jobs:
             "style.css"
             "assets/css/home-opportunity.css"
             "assets/css/public-surfaces.css"
+            "assets/css/public-readability.css"
             "template-parts/archive-index.php"
           )
 
@@ -122,6 +125,16 @@ jobs:
             exit 1
           }
 
+          test ! -f "${theme_dir}/template-parts/pro-teaser.php" || {
+            echo "::error file=${theme_dir}/template-parts/pro-teaser.php::Obsolete standalone Pro teaser relic must not exist"
+            exit 1
+          }
+
+          test ! -f "${theme_dir}/template-parts/why-bitmomo.php" || {
+            echo "::error file=${theme_dir}/template-parts/why-bitmomo.php::Obsolete Why Bitmomo relic must not exist"
+            exit 1
+          }
+
       - name: Lint theme PHP
         shell: bash
         run: |
@@ -139,5 +152,8 @@ jobs:
             php -l "${file}"
           done
 
-      - name: Enforce UI architecture contract
+      - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
+
+      - name: Report CSS debt baseline
+        run: node scripts/audit-css-debt.mjs
