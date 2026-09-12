@@ -35,7 +35,66 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
+      - name: Resolve source/runtime parity
+        id: version_gate
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          echo "run_audit=true" >> "${GITHUB_OUTPUT}"
+
+          # Scheduled runs are production monitors: always audit the runtime
+          # that is actually live. Manual runs may intentionally target staging
+          # or another candidate URL, so they also always run.
+          if [[ "${EVENT_NAME}" != "push" ]]; then
+            echo "Browser audit enabled for ${EVENT_NAME}."
+            exit 0
+          fi
+
+          source_version="$(php -r '
+            $source = file_get_contents("website/wp-content/themes/bitmomo-child-v3/functions.php");
+            if (!preg_match("/define\\(\\x27BM_VERSION\\x27,\\s*\\x27([^\\x27]+)\\x27\\)/", $source, $m)) { exit(2); }
+            echo $m[1];
+          ')"
+
+          health="$(mktemp)"
+          code="$(curl --location --silent --show-error --max-time 20 \
+            --output "${health}" --write-out '%{http_code}' \
+            'https://bitmomo.id/wp-admin/admin-ajax.php?action=bitmomo_health')"
+
+          if [[ "${code}" != "200" ]]; then
+            echo "Production health endpoint returned HTTP ${code}; run the browser audit so availability/UI failures remain visible."
+            exit 0
+          fi
+
+          runtime_version="$(python3 - "${health}" <<'PY'
+          import json
+          import sys
+          try:
+              payload = json.load(open(sys.argv[1], encoding='utf-8'))
+              print(payload.get('version', ''))
+          except Exception:
+              print('')
+          PY
+          )"
+
+          if [[ -z "${runtime_version}" ]]; then
+            echo "Production health response had no version; run the browser audit rather than silently skipping."
+            exit 0
+          fi
+
+          echo "Source theme version: ${source_version}"
+          echo "Production theme version: ${runtime_version}"
+
+          if [[ "${source_version}" != "${runtime_version}" ]]; then
+            echo "run_audit=false" >> "${GITHUB_OUTPUT}"
+            echo "SKIP push browser audit: source ${source_version} is not yet deployed to production ${runtime_version}."
+            echo "Scheduled production monitoring remains enabled and manual staging audits remain available."
+          fi
+
       - name: Install browser audit dependencies
+        if: steps.version_gate.outputs.run_audit == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -43,13 +102,14 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Audit public UI across breakpoints
+        if: steps.version_gate.outputs.run_audit == 'true'
         env:
           BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
           BITMOMO_UI_OUTPUT_DIR: ui-artifacts
         run: node scripts/check-public-ui.mjs
 
       - name: Upload screenshots and audit report
-        if: always()
+        if: always() && steps.version_gate.outputs.run_audit == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: bitmomo-ui-browser-audit-${{ github.run_id }}
