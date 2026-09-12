@@ -122,12 +122,11 @@ class Bitmomo_Pro_Sales {
 		echo '<div class="bm-pro-sales__climax">';
 		$this->render_founding_economics();   // 10a. Founding Membership Economics
 		$this->render_price();                // 10b. Pricing
-		$this->render_cta();                  // 10c. Whitelist
+		$this->render_cta();                  // 10c. Whitelist / purchase
 		echo '</div>';
 
 		$this->render_accountability();       // 11. Accountability
 		Bitmomo_Pro_Help_Center::render_pro_subset(); // 12. Buying-Objection FAQ
-		$this->render_final_cta();            // 13. Final CTA
 		$this->render_disclaimer();
 		echo '</div>';
 		return ob_get_clean();
@@ -164,13 +163,10 @@ class Bitmomo_Pro_Sales {
 	}
 
 	/**
-	 * Shared jump/purchase link used by the hero and Final CTA sections.
-	 * Never a second form — always either a scroll-anchor to the one
-	 * whitelist widget rendered in render_cta() (id="bm-pro-whitelist"),
-	 * or, once bitmomo_pro_get_checkout_url() is configured, the same real
-	 * purchase link render_cta() shows in the pricing section. Keeps the
-	 * hero/Final CTA buttons truthful in both states without duplicating
-	 * checkout logic.
+	 * Shared hero jump/purchase link. Never a second form — it always either
+	 * scrolls to the one whitelist widget rendered in render_cta()
+	 * (id="bm-pro-whitelist"), or, once bitmomo_pro_get_checkout_url() is
+	 * configured, uses the same real purchase destination as render_cta().
 	 */
 	private function render_cta_link( $extra_class = '' ) {
 		$url   = bitmomo_pro_get_checkout_url();
@@ -221,7 +217,7 @@ class Bitmomo_Pro_Sales {
 		$stages = array(
 			array(
 				'label' => __( 'DATA', 'bitmomo-pro' ),
-				'desc'  => __( 'Harga, order book, funding, positioning, dan sinyal on-chain BTC dikumpulkan secara berkelanjutan.', 'bitmomo-pro' ),
+				'desc'  => __( 'Harga, struktur pasar, funding/basis, positioning derivatives, momentum, dan volatilitas BTC diproses dari data pasar yang tersedia.', 'bitmomo-pro' ),
 			),
 			array(
 				'label' => __( 'CONTEXT', 'bitmomo-pro' ),
@@ -400,8 +396,8 @@ class Bitmomo_Pro_Sales {
 	 * purchase CTA, whitelist never shown as the primary action. Checkout
 	 * not configured -> the Founding Membership Whitelist widget takes
 	 * over this same slot (its markup carries id="bm-pro-whitelist", which
-	 * the hero and Final CTA anchor buttons scroll to). No whitelist logic
-	 * is touched here — only where it renders on the page.
+	 * the hero button scrolls to). No whitelist logic is touched here — only
+	 * where it renders on the page.
 	 */
 	private function render_cta() {
 		$url = bitmomo_pro_get_checkout_url();
@@ -433,21 +429,6 @@ class Bitmomo_Pro_Sales {
 			<?php else : ?>
 				<p class="bm-pro-sales__accountability-note"><?php esc_html_e( 'Metodologi & track record lengkap segera tersedia sebagai halaman terpisah.', 'bitmomo-pro' ); ?></p>
 			<?php endif; ?>
-		</section>
-		<?php
-	}
-
-	/** 13. Final CTA. Scrolls to the same whitelist form rendered in Section 10 — no duplicate form, no secondary CTA. */
-	private function render_final_cta() {
-		?>
-		<section class="bm-pro-sales__section--editorial bm-pro-sales__final-cta">
-			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Bergabung sebelum 11 AI Analysts dan Watchtower dirilis.', 'bitmomo-pro' ); ?></h2>
-			<div class="bm-pro-sales__hero-facts">
-				<div><strong><?php esc_html_e( 'Rp149.000', 'bitmomo-pro' ); ?></strong><span><?php esc_html_e( 'per bulan', 'bitmomo-pro' ); ?></span></div>
-				<div><strong><?php echo esc_html( self::SEAT_CAP ); ?></strong><span><?php esc_html_e( 'Founding Members', 'bitmomo-pro' ); ?></span></div>
-				<div><strong><?php echo esc_html( self::BATCH_ONE ); ?></strong><span><?php esc_html_e( 'Batch pertama', 'bitmomo-pro' ); ?></span></div>
-			</div>
-			<?php $this->render_cta_link(); ?>
 		</section>
 		<?php
 	}
