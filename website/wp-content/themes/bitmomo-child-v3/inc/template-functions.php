@@ -104,7 +104,7 @@ if (!function_exists('bitmomo_post_is_market_research')) {
 }
 
 if (!function_exists('bitmomo_post_is_ai_systems_research')) {
-    /** AI Systems Research requires both Riset and the explicit ai-lab tag. */
+    /** Intelligence Systems Research requires both Riset and the explicit ai-lab tag. */
     function bitmomo_post_is_ai_systems_research($post_id = 0) {
         $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
         return $post_id && has_category('riset', $post_id) && has_tag('ai-lab', $post_id);
@@ -123,6 +123,125 @@ if (!function_exists('bitmomo_post_research_classification')) {
         if (bitmomo_post_is_market_research($post_id)) return 'market';
         if (bitmomo_post_is_ai_systems_research($post_id)) return 'ai-systems';
         return 'unclassified';
+    }
+}
+
+if (!function_exists('bitmomo_research_focus_filters')) {
+    /**
+     * Canonical Research Hub discovery vocabulary. This allowlist owns both UI
+     * labels and the taxonomy terms used by server-side filtering.
+     *
+     * @return array<string,array{label:string,discipline:string,terms:string[]}>
+     */
+    function bitmomo_research_focus_filters() {
+        return array(
+            'all' => array(
+                'label'      => 'All Research',
+                'discipline' => 'all',
+                'terms'      => array(),
+            ),
+            'bitcoin' => array(
+                'label'      => 'Bitcoin',
+                'discipline' => 'market',
+                'terms'      => array('bitcoin', 'btc'),
+            ),
+            'macro' => array(
+                'label'      => 'Macro',
+                'discipline' => 'market',
+                'terms'      => array('macro', 'makro'),
+            ),
+            'market-structure' => array(
+                'label'      => 'Market Structure',
+                'discipline' => 'market',
+                'terms'      => array('market-structure'),
+            ),
+            'derivatives' => array(
+                'label'      => 'Derivatives',
+                'discipline' => 'market',
+                'terms'      => array('derivatives', 'funding-rate'),
+            ),
+            'flows' => array(
+                'label'      => 'ETF & Flows',
+                'discipline' => 'market',
+                'terms'      => array('etf'),
+            ),
+            'liquidity' => array(
+                'label'      => 'Liquidity',
+                'discipline' => 'market',
+                'terms'      => array('liquidity', 'likuiditas'),
+            ),
+            'systems' => array(
+                'label'      => 'Intelligence Systems',
+                'discipline' => 'ai-systems',
+                'terms'      => array('ai-lab'),
+            ),
+        );
+    }
+}
+
+if (!function_exists('bitmomo_post_matches_research_focus')) {
+    /** Match an already-qualified research post against one allowlisted focus. */
+    function bitmomo_post_matches_research_focus($post_id, $focus) {
+        $post_id = (int) $post_id;
+        $filters = bitmomo_research_focus_filters();
+        $focus = isset($filters[$focus]) ? (string) $focus : 'all';
+        $classification = bitmomo_post_research_classification($post_id);
+
+        if ('unclassified' === $classification) return false;
+        if ('all' === $focus) return true;
+
+        $filter = $filters[$focus];
+        if ('ai-systems' === $filter['discipline']) return 'ai-systems' === $classification;
+        if ('market' !== $classification) return false;
+
+        foreach ($filter['terms'] as $slug) {
+            if (has_category($slug, $post_id) || has_tag($slug, $post_id)) return true;
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('bitmomo_post_research_topic_label')) {
+    /** Return one concise visitor-facing topic label without relying on category order. */
+    function bitmomo_post_research_topic_label($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        $classification = bitmomo_post_research_classification($post_id);
+        if ('ai-systems' === $classification) return 'Intelligence Systems';
+        if ('market' !== $classification) return 'Research';
+
+        $priority = array(
+            'etf'              => 'ETF & Flows',
+            'funding-rate'     => 'Derivatives',
+            'derivatives'      => 'Derivatives',
+            'market-structure' => 'Market Structure',
+            'macro'            => 'Macro',
+            'makro'            => 'Macro',
+            'liquidity'        => 'Liquidity',
+            'likuiditas'       => 'Liquidity',
+            'fundamental'      => 'Fundamentals',
+            'fundamentals'     => 'Fundamentals',
+            'bitcoin'          => 'Bitcoin',
+            'btc'              => 'Bitcoin',
+        );
+
+        foreach ($priority as $slug => $label) {
+            if (has_category($slug, $post_id) || has_tag($slug, $post_id)) return $label;
+        }
+
+        return 'Market Research';
+    }
+}
+
+if (!function_exists('bitmomo_post_reading_minutes')) {
+    /** Conservative reading-time estimate for research metadata. */
+    function bitmomo_post_reading_minutes($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        if (!$post_id) return 1;
+
+        $content = (string) get_post_field('post_content', $post_id);
+        $words = str_word_count(wp_strip_all_tags(strip_shortcodes($content)));
+        return max(1, (int) ceil($words / 220));
     }
 }
 
