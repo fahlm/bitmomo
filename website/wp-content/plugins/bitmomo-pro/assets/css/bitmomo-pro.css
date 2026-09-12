@@ -1,25 +1,11 @@
 /*
  * Bitmomo Pro — scoped dashboard styles.
- * Every selector is namespaced under .bm-pro so this never leaks into or
- * is affected by the active theme's global styles.
- * Mobile-first: base rules target narrow screens; a single breakpoint
- * widens the scenario layout on tablet/desktop.
+ * Mobile-first, with teal reserved for intelligence/status and orange for
+ * conversion/account actions to match the launch visual language.
  */
 
 .bitmomo-pro-dashboard-page .page-header {
-	width: calc( 100% - 32px );
-	max-width: 640px;
-	margin: 0 auto;
-	padding: 48px 0 20px;
-}
-
-.bitmomo-pro-dashboard-page .page-header h1,
-.bitmomo-pro-dashboard-page .page-header .page-title,
-.bitmomo-pro-dashboard-page .page-header .entry-title {
-	margin: 0;
-	font-size: clamp( 1.75rem, 5vw, 2.5rem );
-	line-height: 1.15;
-	letter-spacing: -0.025em;
+	display: none;
 }
 
 .bm-pro {
@@ -30,6 +16,8 @@
 	--bm-pro-text-muted: #93a4bd;
 	--bm-pro-teal: #2dd4bf;
 	--bm-pro-teal-dark: #0f766e;
+	--bm-pro-action: #f4ad32;
+	--bm-pro-action-dark: #e69a18;
 	--bm-pro-bull: #34d399;
 	--bm-pro-bear: #f87171;
 	--bm-pro-neutral: #93a4bd;
@@ -37,6 +25,7 @@
 
 	max-width: 640px;
 	margin: 0 auto 56px;
+	padding: 38px 18px 0;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	color: var( --bm-pro-text );
 	box-sizing: border-box;
@@ -46,6 +35,34 @@
 .bm-pro *::before,
 .bm-pro *::after {
 	box-sizing: inherit;
+}
+
+.bm-pro__page-head {
+	margin-bottom: 24px;
+}
+
+.bm-pro__page-eyebrow {
+	margin: 0 0 8px;
+	color: var( --bm-pro-teal );
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+}
+
+.bm-pro__page-title {
+	margin: 0 0 10px;
+	color: #f8fbff;
+	font-size: clamp(2rem, 7vw, 3rem);
+	line-height: 1.08;
+	letter-spacing: -0.03em;
+}
+
+.bm-pro__page-intro {
+	max-width: 580px;
+	margin: 0;
+	color: var( --bm-pro-text-muted );
+	font-size: 1rem;
+	line-height: 1.6;
 }
 
 .bm-pro__gate {
@@ -70,7 +87,7 @@
 }
 
 .bm-pro__login-form {
-	margin-bottom: 16px;
+	margin-bottom: 12px;
 	text-align: left;
 }
 
@@ -97,34 +114,40 @@
 
 .bm-pro__login-form input[type="submit"] {
 	width: 100%;
-	padding: 10px 12px;
-	background: var( --bm-pro-teal );
+	padding: 11px 12px;
+	background: var( --bm-pro-action );
 	border: none;
 	border-radius: 8px;
-	color: #06201c;
-	font-weight: 600;
+	color: #111923;
+	font-weight: 750;
 	cursor: pointer;
 }
 
 .bm-pro__cta {
 	display: inline-block;
 	padding: 12px 22px;
-	background: var( --bm-pro-teal );
-	color: #06201c;
+	background: var( --bm-pro-action );
+	color: #111923;
 	border-radius: 8px;
-	font-weight: 600;
+	font-weight: 750;
 	text-decoration: none;
 }
 
-.bm-pro__cta:hover {
-	background: var( --bm-pro-teal-dark );
-	color: #eafffb;
+.bm-pro__cta:hover,
+.bm-pro__cta:focus-visible {
+	background: var( --bm-pro-action-dark );
+	color: #111923;
 }
 
 .bm-pro__contact-note {
 	color: var( --bm-pro-text-muted );
 	font-size: 0.9rem;
+	line-height: 1.55;
 	margin: 0;
+}
+
+.bm-pro__contact-note a {
+	color: var( --bm-pro-teal );
 }
 
 .bm-pro__dashboard {
@@ -186,7 +209,7 @@
 	margin-bottom: 16px;
 }
 
-.bm-pro__section h4 {
+.bm-pro__section h3 {
 	margin: 0 0 6px;
 	font-size: 0.8rem;
 	text-transform: uppercase;
@@ -231,7 +254,7 @@
 	border-left: 3px solid var( --bm-pro-teal );
 }
 
-.bm-pro__scenario h4 {
+.bm-pro__scenario h3 {
 	margin: 0 0 4px;
 	font-size: 0.75rem;
 	text-transform: uppercase;
@@ -282,18 +305,14 @@
 	color: var( --bm-pro-bear );
 }
 
-@media ( min-width: 700px ) {
-	.bitmomo-pro-dashboard-page .page-header {
-		padding-top: 64px;
-	}
-
-	.bm-pro__scenarios {
-		grid-template-columns: repeat( 3, 1fr );
-	}
+.bm-pro__help-row {
+	margin: 10px 0 14px;
+	font-size: 0.85rem;
 }
+
 .bm-pro__help-link {
 	color: #93a4bd;
-	font-size: 11px;
+	font-size: 0.82rem;
 	font-weight: 500;
 	text-decoration: none;
 }
@@ -301,4 +320,22 @@
 .bm-pro__help-link:hover,
 .bm-pro__help-link:focus-visible {
 	color: #2dd4bf;
+}
+
+@media ( min-width: 700px ) {
+	.bm-pro__scenarios {
+		grid-template-columns: repeat( 3, 1fr );
+	}
+}
+
+@media ( max-width: 480px ) {
+	.bm-pro {
+		padding-left: 14px;
+		padding-right: 14px;
+	}
+
+	.bm-pro__price {
+		width: 100%;
+		margin-left: 0;
+	}
 }
