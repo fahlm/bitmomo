@@ -3,23 +3,13 @@ name: Authority surface safety
 on:
   pull_request:
     paths:
-      - "website/wp-content/themes/bitmomo-child-v3/style.css"
-      - "website/wp-content/themes/bitmomo-child-v3/functions.php"
-      - "website/wp-content/themes/bitmomo-child-v3/page.php"
-      - "website/wp-content/themes/bitmomo-child-v3/single.php"
-      - "website/wp-content/themes/bitmomo-child-v3/category.php"
-      - "website/wp-content/themes/bitmomo-child-v3/footer.php"
-      - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
-      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
-      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php"
-      - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
-      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
-      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research.php"
-      - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
-      - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
-      - "website/wp-content/themes/bitmomo-child-v3/assets/css/article-reading.css"
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
       - "docs/ARTICLE_READING_CONTRACT.md"
@@ -29,23 +19,13 @@ on:
   push:
     branches: [main, "fix/**", "feature/**"]
     paths:
-      - "website/wp-content/themes/bitmomo-child-v3/style.css"
-      - "website/wp-content/themes/bitmomo-child-v3/functions.php"
-      - "website/wp-content/themes/bitmomo-child-v3/page.php"
-      - "website/wp-content/themes/bitmomo-child-v3/single.php"
-      - "website/wp-content/themes/bitmomo-child-v3/category.php"
-      - "website/wp-content/themes/bitmomo-child-v3/footer.php"
-      - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
-      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
-      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php"
-      - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
-      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
-      - "website/wp-content/themes/bitmomo-child-v3/template-parts/research.php"
-      - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
-      - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
-      - "website/wp-content/themes/bitmomo-child-v3/assets/css/article-reading.css"
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
       - "docs/ARTICLE_READING_CONTRACT.md"
@@ -74,6 +54,8 @@ jobs:
           set -euo pipefail
           for file in \
             website/wp-content/themes/bitmomo-child-v3/functions.php \
+            website/wp-content/themes/bitmomo-child-v3/header.php \
+            website/wp-content/themes/bitmomo-child-v3/home.php \
             website/wp-content/themes/bitmomo-child-v3/page.php \
             website/wp-content/themes/bitmomo-child-v3/single.php \
             website/wp-content/themes/bitmomo-child-v3/category.php \
@@ -83,11 +65,15 @@ jobs:
             website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
-            website/wp-content/themes/bitmomo-child-v3/template-parts/research.php; do
+            website/wp-content/themes/bitmomo-child-v3/template-parts/research.php \
+            website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php; do
             php -l "$file"
           done
           node --check scripts/check-public-ui.mjs
           node --check scripts/check-article-cleanliness.mjs
+          node --check scripts/check-terminal-grade-contract.mjs
+          node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
       - name: Enforce one institutional classification boundary
         shell: bash
@@ -99,6 +85,8 @@ jobs:
           hub="${theme}/template-parts/research-hub.php"
           home_research="${theme}/template-parts/research.php"
           single="${theme}/single.php"
+          header="${theme}/header.php"
+          home="${theme}/home.php"
           assets="${theme}/inc/trait-bitmomo-assets.php"
           content="${theme}/inc/trait-bitmomo-content.php"
 
@@ -127,14 +115,22 @@ jobs:
           grep -q "Intelligence Systems Research Terkait" "${single}"
           ! grep -q "Riset Terkait" "${single}"
 
+          # Navigation and the legacy posts index must not re-certify content
+          # that the canonical classification boundary considers unqualified.
+          grep -q "bitmomo_post_research_classification" "${header}"
+          ! grep -q "is_single() && has_category" "${header}"
+          grep -q "Arsip Publikasi" "${home}"
+          ! grep -q "BITMOMO RESEARCH" "${home}"
+
+          grep -q "design-system.css" "${assets}"
           grep -q "article-reading.css" "${assets}"
           grep -q "research.css" "${assets}"
           grep -q "about.css" "${assets}"
-          grep -q "is_single()" "${assets}"
           ! grep -q "bm-disclaimer" "${content}"
           grep -q "must remain the authored publication itself" "${content}"
           grep -q '"expected_file_count": 112' config/production-runtime.json
           grep -q '"expected_file_count": 45' config/production-runtime.json
+          grep -q '"assets/css/design-system.css"' config/production-runtime.json
           grep -q '"assets/css/article-reading.css"' config/production-runtime.json
 
       - name: Enforce institutional Research Hub UX
@@ -199,12 +195,12 @@ jobs:
 
           grep -q "Bitmomo — Bitcoin Market Intelligence & Research" "${functions}"
           grep -q "Bitmomo Research — Bitcoin Markets & Intelligence Systems" "${functions}"
-          grep -q "is_single()" "${functions}"
+          grep -q "bitmomo_should_noindex_public_view" "${functions}"
           grep -q "bitmomo_is_unclassified_legacy_research_post" "${functions}"
           grep -q "rank_math/frontend/robots" "${functions}"
           grep -q "get_post_field('post_excerpt'" "${functions}"
-          grep -q "define('BM_VERSION', '4.5')" "${functions}"
-          grep -q "Version: 4.5" "${theme}/style.css"
+          grep -q "define('BM_VERSION', '4.6')" "${functions}"
+          grep -q "Version: 4.6" "${theme}/style.css"
 
           grep -q "bm-research-lead__title a" "${browser}"
           grep -q "no qualified Research article discoverable" "${browser}"
@@ -219,25 +215,35 @@ jobs:
           grep -q "Legacy generic-Riset canary is still indexable" "${cleanliness}"
           grep -q "Qualified article title does not carry the Bitmomo Research search promise" "${cleanliness}"
 
-      - name: Enforce single SEO owner
+      - name: Enforce single SEO owner and utility indexability
         shell: bash
         run: |
           set -euo pipefail
           theme="website/wp-content/themes/bitmomo-child-v3"
           functions="${theme}/functions.php"
           helpers="${theme}/inc/template-functions.php"
+          pro_main="website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
 
           grep -q "Tentang Bitmomo — Market Research & Intelligence Systems" "${functions}"
           grep -q "Bitmomo Research — Bitcoin Markets & Intelligence Systems" "${functions}"
           grep -q "Bitmomo — Bitcoin Market Intelligence & Research" "${functions}"
-          grep -q "bitmomo_research_filter_robots" "${functions}"
-          grep -q "bitmomo_rank_math_research_robots" "${functions}"
-          grep -q "bitmomo_research_rank_math_canonical" "${functions}"
+          grep -q "bitmomo_should_noindex_public_view" "${functions}"
+          grep -q "is_search()" "${functions}"
+          grep -q "is_archive() && !is_category('riset')" "${functions}"
           grep -q "rank_math/frontend/title" "${functions}"
           grep -q "rank_math/frontend/description" "${functions}"
           grep -q "rank_math/frontend/robots" "${functions}"
           ! grep -q "rank_math/frontend/title" "${helpers}"
           ! grep -q "rank_math/frontend/description" "${helpers}"
+
+          # The legacy Pro Sales methods remain for compatibility but are
+          # explicitly detached at plugin boot so runtime has one SEO owner.
+          grep -q "remove_filter( 'rank_math/frontend/description'" "${pro_main}"
+          grep -q "remove_action( 'wp_head'" "${pro_main}"
+          grep -q "BITMOMO_PRO_VERSION', '0.12.7'" "${pro_main}"
+
+      - name: Enforce terminal-grade public invariants
+        run: node scripts/check-terminal-grade-contract.mjs
 
       - name: Prevent publisher-first source-of-truth regression
         shell: bash
