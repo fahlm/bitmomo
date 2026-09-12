@@ -179,6 +179,15 @@
   font-size: 14px;
 }
 .bm-howworks-roadmap strong { color: var(--bm-text); }
+.bm-howworks-roadmap > a {
+  color: var(--bm-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.bm-howworks-roadmap > a:hover,
+.bm-howworks-roadmap > a:focus-visible { color: var(--bm-text); }
 
 /* ---------- Help: denser, calmer, same system ---------- */
 .bm-help { max-width: 920px !important; padding: 44px 24px 72px !important; }
@@ -219,10 +228,10 @@
 .bm-footer-brand strong { display: block; margin-bottom: 8px; color: var(--bm-text); font-size: 20px; }
 .bm-footer-brand p { max-width: 360px; margin: 0; color: var(--bm-muted); font-size: 13px; line-height: 1.6; }
 .bm-footer-group { display: grid; align-content: start; gap: 8px; }
-.bm-footer-group strong { margin-bottom: 2px; color: #71839f; font: 800 10px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; letter-spacing: .12em; }
+.bm-footer-group strong { margin-bottom: 2px; color: #8294ae; font: 800 10px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; letter-spacing: .12em; }
 .bm-footer-group a { color: #b9c7d7; font-size: 13px; }
 .bm-footer-group a:hover { color: var(--bm-accent); }
-.bm-footer-bottom { display: flex; justify-content: space-between; gap: 18px; padding: 18px 0 28px; border-top: 1px solid var(--bm-border); color: #71839f; font-size: 12px; }
+.bm-footer-bottom { display: flex; justify-content: space-between; gap: 18px; padding: 18px 0 28px; border-top: 1px solid var(--bm-border); color: #8294ae; font-size: 12px; }
 .bm-footer-bottom p { margin: 0; }
 
 /* ---------- 404 ---------- */
