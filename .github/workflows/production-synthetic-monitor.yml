@@ -26,6 +26,24 @@ jobs:
         run: |
           set -euo pipefail
 
+          has_robots_noindex() {
+            python3 - "$1" <<'PY'
+          import re
+          import sys
+
+          with open(sys.argv[1], encoding="utf-8", errors="ignore") as handle:
+              html = handle.read()
+
+          for tag in re.findall(r"<meta\b[^>]*>", html, flags=re.IGNORECASE):
+              is_robots = re.search(r"\bname\s*=\s*['\"]robots['\"]", tag, flags=re.IGNORECASE)
+              is_noindex = re.search(r"\bcontent\s*=\s*['\"][^'\"]*\bnoindex\b", tag, flags=re.IGNORECASE)
+              if is_robots and is_noindex:
+                  raise SystemExit(0)
+
+          raise SystemExit(1)
+          PY
+          }
+
           check_page() {
             local url="$1"
             local marker="$2"
@@ -55,7 +73,7 @@ jobs:
               exit 1
             fi
 
-            if grep -Eqi '<meta[^>]+name=["'"']robots["'"'][^>]+content=["'"'][^"'"']*noindex' "${body}"; then
+            if has_robots_noindex "${body}"; then
               echo "::error title=Production indexing regression::${url} unexpectedly contains robots noindex"
               exit 1
             fi
