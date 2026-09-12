@@ -11,6 +11,8 @@ const surfaces = [
   { name: 'home', path: '/', marker: 'BTC Intelligence' },
   { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Pahami BTC dalam konteks.', active: 'BTC Intelligence' },
   { name: 'pro', path: '/pro/', marker: 'FOUNDING MEMBERSHIP', active: 'BITMOMO PRO' },
+  { name: 'account', path: '/pro/account/', marker: 'Akun Bitmomo Pro', active: 'Masuk' },
+  { name: 'pro-dashboard', path: '/pro-dashboard/', marker: 'Dashboard Bitmomo Pro' },
   { name: 'help', path: '/help/', marker: 'Help Center' },
   { name: 'research', path: '/category/riset/', marker: 'Riset untuk memahami pasar', active: 'Research' },
   { name: 'about', path: '/tentang-kami/', marker: 'Tentang Kami', active: 'Tentang' },
@@ -34,6 +36,8 @@ const expectedSocial = {
 };
 const requiredSurfaceSelectors = {
   home: ['.bm-direction-card', '.bm-authority__pillars', '.bm-research-list', '.bm-ai-lab-themes'],
+  account: ['.bm-pro-account__head', '.bm-pro-account', '.bm-pro-account__gate'],
+  'pro-dashboard': ['.bm-pro__page-head', '.bm-pro', '.bm-pro__gate'],
   research: ['.bm-research-hub__hero', '.bm-research-disciplines', '.bm-research-principles__grid', '.bm-research-streams', '.bm-research-archive'],
   article: ['.bm-article-head', '.bm-article-body', '.bm-article-standard'],
   about: ['.bm-about-authority'],
@@ -51,8 +55,6 @@ function addFailure(surface, viewport, message) {
 }
 
 try {
-  /* Discover a real published research article instead of hard-coding a slug.
-     This keeps the browser contract aligned with WordPress as source of truth. */
   const discoveryContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const discoveryPage = await discoveryContext.newPage();
   try {
@@ -66,17 +68,10 @@ try {
         const title = (await articleLink.innerText()).trim();
         if (href && title) {
           const resolved = new URL(href, baseUrl);
-          if (resolved.origin !== new URL(baseUrl).origin) {
-            failures.push(`article-discovery: representative research link leaves audited origin (${resolved.origin})`);
-          } else {
-            surfaces.push({ name: 'article', url: resolved.href, marker: title, active: 'Research' });
-          }
-        } else {
-          failures.push('article-discovery: representative research article has no usable href/title');
-        }
-      } else {
-        failures.push('article-discovery: Research Hub exposes no published article to audit');
-      }
+          if (resolved.origin !== new URL(baseUrl).origin) failures.push(`article-discovery: representative research link leaves audited origin (${resolved.origin})`);
+          else surfaces.push({ name: 'article', url: resolved.href, marker: title, active: 'Research' });
+        } else failures.push('article-discovery: representative research article has no usable href/title');
+      } else failures.push('article-discovery: Research Hub exposes no published article to audit');
     }
   } catch (error) {
     failures.push(`article-discovery: ${error.message}`);
@@ -113,6 +108,11 @@ try {
 
       for (const selector of requiredSurfaceSelectors[surface.name] || []) {
         if ((await page.locator(selector).count()) !== 1) addFailure(surface, viewport, `expected one canonical ${selector}`);
+      }
+
+      if (surface.name === 'pro-dashboard') {
+        const paidDashboardCount = await page.locator('.bm-pro__dashboard').count();
+        if (paidDashboardCount !== 0) addFailure(surface, viewport, `anonymous request exposed paid dashboard markup (${paidDashboardCount})`);
       }
 
       const metrics = await page.evaluate(() => {
