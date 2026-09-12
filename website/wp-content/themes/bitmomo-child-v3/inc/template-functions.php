@@ -31,10 +31,9 @@ if (!function_exists('bitmomo_public_social_links')) {
     /**
      * Canonical public social destinations.
      *
-     * Telegram intentionally has no guessed default. The public channel URL
-     * must be explicitly supplied via `bitmomo_telegram_url` once the official
-     * destination is locked. X and YouTube already have canonical Bitmomo
-     * handles and remain filterable if those destinations ever change.
+     * These are the official Bitmomo public channels. Filters are kept as a
+     * narrow configuration seam so a future handle migration does not require
+     * touching footer markup.
      *
      * @return array<string,array{label:string,url:string}>
      */
@@ -42,7 +41,7 @@ if (!function_exists('bitmomo_public_social_links')) {
         $links = array(
             'telegram' => array(
                 'label' => 'Telegram',
-                'url'   => (string) apply_filters('bitmomo_telegram_url', ''),
+                'url'   => (string) apply_filters('bitmomo_telegram_url', 'https://t.me/bitmomodaily'),
             ),
             'youtube' => array(
                 'label' => 'YouTube',
