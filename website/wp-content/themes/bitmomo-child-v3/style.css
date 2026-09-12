@@ -1,15 +1,15 @@
 /*
 Theme Name: Bitmomo Child
 Theme URI: https://bitmomo.id/
-Description: Child theme of Hello Elementor providing a custom homepage design.
+Description: Bitmomo institutional research and market-intelligence public surface.
 Author: Bitmomo
 Author URI: https://bitmomo.id/
 Template: hello-elementor
-Version: 1.0
+Version: 4.5
 */
 /*
  * This file is intentionally left almost empty. WordPress will load
  * the parent theme’s stylesheet and our custom styles are enqueued
- * via functions.php as a separate file (custom.css). Keeping
+ * via functions.php as separate, ordered design-system layers. Keeping
  * style.css small reduces override conflicts.
  */
