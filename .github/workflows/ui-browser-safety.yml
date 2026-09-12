@@ -1,6 +1,14 @@
 name: UI browser safety
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
+      - "website/wp-content/plugins/bitmomo-pro/**"
+      - "scripts/check-public-ui.mjs"
+      - ".github/workflows/ui-browser-safety.yml"
   workflow_dispatch:
     inputs:
       base_url:
