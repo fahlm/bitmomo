@@ -1,0 +1,31 @@
+/* Long-form research/article reading surface. */
+.bm-article { padding-block: clamp(52px, 7vw, 88px); }
+.bm-article > .bm-container { max-width: 960px; }
+.bm-article-head { max-width: var(--bm-reading); margin: 0 auto 30px; }
+.bm-article-title { margin: 0; font-size: clamp(36px, 5.4vw, 62px); line-height: 1.06; letter-spacing: -.04em; }
+.bm-article-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; color: var(--bm-color-text-3); font-size: 13px; }
+.bm-article-meta a { color: var(--bm-color-text-2); }
+.bm-article-figure { margin: 0 auto 36px; border: 1px solid var(--bm-color-border); border-radius: var(--bm-radius-lg); overflow: hidden; background: var(--bm-color-surface); }
+.bm-article-figure img { width: 100%; }
+.bm-article-body { max-width: var(--bm-reading); margin-inline: auto; color: var(--bm-color-text-2); font-size: 17px; line-height: 1.82; overflow-wrap: anywhere; }
+.bm-article-body > *:first-child { margin-top: 0; }
+.bm-article-body h2 { margin: 46px 0 16px; font-size: clamp(25px, 3.2vw, 34px); line-height: 1.2; }
+.bm-article-body h3 { margin: 34px 0 12px; font-size: 22px; line-height: 1.25; }
+.bm-article-body p, .bm-article-body ul, .bm-article-body ol { margin-bottom: 20px; }
+.bm-article-body blockquote { margin: 32px 0; padding: 18px 22px; border-left: 3px solid var(--bm-color-accent); background: rgba(57, 215, 199, .055); color: var(--bm-color-text); }
+.bm-article-body table { width: 100%; border-collapse: collapse; margin-block: 28px; font-size: 14px; }
+.bm-article-body th, .bm-article-body td { padding: 11px 12px; border: 1px solid var(--bm-color-border); text-align: left; vertical-align: top; }
+.bm-article-body th { background: var(--bm-color-surface); color: var(--bm-color-text); }
+.bm-article-foot { max-width: var(--bm-reading); margin: 48px auto 0; padding-top: 22px; border-top: 1px solid var(--bm-color-border); }
+.bm-post-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.bm-post-nav a { color: var(--bm-color-text-2); font-size: 14px; text-decoration: none; }
+.bm-post-nav .next { text-align: right; }
+.bm-related { border-top: 1px solid var(--bm-color-border); }
+
+@media (max-width: 767px) {
+  .bm-article { padding-block: 40px 64px; }
+  .bm-article-title { font-size: clamp(34px, 10vw, 46px); }
+  .bm-article-body { font-size: 16px; }
+  .bm-post-nav { grid-template-columns: 1fr; }
+  .bm-post-nav .next { text-align: left; }
+}

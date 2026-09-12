@@ -1,0 +1,19 @@
+/* Bitmomo Design Tokens — canonical visual source of truth. */
+:root {
+  color-scheme: dark;
+  --bm-color-bg:#081522;--bm-color-bg-deep:#06101a;--bm-color-surface:#0d2130;--bm-color-surface-2:#112a3b;--bm-color-surface-3:#163347;
+  --bm-color-text:#f1f6f8;--bm-color-text-2:#c6d4dc;--bm-color-text-3:#9eb2c0;--bm-color-text-4:#8399aa;
+  --bm-color-border:rgba(207,228,238,.12);--bm-color-border-strong:rgba(207,228,238,.20);
+  --bm-color-accent:#39d7c7;--bm-color-accent-strong:#21bfae;--bm-color-action:#f4ad32;--bm-color-action-hover:#ffc15a;
+  --bm-color-bull:#49d7a5;--bm-color-bear:#ff8585;--bm-color-neutral:#a9b9cb;--bm-color-focus:#7bf3e7;
+  --bm-font-sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--bm-font-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  --bm-container:1200px;--bm-reading:760px;--bm-gutter:clamp(16px,3vw,32px);--bm-header-height:64px;
+  --bm-space-1:4px;--bm-space-2:8px;--bm-space-3:12px;--bm-space-4:16px;--bm-space-5:20px;--bm-space-6:24px;--bm-space-8:32px;--bm-space-10:40px;--bm-space-12:48px;--bm-space-16:64px;--bm-space-20:80px;--bm-space-24:96px;
+  --bm-radius-sm:8px;--bm-radius-md:12px;--bm-radius-lg:18px;--bm-radius-xl:24px;--bm-radius-pill:999px;--bm-shadow-sm:0 10px 30px rgba(0,0,0,.18);--bm-shadow-lg:0 26px 70px rgba(0,0,0,.28);--bm-ease:160ms ease;
+  /* Compatibility aliases are temporary migration shims, not a second palette. */
+  --bm-bg:var(--bm-color-bg);--bm-bg-raised:var(--bm-color-surface);--bm-surface:var(--bm-color-surface);--bm-surface-strong:var(--bm-color-surface-2);--bm-surface-soft:var(--bm-color-surface);
+  --bm-text:var(--bm-color-text);--bm-text-muted:var(--bm-color-text-2);--bm-text-subtle:var(--bm-color-text-3);--bm-border:var(--bm-color-border);--bm-border-strong:var(--bm-color-border-strong);
+  --bm-teal:var(--bm-color-accent);--bm-teal-strong:var(--bm-color-accent-strong);--bm-teal-soft:rgba(57,215,199,.10);--bm-action:var(--bm-color-action);--bm-action-hover:var(--bm-color-action-hover);
+  --bm-bull:var(--bm-color-bull);--bm-bear:var(--bm-color-bear);--bm-neutral:var(--bm-color-neutral);--bm-shadow:var(--bm-shadow-lg);--bm-text-subtle-readable:var(--bm-color-text-3);
+  --bg:var(--bm-color-bg);--bg-2:var(--bm-color-surface);--ink:var(--bm-color-text);--muted:var(--bm-color-text-2);--teal:var(--bm-color-accent);--teal-hover:var(--bm-color-accent-strong);--cta:var(--bm-color-action);--cta-hover:var(--bm-color-action-hover);--stroke:var(--bm-color-border);--card-bg:var(--bm-color-surface);--radius:var(--bm-radius-lg);--pill:var(--bm-radius-pill);--shadow:var(--bm-shadow-lg);--font:var(--bm-font-sans);
+}
