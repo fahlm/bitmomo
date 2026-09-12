@@ -18,7 +18,7 @@ on:
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
   push:
-    branches: [main, "fix/**", "feature/**"]
+    branches: [main, "fix/**", "feature/**", "feat/**"]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/page.php"
@@ -100,8 +100,18 @@ jobs:
           grep -q "about.css" "${assets}"
           grep -q "is_category('riset')" "${assets}"
           grep -q "is_page('tentang-kami')" "${assets}"
-          grep -q '"expected_file_count": 111' config/production-runtime.json
-          grep -q '"expected_file_count": 44' config/production-runtime.json
+
+          python3 - <<'PY'
+          import json
+          manifest = json.load(open('config/production-runtime.json', encoding='utf-8'))
+          components = manifest.get('components', [])
+          total = sum(int(component.get('expected_file_count', 0)) for component in components)
+          assert int(manifest.get('expected_file_count', -1)) == total, (
+              f"runtime total {manifest.get('expected_file_count')} != component sum {total}"
+          )
+          theme = next((component for component in components if component.get('name') == 'bitmomo-child-v3'), None)
+          assert theme and int(theme.get('expected_file_count', 0)) == 44, 'authority theme runtime contract must remain 44 files'
+          PY
 
       - name: Enforce single SEO owner
         shell: bash
