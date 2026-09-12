@@ -2,14 +2,13 @@
 /**
  * Canonical public page template.
  *
- * Prevents ordinary WordPress pages from silently falling back to the Hello
- * Elementor parent theme. Product shortcodes keep their own H1/layout while
- * About/legal/editorial pages use the shared Bitmomo public surface.
+ * Product shortcodes keep renderer-owned H1/layout. Ordinary pages use the
+ * shared Bitmomo reading surface so Hello Elementor never silently becomes
+ * the public design system.
  *
  * @package Bitmomo
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
-
 get_header();
 ?>
 <main id="primary" class="bm-public-main">
@@ -44,12 +43,17 @@ get_header();
     <article <?php post_class( 'bm-public-page' ); ?>>
       <div class="bm-public-page__inner">
         <header class="bm-public-head bm-public-head--page">
-          <p class="bm-public-eyebrow"><?php esc_html_e( 'BITMOMO', 'bitmomo' ); ?></p>
+          <p class="bm-public-eyebrow"><?php echo esc_html( is_page( 'tentang-kami' ) ? 'BITMOMO · RESEARCH & INTELLIGENCE' : 'BITMOMO' ); ?></p>
           <h1 class="bm-public-title"><?php the_title(); ?></h1>
         </header>
+
+        <?php if ( is_page( 'tentang-kami' ) ) : ?>
+          <?php get_template_part( 'template-parts/about', 'authority' ); ?>
+        <?php endif; ?>
+
         <div class="bm-public-body">
           <?php
-          // WordPress post content is rendered through the canonical the_content filter stack above.
+          // WordPress post content is rendered through the canonical filter stack above.
           // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
           echo $bm_rendered_content;
           ?>
