@@ -20,6 +20,7 @@ const assets = read('inc/trait-bitmomo-assets.php');
 const content = read('inc/trait-bitmomo-content.php');
 const js = read('assets/js/bitmomo-frontend.js');
 const navCss = read('assets/css/navigation-footer.css');
+const designCss = read('assets/css/design-system.css');
 const frontPage = read('front-page.php');
 
 check(
@@ -27,12 +28,16 @@ check(
   occurrences(header, /home_url\(\s*'\/pro\/'\s*\)/g) === 1 && occurrences(header, />BITMOMO PRO</g) === 1 && !/>Bitmomo Pro</.test(header)
 );
 check(
-  'Primary navigation keeps the concise launch IA',
-  /BTC Intelligence/.test(header) && /Riset/.test(header) && /Tentang/.test(header) && /Masuk/.test(header) && /BITMOMO PRO/.test(header)
+  'Primary navigation keeps the concise launch IA and resolves account state',
+  /BTC Intelligence/.test(header) && /Riset/.test(header) && /Tentang/.test(header) && /Masuk/.test(header) && /Akun/.test(header) && /BITMOMO PRO/.test(header)
 );
 check(
   'Primary navigation exposes non-color active-page semantics',
   header.includes('aria-current') && header.includes('page') && navCss.includes('a[aria-current="page"]')
+);
+check(
+  'Research active state uses canonical classification instead of historical category membership',
+  /bitmomo_post_research_classification/.test(header) && /'market', 'ai-systems'/.test(header) && !/is_single\(\)\s*&&\s*has_category/.test(header)
 );
 check(
   'Account navigation URL and active state share the same resolved page source',
@@ -41,12 +46,17 @@ check(
   /\$bm_is_account \? ' aria-current="page"'/.test(header)
 );
 check(
+  'Every public route has a keyboard skip contract',
+  /class="bm-skip-link"/.test(header) && /href="#primary"/.test(header) && /id="primary"/.test(frontPage) && /\.bm-skip-link/.test(designCss)
+);
+check(
   'Mobile menu removes hidden links from keyboard navigation',
   /nav\.setAttribute\('inert', ''\)/.test(js) && /nav\.setAttribute\('aria-hidden', 'true'\)/.test(js) && /nav\.removeAttribute\('inert'\)/.test(js)
 );
 check(
-  'Mobile menu closes by link, outside click, Escape and desktop resize',
-  /navLink/.test(js) && /!event\.target\.closest\('#bm-nav'\)/.test(js) && /event\.key !== 'Escape'/.test(js) && /window\.addEventListener\('resize'/.test(js)
+  'Mobile menu closes predictably and contains keyboard focus while open',
+  /navLink/.test(js) && /!event\.target\.closest\('#bm-nav'\)/.test(js) && /event\.key === 'Escape'/.test(js) &&
+  /event\.key !== 'Tab'/.test(js) && /menuFocusable\(\)/.test(js) && /window\.addEventListener\('resize'/.test(js)
 );
 check(
   'Newsletter has exactly one permanent footer surface and no standalone newsletter template',
@@ -69,8 +79,8 @@ check(
   /https:\/\/t\.me\/bitmomodaily/.test(helpers) && /https:\/\/www\.youtube\.com\/@bitmomoid/.test(helpers) && /https:\/\/x\.com\/bitmomoid/.test(helpers) && /data-social=/.test(footer)
 );
 check(
-  'Navigation/footer stylesheet is enqueued after the public surface stylesheet',
-  !header.includes('public-surfaces.css') && assets.indexOf('public-surfaces.css') > -1 && assets.indexOf('navigation-footer.css') > assets.indexOf('public-surfaces.css') && assets.includes("'bitmomo-navigation-footer'") && assets.includes("$public_surface_deps = ['bitmomo-navigation-footer'];")
+  'Design foundation and navigation/footer layers have explicit dependency order',
+  !header.includes('public-surfaces.css') && assets.indexOf('design-system.css') > -1 && assets.indexOf('public-surfaces.css') > assets.indexOf('design-system.css') && assets.indexOf('navigation-footer.css') > assets.indexOf('public-surfaces.css') && assets.includes("'bitmomo-navigation-footer'") && assets.includes("$public_surface_deps = ['bitmomo-navigation-footer'];")
 );
 
 if (failures.length) {
