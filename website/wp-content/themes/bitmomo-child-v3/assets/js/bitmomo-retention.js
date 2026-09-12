@@ -89,6 +89,44 @@
     }
   }
 
+  /**
+   * Progressive enhancement for repeat visitors: put the information that
+   * answers "what changed since I last looked?" before the detailed spectrum.
+   * No data is recomputed or duplicated; existing server-rendered blocks are
+   * only reordered in the DOM. If markup changes, this fails open and leaves
+   * the canonical server order untouched.
+   */
+  function prioritizeMarketPulse() {
+    var snapshot = document.querySelector('.bm-bi__snapshot');
+    if (!snapshot || snapshot.getAttribute('data-market-pulse-enhanced') === '1') return;
+
+    var pulse = snapshot.querySelector('.bm-bi__session-context');
+    var spectrum = snapshot.querySelector('.bm-bi__spectrum');
+    var freshness = snapshot.querySelector('.bm-bi__freshness');
+    var top = snapshot.querySelector('.bm-bi__snapshot-top');
+
+    if (!pulse || !spectrum) return;
+
+    // What Changed is the most valuable repeat-visit answer, followed by the
+    // current setup/what happened, then the next context to watch.
+    if (pulse.children.length >= 2) {
+      pulse.insertBefore(pulse.children[1], pulse.children[0]);
+    }
+
+    pulse.classList.add('bm-bi__session-context--pulse');
+    pulse.setAttribute('role', 'region');
+    pulse.setAttribute('aria-label', 'Market Pulse: perubahan dan konteks BTC saat ini');
+
+    if (freshness && top) {
+      top.insertAdjacentElement('afterend', freshness);
+      freshness.insertAdjacentElement('afterend', pulse);
+    } else {
+      spectrum.parentNode.insertBefore(pulse, spectrum);
+    }
+
+    snapshot.setAttribute('data-market-pulse-enhanced', '1');
+  }
+
   document.addEventListener('click', function (event) {
     var historyControl = event.target && event.target.closest
       ? event.target.closest('.bmreg-trend-bar, .bm-state-chart .bm-direction-bar')
@@ -115,5 +153,6 @@
     }
   }, true);
 
+  prioritizeMarketPulse();
   trackVisit();
 }());
