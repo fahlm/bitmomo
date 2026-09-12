@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check launch-critical public surfaces
+      - name: Check public surface matrix
         shell: bash
         run: |
           set -euo pipefail
@@ -85,6 +85,11 @@ jobs:
           check_page "https://bitmomo.id/" "BTC Intelligence"
           check_page "https://bitmomo.id/btc-intelligence/" "Pahami BTC dalam konteks."
           check_page "https://bitmomo.id/pro/" "FOUNDING MEMBERSHIP"
+          check_page "https://bitmomo.id/help/" "Help Center"
+          check_page "https://bitmomo.id/category/riset/" "Riset"
+          check_page "https://bitmomo.id/tentang-kami/" "Tentang Kami"
+          check_page "https://bitmomo.id/kebijakan-privasi/" "Kebijakan Privasi"
+          check_page "https://bitmomo.id/disclaimer/" "Disclaimer"
 
       - name: Verify BTC Intelligence provenance contract
         shell: bash
