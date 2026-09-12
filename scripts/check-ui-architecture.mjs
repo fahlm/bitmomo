@@ -89,8 +89,11 @@ for (const legacyEnqueue of ["wp_enqueue_style('bitmomo-child'", 'home-opportuni
 if (!assetTrait.includes('No speculative external preconnects')) fail('performance contract must reject speculative external preconnects');
 
 const header = read('website/wp-content/themes/bitmomo-child-v3/header.php');
+const footer = read('website/wp-content/themes/bitmomo-child-v3/footer.php');
 if (/<link\s+rel=["']stylesheet/i.test(header)) fail('header.php must not manually inject stylesheets outside WordPress dependency management');
 if (!header.includes('wp_head()')) fail('header.php lost wp_head()');
+if (!header.includes("is_user_logged_in() ? __( 'Akun'") || !header.includes(": __( 'Masuk'")) fail('header must distinguish authenticated account state from logged-out Masuk state');
+if (!footer.includes('/category/riset/#bm-market-research-stream') || !footer.includes('/category/riset/#bm-ai-research-stream')) fail('footer must route Market Research and AI Lab into the canonical Research Hub');
 
 const runtime = JSON.parse(read('config/production-runtime.json'));
 for (const legacyRuntimePath of ['custom.css','assets/css/home-opportunity.css','assets/css/public-readability.css']) {
@@ -101,9 +104,6 @@ for (const requiredRuntimePath of ['data/runtime-fingerprint.json','assets/css/f
   if (!themeRuntime?.required?.includes(requiredRuntimePath)) fail(`production runtime does not require canonical frontend asset: ${requiredRuntimePath}`);
 }
 
-/* Push browser audits must prove byte-level runtime identity. A manually bumped
-   version string is not sufficient evidence that source and deployed runtime
-   match. The fingerprint contract hashes the named public files themselves. */
 const runtimeFingerprint = JSON.parse(read('website/wp-content/themes/bitmomo-child-v3/data/runtime-fingerprint.json'));
 const fingerprintFiles = new Set(runtimeFingerprint.files || []);
 for (const requiredFingerprintPath of [
@@ -131,6 +131,9 @@ for (const fingerprintPath of fingerprintFiles) {
 const templateFunctions = read('website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php');
 for (const marker of ['bitmomo_public_runtime_fingerprint','runtime-fingerprint.json','hash_init(\'sha256\')','bitmomo_runtime_fingerprint']) {
   if (!templateFunctions.includes(marker)) fail(`runtime fingerprint implementation is missing marker: ${marker}`);
+}
+for (const marker of ['bitmomo_market_research_taxonomy_slugs','bitmomo_post_is_market_research']) {
+  if (!templateFunctions.includes(marker)) fail(`explicit research classification helper is missing: ${marker}`);
 }
 const browserWorkflow = read('.github/workflows/ui-browser-safety.yml');
 if (!browserWorkflow.includes('bitmomo_runtime_fingerprint')) fail('browser parity gate must use the byte-level runtime fingerprint endpoint');
@@ -183,12 +186,14 @@ if (!/<p>[^<]{25,}<\/p>/.test(aiLab)) fail('AI Lab themes must carry substantive
 const category = read('website/wp-content/themes/bitmomo-child-v3/category.php');
 const researchHub = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php');
 if (!category.includes("get_template_part( 'template-parts/research', 'hub' )")) fail('Riset category must route to the dedicated Research Hub');
-for (const marker of ['Crypto Market Research','AI Systems Research','FEATURED RESEARCH','RESEARCH STANDARD','Market Research','AI Lab','Seluruh publikasi']) {
+for (const marker of ['Crypto Market Research','AI Systems Research','LATEST RESEARCH','RESEARCH STANDARD','Market Research','AI Lab','Seluruh publikasi']) {
   if (!researchHub.includes(marker)) fail(`Research Hub lost institutional layer: ${marker}`);
 }
-if (!researchHub.includes("get_term_by( 'slug', 'ai-lab', 'post_tag' )") || !researchHub.includes('tag__not_in') || !researchHub.includes('tag__in')) {
-  fail('Research Hub must separate Market Research and AI Lab from WordPress taxonomy, not hard-coded fake content');
+if (researchHub.includes('FEATURED RESEARCH')) fail('latest article must not be mislabeled as editorially selected Featured Research');
+if (!researchHub.includes("get_term_by( 'slug', 'ai-lab', 'post_tag' )") || !researchHub.includes('bitmomo_market_research_taxonomy_slugs') || !researchHub.includes('tax_query') || !researchHub.includes('tag__in')) {
+  fail('Research Hub must classify Market Research and AI Lab from explicit WordPress taxonomy, not non-AI fallback logic');
 }
+if (!researchHub.includes('RESEARCH ARCHIVE')) fail('legacy/general Riset content needs an honest archive classification instead of automatic Market Research');
 
 const researchCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/research.css');
 for (const marker of ['.bm-research-hub__hero', '.bm-research-disciplines', '.bm-research-featured__card', '.bm-research-principles__grid', '.bm-research-streams', '.bm-article-body', '@media (max-width: 680px)']) {
@@ -196,7 +201,7 @@ for (const marker of ['.bm-research-hub__hero', '.bm-research-disciplines', '.bm
 }
 
 const single = read('website/wp-content/themes/bitmomo-child-v3/single.php');
-for (const marker of ['CRYPTO MARKET RESEARCH','AI SYSTEMS RESEARCH','bm_read_minutes','Standar Bitmomo Research','bm-article-tags']) {
+for (const marker of ['CRYPTO MARKET RESEARCH','AI SYSTEMS RESEARCH','BITMOMO RESEARCH ARCHIVE','bitmomo_post_is_market_research','bm_read_minutes','Standar Bitmomo Research','bm-article-tags']) {
   if (!single.includes(marker)) fail(`article publication surface lost research metadata/standard: ${marker}`);
 }
 
@@ -227,6 +232,15 @@ for (const requiredCall of ['render_hero()', 'render_current_snapshot()', 'rende
 for (const removedCall of ['render_how_it_works()', 'render_five_axes()', 'render_how_to_read()', 'render_confidence_evaluation()', 'render_expected_range_performance()', 'render_regime_performance()', 'render_data_quality()']) {
   if (renderPage.includes(removedCall)) fail(`BTC Intelligence explanation wall returned via ${removedCall}`);
 }
+if (/perubahan thesis, dan alert/i.test(btcPage)) fail('BTC Intelligence must not promise alert capability before Watchtower is live');
+
+const proAccount = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php');
+const proDashboard = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-shortcodes.php');
+const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
+if (!proAccount.includes('<h1 class="bm-pro-account__title">') || !proAccount.includes('Akun Bitmomo Pro')) fail('Pro account surface must own exactly one meaningful H1');
+if (!proDashboard.includes('<h1 class="bm-pro__page-title">') || !proDashboard.includes('Dashboard Bitmomo Pro')) fail('Pro dashboard surface must own exactly one meaningful H1');
+if (!proDashboard.includes("sprintf( __( 'Bias: %s'")) fail('Pro dashboard must present bullish/neutral/bearish as Bias, not Market State');
+if (/Perseverance Capital|ETHLend|sejak 2016|berpartisipasi sejak awal|\bBNB\b/.test(proSales)) fail('unverified founder/company lineage returned to public Pro sales source');
 
 const btcCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/bitmomo-btc-intelligence.css');
 if (!btcCss.includes('--bmi-text-subtle:var(--bm-text-subtle-readable,#8294ae)')) fail('BTC Intelligence must consume shared readable subtle-text token');
