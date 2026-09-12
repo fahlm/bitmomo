@@ -49,8 +49,8 @@ function requireContrast(label, foreground, background, minimum = WCAG_AA_NORMAL
 
 const requiredFiles = [
   'functions.php', 'custom.css', 'front-page.php', 'page.php', 'inc/template-functions.php',
-  'assets/css/home-opportunity.css', 'assets/css/public-readability.css', 'assets/css/public-surfaces.css',
-  'assets/js/bitmomo-frontend.js',
+  'assets/css/design-system.css', 'assets/css/home-opportunity.css', 'assets/css/public-readability.css',
+  'assets/css/public-surfaces.css', 'assets/js/bitmomo-frontend.js',
 ];
 for (const relative of requiredFiles) {
   if (!fs.existsSync(path.join(themeDir, relative))) fail(`required UI source is missing: ${relative}`);
@@ -60,6 +60,7 @@ const phpFiles = walk(themeDir).filter((file) => file.endsWith('.php'));
 for (const file of phpFiles) {
   const source = fs.readFileSync(file, 'utf8');
   if (source.includes('wp_add_inline_style(')) fail(`visual CSS must live in CSS assets, not wp_add_inline_style(): ${path.relative(root, file)}`);
+  if (/<style\b/i.test(source)) fail(`public theme PHP must not own ad-hoc inline <style> blocks: ${path.relative(root, file)}`);
 }
 
 const functionsPhp = fs.readFileSync(path.join(themeDir, 'functions.php'), 'utf8');
@@ -69,26 +70,33 @@ for (const marker of ['bitmomo_public_snapshot_contract','bitmomo-snapshot-contr
 if (!functionsPhp.includes("'schema' => 2") || functionsPhp.includes("'market_state' =>") || functionsPhp.includes("'opportunity_state' =>")) {
   fail('public snapshot HTML contract must mirror visible public facts only');
 }
+if (!functionsPhp.includes('bitmomo_should_noindex_public_view') || !functionsPhp.includes('is_search()') || !functionsPhp.includes("is_archive() && !is_category('riset')")) {
+  fail('public indexability must be governed by one utility/archive noindex predicate');
+}
 
 const frontendTrait = fs.readFileSync(path.join(themeDir, 'inc/trait-bitmomo-frontend.php'), 'utf8');
-if (!frontendTrait.includes("is_front_page() || is_page(['pro', 'btc-intelligence'])")) {
-  fail('legacy newsletter modal must stay suppressed on homepage, Pro and BTC Intelligence launch surfaces');
+if (!/public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontendTrait) || /bm-subscribe-modal|bm-subscribe-dialog/.test(frontendTrait)) {
+  fail('legacy newsletter modal must be structurally disabled on every public route');
 }
 
 const frontPage = fs.readFileSync(path.join(themeDir, 'front-page.php'), 'utf8');
+if (!frontPage.includes('<main id="primary"')) fail('homepage must expose the canonical #primary skip target');
 if (frontPage.includes("get_template_part( 'template-parts/btc-intelligence', 'card' )")) {
   fail('homepage must not render a second BTC Intelligence card below the hero');
 }
 if (frontPage.includes("get_template_part( 'template-parts/newsletter' )")) {
   fail('homepage whitelist is the launch conversion path; standalone newsletter must not compete with it');
 }
-if (frontPage.includes("template-parts/ai", ) || frontPage.includes("template-parts/platform")) {
+if (frontPage.includes("template-parts/ai") || frontPage.includes("template-parts/platform")) {
   fail('homepage launch hierarchy must not be diluted by AI Lab or direct referral surfaces');
 }
 
 const frontendJs = fs.readFileSync(path.join(themeDir, 'assets/js/bitmomo-frontend.js'), 'utf8');
 for (const retiredMarker of ['bmreg-trend', 'bmreg-price-line', 'bm-state-chart', 'bm-direction-detail-certainty', 'bm-direction-detail-state']) {
   if (frontendJs.includes(retiredMarker)) fail(`retired market-state presentation behavior returned: ${retiredMarker}`);
+}
+if (!frontendJs.includes('menuFocusable()') || !frontendJs.includes("event.key !== 'Tab'")) {
+  fail('mobile navigation must keep keyboard focus inside the open navigation surface');
 }
 
 const pageTemplate = fs.readFileSync(path.join(themeDir, 'page.php'), 'utf8');
@@ -111,10 +119,15 @@ for (const marker of ['.bm-hero-actions', '.bm-direction-summary', '.bm-directio
 for (const marker of ['>ARAH<', '>KEYAKINAN<', '>ALASAN UTAMA<', '>DIPERBARUI<']) {
   if (!homeHero.includes(marker)) fail(`homepage current reading lost required visitor-facing information: ${marker}`);
 }
-for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()']) {
-  if (homeHero.includes(forbidden)) fail(`homepage leaked retired/internal public-dashboard detail: ${forbidden}`);
+for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()', '<style', 'Decision View']) {
+  if (homeHero.includes(forbidden)) fail(`homepage leaked retired/internal or privately-owned presentation detail: ${forbidden}`);
 }
 if (opportunityCss.includes('color:#71839f')) fail('homepage intelligence reintroduced the known sub-AA #71839f micro-text color');
+
+const designCss = fs.readFileSync(path.join(themeDir, 'assets/css/design-system.css'), 'utf8');
+for (const marker of ['.bm-skip-link', 'prefers-reduced-motion: reduce', '--bm-focus-ring', '44px !important']) {
+  if (!designCss.includes(marker)) fail(`design foundation is missing accessibility primitive: ${marker}`);
+}
 
 const readabilityCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-readability.css'), 'utf8');
 for (const marker of ['--bm-text-subtle-readable', '.bm-bi', '--bmi-text-muted', '.bm-pro-sales', '--bms-text-muted', '.bm-wl__submit']) {
