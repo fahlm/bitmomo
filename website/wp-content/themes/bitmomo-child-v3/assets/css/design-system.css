@@ -1,0 +1,156 @@
+/*
+ * Bitmomo public design foundation.
+ *
+ * Loaded after frozen legacy custom.css and before every public surface layer.
+ * This file owns cross-surface interaction, accessibility and foundation tokens.
+ * New public primitives belong here or in a named surface stylesheet — never
+ * back in custom.css.
+ */
+
+:root {
+  color-scheme: dark;
+
+  --bm-bg: #0c1c2a;
+  --bm-bg-elevated: #0f2434;
+  --bm-bg-soft: #10283a;
+  --bm-text: #edf4f6;
+  --bm-text-secondary: #c7d4db;
+  --bm-text-muted: #9eb0c2;
+  --bm-text-subtle: #8294ae;
+  --bm-teal: #26d0c6;
+  --bm-teal-hover: #5ce0d8;
+  --bm-orange: #f4ad32;
+  --bm-orange-hover: #ffc15a;
+  --bm-danger: #ff8b80;
+  --bm-border: rgba(255,255,255,.10);
+
+  --bm-radius-sm: 6px;
+  --bm-radius-md: 10px;
+  --bm-radius-lg: 14px;
+  --bm-focus-ring: 2px solid #6de0d9;
+  --bm-focus-offset: 3px;
+  --bm-header-height: 64px;
+  --bm-reading-width: 720px;
+  --bm-public-width: 1180px;
+}
+
+html {
+  scroll-padding-top: calc(var(--bm-header-height) + 20px);
+}
+
+body {
+  background: var(--bm-bg);
+  color: var(--bm-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Never let a missing/broken image reserve a misleading public surface. */
+img:not([src]),
+img[src=""],
+img[src="#"] {
+  display: none !important;
+}
+
+/* Keyboard entry point for every route. */
+.bm-skip-link {
+  position: fixed;
+  z-index: 10000;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-160%);
+  padding: 10px 14px;
+  border-radius: var(--bm-radius-sm);
+  background: var(--bm-text);
+  color: #07151f;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform .15s ease;
+}
+
+.bm-skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid var(--bm-teal);
+  outline-offset: 2px;
+}
+
+/* Canonical focus treatment. Component styles may add shape, not hide focus. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: var(--bm-focus-ring);
+  outline-offset: var(--bm-focus-offset);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+a[href] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled,
+[type="submit"]:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .62;
+}
+
+/* Prevent iOS zoom and keep form controls comfortably readable. */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .bm-header button.bm-hamburger {
+    min-width: 44px !important;
+    max-width: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+}
+
+/* Text-only brand fallback if WordPress has no configured site icon. */
+.bm-brand-mark-fallback {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  flex: 0 0 38px;
+  border: 1px solid rgba(38,208,198,.34);
+  border-radius: 10px;
+  background: #10283a;
+  color: var(--bm-teal);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+/* Motion must never be required to understand or operate the interface. */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
