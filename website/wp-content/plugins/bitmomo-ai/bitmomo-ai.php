@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Bitmomo AI
  * Description: Editorial foundation for AI Market Insight and Bitcoin Signal.
- * Version: 1.4.2
+ * Version: 1.5.0
  * Author: Bitmomo
  * Text Domain: bitmomo-ai
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BITMOMO_AI_VERSION', '1.4.2');
+define('BITMOMO_AI_VERSION', '1.5.0');
 define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
@@ -111,12 +111,13 @@ final class Bitmomo_AI_Intelligence {
         $source = self::validated_source();
         if (!$source || empty($source['data']['regime_metrics'])) return null;
         if (self::source_is_stale($source)) return null;
+        $canonical_source_id = sanitize_text_field((string) ($source['source_record_id'] ?? $source['edition_id'] ?? ''));
+        if ($canonical_source_id === '') return null;
         $evaluation = $source['evaluation'];
         $axes = is_array($evaluation['axes'] ?? null) ? $evaluation['axes'] : [];
         $source_timestamp = strtotime((string) ($source['data']['quality']['last_closed_candle'] ?? ($source['data']['timestamp'] ?? ''))) ?: (int) $source['timestamp'];
-        $analysis_date = wp_date('Y-m-d', $source_timestamp, new DateTimeZone('Asia/Jakarta'));
         return [
-            'source_record_id' => 'bitmomo-ai:regime:' . $analysis_date . ':' . $source['edition'],
+            'source_record_id' => $canonical_source_id,
             'timestamp_iso' => gmdate('c', $source_timestamp),
             'edition' => Bitmomo_AI_Session_Intelligence::legacy_edition($source['session_type']),
             'session_type' => $source['session_type'],
@@ -190,15 +191,9 @@ final class Bitmomo_AI_Intelligence {
         $has_binance = strpos($raw, 'binance') !== false;
         $has_bybit = strpos($raw, 'bybit') !== false;
 
-        if ($has_binance && $has_bybit) {
-            return __('Binance public market data + Bybit derivatives fallback', 'bitmomo-ai');
-        }
-        if ($has_binance) {
-            return __('Binance public market data', 'bitmomo-ai');
-        }
-        if ($has_bybit) {
-            return __('Bybit public market data', 'bitmomo-ai');
-        }
+        if ($has_binance && $has_bybit) return __('Binance public market data + Bybit derivatives fallback', 'bitmomo-ai');
+        if ($has_binance) return __('Binance public market data', 'bitmomo-ai');
+        if ($has_bybit) return __('Bybit public market data', 'bitmomo-ai');
         return '';
     }
 
@@ -227,48 +222,24 @@ final class Bitmomo_AI_Intelligence {
     private static function primary_driver(array $evaluation) {
         $axes = is_array($evaluation['axes'] ?? null) ? $evaluation['axes'] : [];
         $scores = [];
-        foreach (['direction', 'structure', 'carry', 'crowding', 'volatility'] as $name) {
-            $scores[$name] = abs((int) ($axes[$name]['score'] ?? 0));
-        }
+        foreach (['direction', 'structure', 'carry', 'crowding', 'volatility'] as $name) $scores[$name] = abs((int) ($axes[$name]['score'] ?? 0));
         arsort($scores);
         $primary = (string) array_key_first($scores);
         $score = (int) ($axes[$primary]['score'] ?? 0);
 
-        if ($primary === 'volatility') {
-            return __('Volatilitas menjadi faktor paling dominan; pergerakan harga dapat berubah lebih cepat.', 'bitmomo-ai');
-        }
+        if ($primary === 'volatility') return __('Volatilitas menjadi faktor paling dominan; pergerakan harga dapat berubah lebih cepat.', 'bitmomo-ai');
         if ($primary === 'structure') {
             return $score > 0
                 ? __('Struktur harga menjadi pendorong utama dan saat ini cenderung menguat.', 'bitmomo-ai')
-                : ($score < 0
-                    ? __('Struktur harga menjadi pendorong utama dan saat ini cenderung melemah.', 'bitmomo-ai')
-                    : __('Struktur harga masih berada dalam rentang dan belum memberi arah yang kuat.', 'bitmomo-ai'));
+                : ($score < 0 ? __('Struktur harga menjadi pendorong utama dan saat ini cenderung melemah.', 'bitmomo-ai') : __('Struktur harga masih berada dalam rentang dan belum memberi arah yang kuat.', 'bitmomo-ai'));
         }
-        if ($primary === 'carry') {
-            return __('Kondisi funding dan basis futures menjadi faktor utama dalam pembacaan pasar saat ini.', 'bitmomo-ai');
-        }
-        if ($primary === 'crowding') {
-            return __('Perubahan posisi pelaku pasar menjadi faktor utama dalam pembacaan saat ini.', 'bitmomo-ai');
-        }
+        if ($primary === 'carry') return __('Kondisi funding dan basis futures menjadi faktor utama dalam pembacaan pasar saat ini.', 'bitmomo-ai');
+        if ($primary === 'crowding') return __('Perubahan posisi pelaku pasar menjadi faktor utama dalam pembacaan saat ini.', 'bitmomo-ai');
         return $score > 0
             ? __('Momentum empat jam menjadi pendorong utama dan masih mendukung arah naik.', 'bitmomo-ai')
-            : ($score < 0
-                ? __('Momentum empat jam menjadi pendorong utama dan masih menekan arah pasar.', 'bitmomo-ai')
-                : __('Momentum empat jam belum cukup kuat untuk memberi arah yang tegas.', 'bitmomo-ai'));
+            : ($score < 0 ? __('Momentum empat jam menjadi pendorong utama dan masih menekan arah pasar.', 'bitmomo-ai') : __('Momentum empat jam belum cukup kuat untuk memberi arah yang tegas.', 'bitmomo-ai'));
     }
 
-    /**
-     * Dynamic "Faktor Utama" / Key Drivers list — the customer-facing
-     * replacement for the single primary_driver() sentence above.
-     * primary_driver() is kept byte-for-byte unchanged for backward
-     * compatibility with any existing consumer of that singular field;
-     * this is purely an additive field on the same free_projection() shape.
-     *
-     * All selection/ranking/copy logic lives in Bitmomo_AI_Key_Drivers so it
-     * can be unit-tested in isolation from this canonical access layer.
-     *
-     * @return string[] 1 to Bitmomo_AI_Key_Drivers::MAX_DRIVERS sentences.
-     */
     private static function key_drivers(array $evaluation) {
         return Bitmomo_AI_Key_Drivers::derive($evaluation);
     }
@@ -279,10 +250,7 @@ final class Bitmomo_AI_Intelligence {
         $now = new DateTimeImmutable('now', $timezone);
         $time = $local->format('H:i') . ' WIB';
 
-        if ($state === 'fresh' && $local->format('Y-m-d') === $now->format('Y-m-d')) {
-            return sprintf(__('Diperbarui hari ini, %s', 'bitmomo-ai'), $time);
-        }
-
+        if ($state === 'fresh' && $local->format('Y-m-d') === $now->format('Y-m-d')) return sprintf(__('Diperbarui hari ini, %s', 'bitmomo-ai'), $time);
         $age = human_time_diff($timestamp, time());
         return $state === 'delayed'
             ? sprintf(__('Tertunda · diperbarui %s lalu', 'bitmomo-ai'), $age)
