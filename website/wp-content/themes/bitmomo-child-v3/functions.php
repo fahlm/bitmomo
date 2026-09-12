@@ -59,11 +59,7 @@ function bitmomo_filter_help_page_title($show_title) {
 }
 add_filter('hello_elementor_page_title', 'bitmomo_filter_help_page_title');
 
-/**
- * Canonical public SEO positioning for the three launch-critical surfaces.
- * Rank Math receives the same title contract as WordPress core so the browser
- * title and indexed title cannot drift back to the old media/news positioning.
- */
+/** Canonical product-led SEO titles for launch-critical surfaces. */
 function bitmomo_public_seo_title($title) {
     if (is_front_page()) {
         return 'Bitmomo — BTC Market Intelligence';
@@ -79,19 +75,16 @@ function bitmomo_public_seo_title($title) {
 add_filter('pre_get_document_title', 'bitmomo_public_seo_title', 20);
 add_filter('rank_math/frontend/title', 'bitmomo_public_seo_title', 20);
 
-/**
- * Descriptions stay factual and product-led. The Pro/BTC plugins retain their
- * non-Rank-Math fallback tags; this filter only normalizes Rank Math output.
- */
+/** Public descriptions use visitor language, not engine vocabulary. */
 function bitmomo_public_seo_description($description) {
     if (is_front_page()) {
-        return 'Bitmomo merangkum kondisi BTC, Opportunity, Directional Bias, Confidence, dan faktor utama agar perubahan pasar lebih mudah dipahami.';
+        return 'Bitmomo merangkum arah BTC, tingkat keyakinan analisis, dan alasan utamanya dari data pasar terbaru.';
     }
     if (is_page('pro')) {
-        return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan thesis pasar berubah.';
+        return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan pandangan pasar perlu berubah.';
     }
     if (is_page('btc-intelligence')) {
-        return 'BTC Intelligence Bitmomo merangkum Opportunity, Directional Bias, Confidence, Market State, sumber data, riwayat, dan evaluasi secara transparan.';
+        return 'Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record pembacaan Bitmomo.';
     }
     return $description;
 }
@@ -106,23 +99,18 @@ function bitmomo_render_home_meta_description() {
 add_action('wp_head', 'bitmomo_render_home_meta_description', 2);
 
 /**
- * Flatten the public adapter into a small, presentation-neutral contract.
- * This is deliberately limited to fields already public on the site. It is
- * used by production monitoring to catch stale page-cache regressions without
- * duplicating any market-intelligence computation in the frontend.
+ * Machine-readable production-monitor contract. It mirrors only information
+ * that is intentionally public on the visible launch surfaces; internal
+ * classifier, strength and Opportunity state are not serialized into HTML.
  */
 function bitmomo_public_snapshot_contract() {
     $contract = [
-        'schema' => 1,
+        'schema' => 2,
         'available' => false,
         'status' => 'unavailable',
         'as_of' => '',
-        'market_state' => '',
         'directional_bias' => '',
-        'direction_strength' => '',
         'confidence' => '',
-        'opportunity_status' => '',
-        'opportunity_state' => '',
     ];
 
     if (!class_exists('Bitmomo_Public_Intelligence_Adapter') || !method_exists('Bitmomo_Public_Intelligence_Adapter', 'snapshot')) {
@@ -137,27 +125,18 @@ function bitmomo_public_snapshot_contract() {
     $provenance = is_array($snapshot['provenance'] ?? null) ? $snapshot['provenance'] : [];
     $freshness = is_array($snapshot['freshness'] ?? null) ? $snapshot['freshness'] : [];
     $confidence = is_array($snapshot['confidence'] ?? null) ? $snapshot['confidence'] : [];
-    $opportunity = is_array($snapshot['opportunity'] ?? null) ? $snapshot['opportunity'] : [];
 
     return [
-        'schema' => 1,
+        'schema' => 2,
         'available' => true,
         'status' => sanitize_key((string)($snapshot['status'] ?? 'unavailable')),
         'as_of' => trim((string)($provenance['as_of'] ?? ($freshness['timestamp_iso'] ?? ''))),
-        'market_state' => sanitize_key((string)($snapshot['market_state'] ?? '')),
         'directional_bias' => sanitize_key((string)($snapshot['directional_bias'] ?? '')),
-        'direction_strength' => sanitize_key((string)($snapshot['direction_strength'] ?? '')),
         'confidence' => sanitize_key((string)($confidence['label'] ?? '')),
-        'opportunity_status' => sanitize_key((string)($opportunity['status'] ?? '')),
-        'opportunity_state' => sanitize_key((string)($opportunity['state'] ?? '')),
     ];
 }
 
-/**
- * Both public intelligence surfaces emit the exact same machine-readable
- * contract. If either page is served from stale cache, the production monitor
- * can compare this value with the uncached adapter endpoint and fail loudly.
- */
+/** Both launch surfaces emit the same deliberately narrow monitoring contract. */
 function bitmomo_render_public_snapshot_contract_meta() {
     if (!is_front_page() && !is_page('btc-intelligence')) return;
 
@@ -169,11 +148,8 @@ function bitmomo_render_public_snapshot_contract_meta() {
 add_action('wp_head', 'bitmomo_render_public_snapshot_contract_meta', 3);
 
 /**
- * Correctness-first P0 cache policy for the homepage. The homepage contains
- * live Opportunity / Direction / Market State data, so full-page caching can
- * otherwise make it disagree with /btc-intelligence/. A fragment/ESI strategy
- * can replace this later, but stale intelligence must never be presented as
- * current in the meantime.
+ * Correctness-first cache policy for the homepage. Current direction and
+ * confidence must not disagree with the dedicated BTC Intelligence page.
  */
 function bitmomo_prevent_homepage_snapshot_cache() {
     if (!is_front_page()) return;
