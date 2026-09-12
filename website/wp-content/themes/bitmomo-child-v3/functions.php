@@ -1,12 +1,12 @@
 <?php
 /**
- * Bitmomo Child Theme — ULTRA v4.4
+ * Bitmomo Child Theme — ULTRA v4.5
  * Canonical public snapshot freshness + launch-surface contracts.
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BM_VERSION', '4.4');
+define('BM_VERSION', '4.5');
 define('BM_MAILPOET_FORM_ID', 2);
 define('BM_ARCHIVE_POSTS_PER_PAGE', 18);
 define('BM_CARD_IMAGE_WIDTH', 800);
