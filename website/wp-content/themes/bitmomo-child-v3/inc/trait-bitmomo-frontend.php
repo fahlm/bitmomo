@@ -4,22 +4,24 @@
 if (!defined('ABSPATH')) exit;
 
 trait Bitmomo_Frontend_Trait {
-    /* ---------- Fallback CSS ---------- */
+    /**
+     * Kept as a compatibility no-op because older boot code still calls this
+     * hook. Visual rules belong in foundation.css, never in PHP output.
+     */
     public function inline_img_fallback_css() {
-        echo "<style>img:not([src]),img[src=''],img[src='#']{display:none!important}</style>\n";
-    }
-
-    /* ---------- Legacy modal compatibility ---------- */
-    public function render_mailpoet_modal() {
-        // Newsletter subscription now has one permanent, compact home in the
-        // global footer. Keep this method as a no-op because older boot code
-        // still calls it at wp_footer; emitting modal markup here would create
-        // a second subscription surface and compete with the primary product
-        // conversion paths.
         return;
     }
 
-    /* ---------- Debug ---------- */
+    /**
+     * Legacy modal compatibility.
+     * Newsletter subscription has one permanent, compact home in the global
+     * footer. Emitting the old modal would create a second subscription surface
+     * and compete with product conversion.
+     */
+    public function render_mailpoet_modal() {
+        return;
+    }
+
     public function performance_debug() {
         if (!BM_DEBUG) return;
         $ms = (microtime(true)-$this->performance_timer)*1000;
