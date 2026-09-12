@@ -10,6 +10,7 @@
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<a class="bm-skip-link" href="#primary"><?php esc_html_e( 'Lewati ke konten utama', 'bitmomo' ); ?></a>
 
 <header class="bm-header">
   <div class="bm-container">
@@ -25,7 +26,17 @@
       $bm_account_page = get_page_by_path( 'pro/account', OBJECT, 'page' );
       $bm_account_url = $bm_account_page ? get_permalink( $bm_account_page ) : home_url( '/pro/account/' );
       $bm_is_account = $bm_account_page ? is_page( (int) $bm_account_page->ID ) : is_page( 'account' );
-      $bm_is_research = is_category( 'riset' ) || ( is_single() && has_category( 'riset' ) );
+      $bm_account_label = is_user_logged_in() ? __( 'Akun', 'bitmomo' ) : __( 'Masuk', 'bitmomo' );
+
+      // The Research nav state follows the same institutional classification
+      // boundary as the Research Hub and article template. Historical generic
+      // `Riset` membership alone must not visually certify a legacy post.
+      $bm_is_research = is_category( 'riset' );
+      $bm_nav_research_class = 'unclassified';
+      if ( is_single() && function_exists( 'bitmomo_post_research_classification' ) ) {
+        $bm_nav_research_class = bitmomo_post_research_classification( get_queried_object_id() );
+        $bm_is_research = in_array( $bm_nav_research_class, array( 'market', 'ai-systems' ), true );
+      }
       ?>
       <div class="bm-nav-groups">
         <ul class="bm-nav-list bm-nav-list--content">
@@ -34,11 +45,11 @@
           <li><a href="<?php echo esc_url( $bm_about_url ); ?>"<?php echo is_page( 'tentang-kami' ) ? ' aria-current="page"' : ''; ?>>Tentang</a></li>
         </ul>
         <ul class="bm-nav-list bm-nav-list--actions">
-          <li><a class="bm-nav-login" href="<?php echo esc_url( $bm_account_url ); ?>"<?php echo $bm_is_account ? ' aria-current="page"' : ''; ?>>Masuk</a></li>
+          <li><a class="bm-nav-login" href="<?php echo esc_url( $bm_account_url ); ?>"<?php echo $bm_is_account ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $bm_account_label ); ?></a></li>
           <li><a class="bm-nav-pro" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"<?php echo is_page( 'pro' ) ? ' aria-current="page"' : ''; ?>>BITMOMO PRO</a></li>
         </ul>
       </div>
     </nav>
   </div>
 </header>
-<?php unset( $bm_riset_term, $bm_riset_url, $bm_about_page, $bm_about_url, $bm_account_page, $bm_account_url, $bm_is_account, $bm_is_research ); ?>
+<?php unset( $bm_riset_term, $bm_riset_url, $bm_about_page, $bm_about_url, $bm_account_page, $bm_account_url, $bm_is_account, $bm_account_label, $bm_is_research, $bm_nav_research_class ); ?>
