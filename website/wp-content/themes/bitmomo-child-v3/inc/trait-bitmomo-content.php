@@ -8,18 +8,10 @@ trait Bitmomo_Content_Trait {
     public function add_content_enhancements($content) {
         if (!is_single() || !in_the_loop() || !is_main_query()) return $content;
 
-        $cta = sprintf(
-            '<div class="bm-subscribe-cta">
-                <a href="#subscribe" class="bm-btn bm-btn-subscribe js-open-subscribe">🚀 %s</a>
-                <p class="bm-subscribe-caption">%s</p>
-            </div>',
-            __('Subscribe Newsletter Bitmomo','bitmomo'),
-            __('Ringkasan AI &amp; Crypto langsung ke inbox.','bitmomo')
-        );
         $disc = sprintf('<div class="bm-disclaimer"><p><em>%s</em></p></div>',
             __('Informasi edukasi, bukan saran investasi. Risiko aset kripto tinggi. DYOR.','bitmomo'));
 
-        return $content.$cta.$disc;
+        return $content.$disc;
     }
 
     public function modify_archive_query($q) {
@@ -30,16 +22,18 @@ trait Bitmomo_Content_Trait {
     public function handle_subscribe_redirect() {
         $req  = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '');
         $path = trim(parse_url($req, PHP_URL_PATH) ?? '/', '/');
-        if (strcasecmp($path,'subscribe')===0) { wp_safe_redirect(home_url('/#subscribe'),302); exit; }
+        if (strcasecmp($path,'subscribe')===0) { wp_safe_redirect(home_url('/#newsletter'),302); exit; }
     }
 
     /* ---------- Universal subscribe ---------- */
     public function force_subscribe_link_attrs($atts, $item, $args) {
         if (empty($atts['href'])) return $atts;
         $href = strtolower($atts['href']);
-        if (strpos($href, '#subscribe') !== false || preg_match('~(^|/)subscribe/?$~', $href)) {
-            $atts['href'] = '#subscribe';
-            $atts['class'] = (isset($atts['class']) ? $atts['class'].' ' : '') . 'js-open-subscribe';
+        if (strpos($href, '#subscribe') !== false || strpos($href, '#newsletter') !== false || preg_match('~(^|/)subscribe/?$~', $href)) {
+            $atts['href'] = home_url('/#newsletter');
+            if (isset($atts['class'])) {
+                $atts['class'] = trim(str_replace('js-open-subscribe', '', $atts['class']));
+            }
         }
         return $atts;
     }
