@@ -16,7 +16,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "docs/content/tentang-kami.md"
-      - "docs/PUBLIC_SURFACE_CONTRACT.md"
+      - "docs/RESEARCH_HUB_CONTRACT.md"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
   push:
@@ -35,7 +35,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "docs/content/tentang-kami.md"
-      - "docs/PUBLIC_SURFACE_CONTRACT.md"
+      - "docs/RESEARCH_HUB_CONTRACT.md"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
   workflow_dispatch:
@@ -120,7 +120,9 @@ jobs:
           hub="${theme}/template-parts/research-hub.php"
           css="${theme}/assets/css/research.css"
           footer="${theme}/footer.php"
+          contract="docs/RESEARCH_HUB_CONTRACT.md"
 
+          grep -q "The Research Hub is a research workspace" "${contract}"
           grep -q "RESEARCH LIBRARY" "${hub}"
           grep -q "RESEARCH PROGRAMS" "${hub}"
           grep -q "INTELLIGENCE SYSTEMS" "${hub}"
@@ -165,4 +167,3 @@ jobs:
           grep -q "canonical brand/source-of-truth" docs/content/tentang-kami.md
           grep -q "research & intelligence platform" docs/content/tentang-kami.md
           grep -q 'Copy publik Bitmomo tidak boleh menggunakan positioning seperti "media independen"' docs/content/tentang-kami.md
-          grep -q "Research Hub is a research workspace" docs/PUBLIC_SURFACE_CONTRACT.md
