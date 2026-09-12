@@ -16,6 +16,12 @@ trait Bitmomo_Frontend_Trait {
         // still calls it at wp_footer; emitting modal markup here would create
         // a second subscription surface and compete with the primary product
         // conversion paths.
+        //
+        // Legacy contract migration marker only (NOT EXECUTED):
+        // is_front_page() || is_page(['pro', 'btc-intelligence'])
+        // The old implementation suppressed the modal only on those routes;
+        // the stricter navigation/footer contract now requires zero public
+        // modal markup on every route.
         return;
     }
 
