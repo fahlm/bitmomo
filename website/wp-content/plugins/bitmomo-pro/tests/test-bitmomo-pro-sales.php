@@ -1,12 +1,5 @@
 <?php
-/**
- * Standalone executable contract test for [bitmomo_pro_sales].
- *
- * Loads the real plugin against the minimal WordPress stub, following the
- * same convention as the other Bitmomo Pro deterministic tests.
- *
- * Run: php tests/test-bitmomo-pro-sales.php
- */
+/** Standalone executable contract test for [bitmomo_pro_sales]. */
 
 define( 'ABSPATH', '/tmp/' );
 
@@ -39,7 +32,6 @@ check( 'PRICE ESTIMATE: no "349000" future-price estimate', false === strpos( $h
 
 // ==========================================================================
 // CTA CONTRACT — one hero jump plus one canonical whitelist submit surface.
-// There must not be a second bottom-of-page conversion block.
 // ==========================================================================
 
 check( 'CTA: Founding whitelist label is present', false !== strpos( $html, 'GABUNG FOUNDING WHITELIST' ) );
@@ -55,7 +47,8 @@ check( 'CTA: renderer source no longer defines or calls render_final_cta()', fal
 
 check( 'HERO: eyebrow matches locked copy', false !== strpos( $html, 'FOUNDING MEMBERSHIP — BITMOMO PRO' ) );
 check( 'HERO: headline matches locked copy verbatim', false !== strpos( $html, 'Pahami BTC dalam konteks, bukan sekadar dari potongan data.' ) );
-check( 'HERO: supporting product copy present', false !== strpos( $html, 'Decision View hari ini. 11 AI Analysts dan Watchtower segera hadir.' ) );
+check( 'HERO: supporting copy sells the live Decision View rather than roadmap features', false !== strpos( $html, 'Decision View harian untuk memahami rentang, skenario, invalidation, dan perubahan penting BTC.' ) );
+check( 'HERO: roadmap products are not advertised in the hero support line', false === strpos( substr( $html, 0, strpos( $html, 'bm-pro-sales__hero-offer' ) ), '11 AI Analysts' ) && false === strpos( substr( $html, 0, strpos( $html, 'bm-pro-sales__hero-offer' ) ), 'Watchtower' ) );
 check( 'HERO: Founding Price is prominent', false !== strpos( $html, 'Founding Price Rp149.000/bulan' ) );
 check( 'HERO: annual price is visible', false !== strpos( $html, 'Rp1.490.000' ) );
 check( 'HERO: 149 Founding Members fact visible', false !== strpos( $html, '149' ) && false !== strpos( $html, 'Founding Members' ) );
@@ -65,8 +58,7 @@ check( 'HERO: hero-facts row contains exactly three boxes', 3 === substr_count( 
 check( 'HERO: pricing appears before FAQ', strpos( $html, 'Founding Price Rp149.000/bulan' ) < strpos( $html, 'Pertanyaan Sebelum Bergabung' ) );
 
 // ==========================================================================
-// DATA CLAIM HONESTY — lock the exact capability-safe wording and reject the
-// superseded continuous order-book/on-chain ingestion claim.
+// DATA CLAIM HONESTY
 // ==========================================================================
 
 $canonical_data_copy = 'Harga, struktur pasar, funding/basis, positioning derivatives, momentum, dan volatilitas BTC diproses dari data pasar yang tersedia.';
@@ -80,34 +72,35 @@ check( 'DATA: renderer source contains the canonical copy', false !== strpos( $s
 check( 'DATA: renderer source does not contain the obsolete copy', false === strpos( $source, $obsolete_data_copy ) );
 
 // ==========================================================================
-// FUTURE CAPABILITY STATUS LANGUAGE
+// FUTURE CAPABILITY STATUS LANGUAGE / ROADMAP COMPRESSION
 // ==========================================================================
 
 check( 'STATUS: Altcoin Intelligence marked SEGERA HADIR', false !== strpos( $html, 'ALTCOIN INTELLIGENCE — SEGERA HADIR' ) );
 check( 'STATUS: Daily Alpha Discovery marked SEGERA HADIR', false !== strpos( $html, 'DAILY ALPHA DISCOVERY — SEGERA HADIR' ) );
 check( 'STATUS: 11 AI Analysts marked SEGERA HADIR', false !== strpos( $html, '11 AI ANALYSTS — SEGERA HADIR' ) );
 check( 'STATUS: Watchtower marked SEGERA HADIR', false !== strpos( $html, 'WATCHTOWER — SEGERA HADIR' ) );
+check( 'STATUS: roadmap has one explicit non-live boundary', 1 === substr_count( $html, 'ROADMAP — SEGERA HADIR' ) );
 check( 'STATUS: old "IN DEVELOPMENT" wording is gone', false === strpos( $html, 'IN DEVELOPMENT' ) );
 check( 'STATUS: no "24/7" claim', false === stripos( $html, '24/7' ) );
 check( 'STATUS: no "real-time" claim', false === stripos( $html, 'real-time' ) && false === stripos( $html, 'real time' ) );
 check( 'STATUS: analyst/watchtower signature line present', false !== strpos( $html, '11 AI Analysts membangun thesis. Watchtower menjaganya tetap relevan.' ) );
 check( 'STATUS: Watchtower retains "bukan news feed" framing', false !== strpos( $html, 'bukan news feed' ) );
+check( 'STATUS: four legacy future-wall renderer methods are gone', false === strpos( $source, 'render_altcoin_intelligence' ) && false === strpos( $source, 'render_alpha_discovery' ) && false === strpos( $source, 'render_ai_analysts' ) && false === strpos( $source, 'render_watchtower' ) );
 
 // ==========================================================================
-// CORE SECTION ORDER — conversion ends at the founding climax; no duplicated
-// final CTA after Accountability + FAQ.
+// CURRENT-FIRST SECTION ORDER
 // ==========================================================================
 
 $section_markers = array(
 	'Pahami BTC dalam konteks, bukan sekadar dari potongan data.',
-	'Data ada di mana-mana. Konteks yang jarang.',
-	'AI adalah bagian dari sistem. Konteks adalah fondasinya.',
-	'Bagaimana Bitmomo mengubah data menjadi intelligence',
-	'11 perspektif spesialis, satu kerangka intelligence yang sama.',
-	'Bukan soal apa yang bergerak. Soal apakah sesuatu benar-benar berubah.',
 	'YANG SUDAH TERSEDIA SEKARANG',
-	'Bergabung sebelum Bitmomo Pro mencapai bentuk penuhnya.',
+	'Data ada di mana-mana. Konteks yang jarang.',
+	'Bagaimana Bitmomo mengubah data menjadi intelligence',
 	'Setiap analisis harus bisa dipertanggungjawabkan.',
+	'AI adalah bagian dari sistem. Konteks adalah fondasinya.',
+	'Bergabung sebelum Bitmomo Pro mencapai bentuk penuhnya.',
+	'Tahap saat ini: Founding Whitelist',
+	'ROADMAP — SEGERA HADIR',
 	'Pertanyaan Sebelum Bergabung',
 );
 $positions = array();
@@ -123,7 +116,9 @@ for ( $i = 1; $i < count( $positions ); $i++ ) {
 		break;
 	}
 }
-check( 'SECTION ORDER: all 10 core sections appear in the required order', $in_order );
+check( 'SECTION ORDER: live value -> context -> proof -> conversion -> roadmap -> FAQ', $in_order );
+check( 'SECTION ORDER: current product appears before any roadmap status', strpos( $html, 'YANG SUDAH TERSEDIA SEKARANG' ) < strpos( $html, 'ROADMAP — SEGERA HADIR' ) );
+check( 'SECTION ORDER: founding conversion appears before roadmap', strpos( $html, 'Tahap saat ini: Founding Whitelist' ) < strpos( $html, 'ROADMAP — SEGERA HADIR' ) );
 
 // ==========================================================================
 // SIX-STAGE FLOW
@@ -144,6 +139,7 @@ check( 'ECONOMICS: Founding Whitelist stage present', false !== strpos( $html, '
 check( 'ACCOUNTABILITY: no invented accuracy percentage', 0 === preg_match( '/\d+%\s*akurat/i', $html ) );
 check( 'ACCOUNTABILITY: links to live /btc-intelligence/ methodology page', false !== strpos( $html, 'href="' . home_url( '/btc-intelligence/' ) . '"' ) );
 check( 'ACCOUNTABILITY: deferred methodology note is absent', false === strpos( $html, 'Metodologi & track record lengkap segera tersedia sebagai halaman terpisah.' ) );
+check( 'ACCOUNTABILITY: appears before conversion', strpos( $html, 'Setiap analisis harus bisa dipertanggungjawabkan.' ) < strpos( $html, 'Tahap saat ini: Founding Whitelist' ) );
 
 // ==========================================================================
 // FAQ
@@ -195,7 +191,7 @@ $css = file_get_contents( __DIR__ . '/../assets/css/bitmomo-pro-sales.css' );
 check( 'MOBILE: page container uses max-width (fluid)', false !== strpos( $css, 'max-width: 720px' ) );
 check( 'MOBILE: no fixed pixel widths above 360px force horizontal scroll', 0 === preg_match( '/(?<!max-)(?<!min-)\bwidth:\s*(\d+)px/', $css, $m ) || ( isset( $m[1] ) && (int) $m[1] <= 360 ) );
 check( 'MOBILE: flow and progression are single-column by default', preg_match( '/\.bm-pro-sales__flow-stages\s*\{[^}]*grid-template-columns:\s*1fr/', $css ) && preg_match( '/\.bm-pro-sales__progression\s*\{[^}]*grid-template-columns:\s*1fr/', $css ) );
-check( 'MOBILE: analyst role pills wrap', false !== strpos( $css, 'flex-wrap: wrap' ) );
+check( 'MOBILE: flexible tag/list UI still wraps where used', false !== strpos( $css, 'flex-wrap: wrap' ) );
 check( 'COLOR: orange commercial token is defined', false !== strpos( $css, '--bms-orange: #f4ad32' ) );
 check( 'COLOR: primary CTA uses orange', (bool) preg_match( '/\.bm-pro-sales__cta\s*\{[^}]*background:\s*var\(\s*--bms-orange\s*\)/s', $css ) );
 check( 'COLOR: whitelist submit is orange in climax panel', false !== strpos( $css, '.bm-pro-sales__climax .bm-wl__submit {' ) && (bool) preg_match( '/\.bm-pro-sales__climax \.bm-wl__submit\s*\{[^}]*background:\s*var\(\s*--bms-orange\s*\)/s', $css ) );
