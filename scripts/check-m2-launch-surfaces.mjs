@@ -31,8 +31,32 @@ const proWhitelist = read('website/wp-content/plugins/bitmomo-pro/includes/class
 check('Homepage template includes BTC Intelligence before Pro teaser', frontPage.indexOf("template-parts/btc-intelligence', 'card'") > -1 && frontPage.indexOf("template-parts/btc-intelligence', 'card'") < frontPage.indexOf("template-parts/pro', 'teaser'"));
 check('Homepage Pro CTAs point to /pro/', /home_url\(\s*'\/pro\/'\s*\)/.test(homeHero) && /home_url\(\s*'\/pro\/'\s*\)/.test(read('website/wp-content/themes/bitmomo-child-v3/template-parts/pro-teaser.php')));
 check('Primary nav exposes /pro/ as the public Pro destination', /home_url\(\s*'\/pro\/'\s*\)/.test(header));
-check('Homepage BTC card consumes only the public/free projection', /Bitmomo_AI_Intelligence::free_projection\(\)/.test(btcCard) && !/Bitmomo_Pro_/.test(btcCard));
-check('Homepage BTC card hides unavailable data instead of defaulting to values', /status'\s*=>\s*'unavailable'/.test(btcCard) && /!\s*\$bitmomo_available/.test(btcCard));
+
+// Homepage intelligence must consume the narrow public adapter now that
+// Opportunity V1, regime, direction and confidence share one public contract.
+// The presentation layer must not bypass that contract to private/current
+// engine internals or Pro state.
+check(
+	'Homepage BTC card consumes only the public intelligence adapter',
+	/Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(btcCard)
+		&& !/Bitmomo_AI_Intelligence::free_projection\(\)/.test(btcCard)
+		&& !/Bitmomo_Regime_State_Store/.test(btcCard)
+		&& !/Bitmomo_Pro_/.test(btcCard)
+);
+check(
+	'Homepage BTC card fails closed when the public snapshot is unavailable',
+	/is_array\(\s*\$bitmomo_snapshot\s*\)/.test(btcCard)
+		&& /in_array\(\s*\$bitmomo_status,\s*array\(\s*'fresh',\s*'delayed'\s*\),\s*true\s*\)/.test(btcCard)
+		&& /if\s*\(\s*!\s*\$bitmomo_available\s*\)/.test(btcCard)
+		&& /bm-btc-unavailable/.test(btcCard)
+);
+check(
+	'Homepage BTC card presents Opportunity as activity, never direction',
+	/\['opportunity'\]/.test(btcCard)
+		&& /Aktivitas · bukan arah/.test(btcCard)
+		&& /Opportunity mengukur aktivitas, bukan arah harga/.test(btcCard)
+		&& !/Risk-On|Risk-Off|RISK-ON|RISK-OFF/.test(btcCard)
+);
 
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
 check('/pro sales page renders one whitelist/purchase CTA path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
