@@ -5,6 +5,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-navigation-footer.mjs"
       - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
@@ -17,6 +18,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-navigation-footer.mjs"
       - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
@@ -66,6 +68,7 @@ jobs:
             "style.css"
             "assets/css/home-opportunity.css"
             "assets/css/public-surfaces.css"
+            "assets/css/navigation-footer.css"
             "assets/css/public-readability.css"
             "template-parts/archive-index.php"
           )
@@ -125,6 +128,11 @@ jobs:
             exit 1
           }
 
+          grep -q "navigation-footer.css" "${theme_dir}/header.php" || {
+            echo "::error file=${theme_dir}/header.php::Navigation/footer stylesheet is not loaded"
+            exit 1
+          }
+
           test ! -f "${theme_dir}/template-parts/pro-teaser.php" || {
             echo "::error file=${theme_dir}/template-parts/pro-teaser.php::Obsolete standalone Pro teaser relic must not exist"
             exit 1
@@ -154,6 +162,9 @@ jobs:
 
       - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
+
+      - name: Enforce navigation and footer contract
+        run: node scripts/check-navigation-footer.mjs
 
       - name: Report CSS debt baseline
         run: node scripts/audit-css-debt.mjs
