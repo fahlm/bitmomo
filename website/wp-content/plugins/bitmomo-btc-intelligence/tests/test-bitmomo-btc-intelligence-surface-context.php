@@ -25,7 +25,7 @@ Bitmomo_Public_Intelligence_Adapter::$snapshot = array(
 	'key_drivers' => array( 'Directional consistency' ),
 );
 Bitmomo_Public_Intelligence_Adapter::$surface = array(
-	'opportunity' => array( 'status' => 'available', 'state' => 'HIGH', 'knowledge_time' => '2026-09-12T06:30:00+00:00' ),
+	'opportunity' => array( 'status' => 'available', 'state' => 'high', 'knowledge_time' => '2026-09-12T06:30:00+00:00' ),
 	'provenance' => array( 'source' => 'Binance public market data', 'as_of' => '2026-09-12T06:20:00+00:00', 'timezone' => 'Asia/Jakarta' ),
 );
 $full = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
@@ -43,7 +43,7 @@ btc_surface_check( 'null snapshot renders all unavailable layers', false !== str
 btc_surface_check( 'unavailable provenance labels remain truthful', false !== strpos( $unavailable, 'SOURCE</strong> Belum tersedia' ) && false !== strpos( $unavailable, 'AS OF</strong> Belum tersedia · WIB' ) );
 btc_surface_check( 'unavailable direction has no synthetic spectrum marker', false === strpos( $unavailable, 'bm-bi__spectrum-marker' ) );
 
-Bitmomo_Public_Intelligence_Adapter::$surface['opportunity'] = array( 'status' => 'available', 'state' => 'LOW' );
+Bitmomo_Public_Intelligence_Adapter::$surface['opportunity'] = array( 'status' => 'available', 'state' => 'low' );
 $partial = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
 btc_surface_check( 'Opportunity renders independently from null snapshot', false !== strpos( $partial, '>LOW<' ) );
 
