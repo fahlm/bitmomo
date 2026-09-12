@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/wp-stubs.php';
+if ( ! function_exists( 'remove_filter' ) ) { function remove_filter( ...$args ) { return true; } }
 
 class Bitmomo_Pro_Brief_Prefill { const AVAILABILITY_FILTER = 'bitmomo_pro_available_source_payload'; }
 class Bitmomo_AI_Intelligence {
