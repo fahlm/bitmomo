@@ -4,35 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Frontend shortcodes for Product A (REGIME PR 3).
+ * Public Market State shortcodes.
  *
- * `[bitmomo_market_regime]` — the current official regime as a small,
- * mobile-first card (regime, both directional axes, confidence).
- *
- * `[bitmomo_market_regime_history days="7"]` — the 30-day history
- * projection as a compact chart plus mobile-first vertical list. `days` accepts 1/7/14/30
- * (see Bitmomo_Regime_History::ALLOWED_DAYS); anything else falls back to
- * the class default. Never fabricates missing days — when fewer than 30
- * days of history exist yet, an honest "collected so far" note is shown
- * instead of padding the list.
- *
- * No chart library, no theme edits: all markup, the compact chart, and its minimal styling
- * are self-contained in this file's output, printed once per page load
- * regardless of how many shortcode instances render.
- *
- * This is the ONLY new WordPress-touching surface added in PR3 besides
- * Bitmomo_Regime_Admin_Diagnostics — both are pure read/render, neither
- * writes any state.
+ * The history surface is intentionally compact: one visual, one selected
+ * readout, no modal/list duplication. Height encodes Market State certainty;
+ * color encodes Directional Bias. Missing days are never fabricated.
  */
 class Bitmomo_Regime_Shortcodes {
 
 	private static $instance = null;
-
 	private $style_printed = false;
-
 	private $history_script_printed = false;
-
-	private $history_instance = 0;
 
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -63,28 +45,22 @@ class Bitmomo_Regime_Shortcodes {
 		$latest = Bitmomo_Regime_State_Store::instance()->get_latest();
 
 		if ( null === $latest ) {
-			return $this->style() . '<div class="bmreg-card bmreg-empty">'
-				. esc_html__( 'No regime data yet.', 'bitmomo-regime' )
-				. '</div>';
+			return $this->style() . '<div class="bmreg-card bmreg-empty">' . esc_html__( 'Market State belum tersedia.', 'bitmomo-regime' ) . '</div>';
 		}
 
 		$regime_id = Bitmomo_Regime_Taxonomy::regime_label_id( $latest['regime'] );
-		$regime_en = Bitmomo_Regime_Taxonomy::regime_label_en( $latest['regime'] );
-		$bias      = isset( $latest['directional_bias'] ) ? $latest['directional_bias'] : '';
-		$conf      = isset( $latest['regime_confidence'] ) ? (int) $latest['regime_confidence'] : 0;
+		$bias      = isset( $latest['directional_bias'] ) ? sanitize_key( $latest['directional_bias'] ) : '';
+		$conf      = isset( $latest['regime_confidence'] ) ? max( 0, min( 100, (int) $latest['regime_confidence'] ) ) : 0;
 
 		ob_start();
 		?>
 		<div class="bmreg-card bmreg-current" data-regime="<?php echo esc_attr( $latest['regime'] ); ?>">
-			<div class="bmreg-regime">
-				<span class="bmreg-regime-id"><?php echo esc_html( $regime_id ); ?></span>
-				<span class="bmreg-regime-en">(<?php echo esc_html( $regime_en ); ?>)</span>
-			</div>
+			<span class="bmreg-current-label"><?php esc_html_e( 'Market State', 'bitmomo-regime' ); ?></span>
+			<strong class="bmreg-regime-id"><?php echo esc_html( $regime_id ); ?></strong>
 			<div class="bmreg-meta">
 				<span class="bmreg-bias bmreg-bias-<?php echo esc_attr( $bias ); ?>"><?php echo esc_html( ucfirst( $bias ) ); ?></span>
-				<span class="bmreg-confidence"><?php echo esc_html( $conf ); ?>%</span>
+				<span><?php echo esc_html( $conf ); ?>% certainty</span>
 			</div>
-			<div class="bmreg-asof"><?php echo esc_html( isset( $latest['as_of'] ) ? $latest['as_of'] : '' ); ?></div>
 		</div>
 		<?php
 		return $this->style() . trim( (string) ob_get_clean() );
@@ -97,16 +73,60 @@ class Bitmomo_Regime_Shortcodes {
 			'bitmomo_market_regime_history'
 		);
 
-		$records    = Bitmomo_Regime_State_Store::instance()->get_recent( Bitmomo_Regime_History::TARGET_DAYS );
-		$full       = Bitmomo_Regime_History::for_frontend( $records, Bitmomo_Regime_History::TARGET_DAYS );
+		$requested = (int) $atts['days'];
+		$records   = Bitmomo_Regime_State_Store::instance()->get_recent( Bitmomo_Regime_History::TARGET_DAYS );
+		$full      = Bitmomo_Regime_History::for_frontend( $records, $requested );
+		$days      = isset( $full['days'] ) && is_array( $full['days'] ) ? $full['days'] : array();
 
 		ob_start();
 		?>
 		<div class="bmreg-history">
-			<?php if ( empty( $full['days'] ) ) : ?>
-				<div class="bmreg-card bmreg-empty"><?php esc_html_e( 'No regime history yet.', 'bitmomo-regime' ); ?></div>
+			<?php if ( empty( $days ) ) : ?>
+				<div class="bmreg-card bmreg-empty"><?php esc_html_e( 'Riwayat Market State belum tersedia.', 'bitmomo-regime' ); ?></div>
 			<?php else : ?>
-				<script type="application/json" class="bmreg-history-data"><?php echo wp_json_encode( $full['days'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
+				<?php $latest = $days[ count( $days ) - 1 ]; ?>
+				<div class="bmreg-history-head">
+					<span><?php echo esc_html( sprintf( '%dD MARKET CONTEXT', count( $days ) ) ); ?></span>
+					<div class="bmreg-history-legend" aria-label="Warna menunjukkan Directional Bias">
+						<span class="is-bullish">Bullish</span>
+						<span class="is-neutral">Neutral</span>
+						<span class="is-bearish">Bearish</span>
+					</div>
+				</div>
+				<div class="bmreg-history-chart" role="group" aria-label="Riwayat Market State. Tinggi batang menunjukkan certainty dan warna menunjukkan Directional Bias.">
+					<div class="bmreg-history-bars">
+						<?php foreach ( $days as $index => $day ) :
+							$bias = sanitize_key( (string) ( $day['directional_bias'] ?? '' ) );
+							$bias = in_array( $bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? $bias : 'unknown';
+							$confidence = max( 0, min( 100, (int) ( $day['regime_confidence'] ?? 0 ) ) );
+							$detail = array(
+								'date' => (string) ( $day['date'] ?? '' ),
+								'regime' => (string) ( $day['regime_label_id'] ?? '' ),
+								'bias' => ucfirst( $bias ),
+								'certainty' => $confidence,
+							);
+							$is_latest = $index === count( $days ) - 1;
+						?>
+							<button type="button"
+								class="bmreg-history-bar bmreg-bias-<?php echo esc_attr( $bias ); ?><?php echo $is_latest ? ' is-selected' : ''; ?>"
+								style="--bmreg-height:<?php echo esc_attr( max( 8, $confidence ) ); ?>%"
+								aria-pressed="<?php echo $is_latest ? 'true' : 'false'; ?>"
+								aria-label="<?php echo esc_attr( $detail['date'] . ': ' . $detail['regime'] . ', ' . $detail['bias'] . ', certainty ' . $confidence . '%' ); ?>"
+								data-bmreg-detail="<?php echo esc_attr( wp_json_encode( $detail ) ); ?>"><span></span></button>
+						<?php endforeach; ?>
+					</div>
+					<div class="bmreg-history-axis" aria-hidden="true">
+						<?php foreach ( $days as $index => $day ) :
+							$show = 0 === $index || $index === count( $days ) - 1 || 0 === ( $index % 5 );
+						?>
+							<span class="<?php echo $show ? 'is-visible' : ''; ?>"><?php echo $show ? esc_html( wp_date( 'd M', strtotime( $day['date'] ) ) ) : '&nbsp;'; ?></span>
+						<?php endforeach; ?>
+					</div>
+					<p class="bmreg-history-selected" aria-live="polite"><?php echo esc_html( $latest['date'] . ' · ' . $latest['regime_label_id'] . ' · ' . ucfirst( $latest['directional_bias'] ) . ' · ' . (int) $latest['regime_confidence'] . '% certainty' ); ?></p>
+				</div>
+				<?php if ( (int) ( $full['available_days'] ?? 0 ) < (int) ( $full['requested_days'] ?? 0 ) ) : ?>
+					<p class="bmreg-history-note"><?php echo esc_html( sprintf( __( '%d hari data resmi tersedia sejauh ini.', 'bitmomo-regime' ), (int) ( $full['available_days'] ?? 0 ) ) ); ?></p>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -114,46 +134,39 @@ class Bitmomo_Regime_Shortcodes {
 	}
 
 	private function history_script() {
-		if ( $this->history_script_printed ) {
-			return '';
-		}
+		if ( $this->history_script_printed ) return '';
 		$this->history_script_printed = true;
-		return '<script>(function(){document.addEventListener("click",function(e){var open=e.target.closest&&e.target.closest(".bmreg-history-open");if(open){var m=document.getElementById(open.getAttribute("aria-controls"));if(m){m.setAttribute("aria-hidden","false");open.setAttribute("aria-expanded","true");var d=m.querySelector(".bmreg-history-dialog");if(d)d.focus();}}var close=e.target.closest&&e.target.closest("[data-bmreg-close]");if(close){var modal=close.closest(".bmreg-history-modal");if(modal){modal.setAttribute("aria-hidden","true");var trigger=document.querySelector("[aria-controls=\""+modal.id+"\"]");if(trigger){trigger.setAttribute("aria-expanded","false");trigger.focus();}}}var bar=e.target.closest&&e.target.closest(".bmreg-history-bar");if(bar){var data;try{data=JSON.parse(bar.getAttribute("data-bmreg-detail")||"{}");}catch(err){data=null;}var selected=bar.closest(".bmreg-history-chart")&&bar.closest(".bmreg-history-chart").querySelector(".bmreg-history-selected");if(data&&selected){selected.textContent=data.date+" · "+data.regime_label_id+" · "+String(data.directional_bias||"").replace(/^./,function(c){return c.toUpperCase();})+" · "+data.regime_confidence+"%";}}});document.addEventListener("keydown",function(e){if(e.key!=="Escape")return;var m=document.querySelector(".bmreg-history-modal[aria-hidden=\"false\"]");if(m){m.setAttribute("aria-hidden","true");var t=document.querySelector("[aria-controls=\""+m.id+"\"]");if(t){t.setAttribute("aria-expanded","false");t.focus();}}});}());</script>';
+		return '<script>(function(){document.addEventListener("click",function(e){var bar=e.target.closest&&e.target.closest(".bmreg-history-bar");if(!bar)return;var chart=bar.closest(".bmreg-history-chart");if(!chart)return;var data;try{data=JSON.parse(bar.getAttribute("data-bmreg-detail")||"{}");}catch(err){return;}chart.querySelectorAll(".bmreg-history-bar").forEach(function(item){item.classList.toggle("is-selected",item===bar);item.setAttribute("aria-pressed",item===bar?"true":"false");});var out=chart.querySelector(".bmreg-history-selected");if(out){out.textContent=data.date+" · "+data.regime+" · "+data.bias+" · "+data.certainty+"% certainty";}});})();</script>';
 	}
 
-	/**
-	 * Minimal, mobile-first, self-contained CSS — printed once per page
-	 * load no matter how many shortcode instances render. No theme file
-	 * is touched; this is the plugin's own scoped styling.
-	 */
 	private function style() {
-		if ( $this->style_printed ) {
-			return '';
-		}
+		if ( $this->style_printed ) return '';
 		$this->style_printed = true;
 
 		return '<style>'
-			. '.bmreg-card{font-family:inherit;border:1px solid #ddd;border-radius:8px;padding:12px;max-width:100%;box-sizing:border-box;}'
-			. '.bmreg-regime{font-size:1.1em;font-weight:600;}'
-			. '.bmreg-regime-en{font-weight:400;opacity:.7;margin-left:.25em;}'
-			. '.bmreg-meta{display:flex;gap:.75em;margin-top:.4em;flex-wrap:wrap;}'
-			. '.bmreg-asof{margin-top:.4em;font-size:.85em;opacity:.6;}'
-			. '.bmreg-history-note{font-size:.85em;opacity:.7;}'
-			. '.bmreg-history-chart{border:1px solid #263b58;border-radius:12px;padding:18px 16px 12px;margin:16px 0 12px;background:rgba(16,30,49,.65);}'
-			. '.bmreg-history-bars{height:150px;display:flex;align-items:flex-end;gap:8px;border-bottom:1px solid #263b58;padding:0 2px;}'
-			. '.bmreg-history-bar{position:relative;flex:1 1 0;min-width:0;height:100%;padding:0;border:0;background:transparent;cursor:pointer;}'
-			. '.bmreg-history-bar span{position:absolute;left:10%;right:10%;bottom:0;height:var(--bmreg-bar-height);border-radius:5px 5px 2px 2px;background:#2dd4bf;opacity:.9;transition:opacity .15s,transform .15s;}'
-			. '.bmreg-history-bar:hover span,.bmreg-history-bar:focus-visible span{opacity:1;transform:translateY(-2px);outline:none;}'
-			. '.bmreg-history-bar.bmreg-bias-bearish span{background:#ff7b6d;}.bmreg-history-bar.bmreg-bias-neutral span{background:#8b9bb4;}.bmreg-history-bar.bmreg-bias-unknown span{background:#596a82;}'
-			. '.bmreg-history-axis{display:flex;gap:8px;margin-top:7px;}.bmreg-history-axis span{flex:1 1 0;min-width:0;text-align:center;color:#71839f;font-size:10px;white-space:nowrap;overflow:hidden;}'
-			. '.bmreg-history-selected{margin:10px 0 0;color:#9aacc4;font-size:.85em;}'
-			. '.bmreg-history-open{display:inline-flex;align-items:center;justify-content:center;margin:4px 0 16px;padding:.65em 1em;border:1px solid #2dd4bf;border-radius:999px;background:transparent;color:#2dd4bf;font:inherit;cursor:pointer;}.bmreg-history-open:hover,.bmreg-history-open:focus-visible{background:rgba(45,212,191,.1);}'
-			. '.bmreg-history-modal[aria-hidden="true"]{display:none;}.bmreg-history-modal{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;}.bmreg-history-backdrop{position:absolute;inset:0;background:rgba(2,10,20,.78);}.bmreg-history-dialog{position:relative;width:min(680px,100%);max-height:min(80vh,720px);overflow:auto;padding:24px;border:1px solid #263b58;border-radius:16px;background:#101e31;color:#e9f1f7;box-shadow:0 20px 70px rgba(0,0,0,.35);}.bmreg-history-dialog h3{margin:0 32px 8px 0;font-size:1.2em;}.bmreg-history-modal-note{margin:0 0 16px;color:#9aacc4;font-size:.9em;}.bmreg-history-close{position:absolute;top:10px;right:12px;border:0;background:transparent;color:#9aacc4;font-size:28px;line-height:1;cursor:pointer;}.bmreg-history-modal-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;}.bmreg-history-modal-list li{display:grid;grid-template-columns:1.2fr 1fr .8fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid rgba(148,163,184,.18);font-size:.9em;}.bmreg-history-modal-list li span{color:#9aacc4;}.bmreg-history-modal-list li em{font-style:normal;}.bmreg-history-modal-list li b{font-weight:700;text-align:right;}.bmreg-bias-bullish{color:#2dd4bf;}.bmreg-bias-bearish{color:#ff7b6d;}.bmreg-bias-neutral{color:#c7d4db;}'
-			. '.bmreg-history-pro-link{margin:18px 0 0;padding-top:16px;border-top:1px solid rgba(148,163,184,.18);}.bmreg-history-pro-link a{color:#2dd4bf;font-weight:700;text-decoration:none;}.bmreg-history-pro-link a:hover,.bmreg-history-pro-link a:focus-visible{text-decoration:underline;}'
-			. '.bmreg-history-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.4em;}'
-			. '.bmreg-history-item{display:flex;flex-wrap:wrap;gap:.6em;border:1px solid #eee;border-radius:6px;padding:.5em .75em;font-size:.9em;}'
-			. '.bmreg-history-date{opacity:.6;min-width:6.5em;}'
-			. '@media (max-width:480px){body.bm-regime-page main.site-main{padding-top:32px;}.bmreg-history-item{flex-direction:column;gap:.15em;}.bmreg-history-bars{gap:4px;height:120px;}.bmreg-history-axis{gap:4px;}.bmreg-history-axis span{font-size:9px;}.bmreg-history-dialog{padding:20px 16px;}.bmreg-history-modal-list li{grid-template-columns:1fr 1fr;gap:4px 8px;}.bmreg-history-modal-list li b{text-align:left;}}'
+			. '.bmreg-card,.bmreg-history{font-family:inherit;box-sizing:border-box;max-width:100%;}'
+			. '.bmreg-card{border:1px solid #263449;border-radius:12px;padding:16px;background:#0d1624;color:#e5edf6;}'
+			. '.bmreg-empty{color:#8ea0b8;}'
+			. '.bmreg-current-label,.bmreg-history-head>span{display:block;color:#8395ad;font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em;}'
+			. '.bmreg-regime-id{display:block;margin-top:5px;font-size:1.2rem;}'
+			. '.bmreg-meta{display:flex;gap:12px;margin-top:8px;color:#8fa1b8;font-size:.82rem;}'
+			. '.bmreg-history-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;}'
+			. '.bmreg-history-legend{display:flex;align-items:center;gap:12px;color:#778aa4;font-size:10px;}'
+			. '.bmreg-history-legend span{display:inline-flex;align-items:center;gap:5px;}.bmreg-history-legend span:before{content:"";width:6px;height:6px;border-radius:50%;background:#7f91a9;}'
+			. '.bmreg-history-legend .is-bullish:before{background:#35cdbb}.bmreg-history-legend .is-bearish:before{background:#ff7b6d}'
+			. '.bmreg-history-chart{padding:14px 0 0;border-top:1px solid #1c2a3d;}'
+			. '.bmreg-history-bars{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));align-items:end;gap:3px;height:126px;border-bottom:1px solid #263b58;}'
+			. '.bmreg-history-bar{position:relative;width:100%;height:100%;min-width:0;padding:0;border:0;background:transparent;cursor:pointer;}'
+			. '.bmreg-history-bar span{position:absolute;right:0;bottom:0;left:0;height:var(--bmreg-height);min-height:4px;border-radius:3px 3px 1px 1px;background:#7f91a9;opacity:.68;transition:opacity .15s ease,filter .15s ease;}'
+			. '.bmreg-history-bar.bmreg-bias-bullish span{background:#35cdbb}.bmreg-history-bar.bmreg-bias-bearish span{background:#ff7b6d}.bmreg-history-bar.bmreg-bias-neutral span{background:#8192aa}'
+			. '.bmreg-history-bar:hover span,.bmreg-history-bar:focus-visible span,.bmreg-history-bar.is-selected span{opacity:1;filter:brightness(1.12)}'
+			. '.bmreg-history-bar.is-selected:after{content:"";position:absolute;right:50%;bottom:-6px;width:4px;height:4px;border-radius:50%;background:#e7eef7;transform:translateX(50%);}'
+			. '.bmreg-history-bar:focus-visible{outline:2px solid #dce7f3;outline-offset:2px;border-radius:3px;}'
+			. '.bmreg-history-axis{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:3px;margin-top:8px;}.bmreg-history-axis span{min-width:0;color:transparent;font-size:9px;text-align:center;white-space:nowrap;}.bmreg-history-axis span.is-visible{color:#71839f;}'
+			. '.bmreg-history-selected{margin:11px 0 0;color:#a6b5c8;font-size:.82rem;}'
+			. '.bmreg-history-note{margin:9px 0 0;color:#71839f;font-size:.78rem;}'
+			. '.bmreg-bias-bullish{color:#35cdbb}.bmreg-bias-bearish{color:#ff7b6d}.bmreg-bias-neutral{color:#aebdd2}'
+			. '@media(max-width:560px){.bmreg-history-head{align-items:flex-start;flex-direction:column;gap:8px}.bmreg-history-legend{gap:9px}.bmreg-history-bars{height:96px;gap:2px}.bmreg-history-axis{gap:2px}.bmreg-history-axis span{font-size:8px}.bmreg-history-axis span.is-visible:not(:first-child):not(:last-child){color:transparent}.bmreg-history-selected{font-size:.78rem}}'
 			. '</style>';
 	}
 }
