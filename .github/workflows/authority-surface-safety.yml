@@ -3,6 +3,7 @@ name: Authority surface safety
 on:
   pull_request:
     paths:
+      - "website/wp-content/themes/bitmomo-child-v3/style.css"
       - "website/wp-content/themes/bitmomo-child-v3/functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/page.php"
       - "website/wp-content/themes/bitmomo-child-v3/single.php"
@@ -10,6 +11,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/footer.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
+      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/research.php"
@@ -17,14 +19,17 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/article-reading.css"
       - "scripts/check-public-ui.mjs"
+      - "scripts/check-article-cleanliness.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
       - "docs/ARTICLE_READING_CONTRACT.md"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
+      - ".github/workflows/ui-browser-safety.yml"
   push:
     branches: [main, "fix/**", "feature/**"]
     paths:
+      - "website/wp-content/themes/bitmomo-child-v3/style.css"
       - "website/wp-content/themes/bitmomo-child-v3/functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/page.php"
       - "website/wp-content/themes/bitmomo-child-v3/single.php"
@@ -32,6 +37,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/footer.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
+      - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/research.php"
@@ -39,11 +45,13 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/article-reading.css"
       - "scripts/check-public-ui.mjs"
+      - "scripts/check-article-cleanliness.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
       - "docs/ARTICLE_READING_CONTRACT.md"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
+      - ".github/workflows/ui-browser-safety.yml"
   workflow_dispatch:
 
 permissions:
@@ -60,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Lint authority PHP
+      - name: Lint authority PHP and browser contracts
         shell: bash
         run: |
           set -euo pipefail
@@ -72,12 +80,14 @@ jobs:
             website/wp-content/themes/bitmomo-child-v3/footer.php \
             website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php \
             website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research.php; do
             php -l "$file"
           done
           node --check scripts/check-public-ui.mjs
+          node --check scripts/check-article-cleanliness.mjs
 
       - name: Enforce one institutional classification boundary
         shell: bash
@@ -90,6 +100,7 @@ jobs:
           home_research="${theme}/template-parts/research.php"
           single="${theme}/single.php"
           assets="${theme}/inc/trait-bitmomo-assets.php"
+          content="${theme}/inc/trait-bitmomo-content.php"
 
           grep -q "template-parts/about" "${theme}/page.php"
           grep -q "template-parts/research" "${theme}/category.php"
@@ -120,8 +131,8 @@ jobs:
           grep -q "research.css" "${assets}"
           grep -q "about.css" "${assets}"
           grep -q "is_single()" "${assets}"
-          grep -q "is_category('riset')" "${assets}"
-          grep -q "is_page('tentang-kami')" "${assets}"
+          ! grep -q "bm-disclaimer" "${content}"
+          grep -q "must remain the authored publication itself" "${content}"
           grep -q '"expected_file_count": 112' config/production-runtime.json
           grep -q '"expected_file_count": 45' config/production-runtime.json
           grep -q '"assets/css/article-reading.css"' config/production-runtime.json
@@ -167,8 +178,11 @@ jobs:
           functions="${theme}/functions.php"
           contract="docs/ARTICLE_READING_CONTRACT.md"
           browser="scripts/check-public-ui.mjs"
+          cleanliness="scripts/check-article-cleanliness.mjs"
 
           grep -q "Google/search result → article orientation" "${contract}"
+          grep -q "noindex,follow" "${contract}"
+          grep -q "Body cleanliness / legacy database boundary" "${contract}"
           grep -q "Bitmomo Research" "${single}"
           grep -q "Dipublikasikan" "${single}"
           grep -q "menit baca" "${single}"
@@ -178,19 +192,32 @@ jobs:
 
           grep -q -- "--bm-article-reading: 720px" "${css}"
           grep -q "font-size: clamp(17px" "${css}"
-          grep -q "wp-block-table" "${css}"
+          grep -q "bm-article-body > table" "${css}"
+          grep -q "display: block" "${css}"
           grep -q "overflow-x: auto" "${css}"
           grep -q "@media (max-width: 720px)" "${css}"
 
+          grep -q "Bitmomo — Bitcoin Market Intelligence & Research" "${functions}"
+          grep -q "Bitmomo Research — Bitcoin Markets & Intelligence Systems" "${functions}"
           grep -q "is_single()" "${functions}"
-          grep -q "Bitmomo Research'" "${functions}"
+          grep -q "bitmomo_is_unclassified_legacy_research_post" "${functions}"
+          grep -q "rank_math/frontend/robots" "${functions}"
           grep -q "get_post_field('post_excerpt'" "${functions}"
+          grep -q "define('BM_VERSION', '4.5')" "${functions}"
+          grep -q "Version: 4.5" "${theme}/style.css"
 
           grep -q "bm-research-lead__title a" "${browser}"
+          grep -q "no qualified Research article discoverable" "${browser}"
           grep -q "reading column too wide" "${browser}"
           grep -q "article body font too small" "${browser}"
           grep -q "article line-height too tight" "${browser}"
           grep -q "generic previous/next post navigation returned" "${browser}"
+
+          grep -q "inline typography overrides" "${cleanliness}"
+          grep -q "Subscribe Newsletter Bitmomo" "${cleanliness}"
+          grep -q "agi-superintelligence-dan-blockchain" "${cleanliness}"
+          grep -q "Legacy generic-Riset canary is still indexable" "${cleanliness}"
+          grep -q "Qualified article title does not carry the Bitmomo Research search promise" "${cleanliness}"
 
       - name: Enforce single SEO owner
         shell: bash
@@ -204,9 +231,11 @@ jobs:
           grep -q "Bitmomo Research — Bitcoin Markets & Intelligence Systems" "${functions}"
           grep -q "Bitmomo — Bitcoin Market Intelligence & Research" "${functions}"
           grep -q "bitmomo_research_filter_robots" "${functions}"
+          grep -q "bitmomo_rank_math_research_robots" "${functions}"
           grep -q "bitmomo_research_rank_math_canonical" "${functions}"
           grep -q "rank_math/frontend/title" "${functions}"
           grep -q "rank_math/frontend/description" "${functions}"
+          grep -q "rank_math/frontend/robots" "${functions}"
           ! grep -q "rank_math/frontend/title" "${helpers}"
           ! grep -q "rank_math/frontend/description" "${helpers}"
 
