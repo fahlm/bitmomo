@@ -29,25 +29,35 @@ trait Bitmomo_Assets_Trait {
     }
 
     public function enqueue_styles() {
-        // Parent (Hello Elementor) style
-        wp_enqueue_style('hello-elementor-style',
-            get_template_directory_uri() . '/style.css', [], null);
+        // Parent (Hello Elementor) style.
+        wp_enqueue_style(
+            'hello-elementor-style',
+            get_template_directory_uri() . '/style.css',
+            [],
+            null
+        );
 
-        // Critical CSS inline (optional)
+        // Critical CSS inline (optional).
         $critical_path = get_stylesheet_directory() . '/critical.css';
         if (file_exists($critical_path)) {
             printf("<style>%s</style>\n", @file_get_contents($critical_path));
         }
 
-        // Child custom.css (cache-busting via content hash)
+        // Legacy child stylesheet remains first. New public layers must be
+        // enqueued after this so they can intentionally neutralize old rules.
         $custom_css_path = get_stylesheet_directory() . '/custom.css';
-        $custom_css_uri  = get_stylesheet_directory_uri() . '/custom.css';
-        $version = $this->get_file_version($custom_css_path);
-        wp_enqueue_style('bitmomo-child', $custom_css_uri, ['hello-elementor-style'], $version);
+        wp_enqueue_style(
+            'bitmomo-child',
+            get_stylesheet_directory_uri() . '/custom.css',
+            ['hello-elementor-style'],
+            $this->get_file_version($custom_css_path)
+        );
+
+        $public_base_deps = ['bitmomo-child'];
 
         // Shared public readability contract. This is deliberately separate
-        // from the frozen legacy custom.css: it is the first design-system
-        // migration layer and owns only readable secondary text / CTA contrast.
+        // from the frozen legacy custom.css: it owns readable secondary text /
+        // CTA contrast and becomes an explicit dependency for public surfaces.
         $readability_css_path = get_stylesheet_directory() . '/assets/css/public-readability.css';
         if (file_exists($readability_css_path)) {
             wp_enqueue_style(
@@ -56,21 +66,45 @@ trait Bitmomo_Assets_Trait {
                 ['bitmomo-child'],
                 $this->get_file_version($readability_css_path)
             );
+            $public_base_deps[] = 'bitmomo-public-readability';
         }
 
-        // Homepage-only intelligence and conversion presentation. Keep each
-        // concern in its own asset so product iteration never grows the frozen
-        // legacy custom.css or couples the whitelist plugin's standalone /pro
-        // presentation to the homepage embed.
+        $public_surface_deps = $public_base_deps;
+        $public_surfaces_css_path = get_stylesheet_directory() . '/assets/css/public-surfaces.css';
+        if (file_exists($public_surfaces_css_path)) {
+            wp_enqueue_style(
+                'bitmomo-public-surfaces',
+                get_stylesheet_directory_uri() . '/assets/css/public-surfaces.css',
+                $public_base_deps,
+                $this->get_file_version($public_surfaces_css_path)
+            );
+            $public_surface_deps = ['bitmomo-public-surfaces'];
+        }
+
+        $navigation_footer_css_path = get_stylesheet_directory() . '/assets/css/navigation-footer.css';
+        if (file_exists($navigation_footer_css_path)) {
+            wp_enqueue_style(
+                'bitmomo-navigation-footer',
+                get_stylesheet_directory_uri() . '/assets/css/navigation-footer.css',
+                $public_surface_deps,
+                $this->get_file_version($navigation_footer_css_path)
+            );
+            $public_surface_deps = ['bitmomo-navigation-footer'];
+        }
+
+        // Homepage-only intelligence and conversion presentation. These are
+        // intentionally loaded last on the homepage so final conversion layout
+        // cannot be overwritten by generic public-surface rules.
         if (is_front_page()) {
             $opportunity_css_path = get_stylesheet_directory() . '/assets/css/home-opportunity.css';
             if (file_exists($opportunity_css_path)) {
                 wp_enqueue_style(
                     'bitmomo-home-opportunity',
                     get_stylesheet_directory_uri() . '/assets/css/home-opportunity.css',
-                    ['bitmomo-child', 'bitmomo-public-readability'],
+                    $public_surface_deps,
                     $this->get_file_version($opportunity_css_path)
                 );
+                $public_surface_deps = ['bitmomo-home-opportunity'];
             }
 
             $conversion_css_path = get_stylesheet_directory() . '/assets/css/home-conversion.css';
@@ -78,22 +112,22 @@ trait Bitmomo_Assets_Trait {
                 wp_enqueue_style(
                     'bitmomo-home-conversion',
                     get_stylesheet_directory_uri() . '/assets/css/home-conversion.css',
-                    ['bitmomo-child', 'bitmomo-public-readability', 'bitmomo-home-opportunity'],
+                    $public_surface_deps,
                     $this->get_file_version($conversion_css_path)
                 );
             }
         }
 
-        // Route-owned authority surfaces. These files are intentionally
-        // separate from frozen custom.css so About/Research can evolve without
-        // reintroducing global cascade debt.
+        // Institutional authority surfaces own their page-specific layers.
+        // Keep these out of frozen custom.css and after the shared chrome so
+        // their hierarchy cannot be diluted by legacy archive/page rules.
         if (is_category('riset')) {
             $research_css_path = get_stylesheet_directory() . '/assets/css/research.css';
             if (file_exists($research_css_path)) {
                 wp_enqueue_style(
                     'bitmomo-research',
                     get_stylesheet_directory_uri() . '/assets/css/research.css',
-                    ['bitmomo-child', 'bitmomo-public-readability'],
+                    $public_surface_deps,
                     $this->get_file_version($research_css_path)
                 );
             }
@@ -105,7 +139,7 @@ trait Bitmomo_Assets_Trait {
                 wp_enqueue_style(
                     'bitmomo-about',
                     get_stylesheet_directory_uri() . '/assets/css/about.css',
-                    ['bitmomo-child', 'bitmomo-public-readability'],
+                    $public_surface_deps,
                     $this->get_file_version($about_css_path)
                 );
             }
