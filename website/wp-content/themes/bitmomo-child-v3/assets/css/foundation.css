@@ -1,0 +1,235 @@
+/*
+ * Bitmomo Frontend Foundation
+ * Single source of truth for public design tokens, layout primitives,
+ * typography, accessibility states and responsive behavior.
+ *
+ * Page/component styles may consume these tokens but must not redefine the
+ * global palette, container widths or breakpoint philosophy locally.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Color system */
+  --bm-bg: #081420;
+  --bm-bg-raised: #0c1c2a;
+  --bm-surface: #0f2434;
+  --bm-surface-strong: #122b3e;
+  --bm-surface-soft: #0c2030;
+  --bm-text: #eef5f7;
+  --bm-text-muted: #b7c6d3;
+  --bm-text-subtle: #8fa3b8;
+  --bm-border: rgba(255,255,255,.10);
+  --bm-border-strong: rgba(255,255,255,.16);
+  --bm-teal: #35d7c9;
+  --bm-teal-strong: #20bfb2;
+  --bm-teal-soft: rgba(53,215,201,.10);
+  --bm-action: #f4ad32;
+  --bm-action-hover: #ffc15a;
+  --bm-bull: #41d69b;
+  --bm-bear: #ff7d7d;
+  --bm-neutral: #9aacc0;
+
+  /* Type */
+  --bm-font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bm-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --bm-leading-body: 1.68;
+  --bm-leading-tight: 1.08;
+
+  /* Layout */
+  --bm-container: 1180px;
+  --bm-container-wide: 1280px;
+  --bm-reading: 760px;
+  --bm-gutter: clamp(16px, 3vw, 32px);
+  --bm-section-y: clamp(56px, 7vw, 96px);
+  --bm-section-y-compact: clamp(38px, 5vw, 64px);
+
+  /* Shape / elevation */
+  --bm-radius-sm: 10px;
+  --bm-radius-md: 16px;
+  --bm-radius-lg: 22px;
+  --bm-shadow: 0 24px 64px rgba(0,0,0,.28);
+
+  /* Compatibility aliases while plugin styles migrate to canonical tokens. */
+  --bg: var(--bm-bg);
+  --bg-2: var(--bm-bg-raised);
+  --ink: var(--bm-text);
+  --muted: var(--bm-text-muted);
+  --teal: var(--bm-teal);
+  --teal-hover: var(--bm-teal-strong);
+  --cta: var(--bm-action);
+  --cta-hover: var(--bm-action-hover);
+  --stroke: var(--bm-border);
+  --card-bg: var(--bm-surface);
+  --radius: var(--bm-radius-md);
+  --pill: 9999px;
+  --shadow: var(--bm-shadow);
+  --font: var(--bm-font-sans);
+  --bm-text-subtle-readable: var(--bm-text-subtle);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { min-width: 320px; background: var(--bm-bg); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bm-bg);
+  color: var(--bm-text);
+  font-family: var(--bm-font-sans);
+  font-size: 16px;
+  line-height: var(--bm-leading-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+body.menu-open { overflow: hidden; }
+
+img, svg, video, canvas, iframe { display: block; max-width: 100%; }
+img { height: auto; }
+button, input, textarea, select { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+
+::selection { background: rgba(53,215,201,.24); color: var(--bm-text); }
+
+a {
+  color: var(--bm-teal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+a:hover { color: var(--bm-teal-strong); }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--bm-teal);
+  outline-offset: 4px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  color: var(--bm-text);
+  font-weight: 780;
+  letter-spacing: -.025em;
+}
+p { margin-top: 0; }
+
+.bm-container {
+  width: min(100%, calc(var(--bm-container) + (var(--bm-gutter) * 2)));
+  margin-inline: auto;
+  padding-inline: var(--bm-gutter);
+}
+.bm-container--wide { max-width: calc(var(--bm-container-wide) + (var(--bm-gutter) * 2)); }
+.bm-reading { width: min(100%, var(--bm-reading)); margin-inline: auto; }
+
+.bm-section { padding-block: var(--bm-section-y); }
+.bm-section--compact { padding-block: var(--bm-section-y-compact); }
+.bm-section + .bm-section { border-top: 1px solid rgba(255,255,255,.045); }
+
+.bm-eyebrow,
+.bm-public-eyebrow,
+.bm-research-eyebrow,
+.bm-ai-lab-eyebrow,
+.bm-howworks-eyebrow,
+.bm-wl-unified__eyebrow {
+  display: block;
+  margin: 0 0 12px;
+  color: var(--bm-teal);
+  font: 800 11px/1.3 var(--bm-font-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.bm-display {
+  margin: 0;
+  font-size: clamp(38px, 6vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -.045em;
+}
+.bm-heading {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+.bm-lead {
+  max-width: 720px;
+  margin: 18px 0 0;
+  color: var(--bm-text-muted);
+  font-size: clamp(16px, 1.8vw, 19px);
+  line-height: 1.65;
+}
+
+.bm-button,
+.bm-button--primary,
+.bm-button--secondary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--bm-radius-sm);
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bm-button--primary {
+  background: var(--bm-action);
+  color: #111923;
+}
+.bm-button--primary:hover { background: var(--bm-action-hover); color: #111923; }
+.bm-button--secondary {
+  border-color: var(--bm-border-strong);
+  background: rgba(255,255,255,.025);
+  color: var(--bm-text);
+}
+.bm-button--secondary:hover { border-color: rgba(53,215,201,.45); color: var(--bm-teal); }
+
+.bm-panel {
+  border: 1px solid var(--bm-border);
+  border-radius: var(--bm-radius-md);
+  background: var(--bm-surface);
+}
+
+.bm-rule { border: 0; border-top: 1px solid var(--bm-border); }
+.bm-muted { color: var(--bm-text-muted); }
+.bm-subtle { color: var(--bm-text-subtle); }
+
+/* Prevent WordPress/Elementor defaults from reintroducing unexpected widths. */
+.bm-public-main,
+.bm-product-surface,
+.bm-article,
+.bm-archive-v2,
+.home main { width: 100%; min-width: 0; }
+.bm-public-main { min-height: 56vh; background: var(--bm-bg); }
+.elementor-kit-5 body,
+body.elementor-default { background: var(--bm-bg); color: var(--bm-text); }
+
+/* Responsive contract: layouts collapse by available space, not device names. */
+@media (max-width: 900px) {
+  :root { --bm-section-y: clamp(48px, 8vw, 76px); }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --bm-gutter: 16px;
+    --bm-section-y: 48px;
+    --bm-section-y-compact: 34px;
+  }
+  body { font-size: 15px; }
+  .bm-display { font-size: clamp(36px, 12vw, 52px); }
+  .bm-heading { font-size: clamp(27px, 9vw, 38px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
