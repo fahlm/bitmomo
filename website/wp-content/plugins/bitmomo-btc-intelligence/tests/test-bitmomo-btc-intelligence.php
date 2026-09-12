@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/wp-stubs.php';
 if ( ! function_exists( 'home_url' ) ) { function home_url( $path = '/' ) { return 'https://bitmomo.test' . $path; } }
+if ( ! function_exists( 'wp_date' ) ) { function wp_date( $format, $timestamp = null ) { return date( $format, null === $timestamp ? time() : $timestamp ); } }
 
 $GLOBALS['__pass'] = 0; $GLOBALS['__fail'] = 0;
 function check( $label, $cond ) { if ( $cond ) { $GLOBALS['__pass']++; echo "[PASS] $label\n"; } else { $GLOBALS['__fail']++; echo "[FAIL] $label\n"; } }
