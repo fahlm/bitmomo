@@ -22,8 +22,10 @@ function withoutCommentLines(source) {
 const frontPage = read('website/wp-content/themes/bitmomo-child-v3/front-page.php');
 const themeFunctions = read('website/wp-content/themes/bitmomo-child-v3/functions.php');
 const header = read('website/wp-content/themes/bitmomo-child-v3/header.php');
+const publicSurfacesCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/public-surfaces.css');
 const homeHero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const btcCard = read('website/wp-content/themes/bitmomo-child-v3/template-parts/btc-intelligence-card.php');
+const homeWhitelist = read('website/wp-content/themes/bitmomo-child-v3/template-parts/whitelist.php');
 const research = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research.php');
 const frontendTrait = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-frontend.php');
 const retentionJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-retention.js');
@@ -36,14 +38,24 @@ const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitm
 const proWhitelist = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php');
 const proWhitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
 
-check('Homepage template includes BTC Intelligence before Pro teaser', frontPage.indexOf("template-parts/btc-intelligence', 'card'") > -1 && frontPage.indexOf("template-parts/btc-intelligence', 'card'") < frontPage.indexOf("template-parts/pro', 'teaser'"));
-check('Homepage Pro CTAs point to /pro/', /home_url\(\s*'\/pro\/'\s*\)/.test(homeHero) && /home_url\(\s*'\/pro\/'\s*\)/.test(read('website/wp-content/themes/bitmomo-child-v3/template-parts/pro-teaser.php')));
+const btcCardIndex = frontPage.indexOf("template-parts/btc-intelligence', 'card'");
+const proConversionIndex = frontPage.indexOf("template-parts/whitelist");
+check(
+	'Homepage template includes BTC Intelligence before one unified Pro conversion surface',
+	btcCardIndex > -1
+		&& proConversionIndex > -1
+		&& btcCardIndex < proConversionIndex
+		&& !/template-parts\/pro[^\n]*teaser/.test(frontPage)
+);
+check(
+	'Homepage Pro conversion remains provider-neutral and reaches /pro/ when checkout is unavailable',
+	/home_url\(\s*'\/pro\/'\s*\)/.test(homeHero)
+		&& /bitmomo_pro_get_checkout_url\(\)/.test(homeWhitelist)
+		&& /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(homeWhitelist)
+		&& /home_url\(\s*'\/pro\/'\s*\)/.test(homeWhitelist)
+);
 check('Primary nav exposes /pro/ as the public Pro destination', /home_url\(\s*'\/pro\/'\s*\)/.test(header));
 
-// Homepage intelligence must consume the narrow public adapter now that
-// Opportunity V1, regime, direction and confidence share one public contract.
-// The presentation layer must not bypass that contract to private/current
-// engine internals or Pro state.
 check(
 	'Homepage BTC card consumes only the public intelligence adapter',
 	/Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(btcCard)
@@ -93,6 +105,16 @@ check(
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
 check('/pro sales page renders one whitelist/purchase CTA path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
 check('/pro sales copy keeps future capabilities clearly not-live', /SEGERA HADIR/.test(proSalesOutput) && /Belum tersedia hari ini/.test(proHelp) && !/24\/7|real-time|real time/.test(proSalesOutput));
+check(
+	'/pro DATA flow is limited to currently supported market inputs',
+	/Harga, struktur pasar, funding\/basis, positioning derivatives, momentum, dan volatilitas BTC diproses dari data pasar yang tersedia\./.test(proSalesOutput)
+		&& !/order book|sinyal on-chain BTC dikumpulkan secara berkelanjutan/i.test(proSalesOutput)
+);
+check(
+	'/pro removes the duplicate final conversion block structurally, not with CSS',
+	!/render_final_cta\s*\(/.test(proSalesOutput)
+		&& !/bm-pro-sales__final-cta/.test(publicSurfacesCss)
+);
 check('/pro pricing terms match M2 founding package', /Rp149\.000/.test(proSales) && /Rp1\.490\.000/.test(proSales) && /const SEAT_CAP\s*=\s*149/.test(proSales) && /const BATCH_ONE\s*=\s*25/.test(proSales));
 check('/pro avoids removed placeholder preview values', !/XX%|\$XX,XXX|\(placeholder\)|Contoh Tampilan Decision View/.test(proSales));
 check('/pro avoids old public 7-day refund promise', !/7\s*(hari|day)|refund 7|7-day/i.test(proSales + proHelp));
