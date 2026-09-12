@@ -75,7 +75,7 @@ jobs:
           python3 scripts/build-production-artifact.py --output-dir dist/first
           python3 scripts/build-production-artifact.py --output-dir dist/second
           cmp dist/first/bitmomo-runtime.tar dist/second/bitmomo-runtime.tar
-          test "$(tar -tf dist/first/bitmomo-runtime.tar | wc -l)" -eq 97
+          test "$(tar -tf dist/first/bitmomo-runtime.tar | wc -l)" -eq 98
           ! tar -tf dist/first/bitmomo-runtime.tar | grep -Eq '(^|/)tests/|\.md$|\.env($|\.)|\.(key|pem|tmp|temp)$'
 
       - name: Upload reviewed runtime artifact
