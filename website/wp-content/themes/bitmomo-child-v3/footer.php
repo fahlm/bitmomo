@@ -20,7 +20,7 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
       <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Riset', 'bitmomo' ); ?>">
         <strong><?php esc_html_e( 'RISET', 'bitmomo' ); ?></strong>
         <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Riset & Analisis', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( home_url( '/#ai-lab' ) ); ?>"><?php esc_html_e( 'AI Lab', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'AI Systems Research', 'bitmomo' ); ?></a>
       </nav>
 
       <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Tentang dan legal', 'bitmomo' ); ?>">
