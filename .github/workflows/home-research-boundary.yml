@@ -1,0 +1,21 @@
+name: Homepage research boundary
+
+on:
+  pull_request:
+    paths:
+      - 'website/wp-content/themes/bitmomo-child-v3/template-parts/research.php'
+      - 'website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php'
+      - 'scripts/check-home-research-boundary.mjs'
+      - '.github/workflows/home-research-boundary.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  research-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check homepage research qualification boundary
+        run: node scripts/check-home-research-boundary.mjs
