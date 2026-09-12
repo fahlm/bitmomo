@@ -6,12 +6,13 @@ if (!defined('ABSPATH')) exit;
 trait Bitmomo_Content_Trait {
     /* ---------- Content Enhancements ---------- */
     public function add_content_enhancements($content) {
-        if (!is_single() || !in_the_loop() || !is_main_query()) return $content;
-
-        $disc = sprintf('<div class="bm-disclaimer"><p><em>%s</em></p></div>',
-            __('Informasi edukasi, bukan saran investasi. Risiko aset kripto tinggi. DYOR.','bitmomo'));
-
-        return $content.$disc;
+        /*
+         * Canonical single.php owns article trust/disclosure chrome. Never
+         * append legal or conversion copy to the_content(): the article body
+         * must remain the authored publication itself for reading, excerpts,
+         * accessibility and search semantics.
+         */
+        return $content;
     }
 
     public function modify_archive_query($q) {
