@@ -54,6 +54,15 @@ $missing_optional_input['crowding'] = [];
 $missing_optional = Bitmomo_AI_Signal_Engine::evaluate($missing_optional_input);
 strength_check('missing optional axes never inflate confidence above the fully observed aligned fixture', $missing_optional['confidence'] <= $aligned['confidence']);
 
+strength_check('coherence-aware engine has a new immutable model identity', Bitmomo_AI_Signal_Engine::MODEL_VERSION === 'binance-public-five-axis-v3-coherence');
+$scheduler = file_get_contents(__DIR__ . '/../includes/class-bitmomo-ai-scheduler.php');
+$webhook = file_get_contents(__DIR__ . '/../includes/class-bitmomo-ai-webhook.php');
+$settle_pos = strpos($scheduler, 'Bitmomo_AI_Performance::settle($data)');
+$evaluate_pos = strpos($scheduler, '$evaluation = Bitmomo_AI_Signal_Engine::evaluate($data)');
+strength_check('session generation settles prior outcomes before evaluating the new edition', $settle_pos !== false && $evaluate_pos !== false && $settle_pos < $evaluate_pos);
+strength_check('scheduler persists canonical engine model identity', strpos($scheduler, "'_bm_model', Bitmomo_AI_Signal_Engine::MODEL_VERSION") !== false && strpos($scheduler, 'binance-public-five-axis-v2') === false);
+strength_check('webhook persists the same canonical engine model identity', strpos($webhook, "'_bm_model', Bitmomo_AI_Signal_Engine::MODEL_VERSION") !== false && strpos($webhook, "'_bm_model', 'rules-mtf-v1'") === false);
+
 $theme = file_get_contents(__DIR__ . '/../../../themes/bitmomo-child-v3/template-parts/home-hero.php');
 strength_check('homepage consumes canonical direction_strength', strpos($theme, "['direction_strength']") !== false);
 strength_check('homepage has no confidence threshold for strength naming', !preg_match('/confidence\s*>?=\s*70\s*\?\s*[\'\"]Strong/', $theme));
