@@ -3,7 +3,6 @@ import path from 'node:path';
 
 const root = process.cwd();
 const themeDir = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
-const btcPluginDir = path.join(root, 'website/wp-content/plugins/bitmomo-btc-intelligence');
 const WCAG_AA_NORMAL_TEXT = 4.5;
 
 function fail(message) {
@@ -39,6 +38,7 @@ function requireContrast(label, foreground, background, minimum = WCAG_AA_NORMAL
 }
 
 const requiredThemeFiles = [
+  'style.css',
   'functions.php',
   'front-page.php',
   'page.php',
@@ -46,7 +46,9 @@ const requiredThemeFiles = [
   'category.php',
   'header.php',
   'footer.php',
+  'data/runtime-fingerprint.json',
   'inc/trait-bitmomo-assets.php',
+  'inc/trait-bitmomo-images.php',
   'inc/trait-bitmomo-frontend.php',
   'assets/css/foundation.css',
   'assets/css/navigation-footer.css',
@@ -95,9 +97,49 @@ for (const legacyRuntimePath of ['custom.css','assets/css/home-opportunity.css',
   if (!runtime.exclude.includes(legacyRuntimePath)) fail(`legacy CSS debt must be excluded from production runtime: ${legacyRuntimePath}`);
 }
 const themeRuntime = runtime.components.find((component) => component.name === 'bitmomo-child-v3');
-for (const requiredRuntimePath of ['assets/css/foundation.css','assets/css/home.css','assets/css/research.css','assets/css/about.css','template-parts/research-hub.php']) {
+for (const requiredRuntimePath of ['data/runtime-fingerprint.json','assets/css/foundation.css','assets/css/home.css','assets/css/research.css','assets/css/about.css','template-parts/research-hub.php']) {
   if (!themeRuntime?.required?.includes(requiredRuntimePath)) fail(`production runtime does not require canonical frontend asset: ${requiredRuntimePath}`);
 }
+
+/* Push browser audits must prove byte-level runtime identity. A manually bumped
+   version string is not sufficient evidence that source and deployed runtime
+   match. The fingerprint contract hashes the named public files themselves. */
+const runtimeFingerprint = JSON.parse(read('website/wp-content/themes/bitmomo-child-v3/data/runtime-fingerprint.json'));
+const fingerprintFiles = new Set(runtimeFingerprint.files || []);
+for (const requiredFingerprintPath of [
+  'style.css',
+  'functions.php',
+  'data/runtime-fingerprint.json',
+  'inc/template-functions.php',
+  'inc/trait-bitmomo-assets.php',
+  'inc/trait-bitmomo-images.php',
+  'front-page.php',
+  'single.php',
+  'category.php',
+  'assets/css/foundation.css',
+  'assets/css/navigation-footer.css',
+  'assets/css/home.css',
+  'assets/css/research.css',
+  'assets/js/bitmomo-frontend.js',
+]) {
+  if (!fingerprintFiles.has(requiredFingerprintPath)) fail(`public runtime fingerprint omits launch-critical file: ${requiredFingerprintPath}`);
+}
+for (const fingerprintPath of fingerprintFiles) {
+  if (!fs.existsSync(path.join(themeDir, fingerprintPath))) fail(`public runtime fingerprint references missing file: ${fingerprintPath}`);
+}
+
+const templateFunctions = read('website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php');
+for (const marker of ['bitmomo_public_runtime_fingerprint','runtime-fingerprint.json','hash_init(\'sha256\')','bitmomo_runtime_fingerprint']) {
+  if (!templateFunctions.includes(marker)) fail(`runtime fingerprint implementation is missing marker: ${marker}`);
+}
+const browserWorkflow = read('.github/workflows/ui-browser-safety.yml');
+if (!browserWorkflow.includes('bitmomo_runtime_fingerprint')) fail('browser parity gate must use the byte-level runtime fingerprint endpoint');
+if (browserWorkflow.includes('Source theme version:') || browserWorkflow.includes('Production theme version:')) fail('browser parity gate regressed to human-maintained version comparison');
+if (!browserWorkflow.includes('source_fingerprint') || !browserWorkflow.includes('runtime_fingerprint')) fail('browser parity gate must compare source and runtime fingerprints explicitly');
+
+const styleCss = read('website/wp-content/themes/bitmomo-child-v3/style.css');
+if (/custom styles are enqueued[\s\S]*custom\.css/i.test(styleCss)) fail('theme metadata still documents legacy custom.css as canonical');
+if (!/Version:\s*5\.0\.0/.test(styleCss)) fail('theme metadata must identify frontend architecture v5 runtime');
 
 const foundationCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/foundation.css');
 for (const token of ['--bm-bg:', '--bm-text:', '--bm-text-muted:', '--bm-text-subtle:', '--bm-teal:', '--bm-action:', '--bm-container:', '--bm-reading:']) {
@@ -159,7 +201,6 @@ for (const marker of ['CRYPTO MARKET RESEARCH','AI SYSTEMS RESEARCH','bm_read_mi
 }
 
 const pageTemplate = read('website/wp-content/themes/bitmomo-child-v3/page.php');
-const templateFunctions = read('website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php');
 if (!templateFunctions.includes('bitmomo_normalize_public_page_body_headings')) fail('ordinary-page H1 normalizer is missing');
 if (!pageTemplate.includes('bitmomo_normalize_public_page_body_headings( $bm_rendered_content )')) fail('ordinary page.php must use canonical heading normalizer');
 if (!pageTemplate.includes("get_template_part( 'template-parts/about', 'authority' )")) fail('About page must carry institutional authority layer');
@@ -199,4 +240,4 @@ requireContrast('footer subtle text', '#8fa3b8', '#07111b');
 requireContrast('commercial CTA text', '#111923', '#f4ad32');
 requireContrast('BTC subtle fallback', '#8294ae', '#111d2f');
 
-if (!process.exitCode) console.log('PASS root-cause UI architecture + research authority contract');
+if (!process.exitCode) console.log('PASS root-cause UI architecture + research authority + runtime parity contract');
