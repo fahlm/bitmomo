@@ -5,14 +5,17 @@ get_header();
 
 $bm_term = get_queried_object();
 $bm_is_research = $bm_term instanceof WP_Term && 'riset' === $bm_term->slug;
-$bm_archive_eyebrow = $bm_is_research ? __( 'BITMOMO RESEARCH', 'bitmomo' ) : __( 'ARSIP', 'bitmomo' );
-$bm_archive_title = $bm_is_research ? __( 'Riset & Analisis', 'bitmomo' ) : single_cat_title( '', false );
-$bm_archive_description = category_description();
-if ( $bm_is_research && '' === trim( wp_strip_all_tags( $bm_archive_description ) ) ) {
-  $bm_archive_description = __( 'Analisis mendalam tentang Bitcoin, struktur pasar, teknologi, dan tema yang membentuk ekosistem crypto.', 'bitmomo' );
-}
 ?>
 <main id="primary" class="bm-public-main">
-  <?php get_template_part( 'template-parts/archive', 'index' ); ?>
+  <?php if ( $bm_is_research ) : ?>
+    <?php get_template_part( 'template-parts/research', 'hub' ); ?>
+  <?php else : ?>
+    <?php
+    $bm_archive_eyebrow = __( 'ARSIP', 'bitmomo' );
+    $bm_archive_title = single_cat_title( '', false );
+    $bm_archive_description = category_description();
+    get_template_part( 'template-parts/archive', 'index' );
+    ?>
+  <?php endif; ?>
 </main>
-<?php unset( $bm_term, $bm_is_research ); get_footer(); ?>
+<?php unset( $bm_term, $bm_is_research, $bm_archive_eyebrow, $bm_archive_title, $bm_archive_description ); get_footer(); ?>
