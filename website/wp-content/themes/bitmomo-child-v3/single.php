@@ -87,7 +87,7 @@ get_header();
         <div class="bm-container">
           <span class="bm-eyebrow"><?php esc_html_e( 'LANJUTKAN MEMBACA', 'bitmomo' ); ?></span>
           <h2 class="bm-heading"><?php esc_html_e( 'Riset Terkait', 'bitmomo' ); ?></h2>
-          <div class="bm-research-grid" style="margin-top:24px">
+          <div class="bm-research-grid bm-research-grid--related">
             <?php while ( $bm_related->have_posts() ) : $bm_related->the_post();
               $bm_related_cats = get_the_category();
               $bm_related_label = $bm_related_cats ? $bm_related_cats[0]->name : __( 'Research', 'bitmomo' );
