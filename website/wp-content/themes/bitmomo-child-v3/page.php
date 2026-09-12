@@ -37,6 +37,10 @@ get_header();
       <?php the_content(); ?>
     </article>
   <?php else : ?>
+    <?php
+    $bm_rendered_content = apply_filters( 'the_content', $bm_content );
+    $bm_rendered_content = bitmomo_normalize_public_page_body_headings( $bm_rendered_content );
+    ?>
     <article <?php post_class( 'bm-public-page' ); ?>>
       <div class="bm-public-page__inner">
         <header class="bm-public-head bm-public-head--page">
@@ -44,13 +48,17 @@ get_header();
           <h1 class="bm-public-title"><?php the_title(); ?></h1>
         </header>
         <div class="bm-public-body">
-          <?php the_content(); ?>
+          <?php
+          // WordPress post content is rendered through the canonical the_content filter stack above.
+          // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+          echo $bm_rendered_content;
+          ?>
         </div>
       </div>
     </article>
   <?php endif; ?>
 
-  <?php unset( $bm_content, $bm_product_shortcodes, $bm_shortcode, $bm_is_product_surface ); ?>
+  <?php unset( $bm_content, $bm_rendered_content, $bm_product_shortcodes, $bm_shortcode, $bm_is_product_surface ); ?>
 <?php endwhile; endif; ?>
 </main>
 <?php get_footer(); ?>
