@@ -23,6 +23,7 @@ const retentionJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/b
 const retentionOutput = withoutCommentLines(retentionJs);
 const publicAdapter = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php');
 const btcIntelligencePlugin = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
+const btcIntelligencePage = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php');
 const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
 const proSalesOutput = withoutCommentLines(proSales);
 const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
@@ -97,13 +98,14 @@ check(
 		&& /Riwayat &amp; track record/.test(homeHero)
 );
 check(
-	'Public BTC Intelligence renders provenance from the adapter without hardcoded providers',
-	/surface_context\(\)/.test(btcIntelligencePlugin)
-		&& /\$surface\['provenance'\]/.test(btcIntelligencePlugin)
-		&& /bm-bi__snapshot-provenance/.test(btcIntelligencePlugin)
-		&& /SOURCE/.test(btcIntelligencePlugin)
-		&& /AS OF/.test(btcIntelligencePlugin)
-		&& !/Binance public market data|Bybit derivatives fallback/.test(homeHero + btcIntelligencePlugin)
+	'Public BTC Intelligence renders provenance natively from the adapter without hardcoded providers',
+	/Bitmomo_Public_Intelligence_Adapter::surface_context\(\)/.test(btcIntelligencePage)
+		&& /\$surface\['provenance'\]/.test(btcIntelligencePage)
+		&& /bm-bi__snapshot-provenance/.test(btcIntelligencePage)
+		&& /SOURCE/.test(btcIntelligencePage)
+		&& /AS OF/.test(btcIntelligencePage)
+		&& !/surface_context\(\)/.test(btcIntelligencePlugin)
+		&& !/Binance public market data|Bybit derivatives fallback/.test(homeHero + btcIntelligencePlugin + btcIntelligencePage)
 );
 
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
