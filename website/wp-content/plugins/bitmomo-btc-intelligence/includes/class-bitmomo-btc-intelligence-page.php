@@ -20,9 +20,7 @@ class Bitmomo_Btc_Intelligence_Page {
 	private $evaluation_summary_loaded = false;
 
 	public static function instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
+		if ( null === self::$instance ) self::$instance = new self();
 		return self::$instance;
 	}
 
@@ -48,27 +46,16 @@ class Bitmomo_Btc_Intelligence_Page {
 
 	public function prevent_snapshot_page_cache() {
 		global $post;
-		if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) ) {
-			return;
-		}
-		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-			define( 'DONOTCACHEPAGE', true );
-		}
+		if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) ) return;
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) define( 'DONOTCACHEPAGE', true );
 		nocache_headers();
 		do_action( 'litespeed_control_set_nocache', 'Canonical intelligence freshness' );
 	}
 
 	public function maybe_enqueue_assets() {
 		global $post;
-		if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) ) {
-			return;
-		}
-		wp_enqueue_style(
-			'bitmomo-btc-intelligence',
-			BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/bitmomo-btc-intelligence.css',
-			array(),
-			BITMOMO_BTC_INTELLIGENCE_VERSION
-		);
+		if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) ) return;
+		wp_enqueue_style( 'bitmomo-btc-intelligence', BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/bitmomo-btc-intelligence.css', array(), BITMOMO_BTC_INTELLIGENCE_VERSION );
 	}
 
 	private function adapter_snapshot() {
@@ -315,7 +302,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section class="bm-bi__pro-cta">
 			<p class="bm-bi__eyebrow">BITMOMO PRO</p>
 			<h2><?php esc_html_e( 'Dari kondisi sekarang ke apa yang perlu dipantau berikutnya.', 'bitmomo-btc-intelligence' ); ?></h2>
-			<p><?php esc_html_e( 'Skenario, invalidation, perubahan thesis, dan alert — tanpa harus memantau semuanya sendiri.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p><?php esc_html_e( 'Skenario, invalidation, dan perubahan thesis — tanpa harus membandingkan banyak data secara manual.', 'bitmomo-btc-intelligence' ); ?></p>
 			<a class="bm-bi__cta-primary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Lihat Bitmomo Pro', 'bitmomo-btc-intelligence' ); ?></a>
 		</section>
 		<?php
