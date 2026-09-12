@@ -7,6 +7,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/page.php"
       - "website/wp-content/themes/bitmomo-child-v3/single.php"
       - "website/wp-content/themes/bitmomo-child-v3/category.php"
+      - "website/wp-content/themes/bitmomo-child-v3/footer.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
@@ -15,6 +16,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "docs/content/tentang-kami.md"
+      - "docs/RESEARCH_HUB_CONTRACT.md"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
   push:
@@ -24,6 +26,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/page.php"
       - "website/wp-content/themes/bitmomo-child-v3/single.php"
       - "website/wp-content/themes/bitmomo-child-v3/category.php"
+      - "website/wp-content/themes/bitmomo-child-v3/footer.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php"
       - "website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php"
       - "website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php"
@@ -32,6 +35,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/about.css"
       - "website/wp-content/themes/bitmomo-child-v3/assets/css/research.css"
       - "docs/content/tentang-kami.md"
+      - "docs/RESEARCH_HUB_CONTRACT.md"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
   workflow_dispatch:
@@ -59,6 +63,7 @@ jobs:
             website/wp-content/themes/bitmomo-child-v3/page.php \
             website/wp-content/themes/bitmomo-child-v3/single.php \
             website/wp-content/themes/bitmomo-child-v3/category.php \
+            website/wp-content/themes/bitmomo-child-v3/footer.php \
             website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php \
             website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
@@ -88,12 +93,16 @@ jobs:
           grep -q "bitmomo_post_is_market_research" "${helpers}"
           grep -q "bitmomo_post_is_ai_systems_research" "${helpers}"
           grep -q "bitmomo_post_research_classification" "${helpers}"
+          grep -q "bitmomo_research_focus_filters" "${helpers}"
+          grep -q "bitmomo_post_matches_research_focus" "${helpers}"
+          grep -q "bitmomo_post_research_topic_label" "${helpers}"
+          grep -q "bitmomo_post_reading_minutes" "${helpers}"
 
           grep -q "tag__not_in" "${hub}"
           grep -q "bitmomo_post_is_market_research" "${home_research}"
           grep -q "bitmomo_post_research_classification" "${single}"
           grep -q "Market Research Terkait" "${single}"
-          grep -q "AI Systems Research Terkait" "${single}"
+          grep -q "Intelligence Systems Research Terkait" "${single}"
           ! grep -q "Riset Terkait" "${single}"
 
           grep -q "research.css" "${assets}"
@@ -113,6 +122,37 @@ jobs:
           assert theme and int(theme.get('expected_file_count', 0)) == 44, 'authority theme runtime contract must remain 44 files'
           PY
 
+      - name: Enforce institutional Research Hub UX
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme="website/wp-content/themes/bitmomo-child-v3"
+          hub="${theme}/template-parts/research-hub.php"
+          css="${theme}/assets/css/research.css"
+          footer="${theme}/footer.php"
+          contract="docs/RESEARCH_HUB_CONTRACT.md"
+
+          grep -q "The Research Hub is a research workspace" "${contract}"
+          grep -q "RESEARCH LIBRARY" "${hub}"
+          grep -q "RESEARCH PROGRAMS" "${hub}"
+          grep -q "INTELLIGENCE SYSTEMS" "${hub}"
+          grep -q "research_q" "${hub}"
+          grep -q "KEY FINDING" "${hub}"
+          grep -q "RESEARCH FIGURE" "${hub}"
+          grep -q "bitmomo_post_reading_minutes" "${hub}"
+          grep -q "bitmomo_post_matches_research_focus" "${hub}"
+          ! grep -q "Gabung Founding Whitelist" "${hub}"
+          grep -q "Intelligence Systems" "${footer}"
+
+          library_line="$(grep -n "RESEARCH LIBRARY" "${hub}" | head -1 | cut -d: -f1)"
+          method_line="$(grep -n "RESEARCH STANDARD" "${hub}" | tail -1 | cut -d: -f1)"
+          test "${library_line}" -lt "${method_line}"
+
+          grep -q "bm-research-filter" "${css}"
+          grep -q "bm-research-library__list" "${css}"
+          grep -q "bm-research-programs__list" "${css}"
+          grep -q "bm-research-methodology" "${css}"
+
       - name: Enforce single SEO owner
         shell: bash
         run: |
@@ -121,8 +161,10 @@ jobs:
           functions="${theme}/functions.php"
           helpers="${theme}/inc/template-functions.php"
 
-          grep -q "Tentang Bitmomo — Crypto Market & AI Systems Research" "${functions}"
-          grep -q "Bitmomo Research — Crypto Markets & AI Systems" "${functions}"
+          grep -q "Tentang Bitmomo — Market Research & Intelligence Systems" "${functions}"
+          grep -q "Bitmomo Research — Markets & Intelligence Systems" "${functions}"
+          grep -q "bitmomo_research_filter_robots" "${functions}"
+          grep -q "bitmomo_research_rank_math_canonical" "${functions}"
           grep -q "rank_math/frontend/title" "${functions}"
           grep -q "rank_math/frontend/description" "${functions}"
           ! grep -q "rank_math/frontend/title" "${helpers}"
