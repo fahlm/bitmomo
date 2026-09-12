@@ -105,6 +105,30 @@ function bitmomo_render_home_meta_description() {
 }
 add_action('wp_head', 'bitmomo_render_home_meta_description', 2);
 
+/**
+ * Privacy-safe retention telemetry is loaded only on BTC Intelligence.
+ * The script stores one local timestamp (no user id / email / device id),
+ * emits provider-neutral browser events, and fails open if storage is blocked.
+ */
+function bitmomo_enqueue_btc_retention_telemetry() {
+    if (!is_page('btc-intelligence')) return;
+
+    $path = get_stylesheet_directory() . '/assets/js/bitmomo-retention.js';
+    if (!file_exists($path)) return;
+
+    $hash = hash_file('sha256', $path);
+    $version = $hash ? substr($hash, 0, 12) : BM_VERSION;
+
+    wp_enqueue_script(
+        'bitmomo-retention',
+        get_stylesheet_directory_uri() . '/assets/js/bitmomo-retention.js',
+        [],
+        $version,
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'bitmomo_enqueue_btc_retention_telemetry', 30);
+
 
 class Bitmomo_Performance_Optimizer {
 
