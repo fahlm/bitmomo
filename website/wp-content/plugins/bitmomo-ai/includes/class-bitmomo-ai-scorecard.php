@@ -132,18 +132,23 @@ final class Bitmomo_AI_Scorecard {
     }
 
     private static function expected_range(array $rows) {
+        // Public accountability only accepts a frozen range with an explicit
+        // methodology version. Legacy/manual ranges without methodology remain
+        // stored on the brief but are not comparable enough to support a claim.
         $eligible = array_values(array_filter($rows, function ($row) {
             return ($row['status'] ?? '') === 'evaluated' && !empty($row['frozen_original'])
+                && trim((string) ($row['range_methodology'] ?? '')) !== ''
                 && (float) ($row['range_low'] ?? 0) > 0 && (float) ($row['range_high'] ?? 0) >= (float) ($row['range_low'] ?? 0);
         }));
         $groups = [];
         foreach ($eligible as $row) {
-            $version = trim((string) ($row['model_version'] ?? '')) ?: 'unknown-model';
-            $groups[$version][] = $row;
+            $model = trim((string) ($row['model_version'] ?? '')) ?: 'unknown-model';
+            $method = trim((string) ($row['range_methodology'] ?? ''));
+            $groups[$model . ' | ' . $method][] = $row;
         }
         $versions = [];
         foreach ($groups as $version => $version_rows) $versions[$version] = self::expected_range_metric($version_rows);
-        return ['version_policy' => count($versions) > 1 ? 'SEPARATED_INCOMPATIBLE_VERSIONS' : 'SINGLE_VERSION', 'versions' => $versions, 'policy' => 'FROZEN_ORIGINAL_ONLY'];
+        return ['version_policy' => count($versions) > 1 ? 'SEPARATED_INCOMPATIBLE_VERSIONS' : 'SINGLE_VERSION', 'versions' => $versions, 'policy' => 'FROZEN_VERSIONED_ORIGINAL_ONLY'];
     }
 
     private static function expected_range_metric(array $eligible) {
@@ -282,7 +287,18 @@ final class Bitmomo_AI_Scorecard_Repository {
             $original = json_decode((string) get_post_meta($id, '_bitmomo_pro_evaluation_original', true), true);
             $original = is_array($original) ? $original : [];
             $source_id = (string) ($original['source_record_id'] ?? '');
-            $rows[] = ['status' => (string) get_post_meta($id, '_bitmomo_pro_evaluation_status', true), 'frozen_original' => !empty($original), 'range_low' => (float) ($original['expected_range_low'] ?? 0), 'range_high' => (float) ($original['expected_range_high'] ?? 0), 'reference_price' => (float) ($original['btc_reference_price'] ?? 0), 'model_version' => $model_index[self::normalize_source_id($source_id)] ?? '', 'range_hit' => (string) get_post_meta($id, '_bitmomo_pro_outcome_range_hit', true), 'breached_low' => (string) get_post_meta($id, '_bitmomo_pro_outcome_breached_low', true), 'breached_high' => (string) get_post_meta($id, '_bitmomo_pro_outcome_breached_high', true)];
+            $rows[] = [
+                'status' => (string) get_post_meta($id, '_bitmomo_pro_evaluation_status', true),
+                'frozen_original' => !empty($original),
+                'range_methodology' => sanitize_key((string) ($original['range_methodology'] ?? '')),
+                'range_low' => (float) ($original['expected_range_low'] ?? 0),
+                'range_high' => (float) ($original['expected_range_high'] ?? 0),
+                'reference_price' => (float) ($original['btc_reference_price'] ?? 0),
+                'model_version' => $model_index[self::normalize_source_id($source_id)] ?? '',
+                'range_hit' => (string) get_post_meta($id, '_bitmomo_pro_outcome_range_hit', true),
+                'breached_low' => (string) get_post_meta($id, '_bitmomo_pro_outcome_breached_low', true),
+                'breached_high' => (string) get_post_meta($id, '_bitmomo_pro_outcome_breached_high', true),
+            ];
         }
         return $rows;
     }
