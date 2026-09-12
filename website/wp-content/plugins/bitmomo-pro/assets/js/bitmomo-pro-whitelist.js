@@ -131,7 +131,7 @@
 		// Reveals the WhatsApp step for a record that doesn't have a number
 		// on file yet; a record that already has one (fresh signup that
 		// somehow already carries it, or a duplicate resubmission) never
-		// gets re-asked — it just stays hidden and the plain success state
+		// gets re-asked -- it just stays hidden and the plain success state
 		// is shown instead.
 		function setupWhatsappStep(postId, recordToken, hasWhatsapp) {
 			if (!waStep) {
@@ -162,21 +162,14 @@
 			setupWhatsappStep(postId, recordToken, hasWhatsapp);
 		}
 
-		var query = new URLSearchParams(window.location.search);
-		var deepPost = query.get('bm_wl_post');
-		var deepToken = query.get('bm_wl_token');
-		if (deepPost && deepToken) {
-			showSuccess(false, { post_id: deepPost, record_token: deepToken, has_whatsapp: false });
-			window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
-		} else {
-			emitTelemetry('whitelist_view');
-		}
+		emitTelemetry('whitelist_view');
 
 		form.addEventListener('submit', function (event) {
 			event.preventDefault();
 			hideError();
 
 			if (!config || !config.ajaxUrl || !config.action || !config.nonce) {
+				showError((config && config.i18n && config.i18n.generic_error) || 'Terjadi kesalahan. Coba lagi.');
 				emitTelemetry('whitelist_error', { error_code: 'configuration' });
 				return;
 			}
@@ -246,6 +239,7 @@
 			hideWhatsappError();
 
 			if (!config || !config.ajaxUrl || !config.whatsappAction || !config.whatsappNonce) {
+				showWhatsappError((config && config.i18n && config.i18n.generic_error) || 'Terjadi kesalahan. Coba lagi.');
 				return;
 			}
 
