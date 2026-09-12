@@ -50,7 +50,10 @@ class Bitmomo_Regime_History {
 	/** Return the US market day the canonical edition belongs to. */
 	public static function market_date( $record ) {
 		$source_id = (string) ( $record['source_record_id'] ?? '' );
-		if ( preg_match( '/^bitmomo-ai:(\d{4})(\d{2})(\d{2})T/', $source_id, $match ) ) return $match[1] . '-' . $match[2] . '-' . $match[3];
+		// build_record() preserves the date hyphens while removing ':' from
+		// session_anchor, e.g. bitmomo-ai:2026-09-12T201000-0400:us_post_close:...
+		// Accept the no-hyphen form too for defensive compatibility.
+		if ( preg_match( '/^bitmomo-ai:(\d{4})-?(\d{2})-?(\d{2})T/', $source_id, $match ) ) return $match[1] . '-' . $match[2] . '-' . $match[3];
 		if ( preg_match( '/^bitmomo-ai:regime:(\d{4}-\d{2}-\d{2})(?::|$)/', $source_id, $match ) ) return $match[1];
 
 		$anchor = trim( (string) ( $record['session_anchor'] ?? '' ) );
