@@ -139,11 +139,20 @@ for (const removedCall of ['render_how_it_works()', 'render_five_axes()', 'rende
 if (!btcPage.includes('<summary><?php esc_html_e( \'Evaluasi lainnya\'')) fail('secondary BTC proof must remain behind progressive disclosure');
 if (!btcPage.includes('<summary><?php esc_html_e( \'Cara kerja & metodologi\'')) fail('methodology must remain behind progressive disclosure');
 
+const btcCss = fs.readFileSync(path.join(btcPluginDir, 'assets/css/bitmomo-btc-intelligence.css'), 'utf8');
+if (!btcCss.includes('--bmi-text-subtle:var(--bm-text-subtle-readable,#8294ae)')) {
+  fail('BTC Intelligence must inherit the shared readable micro-text token');
+}
+for (const legacyLowContrast of ['color:#667993', 'color:#71839f', 'color:#6f829c']) {
+  if (btcCss.includes(legacyLowContrast)) fail(`BTC Intelligence reintroduced known sub-AA micro-text: ${legacyLowContrast}`);
+}
+
 const homepageSubtle = '#8294ae';
 requireContrast('homepage subtle label / card', homepageSubtle, '#0f1d2f');
 requireContrast('homepage subtle label / page', homepageSubtle, '#0c1c2a');
 requireContrast('homepage secondary micro text / card', '#8799b0', '#0f1d2f');
 requireContrast('footer subtle text / footer background', '#8294ae', '#0f2233');
+requireContrast('BTC subtle text / snapshot card', '#8294ae', '#111d2f');
 const productMutedSource = '#a8b7ca';
 requireContrast('BTC micro text after 0.75 opacity', alphaBlend(productMutedSource, '#0c1c2a', 0.75), '#0c1c2a');
 requireContrast('Pro price terms after 0.72 opacity', alphaBlend(productMutedSource, '#101a2c', 0.72), '#101a2c');
