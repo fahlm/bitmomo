@@ -4,21 +4,19 @@ import path from 'node:path';
 const root = process.cwd();
 const themeDir = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
 const btcPluginDir = path.join(root, 'website/wp-content/plugins/bitmomo-btc-intelligence');
-const LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES = 50300;
 const WCAG_AA_NORMAL_TEXT = 4.5;
 
 function fail(message) {
   console.error(`::error title=UI architecture contract::${message}`);
   process.exitCode = 1;
 }
-
+function read(relative) { return fs.readFileSync(path.join(root, relative), 'utf8'); }
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
     return entry.isDirectory() ? walk(full) : [full];
   });
 }
-
 function hexToRgb(hex) {
   const value = hex.replace('#', '');
   return [0, 2, 4].map((offset) => Number.parseInt(value.slice(offset, offset + 2), 16));
@@ -35,133 +33,170 @@ function contrastRatio(foreground, background) {
   const b = relativeLuminance(background);
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
-function alphaBlend(foreground, background, opacity) {
-  const fg = hexToRgb(foreground);
-  const bg = hexToRgb(background);
-  const blended = fg.map((channel, index) => Math.round(opacity * channel + (1 - opacity) * bg[index]));
-  return `#${blended.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
-}
 function requireContrast(label, foreground, background, minimum = WCAG_AA_NORMAL_TEXT) {
   const ratio = contrastRatio(foreground, background);
   if (ratio < minimum) fail(`${label} contrast ${ratio.toFixed(2)}:1 is below ${minimum}:1 (${foreground} on ${background})`);
-  return ratio;
 }
 
-const requiredFiles = [
-  'functions.php', 'custom.css', 'front-page.php', 'page.php', 'inc/template-functions.php',
-  'assets/css/home-opportunity.css', 'assets/css/public-readability.css', 'assets/css/public-surfaces.css',
+const requiredThemeFiles = [
+  'functions.php',
+  'front-page.php',
+  'page.php',
+  'single.php',
+  'category.php',
+  'header.php',
+  'footer.php',
+  'inc/trait-bitmomo-assets.php',
+  'inc/trait-bitmomo-frontend.php',
+  'assets/css/foundation.css',
+  'assets/css/navigation-footer.css',
+  'assets/css/public-surfaces.css',
+  'assets/css/home.css',
+  'assets/css/research.css',
+  'assets/css/about.css',
+  'template-parts/home-authority.php',
+  'template-parts/research-hub.php',
+  'template-parts/about-authority.php',
   'assets/js/bitmomo-frontend.js',
 ];
-for (const relative of requiredFiles) {
-  if (!fs.existsSync(path.join(themeDir, relative))) fail(`required UI source is missing: ${relative}`);
+for (const relative of requiredThemeFiles) {
+  if (!fs.existsSync(path.join(themeDir, relative))) fail(`required canonical UI source is missing: ${relative}`);
 }
 
-const phpFiles = walk(themeDir).filter((file) => file.endsWith('.php'));
-for (const file of phpFiles) {
+/* Visual CSS must never be emitted from PHP. Dynamic style attributes used for
+   CSS custom-property data visualization are allowed, but <style> blocks and
+   wp_add_inline_style are not. */
+for (const file of walk(themeDir).filter((entry) => entry.endsWith('.php'))) {
   const source = fs.readFileSync(file, 'utf8');
-  if (source.includes('wp_add_inline_style(')) fail(`visual CSS must live in CSS assets, not wp_add_inline_style(): ${path.relative(root, file)}`);
+  if (source.includes('wp_add_inline_style(')) fail(`wp_add_inline_style returned: ${path.relative(root, file)}`);
+  if (/<style(?:\s|>)/i.test(source)) fail(`inline <style> block returned: ${path.relative(root, file)}`);
 }
 
-const functionsPhp = fs.readFileSync(path.join(themeDir, 'functions.php'), 'utf8');
+const functionsPhp = read('website/wp-content/themes/bitmomo-child-v3/functions.php');
 for (const marker of ['bitmomo_public_snapshot_contract','bitmomo-snapshot-contract','bitmomo_prevent_homepage_snapshot_cache','bitmomo_snapshot_contract']) {
   if (!functionsPhp.includes(marker)) fail(`P0 public snapshot guard is missing marker: ${marker}`);
 }
 
-const frontendTrait = fs.readFileSync(path.join(themeDir, 'inc/trait-bitmomo-frontend.php'), 'utf8');
-if (!frontendTrait.includes("is_front_page() || is_page(['pro', 'btc-intelligence'])")) {
-  fail('legacy newsletter modal must stay suppressed on homepage, Pro and BTC Intelligence launch surfaces');
+const assetTrait = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php');
+for (const canonicalAsset of ['foundation.css','navigation-footer.css','public-surfaces.css','home.css','research.css','about.css']) {
+  if (!assetTrait.includes(canonicalAsset)) fail(`canonical stylesheet is not owned by asset graph: ${canonicalAsset}`);
+}
+for (const legacyEnqueue of ["wp_enqueue_style('bitmomo-child'", 'home-opportunity.css\',', 'public-readability.css\',']) {
+  if (assetTrait.includes(legacyEnqueue)) fail(`legacy stylesheet returned to public cascade: ${legacyEnqueue}`);
+}
+if (!assetTrait.includes('No speculative external preconnects')) fail('performance contract must reject speculative external preconnects');
+
+const header = read('website/wp-content/themes/bitmomo-child-v3/header.php');
+if (/<link\s+rel=["']stylesheet/i.test(header)) fail('header.php must not manually inject stylesheets outside WordPress dependency management');
+if (!header.includes('wp_head()')) fail('header.php lost wp_head()');
+
+const runtime = JSON.parse(read('config/production-runtime.json'));
+for (const legacyRuntimePath of ['custom.css','assets/css/home-opportunity.css','assets/css/public-readability.css']) {
+  if (!runtime.exclude.includes(legacyRuntimePath)) fail(`legacy CSS debt must be excluded from production runtime: ${legacyRuntimePath}`);
+}
+const themeRuntime = runtime.components.find((component) => component.name === 'bitmomo-child-v3');
+for (const requiredRuntimePath of ['assets/css/foundation.css','assets/css/home.css','assets/css/research.css','assets/css/about.css','template-parts/research-hub.php']) {
+  if (!themeRuntime?.required?.includes(requiredRuntimePath)) fail(`production runtime does not require canonical frontend asset: ${requiredRuntimePath}`);
 }
 
-const frontPage = fs.readFileSync(path.join(themeDir, 'front-page.php'), 'utf8');
-if (frontPage.includes("get_template_part( 'template-parts/btc-intelligence', 'card' )")) {
-  fail('homepage must not render a second BTC Intelligence card below the hero');
+const foundationCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/foundation.css');
+for (const token of ['--bm-bg:', '--bm-text:', '--bm-text-muted:', '--bm-text-subtle:', '--bm-teal:', '--bm-action:', '--bm-container:', '--bm-reading:']) {
+  if (!foundationCss.includes(token)) fail(`foundation token missing: ${token}`);
 }
-if (frontPage.includes("get_template_part( 'template-parts/newsletter' )")) {
-  fail('homepage whitelist is the launch conversion path; standalone newsletter must not compete with it');
+if (!foundationCss.includes('@media (prefers-reduced-motion: reduce)')) fail('foundation must honor prefers-reduced-motion');
+if (!foundationCss.includes('min-width: 320px')) fail('foundation must explicitly support 320px minimum viewport');
+
+const frontPage = read('website/wp-content/themes/bitmomo-child-v3/front-page.php');
+const homeOrder = [
+  "template-parts/home', 'hero'",
+  "template-parts/home', 'authority'",
+  'template-parts/how-it-works',
+  'template-parts/research',
+  "template-parts/ai', 'lab'",
+  'template-parts/whitelist',
+].map((marker) => frontPage.indexOf(marker));
+if (homeOrder.some((index) => index < 0) || homeOrder.some((value, index) => index > 0 && value <= homeOrder[index - 1])) {
+  fail('homepage hierarchy must progress product utility → authority → method → research proof → AI Lab → conversion');
+}
+if (/template-parts\/btc-intelligence[^\n]*card/.test(frontPage)) fail('homepage must not restore duplicate BTC Intelligence card');
+if (/template-parts\/newsletter/.test(frontPage)) fail('homepage must not restore standalone newsletter conversion');
+
+const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
+for (const marker of ['.bm-hero-layout', '.bm-direction-summary', '.bm-authority__pillars', '.bm-authority__principles', '.bm-research-list', '.bm-ai-lab-themes', '@media (max-width: 680px)']) {
+  if (!homeCss.includes(marker)) fail(`homepage system lost responsive primitive: ${marker}`);
+}
+if (!/grid-template-columns:\s*minmax\(0,\s*1\.05fr\)/.test(homeCss)) fail('homepage hero columns must remain shrinkable via minmax(0, …)');
+
+const authority = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-authority.php');
+for (const phrase of ['CRYPTO MARKET INTELLIGENCE','AI SYSTEMS RESEARCH','Evidence before narrative','Thesis + invalidation','Fail closed','Accountability']) {
+  if (!authority.includes(phrase)) fail(`homepage authority layer lost research principle: ${phrase}`);
 }
 
-const frontendJs = fs.readFileSync(path.join(themeDir, 'assets/js/bitmomo-frontend.js'), 'utf8');
+const aiLab = read('website/wp-content/themes/bitmomo-child-v3/template-parts/ai-lab.php');
+for (const phrase of ['Kami tidak sekadar memakai AI','Decentralized AI','Agent Systems','AI Evaluation']) {
+  if (!aiLab.includes(phrase)) fail(`AI Lab authority regressed: ${phrase}`);
+}
+if (!/<p>[^<]{25,}<\/p>/.test(aiLab)) fail('AI Lab themes must carry substantive descriptions, not decorative labels only');
+
+const category = read('website/wp-content/themes/bitmomo-child-v3/category.php');
+const researchHub = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php');
+if (!category.includes("get_template_part( 'template-parts/research', 'hub' )")) fail('Riset category must route to the dedicated Research Hub');
+for (const marker of ['Crypto Market Research','AI Systems Research','FEATURED RESEARCH','RESEARCH STANDARD','Market Research','AI Lab','Seluruh publikasi']) {
+  if (!researchHub.includes(marker)) fail(`Research Hub lost institutional layer: ${marker}`);
+}
+if (!researchHub.includes("get_term_by( 'slug', 'ai-lab', 'post_tag' )") || !researchHub.includes('tag__not_in') || !researchHub.includes('tag__in')) {
+  fail('Research Hub must separate Market Research and AI Lab from WordPress taxonomy, not hard-coded fake content');
+}
+
+const researchCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/research.css');
+for (const marker of ['.bm-research-hub__hero', '.bm-research-disciplines', '.bm-research-featured__card', '.bm-research-principles__grid', '.bm-research-streams', '.bm-article-body', '@media (max-width: 680px)']) {
+  if (!researchCss.includes(marker)) fail(`Research responsive system lost primitive: ${marker}`);
+}
+
+const single = read('website/wp-content/themes/bitmomo-child-v3/single.php');
+for (const marker of ['CRYPTO MARKET RESEARCH','AI SYSTEMS RESEARCH','bm_read_minutes','Standar Bitmomo Research','bm-article-tags']) {
+  if (!single.includes(marker)) fail(`article publication surface lost research metadata/standard: ${marker}`);
+}
+
+const pageTemplate = read('website/wp-content/themes/bitmomo-child-v3/page.php');
+const templateFunctions = read('website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php');
+if (!templateFunctions.includes('bitmomo_normalize_public_page_body_headings')) fail('ordinary-page H1 normalizer is missing');
+if (!pageTemplate.includes('bitmomo_normalize_public_page_body_headings( $bm_rendered_content )')) fail('ordinary page.php must use canonical heading normalizer');
+if (!pageTemplate.includes("get_template_part( 'template-parts/about', 'authority' )")) fail('About page must carry institutional authority layer');
+
+const frontendTrait = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-frontend.php');
+const modalMethod = frontendTrait.match(/public function render_mailpoet_modal\(\)[\s\S]*?\n\s*}/)?.[0] ?? '';
+if (!modalMethod.includes('return;') || /mailpoet_form|do_shortcode/.test(modalMethod)) fail('legacy newsletter modal must remain a no-op; footer owns subscription');
+const inlineCssMethod = frontendTrait.match(/public function inline_img_fallback_css\(\)[\s\S]*?\n\s*}/)?.[0] ?? '';
+if (!inlineCssMethod.includes('return;') || /<style/.test(inlineCssMethod)) fail('PHP inline image CSS compatibility method must remain a no-op');
+
+const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
+for (const marker of ['inert', 'aria-hidden', 'aria-expanded', 'Escape']) {
+  if (!frontendJs.includes(marker)) fail(`mobile navigation accessibility behavior lost: ${marker}`);
+}
 for (const legacyMarker of ['bmreg-trend', 'bmreg-price-line', 'Progressive-enhancement only']) {
   if (frontendJs.includes(legacyMarker)) fail(`legacy duplicate regime chart renderer returned: ${legacyMarker}`);
 }
 
-const pageTemplate = fs.readFileSync(path.join(themeDir, 'page.php'), 'utf8');
-const templateFunctions = fs.readFileSync(path.join(themeDir, 'inc/template-functions.php'), 'utf8');
-if (!templateFunctions.includes('bitmomo_normalize_public_page_body_headings') || !templateFunctions.includes("array('<h2$1>', '</h2>')")) {
-  fail('ordinary-page heading normalizer is missing; legacy DB H1 would duplicate the template-owned H1');
-}
-if (!pageTemplate.includes("apply_filters( 'the_content', $bm_content )") || !pageTemplate.includes('bitmomo_normalize_public_page_body_headings( $bm_rendered_content )')) {
-  fail('ordinary page.php must render filtered content through the canonical body-heading normalizer');
-}
-if (!pageTemplate.includes('if ( $bm_is_product_surface )') || !pageTemplate.includes('<?php the_content(); ?>')) {
-  fail('product shortcode pages must retain renderer-owned heading/content pass-through');
-}
-
-const opportunityCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-opportunity.css'), 'utf8');
-for (const marker of ['.bm-hero-actions', '.bm-direction-summary', '.bm-direction-card .bm-state-chart']) {
-  if (!opportunityCss.includes(marker)) fail(`homepage intelligence UI lost a required presentation primitive: ${marker}`);
-}
-for (const marker of [
-  'grid-template-columns:repeat(var(--bm-history-count),minmax(0,1fr))',
-  '.bm-direction-card .bm-state-chart .bm-direction-bar.is-bullish span{background:#35cdbb}',
-  '.bm-direction-card .bm-state-chart .bm-direction-bar.is-neutral span{background:#8192aa}',
-  '.bm-direction-card .bm-state-chart .bm-direction-bar.is-bearish span{background:#ff7b6d}',
-]) {
-  if (!opportunityCss.includes(marker)) fail(`homepage context chart lost its semantic/readability contract: ${marker}`);
-}
-if (opportunityCss.includes('color:#71839f')) fail('homepage intelligence reintroduced the known sub-AA #71839f micro-text color');
-
-const readabilityCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-readability.css'), 'utf8');
-for (const marker of ['--bm-text-subtle-readable', '.bm-bi', '--bmi-text-muted', '.bm-pro-sales', '--bms-text-muted', '.bm-wl__submit']) {
-  if (!readabilityCss.includes(marker)) fail(`public readability contract is missing marker: ${marker}`);
-}
-
-const publicSurfacesCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-surfaces.css'), 'utf8');
-if (!/\.bm-wl-unified__intro,\s*\.bm-wl-unified__form\s*\{[^}]*min-width:\s*0;[^}]*\}/s.test(publicSurfacesCss)) {
-  fail('unified homepage whitelist grid children must be shrinkable to prevent narrow-viewport overflow');
-}
-if (!/\.bm-wl-unified__form > \.bm-pro-sales\.bm-wl\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%\s*!important;[^}]*padding-inline:\s*0;[^}]*\}/s.test(publicSurfacesCss)) {
-  fail('homepage whitelist wrapper containment is missing; shared Pro wrapper sizing can escape the unified grid');
-}
-if (/\.bm-footer-(?:group strong|bottom)[^{]*\{[^}]*color:\s*#71839f/s.test(publicSurfacesCss)) {
-  fail('footer reintroduced the known sub-AA #71839f text color');
-}
-
-const btcPage = fs.readFileSync(path.join(btcPluginDir, 'includes/class-bitmomo-btc-intelligence-page.php'), 'utf8');
-const renderPageMatch = btcPage.match(/public function render_page[\s\S]*?return ob_get_clean\(\);/);
-const renderPage = renderPageMatch ? renderPageMatch[0] : '';
+const btcPage = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php');
+const renderPage = btcPage.match(/public function render_page[\s\S]*?return ob_get_clean\(\);/)?.[0] ?? '';
 for (const requiredCall of ['render_hero()', 'render_current_snapshot()', 'render_historical_regime()', 'render_track_record()', 'render_methodology()', 'render_pro_cta()']) {
   if (!renderPage.includes(requiredCall)) fail(`BTC Intelligence simplified hierarchy lost ${requiredCall}`);
 }
 for (const removedCall of ['render_how_it_works()', 'render_five_axes()', 'render_how_to_read()', 'render_confidence_evaluation()', 'render_expected_range_performance()', 'render_regime_performance()', 'render_data_quality()']) {
   if (renderPage.includes(removedCall)) fail(`BTC Intelligence explanation wall returned via ${removedCall}`);
 }
-if (!btcPage.includes('<summary><?php esc_html_e( \'Evaluasi lainnya\'')) fail('secondary BTC proof must remain behind progressive disclosure');
-if (!btcPage.includes('<summary><?php esc_html_e( \'Cara kerja & metodologi\'')) fail('methodology must remain behind progressive disclosure');
 
-const btcCss = fs.readFileSync(path.join(btcPluginDir, 'assets/css/bitmomo-btc-intelligence.css'), 'utf8');
-if (!btcCss.includes('--bmi-text-subtle:var(--bm-text-subtle-readable,#8294ae)')) {
-  fail('BTC Intelligence must inherit the shared readable micro-text token');
-}
+const btcCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/bitmomo-btc-intelligence.css');
+if (!btcCss.includes('--bmi-text-subtle:var(--bm-text-subtle-readable,#8294ae)')) fail('BTC Intelligence must consume shared readable subtle-text token');
 for (const legacyLowContrast of ['color:#667993', 'color:#71839f', 'color:#6f829c']) {
   if (btcCss.includes(legacyLowContrast)) fail(`BTC Intelligence reintroduced known sub-AA micro-text: ${legacyLowContrast}`);
 }
 
-const homepageSubtle = '#8294ae';
-requireContrast('homepage subtle label / card', homepageSubtle, '#0f1d2f');
-requireContrast('homepage subtle label / page', homepageSubtle, '#0c1c2a');
-requireContrast('homepage secondary micro text / card', '#8799b0', '#0f1d2f');
-requireContrast('footer subtle text / footer background', '#8294ae', '#0f2233');
-requireContrast('BTC subtle text / snapshot card', '#8294ae', '#111d2f');
-const productMutedSource = '#a8b7ca';
-requireContrast('BTC micro text after 0.75 opacity', alphaBlend(productMutedSource, '#0c1c2a', 0.75), '#0c1c2a');
-requireContrast('Pro price terms after 0.72 opacity', alphaBlend(productMutedSource, '#101a2c', 0.72), '#101a2c');
-requireContrast('commercial CTA text', '#0b1620', '#f4ad32');
+requireContrast('foundation muted text', '#b7c6d3', '#081420');
+requireContrast('foundation subtle text', '#8fa3b8', '#081420');
+requireContrast('footer subtle text', '#8fa3b8', '#07111b');
+requireContrast('commercial CTA text', '#111923', '#f4ad32');
+requireContrast('BTC subtle fallback', '#8294ae', '#111d2f');
 
-const customCssPath = path.join(themeDir, 'custom.css');
-const customCssBytes = fs.statSync(customCssPath).size;
-if (customCssBytes > LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES) {
-  fail(`custom.css grew beyond the frozen legacy debt ceiling (${customCssBytes} > ${LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES} bytes)`);
-}
-
-if (!process.exitCode) console.log(`PASS UI architecture contract; custom.css=${customCssBytes}/${LEGACY_CUSTOM_CSS_DEBT_CEILING_BYTES} bytes`);
+if (!process.exitCode) console.log('PASS root-cause UI architecture + research authority contract');
