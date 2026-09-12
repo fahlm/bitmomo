@@ -28,15 +28,6 @@ if (!function_exists('bitmomo_render_menu_toggle')) {
 }
 
 if (!function_exists('bitmomo_public_social_links')) {
-    /**
-     * Canonical public social destinations.
-     *
-     * These are the official Bitmomo public channels. Filters are kept as a
-     * narrow configuration seam so a future handle migration does not require
-     * touching footer markup.
-     *
-     * @return array<string,array{label:string,url:string}>
-     */
     function bitmomo_public_social_links() {
         $links = array(
             'telegram' => array(
@@ -65,19 +56,48 @@ if (!function_exists('bitmomo_public_social_links')) {
     }
 }
 
-if (!function_exists('bitmomo_normalize_public_page_body_headings')) {
+if (!function_exists('bitmomo_market_research_taxonomy_slugs')) {
     /**
-     * Keep the canonical ordinary-page title as the only H1.
-     *
-     * Legacy WordPress/Elementor page bodies can retain their own H1 even
-     * after the child theme takes ownership of the outer page template. On
-     * ordinary pages, those body headings are content hierarchy and are
-     * therefore demoted to H2. Product shortcode surfaces bypass this helper
-     * and retain ownership of their own heading structure.
-     *
-     * @param string $html Rendered WordPress page-body HTML.
-     * @return string
+     * Explicit taxonomy vocabulary that qualifies a Riset post as market
+     * research. "Riset but not ai-lab" is intentionally NOT enough: legacy
+     * general-AI/editorial posts must never be mislabeled as market analysis.
      */
+    function bitmomo_market_research_taxonomy_slugs() {
+        return array(
+            'bitcoin',
+            'btc',
+            'makro',
+            'macro',
+            'market-structure',
+            'derivatives',
+            'funding-rate',
+            'etf',
+            'liquidity',
+            'likuiditas',
+            'fundamental',
+            'fundamentals',
+        );
+    }
+}
+
+if (!function_exists('bitmomo_post_is_market_research')) {
+    /**
+     * A post is Market Research only when it is in the Riset category,
+     * is not an AI Lab publication, and has at least one explicit market
+     * category/tag from the canonical vocabulary above.
+     */
+    function bitmomo_post_is_market_research($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        if (!$post_id || !has_category('riset', $post_id) || has_tag('ai-lab', $post_id)) return false;
+
+        foreach (bitmomo_market_research_taxonomy_slugs() as $slug) {
+            if (has_category($slug, $post_id) || has_tag($slug, $post_id)) return true;
+        }
+        return false;
+    }
+}
+
+if (!function_exists('bitmomo_normalize_public_page_body_headings')) {
     function bitmomo_normalize_public_page_body_headings($html) {
         $source = (string) $html;
         $normalized = preg_replace(
@@ -91,17 +111,6 @@ if (!function_exists('bitmomo_normalize_public_page_body_headings')) {
 }
 
 if (!function_exists('bitmomo_public_runtime_fingerprint')) {
-    /**
-     * Byte-level identity for launch-critical public theme files.
-     *
-     * A human-maintained version string is insufficient for source/runtime
-     * parity because multiple commits can share the same version. The file
-     * set lives in data/runtime-fingerprint.json and the fingerprint is the
-     * SHA-256 of each sorted relative path plus that file's SHA-256 digest.
-     * Missing or malformed inputs fail closed by returning an empty value.
-     *
-     * @return string 64-character SHA-256 or an empty string on failure.
-     */
     function bitmomo_public_runtime_fingerprint() {
         static $fingerprint = null;
         if (null !== $fingerprint) return $fingerprint;
@@ -137,7 +146,6 @@ if (!function_exists('bitmomo_public_runtime_fingerprint')) {
 }
 
 if (!function_exists('bitmomo_ajax_public_runtime_fingerprint')) {
-    /** Public, read-only identity endpoint for release parity checks. */
     function bitmomo_ajax_public_runtime_fingerprint() {
         nocache_headers();
         $fingerprint = bitmomo_public_runtime_fingerprint();
