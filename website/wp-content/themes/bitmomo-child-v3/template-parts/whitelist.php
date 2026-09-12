@@ -12,12 +12,12 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
     <div class="bm-wl-unified">
       <div class="bm-wl-unified__intro">
         <span class="bm-wl-unified__eyebrow"><?php esc_html_e( 'BITMOMO PRO · FOUNDING', 'bitmomo' ); ?></span>
-        <h2 class="bm-wl-unified__title" id="bm-wl-home-title"><?php esc_html_e( 'Lihat apa yang perlu dipantau berikutnya.', 'bitmomo' ); ?></h2>
-        <p class="bm-wl-unified__copy"><?php esc_html_e( 'Skenario, expected range, invalidation, dan perubahan thesis — tanpa harus memantau semuanya sendiri.', 'bitmomo' ); ?></p>
+        <h2 class="bm-wl-unified__title" id="bm-wl-home-title"><?php esc_html_e( 'Ketahui apa yang perlu dipantau berikutnya.', 'bitmomo' ); ?></h2>
+        <p class="bm-wl-unified__copy"><?php esc_html_e( 'Pro merangkum skenario utama, rentang yang dipantau, level yang mengubah pandangan, dan perubahan penting — tanpa harus memantau semuanya sendiri.', 'bitmomo' ); ?></p>
 
         <dl class="bm-wl-unified__facts" aria-label="<?php esc_attr_e( 'Founding Membership', 'bitmomo' ); ?>">
           <div class="bm-wl-unified__fact">
-            <dt><?php esc_html_e( 'Founding price', 'bitmomo' ); ?></dt>
+            <dt><?php esc_html_e( 'Harga Founding', 'bitmomo' ); ?></dt>
             <dd><?php echo esc_html( $bm_wl_price_label ); ?></dd>
           </div>
           <div class="bm-wl-unified__fact">
@@ -45,15 +45,14 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Tinggalkan email. Kami akan memberi tahu saat akses batch pertama dibuka.', 'bitmomo' ); ?></p>
           <?php else : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo' ); ?></p>
-            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Pelajari Founding Membership dan fitur yang sudah tersedia.', 'bitmomo' ); ?></p>
+            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Pelajari Founding Membership dan apa yang akan Anda dapatkan.', 'bitmomo' ); ?></p>
           <?php endif; ?>
         </div>
 
         <?php if ( ! empty( $bm_wl_checkout_url ) ) : ?>
           <div class="bm-wl-teaser">
             <p class="bm-wl-teaser-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo' ); ?></p>
-            <p class="bm-wl-teaser-price"><?php esc_html_e( 'Rp149.000 / bulan', 'bitmomo' ); ?></p>
-            <p class="bm-wl-teaser-price"><?php esc_html_e( 'Rp1.490.000 / tahun', 'bitmomo' ); ?></p>
+            <p class="bm-wl-teaser-price"><?php echo esc_html( $bm_wl_price_label ); ?></p>
             <p class="bm-wl-teaser-cap"><?php echo esc_html( sprintf( __( '%d Founding Members · Batch pertama %d', 'bitmomo' ), $bm_wl_cap, $bm_wl_batch ) ); ?></p>
             <a class="bm-wl-teaser-cta" href="<?php echo esc_url( $bm_wl_checkout_url ); ?>"><?php esc_html_e( 'KUNCI HARGA FOUNDING', 'bitmomo' ); ?></a>
           </div>
@@ -62,7 +61,7 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
         <?php else : ?>
           <div class="bm-wl-teaser">
             <p class="bm-wl-teaser-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo' ); ?></p>
-            <p class="bm-wl-teaser-price"><?php esc_html_e( 'Rp149.000 / bulan', 'bitmomo' ); ?></p>
+            <p class="bm-wl-teaser-price"><?php echo esc_html( $bm_wl_price_label ); ?></p>
             <p class="bm-wl-teaser-cap"><?php echo esc_html( sprintf( __( '%d Founding Members · Batch pertama %d', 'bitmomo' ), $bm_wl_cap, $bm_wl_batch ) ); ?></p>
             <a class="bm-wl-teaser-cta" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'PELAJARI BITMOMO PRO', 'bitmomo' ); ?></a>
           </div>
