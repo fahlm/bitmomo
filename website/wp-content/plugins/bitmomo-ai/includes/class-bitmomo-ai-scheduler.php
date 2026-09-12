@@ -170,6 +170,18 @@ final class Bitmomo_AI_Scheduler {
             self::record('error', $post_id->get_error_message());
             return $post_id;
         }
+
+        // A non-draft record has already crossed the editorial/publication
+        // boundary. Re-running the engine for the same date/edition may create
+        // a new canonical session record, but it must never relabel or re-point
+        // the historical published signal to a different engine/source id.
+        if (get_post_status($post_id) !== 'draft') {
+            do_action('bitmomo_ai_edition_recorded', $edition, $record);
+            self::record('success', sprintf('Existing non-draft analysis %d was preserved byte-for-byte; new runtime intelligence was recorded separately.', $post_id), $post_id);
+            self::record_publication('preserved', 'Existing non-draft intelligence metadata was left immutable on rerun.', $post_id);
+            return $post_id;
+        }
+
         update_post_meta($post_id, '_bm_model', Bitmomo_AI_Signal_Engine::MODEL_VERSION);
         update_post_meta($post_id, '_bm_edition', $edition);
         update_post_meta($post_id, '_bm_source_record_id', $source_record_id);
