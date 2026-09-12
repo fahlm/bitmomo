@@ -4,9 +4,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 $bm_riset_term = get_category_by_slug( 'riset' );
 $bm_riset_url  = $bm_riset_term ? get_category_link( $bm_riset_term->term_id ) : home_url( '/category/riset/' );
+$bm_home_priority_slugs = array( 'bitcoin', 'makro', 'market-structure' );
 $bm_market_slugs = function_exists( 'bitmomo_market_research_taxonomy_slugs' )
-	? bitmomo_market_research_taxonomy_slugs()
-	: array( 'bitcoin', 'btc', 'makro', 'macro', 'market-structure', 'derivatives', 'funding-rate', 'etf', 'liquidity', 'likuiditas', 'fundamental', 'fundamentals' );
+	? array_values( array_unique( array_merge( $bm_home_priority_slugs, bitmomo_market_research_taxonomy_slugs() ) ) )
+	: array( 'bitcoin', 'makro', 'market-structure', 'btc', 'macro', 'derivatives', 'funding-rate', 'etf', 'liquidity', 'likuiditas', 'fundamental', 'fundamentals' );
 
 $bm_research_items = array();
 
@@ -65,7 +66,7 @@ if ( $bm_riset_term && $bm_market_slugs ) {
 }
 
 if ( ! $bm_research_items ) {
-	unset( $bm_riset_term, $bm_riset_url, $bm_market_slugs, $bm_research_items, $bm_query_args, $bm_ai_lab_tag, $bm_research_query );
+	unset( $bm_riset_term, $bm_riset_url, $bm_home_priority_slugs, $bm_market_slugs, $bm_research_items, $bm_query_args, $bm_ai_lab_tag, $bm_research_query );
 	return;
 }
 ?>
@@ -89,4 +90,4 @@ if ( ! $bm_research_items ) {
     </ul>
   </div>
 </section>
-<?php unset( $bm_riset_term, $bm_riset_url, $bm_market_slugs, $bm_research_items, $bm_query_args, $bm_ai_lab_tag, $bm_research_query, $bm_item ); ?>
+<?php unset( $bm_riset_term, $bm_riset_url, $bm_home_priority_slugs, $bm_market_slugs, $bm_research_items, $bm_query_args, $bm_ai_lab_tag, $bm_research_query, $bm_item ); ?>
