@@ -145,6 +145,24 @@
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(38,208,198,.065), rgba(15,36,52,.65));
 }
+.bm-wl-unified__intro,
+.bm-wl-unified__form {
+  min-width: 0;
+}
+.bm-wl-unified__form > .bm-pro-sales.bm-wl {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100% !important;
+  padding-inline: 0;
+}
+.bm-wl-unified__form .bm-wl__panel,
+.bm-wl-unified__form .bm-wl__form,
+.bm-wl-unified__form .bm-wl__field,
+.bm-wl-unified__form .bm-wl__field input,
+.bm-wl-unified__form .bm-wl__submit {
+  min-width: 0;
+  max-width: 100%;
+}
 .bm-wl-unified__eyebrow { color: var(--bm-accent); font: 800 11px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; letter-spacing: .13em; }
 .bm-wl-unified__title { margin: 10px 0 12px; color: var(--bm-text); font-size: clamp(26px, 3.2vw, 38px); line-height: 1.16; }
 .bm-wl-unified__copy { margin: 0 0 22px; color: var(--bm-muted); }
