@@ -63,9 +63,12 @@ strength_check('session generation settles prior outcomes before evaluating the 
 strength_check('scheduler persists canonical engine model identity', strpos($scheduler, "'_bm_model', Bitmomo_AI_Signal_Engine::MODEL_VERSION") !== false && strpos($scheduler, 'binance-public-five-axis-v2') === false);
 strength_check('webhook persists the same canonical engine model identity', strpos($webhook, "'_bm_model', Bitmomo_AI_Signal_Engine::MODEL_VERSION") !== false && strpos($webhook, "'_bm_model', 'rules-mtf-v1'") === false);
 
-$theme = file_get_contents(__DIR__ . '/../../../themes/bitmomo-child-v3/template-parts/home-hero.php');
-strength_check('homepage consumes canonical direction_strength', strpos($theme, "['direction_strength']") !== false);
-strength_check('homepage has no confidence threshold for strength naming', !preg_match('/confidence\s*>?=\s*70\s*\?\s*[\'\"]Strong/', $theme));
+$home = file_get_contents(__DIR__ . '/../../../themes/bitmomo-child-v3/template-parts/home-hero.php');
+$btc = file_get_contents(__DIR__ . '/../../bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php');
+strength_check('homepage consumes canonical directional_bias', strpos($home, "['directional_bias']") !== false);
+strength_check('homepage intentionally does not expose direction_strength detail', strpos($home, "['direction_strength']") === false);
+strength_check('BTC Intelligence may translate canonical direction_strength on the detailed surface', strpos($btc, "['direction_strength']") !== false);
+strength_check('homepage has no confidence threshold for strength naming', !preg_match('/confidence\s*>?=\s*70\s*\?\s*[\'\"]Strong/', $home));
 
 $failed = array_filter($checks, function ($row) { return !$row[1]; });
 foreach ($checks as $row) echo ($row[1] ? 'PASS' : 'FAIL') . ': ' . $row[0] . PHP_EOL;
