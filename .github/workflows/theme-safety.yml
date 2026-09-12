@@ -6,6 +6,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "config/production-runtime.json"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-frontend-foundation.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
@@ -21,6 +22,7 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "config/production-runtime.json"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-frontend-foundation.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
@@ -127,12 +129,12 @@ jobs:
             echo "::error file=${theme_dir}/front-page.php::Homepage lost canonical Pro conversion surface"
             exit 1
           }
-          if grep -q "template-parts/pro.*teaser\|template-parts/newsletter" "${theme_dir}/front-page.php"; then
+          if grep -Eq "template-parts/(pro.*teaser|newsletter)" "${theme_dir}/front-page.php"; then
             echo "::error file=${theme_dir}/front-page.php::Duplicate conversion/retention surface returned"
             exit 1
           fi
 
-          if grep -Eq '<link[[:space:]]+rel=["'"']stylesheet' "${theme_dir}/header.php"; then
+          if grep -Eqi '<link[^>]+stylesheet' "${theme_dir}/header.php"; then
             echo "::error file=${theme_dir}/header.php::Stylesheets must be dependency-managed, not manually injected"
             exit 1
           fi
@@ -140,6 +142,10 @@ jobs:
           grep -q "navigation-footer.css" "${theme_dir}/inc/trait-bitmomo-assets.php" || exit 1
           grep -q "public-surfaces.css" "${theme_dir}/inc/trait-bitmomo-assets.php" || exit 1
 
+          test ! -f "${theme_dir}/template-parts/newsletter.php" || {
+            echo "::error file=${theme_dir}/template-parts/newsletter.php::Standalone newsletter template must stay removed"
+            exit 1
+          }
           test ! -f "${theme_dir}/template-parts/pro-teaser.php" || {
             echo "::error file=${theme_dir}/template-parts/pro-teaser.php::Obsolete Pro teaser relic must not exist"
             exit 1
@@ -157,6 +163,9 @@ jobs:
           mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
           test "${#php_files[@]}" -gt 0
           for file in "${php_files[@]}"; do php -l "${file}"; done
+
+      - name: Enforce frontend foundation ownership
+        run: node scripts/check-frontend-foundation.mjs
 
       - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
