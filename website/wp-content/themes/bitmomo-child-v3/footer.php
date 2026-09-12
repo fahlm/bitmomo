@@ -1,5 +1,6 @@
 <?php
 /** Shared site footer for Bitmomo. @package Bitmomo */
+$bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_public_social_links() : array();
 ?>
 <footer class="bm-footer">
   <div class="bm-container">
@@ -30,6 +31,33 @@
       </nav>
     </div>
 
+    <section class="bm-footer-connect" id="newsletter" aria-label="<?php esc_attr_e( 'Newsletter dan media sosial', 'bitmomo' ); ?>">
+      <span id="subscribe" class="bm-footer-anchor" aria-hidden="true"></span>
+      <div class="bm-footer-newsletter">
+        <div class="bm-footer-connect__copy">
+          <strong><?php esc_html_e( 'EMAIL BRIEF', 'bitmomo' ); ?></strong>
+          <span><?php esc_html_e( 'Ringkasan BTC dan riset terbaru.', 'bitmomo' ); ?></span>
+        </div>
+        <div class="bm-footer-newsletter__form">
+          <?php if ( shortcode_exists( 'mailpoet_form' ) ) : ?>
+            <?php echo do_shortcode( '[mailpoet_form id="' . absint( BM_MAILPOET_FORM_ID ) . '"]' ); ?>
+          <?php else : ?>
+            <span class="bm-footer-newsletter__unavailable"><?php esc_html_e( 'Subscribe email sementara tidak tersedia.', 'bitmomo' ); ?></span>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <nav class="bm-footer-social" aria-label="<?php esc_attr_e( 'Media sosial Bitmomo', 'bitmomo' ); ?>">
+        <?php foreach ( $bm_social_links as $bm_social_key => $bm_social ) : ?>
+          <?php if ( ! empty( $bm_social['url'] ) ) : ?>
+            <a data-social="<?php echo esc_attr( $bm_social_key ); ?>" href="<?php echo esc_url( $bm_social['url'] ); ?>" rel="me noopener"><?php echo esc_html( $bm_social['label'] ); ?></a>
+          <?php elseif ( 'telegram' === $bm_social_key ) : ?>
+            <span class="bm-footer-social__pending" data-social="telegram" aria-label="<?php esc_attr_e( 'Telegram publik belum dikonfigurasi', 'bitmomo' ); ?>"><?php esc_html_e( 'Telegram', 'bitmomo' ); ?></span>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </nav>
+    </section>
+
     <div class="bm-footer-bottom">
       <p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>.</p>
       <p><?php esc_html_e( 'Market intelligence, bukan nasihat keuangan.', 'bitmomo' ); ?></p>
@@ -37,6 +65,7 @@
   </div>
 </footer>
 
+<?php unset( $bm_social_links, $bm_social_key, $bm_social ); ?>
 <?php wp_footer(); ?>
 </body>
 </html>
