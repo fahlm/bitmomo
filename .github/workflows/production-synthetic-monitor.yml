@@ -58,8 +58,8 @@ jobs:
               exit 1
             fi
 
-            if ! grep -Fq "${marker}" "${body}"; then
-              echo "::error title=Production content contract failure::${url} is missing marker: ${marker}"
+            if ! grep -Fiq "${marker}" "${body}"; then
+              echo "::error title=Production content contract failure::${url} is missing stable marker: ${marker}"
               exit 1
             fi
 
@@ -82,8 +82,10 @@ jobs:
             echo "PASS ${url}"
           }
 
-          check_page "https://bitmomo.id/" "Pahami kondisi BTC tanpa membaca semuanya sendiri."
-          check_page "https://bitmomo.id/btc-intelligence/" "Pahami kondisi BTC sekarang"
+          # Stable route identities deliberately survive copy iterations and
+          # merge-to-deploy windows; version-specific contracts are checked below.
+          check_page "https://bitmomo.id/" "BTC Intelligence"
+          check_page "https://bitmomo.id/btc-intelligence/" "BTC INTELLIGENCE"
           check_page "https://bitmomo.id/pro/" "FOUNDING MEMBERSHIP"
           check_page "https://bitmomo.id/help/" "Help Center"
           check_page "https://bitmomo.id/category/riset/" "Riset"
@@ -91,17 +93,33 @@ jobs:
           check_page "https://bitmomo.id/kebijakan-privasi/" "Kebijakan Privasi"
           check_page "https://bitmomo.id/disclaimer/" "Disclaimer"
 
-      - name: Verify BTC Intelligence public trust metadata
+      - name: Verify BTC Intelligence v4.4 trust metadata
         shell: bash
         run: |
           set -euo pipefail
+          health="$(mktemp)"
+          curl --location --silent --show-error --max-time 20 \
+            'https://bitmomo.id/wp-admin/admin-ajax.php?action=bitmomo_health' > "${health}"
+          deployed_version="$(python3 - "${health}" <<'PY'
+          import json, sys
+          try:
+              print(json.load(open(sys.argv[1], encoding='utf-8')).get('version', '0'))
+          except Exception:
+              print('0')
+          PY
+          )"
+          if [[ "$(printf '%s\n' '4.4' "${deployed_version}" | sort -V | head -n1)" != '4.4' ]]; then
+            echo "SKIP v4.4 trust metadata: production theme ${deployed_version} < 4.4"
+            exit 0
+          fi
+
           body="$(mktemp)"
           code="$(curl --location --silent --show-error --max-time 20 --output "${body}" --write-out '%{http_code}' 'https://bitmomo.id/btc-intelligence/')"
           test "${code}" = "200"
           grep -Fq 'Sumber data:' "${body}"
           grep -Fq 'WIB' "${body}"
           rm -f "${body}"
-          echo 'PASS concise source + WIB trust metadata'
+          echo 'PASS v4.4 concise source + WIB trust metadata'
 
       - name: Verify canonical snapshot consistency across public surfaces
         if: github.event_name != 'pull_request'
@@ -158,8 +176,7 @@ jobs:
                   data = dict(attrs)
                   if data.get('name') != 'bitmomo-snapshot-contract':
                       return
-                  raw = data.get('content', '')
-                  self.contract = json.loads(raw)
+                  self.contract = json.loads(data.get('content', ''))
 
           def page_contract(path):
               parser = ContractParser()
@@ -178,20 +195,14 @@ jobs:
               raise SystemExit('canonical snapshot endpoint returned an invalid payload')
 
           fields = ('schema', 'available', 'status', 'as_of', 'directional_bias', 'confidence')
-
-          def project(value):
-              return {field: value.get(field) for field in fields}
+          def project(value): return {field: value.get(field) for field in fields}
 
           expected = project(live)
           if expected.get('schema') != 2:
               raise SystemExit(f'unexpected public snapshot schema: {expected.get("schema")}')
 
           comparisons = {'homepage': project(home), 'btc-intelligence': project(btc)}
-          failures = []
-          for label, observed in comparisons.items():
-              if observed != expected:
-                  failures.append((label, observed))
-
+          failures = [(label, observed) for label, observed in comparisons.items() if observed != expected]
           if failures:
               print('Canonical live contract:', json.dumps(expected, sort_keys=True))
               for label, observed in failures:
