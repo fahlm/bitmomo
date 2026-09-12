@@ -24,7 +24,7 @@ class Bitmomo_Regime_State_Store {
 }
 class Bitmomo_AI_Scorecard_Repository {
     public static function build() {
-        $metric = ['n' => 4, 'correct' => 3, 'accuracy_pct' => 75, 'sample_status' => 'INSUFFICIENT SAMPLE', 'private_note' => 'must-not-leak'];
+        $metric = ['n' => 4, 'conclusive_n' => 3, 'correct' => 3, 'incorrect' => 0, 'inconclusive' => 1, 'accuracy_pct' => 100, 'sample_status' => 'INSUFFICIENT SAMPLE', 'private_note' => 'must-not-leak'];
         return [
             'version_policy' => 'SEPARATED_INCOMPATIBLE_VERSIONS',
             'sample_rules' => ['minimum' => 10, 'strong' => 30],
@@ -51,13 +51,16 @@ $input = [
     'quality' => ['status' => 'complete', 'source' => 'Binance public market data + Binance USD-M'],
 ];
 $evaluation = Bitmomo_AI_Signal_Engine::evaluate($input);
-$GLOBALS['adapter_options']['bitmomo_ai_latest_preview'] = ['time' => gmdate('c'), 'data' => $input, 'evaluation' => $evaluation, 'edition' => 'morning', 'source_record_id' => 'secret-id'];
+$canonical_id = 'bitmomo-ai:canonical-v2-edition';
+$GLOBALS['adapter_options']['bitmomo_ai_latest_preview'] = ['time' => gmdate('c'), 'data' => $input, 'evaluation' => $evaluation, 'edition' => 'morning', 'source_record_id' => $canonical_id];
 $GLOBALS['adapter_options']['bitmomo_ai_latest_quality_gate'] = ['status' => 'passed'];
 Bitmomo_Regime_State_Store::$records = [
-    ['as_of' => '2026-09-03 19:10:00', 'regime' => 'accumulation', 'directional_bias' => 'bullish', 'regime_confidence' => 70, 'classifier_version' => 'classifier-v1', 'edition' => 'us_session', 'provenance' => 'recorded_live', 'evidence' => ['secret']],
-    ['as_of' => '2026-09-03 07:10:00', 'regime' => 'distribution', 'directional_bias' => 'bearish', 'classifier_version' => 'classifier-v1', 'edition' => 'morning', 'provenance' => 'recorded_live'],
-    ['as_of' => '2026-09-02 19:10:00', 'regime' => 'transition', 'directional_bias' => 'neutral', 'classifier_version' => '', 'edition' => 'us_session', 'provenance' => 'recorded_live'],
-    ['as_of' => '2026-09-01 19:10:00', 'regime' => 'expansion', 'directional_bias' => 'bullish', 'classifier_version' => 'classifier-v0', 'direction_strength' => 'strong_bullish', 'edition' => 'us_session', 'provenance' => 'historical_reconstruction'],
+    // Deliberately newer but unrelated: current snapshot MUST NOT borrow it.
+    ['as_of' => '2026-09-04 19:10:00', 'source_record_id' => 'different-edition', 'regime' => 'distribution', 'directional_bias' => 'bearish', 'regime_confidence' => 88, 'classifier_version' => 'classifier-v1', 'edition' => 'us_session', 'provenance' => 'recorded_live'],
+    ['as_of' => '2026-09-03 19:10:00', 'source_record_id' => $canonical_id, 'regime' => 'accumulation', 'directional_bias' => 'bullish', 'regime_confidence' => 70, 'classifier_version' => 'classifier-v1', 'edition' => 'us_session', 'provenance' => 'recorded_live', 'evidence' => ['secret']],
+    ['as_of' => '2026-09-03 07:10:00', 'source_record_id' => 'older-morning', 'regime' => 'distribution', 'directional_bias' => 'bearish', 'classifier_version' => 'classifier-v1', 'edition' => 'morning', 'provenance' => 'recorded_live'],
+    ['as_of' => '2026-09-02 19:10:00', 'source_record_id' => 'older-session', 'regime' => 'transition', 'directional_bias' => 'neutral', 'classifier_version' => '', 'edition' => 'us_session', 'provenance' => 'recorded_live'],
+    ['as_of' => '2026-09-01 19:10:00', 'source_record_id' => 'reconstruction', 'regime' => 'expansion', 'directional_bias' => 'bullish', 'classifier_version' => 'classifier-v0', 'direction_strength' => 'strong_bullish', 'edition' => 'us_session', 'provenance' => 'historical_reconstruction'],
 ];
 
 $checks = [];
@@ -65,20 +68,32 @@ function adapter_check($label, $condition) { global $checks; $checks[] = [$label
 $snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
 $history = Bitmomo_Public_Intelligence_Adapter::history();
 $summary = Bitmomo_Public_Intelligence_Adapter::evaluation_summary();
-adapter_check('snapshot resolves canonical fields', $snapshot['market_state'] === 'accumulation' && $snapshot['direction_strength'] === $evaluation['direction_strength']);
+adapter_check('snapshot binds Market State to the matching canonical edition rather than newest unrelated regime', $snapshot['market_state'] === 'accumulation' && ($snapshot['market_state_certainty'] ?? null) === 70 && $snapshot['direction_strength'] === $evaluation['direction_strength']);
 adapter_check('snapshot exposes public-safe source/as-of/timezone', ($snapshot['provenance']['source'] ?? '') === 'Binance public market data' && ($snapshot['provenance']['as_of'] ?? '') !== '' && ($snapshot['provenance']['timezone'] ?? '') === 'Asia/Jakarta');
 adapter_check('snapshot explicit allowlist hides internal data', !isset($snapshot['source_record_id'], $snapshot['axes'], $snapshot['score'], $snapshot['risk'], $snapshot['edition']));
-adapter_check('history has one official row per date', $history['available_days'] === 2 && count($history['days']) === 2);
-adapter_check('history prefers US Session official row', $history['days'][1]['market_state'] === 'accumulation');
+adapter_check('history has one official row per date', $history['available_days'] === 3 && count($history['days']) === 3);
+adapter_check('history prefers US Session official row for a duplicated date', $history['days'][1]['market_state'] === 'accumulation');
 adapter_check('history exposes bounded market-state certainty for public charts', ($history['days'][1]['market_state_certainty'] ?? null) === 70 && ($history['days'][0]['market_state_certainty'] ?? null) === 0);
 adapter_check('history excludes reconstructed records', !in_array('2026-09-01', array_column($history['days'], 'date'), true));
 adapter_check('history does not fabricate missing strength', !isset($history['days'][0]['direction_strength']));
 adapter_check('history preserves unknown version', $history['days'][0]['version_group'] === 'unknown');
 adapter_check('evaluation preserves version separation', $summary['version_policy'] === 'SEPARATED_INCOMPATIBLE_VERSIONS' && isset($summary['directional_evaluation']['engine-v1 | classifier-v1']));
-adapter_check('evaluation preserves backend sample status', $summary['directional_evaluation']['engine-v1 | classifier-v1']['all']['sample_status'] === 'INSUFFICIENT SAMPLE');
+adapter_check('evaluation preserves conclusive denominator and sample status', $summary['directional_evaluation']['engine-v1 | classifier-v1']['all']['conclusive_n'] === 3 && $summary['directional_evaluation']['engine-v1 | classifier-v1']['all']['sample_status'] === 'INSUFFICIENT SAMPLE');
 adapter_check('Expected Range is aggregate frozen-original evaluation only', $summary['expected_range_evaluation']['policy'] === 'FROZEN_ORIGINAL_ONLY' && !isset($summary['expected_range_evaluation']['current_range']));
 $encoded = json_encode([$snapshot, $history, $summary]);
 foreach (['axes', 'risk', 'source_record_id', 'source_diagnostics', 'evidence', 'private_note', 'baselines'] as $forbidden) adapter_check("no {$forbidden} leak", strpos($encoded, '"' . $forbidden . '"') === false);
+
+$matching = Bitmomo_Regime_State_Store::$records[1];
+Bitmomo_Regime_State_Store::$records = [Bitmomo_Regime_State_Store::$records[0]];
+$without_match = Bitmomo_Public_Intelligence_Adapter::snapshot();
+adapter_check('missing matching Regime fails only Market State closed instead of borrowing another edition', is_array($without_match) && $without_match['market_state'] === null && $without_match['market_state_certainty'] === null);
+
+$invalid = $matching;
+$invalid['regime'] = 'invented_state';
+Bitmomo_Regime_State_Store::$records = [$invalid];
+$invalid_state = Bitmomo_Public_Intelligence_Adapter::snapshot();
+adapter_check('unrecognized Market State is rejected by the public enum', is_array($invalid_state) && $invalid_state['market_state'] === null);
+Bitmomo_Regime_State_Store::$records = [$matching];
 
 $GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['data']['quality']['source'] = 'Binance public market data + Bybit linear perpetual fallback';
 $fallback_snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
