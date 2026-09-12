@@ -15,6 +15,8 @@ on:
       - "chore/**"
       - "feature/**"
       - "fix/**"
+      - "refactor/**"
+      - "chatgpt/**"
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
@@ -44,17 +46,16 @@ jobs:
       - name: Show PHP version
         run: php --version
 
-      - name: Verify public template ownership
+      - name: Verify canonical public ownership
         shell: bash
         run: |
           set -euo pipefail
-
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           expected=(
             "functions.php"
-            "custom.css"
             "front-page.php"
             "page.php"
+            "page-tentang-kami.php"
             "single.php"
             "home.php"
             "archive.php"
@@ -66,16 +67,38 @@ jobs:
             "header.php"
             "footer.php"
             "style.css"
-            "assets/css/home-opportunity.css"
-            "assets/css/public-surfaces.css"
-            "assets/css/navigation-footer.css"
-            "assets/css/public-readability.css"
+            "assets/css/tokens.css"
+            "assets/css/foundation.css"
+            "assets/css/components.css"
+            "assets/css/components/research-cards.css"
+            "assets/css/pages/home.css"
+            "assets/css/pages/research.css"
+            "assets/css/pages/article.css"
+            "assets/css/pages/about.css"
+            "assets/css/pages/public.css"
+            "template-parts/home-authority.php"
+            "template-parts/research-hub.php"
             "template-parts/archive-index.php"
           )
-
           for file in "${expected[@]}"; do
             test -f "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Required public-surface file is missing"
+              echo "::error file=${theme_dir}/${file}::Required canonical UI file is missing"
+              exit 1
+            }
+          done
+
+          forbidden=(
+            "custom.css"
+            "assets/css/home-opportunity.css"
+            "assets/css/navigation-footer.css"
+            "assets/css/public-readability.css"
+            "assets/css/public-surfaces.css"
+            "assets/css/home.css"
+            "assets/css/research.css"
+          )
+          for file in "${forbidden[@]}"; do
+            test ! -e "${theme_dir}/${file}" || {
+              echo "::error file=${theme_dir}/${file}::Retired legacy stylesheet must not return"
               exit 1
             }
           done
@@ -85,7 +108,7 @@ jobs:
             exit 1
           }
 
-      - name: Prevent legacy UI regressions
+      - name: Prevent product and brand regressions
         shell: bash
         run: |
           set -euo pipefail
@@ -101,13 +124,21 @@ jobs:
             exit 1
           fi
 
-          for file in home.php archive.php category.php tag.php search.php index.php; do
+          for file in home.php archive.php tag.php search.php index.php; do
             grep -q "template-parts/archive" "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Archive route must consume the shared archive surface"
+              echo "::error file=${theme_dir}/${file}::Generic archive route must consume the shared archive surface"
               exit 1
             }
           done
 
+          grep -q "template-parts/research.*hub" "${theme_dir}/category.php" || {
+            echo "::error file=${theme_dir}/category.php::Riset category must own the institutional Research Hub"
+            exit 1
+          }
+          grep -q "template-parts/home.*authority" "${theme_dir}/front-page.php" || {
+            echo "::error file=${theme_dir}/front-page.php::Homepage institutional authority layer is missing"
+            exit 1
+          }
           grep -q "template-parts/whitelist" "${theme_dir}/front-page.php" || {
             echo "::error file=${theme_dir}/front-page.php::Homepage must keep one canonical Pro conversion surface"
             exit 1
@@ -117,27 +148,15 @@ jobs:
             echo "::error file=${theme_dir}/front-page.php::Do not restore separate Pro teaser + whitelist duplication"
             exit 1
           fi
-
           if grep -q "bm-howworks-future" "${theme_dir}/template-parts/how-it-works.php"; then
             echo "::error file=${theme_dir}/template-parts/how-it-works.php::Do not restore duplicated future-capability panel"
             exit 1
           fi
 
-          grep -q "public-surfaces.css" "${theme_dir}/header.php" || {
-            echo "::error file=${theme_dir}/header.php::Canonical public-surface stylesheet is not loaded"
-            exit 1
-          }
-
-          grep -q "navigation-footer.css" "${theme_dir}/header.php" || {
-            echo "::error file=${theme_dir}/header.php::Navigation/footer stylesheet is not loaded"
-            exit 1
-          }
-
           test ! -f "${theme_dir}/template-parts/pro-teaser.php" || {
             echo "::error file=${theme_dir}/template-parts/pro-teaser.php::Obsolete standalone Pro teaser relic must not exist"
             exit 1
           }
-
           test ! -f "${theme_dir}/template-parts/why-bitmomo.php" || {
             echo "::error file=${theme_dir}/template-parts/why-bitmomo.php::Obsolete Why Bitmomo relic must not exist"
             exit 1
@@ -147,18 +166,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
-
           if [ "${#php_files[@]}" -eq 0 ]; then
             echo "::error::No PHP files found in ${theme_dir}"
             exit 1
           fi
-
-          for file in "${php_files[@]}"; do
-            php -l "${file}"
-          done
+          for file in "${php_files[@]}"; do php -l "${file}"; done
 
       - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
@@ -166,5 +180,5 @@ jobs:
       - name: Enforce navigation and footer contract
         run: node scripts/check-navigation-footer.mjs
 
-      - name: Report CSS debt baseline
+      - name: Report canonical CSS architecture
         run: node scripts/audit-css-debt.mjs
