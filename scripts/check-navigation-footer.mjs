@@ -5,16 +5,12 @@ const root = process.cwd();
 const theme = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
 const failures = [];
 
-function read(relative) {
-  return fs.readFileSync(path.join(theme, relative), 'utf8');
-}
+function read(relative) { return fs.readFileSync(path.join(theme, relative), 'utf8'); }
 function check(label, condition) {
   if (!condition) failures.push(label);
   console.log(`[${condition ? 'PASS' : 'FAIL'}] ${label}`);
 }
-function occurrences(source, pattern) {
-  return (source.match(pattern) || []).length;
-}
+function occurrences(source, pattern) { return (source.match(pattern) || []).length; }
 
 const header = read('header.php');
 const footer = read('footer.php');
@@ -28,9 +24,7 @@ const frontPage = read('front-page.php');
 
 check(
   'Header has one canonical Pro destination instead of duplicate Pro navigation',
-  occurrences(header, /home_url\(\s*'\/pro\/'\s*\)/g) === 1 &&
-    occurrences(header, />BITMOMO PRO</g) === 1 &&
-    !/>Bitmomo Pro</.test(header)
+  occurrences(header, /home_url\(\s*'\/pro\/'\s*\)/g) === 1 && occurrences(header, />BITMOMO PRO</g) === 1 && !/>Bitmomo Pro</.test(header)
 );
 check(
   'Primary navigation keeps the concise launch IA',
@@ -41,10 +35,14 @@ check(
   header.includes('aria-current') && header.includes('page') && navCss.includes('a[aria-current="page"]')
 );
 check(
+  'Account navigation URL and active state share the same resolved page source',
+  /get_page_by_path\(\s*'pro\/account'/.test(header) &&
+  /\$bm_account_page \? is_page\( \(int\) \$bm_account_page->ID \)/.test(header) &&
+  /\$bm_is_account \? ' aria-current="page"'/.test(header)
+);
+check(
   'Mobile menu removes hidden links from keyboard navigation',
-  /nav\.setAttribute\('inert', ''\)/.test(js) &&
-    /nav\.setAttribute\('aria-hidden', 'true'\)/.test(js) &&
-    /nav\.removeAttribute\('inert'\)/.test(js)
+  /nav\.setAttribute\('inert', ''\)/.test(js) && /nav\.setAttribute\('aria-hidden', 'true'\)/.test(js) && /nav\.removeAttribute\('inert'\)/.test(js)
 );
 check(
   'Mobile menu closes by link, outside click, Escape and desktop resize',
@@ -52,21 +50,15 @@ check(
 );
 check(
   'Newsletter has exactly one permanent footer surface and no standalone newsletter template',
-  /id="newsletter"/.test(footer) &&
-    /mailpoet_form/.test(footer) &&
-    !/template-parts\/newsletter/.test(frontPage) &&
-    !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
+  /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
 check(
   'Legacy newsletter modal is structurally disabled rather than page-by-page suppressed',
-  /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontend) &&
-    !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontend + js)
+  /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontend) && !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontend + js)
 );
 check(
   'Legacy subscribe routes and menu links resolve to the footer newsletter anchor',
-  content.includes("home_url('/#newsletter')") &&
-    /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) &&
-    /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
+  content.includes("home_url('/#newsletter')") && /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) && /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
   'Footer newsletter is intentionally compact and responsive',
@@ -74,18 +66,11 @@ check(
 );
 check(
   'Footer exposes canonical Telegram, YouTube and X destinations',
-  /https:\/\/t\.me\/bitmomodaily/.test(helpers) &&
-    /https:\/\/www\.youtube\.com\/@bitmomoid/.test(helpers) &&
-    /https:\/\/x\.com\/bitmomoid/.test(helpers) &&
-    /data-social=/.test(footer)
+  /https:\/\/t\.me\/bitmomodaily/.test(helpers) && /https:\/\/www\.youtube\.com\/@bitmomoid/.test(helpers) && /https:\/\/x\.com\/bitmomoid/.test(helpers) && /data-social=/.test(footer)
 );
 check(
   'Navigation/footer stylesheet is enqueued after the public surface stylesheet',
-  !header.includes('public-surfaces.css') &&
-    assets.indexOf('public-surfaces.css') > -1 &&
-    assets.indexOf('navigation-footer.css') > assets.indexOf('public-surfaces.css') &&
-    assets.includes("'bitmomo-navigation-footer'") &&
-    assets.includes("$public_surface_deps = ['bitmomo-navigation-footer'];")
+  !header.includes('public-surfaces.css') && assets.indexOf('public-surfaces.css') > -1 && assets.indexOf('navigation-footer.css') > assets.indexOf('public-surfaces.css') && assets.includes("'bitmomo-navigation-footer'") && assets.includes("$public_surface_deps = ['bitmomo-navigation-footer'];")
 );
 
 if (failures.length) {
