@@ -30,6 +30,19 @@ $bm_updated_label = $bm_updated_ts
     ? ( new DateTimeImmutable( '@' . $bm_updated_ts ) )->setTimezone( new DateTimeZone( 'Asia/Jakarta' ) )->format( 'd M · H:i' ) . ' WIB'
     : 'Belum tersedia';
 ?>
+<style>
+@media (max-width: 760px) {
+  .bm-hero-actions {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+  .bm-hero-actions .bm-hero-link {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+}
+</style>
 <section class="bm-hero" aria-labelledby="bm-home-title">
   <div class="bm-container bm-hero-layout">
     <div class="bm-hero-copy">
@@ -68,7 +81,7 @@ $bm_updated_label = $bm_updated_ts
       </div>
 
       <footer class="bm-direction-footer">
-        <p><span>DIPERBARUI</span><?php echo esc_html( $bm_updated_label ); ?></p>
+        <p><span>DIPERBARUI</span> <?php echo esc_html( $bm_updated_label ); ?></p>
         <a class="bm-direction-deep-link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat riwayat &amp; track record →</a>
       </footer>
     </article>
