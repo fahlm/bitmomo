@@ -99,6 +99,104 @@ jobs:
           rm -f "${body}"
           echo 'PASS provenance SOURCE / AS OF / WIB'
 
+      - name: Verify canonical snapshot consistency across public surfaces
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          health="$(mktemp)"
+          curl --location --silent --show-error --max-time 20 \
+            'https://bitmomo.id/wp-admin/admin-ajax.php?action=bitmomo_health' > "${health}"
+
+          deployed_version="$(python3 - "${health}" <<'PY'
+          import json
+          import sys
+          try:
+              payload = json.load(open(sys.argv[1], encoding='utf-8'))
+              print(payload.get('version', '0'))
+          except Exception:
+              print('0')
+          PY
+          )"
+
+          # The contract was introduced in theme v4.3. Do not create a false
+          # alarm during the merge-to-deploy window while production is older.
+          if [[ "$(printf '%s\n' '4.3' "${deployed_version}" | sort -V | head -n1)" != '4.3' ]]; then
+            echo "SKIP snapshot consistency contract: production theme ${deployed_version} < 4.3"
+            exit 0
+          fi
+
+          home="$(mktemp)"
+          btc="$(mktemp)"
+          live="$(mktemp)"
+          nonce="$(date +%s)"
+
+          curl --location --silent --show-error --max-time 20 "https://bitmomo.id/?bm_monitor=${nonce}" > "${home}"
+          curl --location --silent --show-error --max-time 20 "https://bitmomo.id/btc-intelligence/?bm_monitor=${nonce}" > "${btc}"
+          curl --location --silent --show-error --max-time 20 \
+            "https://bitmomo.id/wp-admin/admin-ajax.php?action=bitmomo_snapshot_contract&_=${nonce}" > "${live}"
+
+          python3 - "${home}" "${btc}" "${live}" <<'PY'
+          import json
+          import sys
+          from html.parser import HTMLParser
+
+          class ContractParser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.contract = None
+
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() != 'meta':
+                      return
+                  data = dict(attrs)
+                  if data.get('name') != 'bitmomo-snapshot-contract':
+                      return
+                  raw = data.get('content', '')
+                  self.contract = json.loads(raw)
+
+          def page_contract(path):
+              parser = ContractParser()
+              with open(path, encoding='utf-8', errors='ignore') as handle:
+                  parser.feed(handle.read())
+              if not isinstance(parser.contract, dict):
+                  raise SystemExit(f'missing bitmomo-snapshot-contract meta in {path}')
+              return parser.contract
+
+          home = page_contract(sys.argv[1])
+          btc = page_contract(sys.argv[2])
+          with open(sys.argv[3], encoding='utf-8') as handle:
+              live_payload = json.load(handle)
+          live = live_payload.get('data') if live_payload.get('success') is True else None
+          if not isinstance(live, dict):
+              raise SystemExit('canonical snapshot endpoint returned an invalid payload')
+
+          fields = (
+              'schema', 'available', 'status', 'as_of', 'market_state',
+              'directional_bias', 'direction_strength', 'confidence',
+              'opportunity_status', 'opportunity_state',
+          )
+
+          def project(value):
+              return {field: value.get(field) for field in fields}
+
+          expected = project(live)
+          comparisons = {'homepage': project(home), 'btc-intelligence': project(btc)}
+          failures = []
+          for label, observed in comparisons.items():
+              if observed != expected:
+                  failures.append((label, observed))
+
+          if failures:
+              print('Canonical live contract:', json.dumps(expected, sort_keys=True))
+              for label, observed in failures:
+                  print(f'{label} contract:      ', json.dumps(observed, sort_keys=True))
+              raise SystemExit('public intelligence surfaces disagree with the canonical live adapter')
+
+          print('PASS homepage == btc-intelligence == canonical live snapshot')
+          PY
+
       - name: Diagnose public Binance USD-M reachability
         continue-on-error: true
         shell: bash
