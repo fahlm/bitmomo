@@ -86,6 +86,7 @@
 
 .bm-research-archive { margin-top: clamp(50px,7vw,84px); padding-top: clamp(34px,5vw,54px); border-top: 1px solid var(--bm-border); }
 .bm-research-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.bm-research-grid--related { margin-top: 24px; }
 .bm-research-card {
   min-width: 0;
   overflow: hidden;
