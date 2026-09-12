@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "files": [
+    "style.css",
     "functions.php",
     "header.php",
     "footer.php",
@@ -14,8 +15,10 @@
     "search.php",
     "404.php",
     "index.php",
+    "data/runtime-fingerprint.json",
     "inc/template-functions.php",
     "inc/trait-bitmomo-assets.php",
+    "inc/trait-bitmomo-images.php",
     "inc/trait-bitmomo-frontend.php",
     "inc/trait-bitmomo-content.php",
     "inc/bitmomo-cta-config.php",
