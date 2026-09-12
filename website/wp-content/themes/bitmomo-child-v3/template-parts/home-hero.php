@@ -30,25 +30,12 @@ $bm_updated_label = $bm_updated_ts
     ? ( new DateTimeImmutable( '@' . $bm_updated_ts ) )->setTimezone( new DateTimeZone( 'Asia/Jakarta' ) )->format( 'd M · H:i' ) . ' WIB'
     : 'Belum tersedia';
 ?>
-<style>
-@media (max-width: 760px) {
-  .bm-hero-actions {
-    align-items: stretch !important;
-    flex-direction: column !important;
-  }
-  .bm-hero-actions .bm-hero-link {
-    display: block !important;
-    width: 100% !important;
-    text-align: center !important;
-  }
-}
-</style>
 <section class="bm-hero" aria-labelledby="bm-home-title">
   <div class="bm-container bm-hero-layout">
     <div class="bm-hero-copy">
       <p class="bm-hero-eyebrow"><span aria-hidden="true"></span>BITMOMO · BTC INTELLIGENCE</p>
       <h1 class="bm-hero-title" id="bm-home-title">Baca kondisi BTC tanpa tenggelam dalam noise.</h1>
-      <p class="bm-hero-sub">Bitmomo merangkum arah pasar, tingkat keyakinan analisis, alasan utama, dan track record dari data terbaru — dalam satu Decision View.</p>
+      <p class="bm-hero-sub">Bitmomo merangkum arah pasar, tingkat keyakinan analisis, alasan utama, dan waktu pembaruan data — agar kondisi BTC dapat dipahami dalam sekali lihat.</p>
       <div class="bm-hero-actions">
         <a class="bm-hero-btn" href="#founding-whitelist">Gabung Founding Whitelist</a>
         <a class="bm-hero-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Pelajari Bitmomo Pro →</a>
@@ -70,7 +57,7 @@ $bm_updated_label = $bm_updated_ts
         </div>
         <div class="bm-direction-metric">
           <span>KEYAKINAN</span>
-          <strong><?php echo null !== $bm_confidence ? esc_html( $bm_confidence . '/100' . ( $bm_confidence_label ? ' · ' . $bm_confidence_label : '' ) ) : esc_html__( 'Belum tersedia', 'bitmomo' ); ?></strong>
+          <strong><?php echo null !== $bm_confidence ? esc_html( ( $bm_confidence_label ? $bm_confidence_label . ' · ' : '' ) . $bm_confidence . '/100' ) : esc_html__( 'Belum tersedia', 'bitmomo' ); ?></strong>
           <small>konsistensi bukti, bukan probabilitas harga</small>
         </div>
       </div>
