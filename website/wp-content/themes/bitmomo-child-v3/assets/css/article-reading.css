@@ -254,12 +254,22 @@
   transform: translateX(-50%);
 }
 
-.bm-article-body .wp-block-table,
-.bm-article-body > table {
+.bm-article-body .wp-block-table {
   width: 100%;
   max-width: 100%;
   margin: 1.8em 0 2em;
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bm-article-body > table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 1.8em 0 2em;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
   -webkit-overflow-scrolling: touch;
 }
 
