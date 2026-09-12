@@ -1,12 +1,12 @@
 <?php
 /**
- * Bitmomo Child Theme — ULTRA v4.5
+ * Bitmomo Child Theme — ULTRA v4.6
  * Canonical public snapshot freshness + launch-surface contracts.
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BM_VERSION', '4.5');
+define('BM_VERSION', '4.6');
 define('BM_MAILPOET_FORM_ID', 2);
 define('BM_ARCHIVE_POSTS_PER_PAGE', 18);
 define('BM_CARD_IMAGE_WIDTH', 800);
@@ -48,6 +48,12 @@ function bitmomo_filter_help_page_title($show_title) {
 }
 add_filter('hello_elementor_page_title', 'bitmomo_filter_help_page_title');
 
+/** Resolve the hierarchical Pro account route once for SEO/indexability logic. */
+function bitmomo_is_pro_account_page() {
+    $account = get_page_by_path('pro/account', OBJECT, 'page');
+    return $account ? is_page((int) $account->ID) : is_page('account');
+}
+
 /** Canonical SEO owner for every launch-critical public surface. */
 function bitmomo_public_seo_title($title) {
     if (is_front_page()) return 'Bitmomo — Bitcoin Market Intelligence & Research';
@@ -55,6 +61,7 @@ function bitmomo_public_seo_title($title) {
     if (is_page('btc-intelligence')) return 'BTC Intelligence — Bitmomo';
     if (is_page('tentang-kami')) return 'Tentang Bitmomo — Market Research & Intelligence Systems';
     if (is_category('riset')) return 'Bitmomo Research — Bitcoin Markets & Intelligence Systems';
+    if (bitmomo_is_pro_account_page()) return 'Akun Bitmomo Pro — Bitmomo';
 
     if (is_single()) {
         $post_id = (int) get_queried_object_id();
@@ -68,9 +75,6 @@ function bitmomo_public_seo_title($title) {
         return $post_title ? $post_title . $suffix : $title;
     }
 
-    $account = get_page_by_path('pro/account', OBJECT, 'page');
-    if ($account && is_page((int) $account->ID)) return 'Akun Bitmomo Pro — Bitmomo';
-
     return $title;
 }
 add_filter('pre_get_document_title', 'bitmomo_public_seo_title', 20);
@@ -82,6 +86,7 @@ function bitmomo_public_seo_description($description) {
     if (is_page('btc-intelligence')) return 'Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record pembacaan Bitmomo.';
     if (is_page('tentang-kami')) return 'Bitmomo adalah research & intelligence platform untuk digital-asset markets dan intelligence systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
     if (is_category('riset')) return 'Bitmomo Research menyajikan market research Bitcoin dan intelligence systems research dengan evidence, thesis, provenance, dan evaluation yang eksplisit.';
+    if (bitmomo_is_pro_account_page()) return 'Masuk untuk melihat status dan akses akun Bitmomo Pro Anda.';
 
     if (is_single()) {
         $post_id = (int) get_queried_object_id();
@@ -90,9 +95,6 @@ function bitmomo_public_seo_description($description) {
         $plain = trim(preg_replace('/\s+/', ' ', wp_strip_all_tags(strip_shortcodes($source))));
         if ($plain !== '') return wp_trim_words($plain, 30, '…');
     }
-
-    $account = get_page_by_path('pro/account', OBJECT, 'page');
-    if ($account && is_page((int) $account->ID)) return 'Masuk untuk melihat status dan akses akun Bitmomo Pro Anda.';
 
     return $description;
 }
@@ -120,17 +122,34 @@ function bitmomo_is_unclassified_legacy_research_post() {
     return 'unclassified' === $classification;
 }
 
+/**
+ * Single public indexability policy.
+ *
+ * Search engines should discover Bitmomo through canonical product/authority
+ * documents, qualified research, and intentionally indexable editorial posts.
+ * Utility/query/archive surfaces remain usable for humans but must not compete
+ * in search or revive the old publisher-style information architecture.
+ */
+function bitmomo_should_noindex_public_view() {
+    if (bitmomo_is_filtered_research_view() || bitmomo_is_unclassified_legacy_research_post()) return true;
+    if (bitmomo_is_pro_account_page() || is_search()) return true;
+    if (is_home() && !is_front_page()) return true;
+    if (is_archive() && !is_category('riset')) return true;
+    return false;
+}
+
 function bitmomo_research_filter_robots($robots) {
-    if (!bitmomo_is_filtered_research_view() && !bitmomo_is_unclassified_legacy_research_post()) return $robots;
+    if (!bitmomo_should_noindex_public_view()) return $robots;
+    unset($robots['index']);
     $robots['noindex'] = true;
     $robots['follow'] = true;
     return $robots;
 }
 add_filter('wp_robots', 'bitmomo_research_filter_robots', 20);
 
-/** Mirror the same indexing boundary through Rank Math when it owns robots output. */
+/** Mirror exactly the same indexing boundary through Rank Math. */
 function bitmomo_rank_math_research_robots($robots) {
-    if (!bitmomo_is_filtered_research_view() && !bitmomo_is_unclassified_legacy_research_post()) return $robots;
+    if (!bitmomo_should_noindex_public_view()) return $robots;
 
     unset($robots['index']);
     $robots['noindex'] = 'noindex';
@@ -146,17 +165,15 @@ function bitmomo_research_rank_math_canonical($canonical) {
 }
 add_filter('rank_math/frontend/canonical', 'bitmomo_research_rank_math_canonical', 20);
 
-/** Meta-description fallback for launch surfaces when Rank Math is inactive. */
+/** Meta-description fallback for canonical launch/single surfaces when Rank Math is inactive. */
 function bitmomo_render_public_meta_description_fallback() {
     if (defined('RANK_MATH_VERSION')) return;
 
-    $account = get_page_by_path('pro/account', OBJECT, 'page');
-    $is_account = $account && is_page((int) $account->ID);
     $is_launch_surface = is_front_page()
         || is_page(['pro', 'btc-intelligence', 'tentang-kami'])
         || is_category('riset')
         || is_single()
-        || $is_account;
+        || bitmomo_is_pro_account_page();
 
     if (!$is_launch_surface) return;
     $description = bitmomo_public_seo_description('');
@@ -272,7 +289,6 @@ class Bitmomo_Performance_Optimizer {
         add_action('pre_get_posts', [$this, 'modify_archive_query']);
         add_action('template_redirect', [$this, 'handle_subscribe_redirect']);
         add_filter('nav_menu_link_attributes', [$this, 'force_subscribe_link_attrs'], 10, 3);
-        add_action('wp_head', [$this, 'inline_img_fallback_css'], 1);
         add_action('wp_footer', [$this, 'render_mailpoet_modal'], 100);
         add_action('wp_footer', [$this, 'performance_debug'], 999);
     }
