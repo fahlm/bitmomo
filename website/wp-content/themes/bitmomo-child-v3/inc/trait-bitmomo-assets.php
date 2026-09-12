@@ -30,9 +30,9 @@ trait Bitmomo_Assets_Trait {
      *
      * Parent theme is compatibility only. foundation.css owns tokens/reset;
      * navigation-footer.css owns global chrome; public-surfaces.css owns generic
-     * WordPress surfaces; route-specific files own homepage/research layouts.
-     * The historical 50KB custom.css is intentionally no longer in the public
-     * cascade: new fixes must land in the owning layer instead of overriding it.
+     * WordPress surfaces; route-specific files own homepage/research/About.
+     * The historical 50KB custom.css is intentionally absent from the public
+     * cascade: fixes must land in the owning layer rather than overriding it.
      */
     public function enqueue_styles() {
         wp_enqueue_style(
@@ -70,6 +70,14 @@ trait Bitmomo_Assets_Trait {
             $this->enqueue_theme_style(
                 'bitmomo-research',
                 'assets/css/research.css',
+                ['bitmomo-public-surfaces']
+            );
+        }
+
+        if (is_page('tentang-kami')) {
+            $this->enqueue_theme_style(
+                'bitmomo-about',
+                'assets/css/about.css',
                 ['bitmomo-public-surfaces']
             );
         }
