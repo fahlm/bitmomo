@@ -20,7 +20,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 get_header();
 ?>
-<main>
+<main id="primary">
   <?php get_template_part( 'template-parts/home', 'hero' ); ?>
   <?php get_template_part( 'template-parts/whitelist' ); ?>
   <?php get_template_part( 'template-parts/how-it-works' ); ?>
