@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) exit;
 /** Narrow, fail-closed public contract over canonical intelligence stores. */
 final class Bitmomo_Public_Intelligence_Adapter {
     const HISTORY_LIMIT = 30;
+    const PUBLIC_DISPLAY_TIMEZONE = 'Asia/Jakarta';
 
     public static function snapshot() {
         if (!class_exists('Bitmomo_AI_Intelligence')) return null;
@@ -13,7 +14,9 @@ final class Bitmomo_Public_Intelligence_Adapter {
         $regime = self::latest_regime();
         $strength = self::strength_or_null($projection['direction_strength'] ?? null);
         $bias = self::bias_or_null($projection['bias'] ?? null);
-        if ($bias === null || $strength === null) return null;
+        $public_source = sanitize_text_field((string) ($projection['source'] ?? ''));
+        $as_of = sanitize_text_field((string) ($projection['timestamp_iso'] ?? ''));
+        if ($bias === null || $strength === null || $public_source === '' || $as_of === '') return null;
         $session_intelligence = is_array($projection['session_intelligence'] ?? null) ? $projection['session_intelligence'] : [];
         if (is_array($session_intelligence['current_setup'] ?? null)) {
             $session_intelligence['current_setup']['market_state'] = self::regime_or_null($regime['regime'] ?? null);
@@ -37,7 +40,12 @@ final class Bitmomo_Public_Intelligence_Adapter {
                 'state' => (string) $projection['status'],
                 'label' => (string) ($projection['freshness_label'] ?? ''),
                 'timestamp' => (int) ($projection['timestamp'] ?? 0),
-                'timestamp_iso' => (string) ($projection['timestamp_iso'] ?? ''),
+                'timestamp_iso' => $as_of,
+            ],
+            'provenance' => [
+                'source' => $public_source,
+                'as_of' => $as_of,
+                'timezone' => self::PUBLIC_DISPLAY_TIMEZONE,
             ],
             'latest_attempt' => is_array($projection['latest_attempt'] ?? null) ? $projection['latest_attempt'] : [],
             'key_drivers' => self::public_drivers($projection['key_drivers'] ?? []),
