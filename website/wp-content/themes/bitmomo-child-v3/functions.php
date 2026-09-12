@@ -53,8 +53,8 @@ function bitmomo_public_seo_title($title) {
     if (is_front_page()) return 'Bitmomo — BTC Market Intelligence';
     if (is_page('pro')) return 'Bitmomo Pro — BTC Market Intelligence';
     if (is_page('btc-intelligence')) return 'BTC Intelligence — Bitmomo';
-    if (is_page('tentang-kami')) return 'Tentang Bitmomo — Crypto Market & AI Systems Research';
-    if (is_category('riset')) return 'Bitmomo Research — Crypto Markets & AI Systems';
+    if (is_page('tentang-kami')) return 'Tentang Bitmomo — Market Research & Intelligence Systems';
+    if (is_category('riset')) return 'Bitmomo Research — Markets & Intelligence Systems';
 
     $account = get_page_by_path('pro/account', OBJECT, 'page');
     if ($account && is_page((int) $account->ID)) return 'Akun Bitmomo Pro — Bitmomo';
@@ -68,8 +68,8 @@ function bitmomo_public_seo_description($description) {
     if (is_front_page()) return 'Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan Decision Ledger untuk melihat bagaimana pembacaan sebelumnya dievaluasi.';
     if (is_page('pro')) return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan pandangan pasar perlu berubah.';
     if (is_page('btc-intelligence')) return 'Kondisi BTC saat ini, perubahan penting, konteks 30 hari, Decision Ledger, dan bukti historis Bitmomo Pro.';
-    if (is_page('tentang-kami')) return 'Bitmomo adalah research & intelligence platform untuk crypto markets dan AI systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
-    if (is_category('riset')) return 'Bitmomo Research menggabungkan crypto market research dan AI systems research untuk menghasilkan intelligence yang dapat ditelusuri, diuji, dan diperbaiki.';
+    if (is_page('tentang-kami')) return 'Bitmomo adalah research & intelligence platform untuk digital-asset markets dan intelligence systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
+    if (is_category('riset')) return 'Bitmomo Research menyajikan market research dan intelligence systems research yang berfokus pada evidence, thesis, provenance, dan evaluation.';
 
     $account = get_page_by_path('pro/account', OBJECT, 'page');
     if ($account && is_page((int) $account->ID)) return 'Masuk untuk melihat status dan akses akun Bitmomo Pro Anda.';
@@ -77,6 +77,29 @@ function bitmomo_public_seo_description($description) {
     return $description;
 }
 add_filter('rank_math/frontend/description', 'bitmomo_public_seo_description', 20);
+
+/** Filter/search Research Hub views are utilities, not separate indexable documents. */
+function bitmomo_is_filtered_research_view() {
+    if (!is_category('riset')) return false;
+    $focus = isset($_GET['focus']) ? sanitize_key(wp_unslash($_GET['focus'])) : '';
+    $query = isset($_GET['research_q']) ? sanitize_text_field(wp_unslash($_GET['research_q'])) : '';
+    return ('' !== $focus && 'all' !== $focus) || '' !== trim($query);
+}
+
+function bitmomo_research_filter_robots($robots) {
+    if (!bitmomo_is_filtered_research_view()) return $robots;
+    $robots['noindex'] = true;
+    $robots['follow'] = true;
+    return $robots;
+}
+add_filter('wp_robots', 'bitmomo_research_filter_robots', 20);
+
+function bitmomo_research_rank_math_canonical($canonical) {
+    if (!bitmomo_is_filtered_research_view()) return $canonical;
+    $term = get_category_by_slug('riset');
+    return $term ? get_category_link((int) $term->term_id) : home_url('/category/riset/');
+}
+add_filter('rank_math/frontend/canonical', 'bitmomo_research_rank_math_canonical', 20);
 
 /** Meta-description fallback for launch surfaces when Rank Math is inactive. */
 function bitmomo_render_public_meta_description_fallback() {
