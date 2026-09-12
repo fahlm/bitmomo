@@ -84,6 +84,33 @@ trait Bitmomo_Assets_Trait {
             }
         }
 
+        // Route-owned authority surfaces. These files are intentionally
+        // separate from frozen custom.css so About/Research can evolve without
+        // reintroducing global cascade debt.
+        if (is_category('riset')) {
+            $research_css_path = get_stylesheet_directory() . '/assets/css/research.css';
+            if (file_exists($research_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-research',
+                    get_stylesheet_directory_uri() . '/assets/css/research.css',
+                    ['bitmomo-child', 'bitmomo-public-readability'],
+                    $this->get_file_version($research_css_path)
+                );
+            }
+        }
+
+        if (is_page('tentang-kami')) {
+            $about_css_path = get_stylesheet_directory() . '/assets/css/about.css';
+            if (file_exists($about_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-about',
+                    get_stylesheet_directory_uri() . '/assets/css/about.css',
+                    ['bitmomo-child', 'bitmomo-public-readability'],
+                    $this->get_file_version($about_css_path)
+                );
+            }
+        }
+
         $frontend_js_path = get_stylesheet_directory() . '/assets/js/bitmomo-frontend.js';
         wp_enqueue_script(
             'bitmomo-frontend',
