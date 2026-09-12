@@ -14,6 +14,12 @@ trait Bitmomo_Frontend_Trait {
         if (is_admin() || !shortcode_exists('mailpoet_form')) return;
         if (!$this->should_load_modal()) return;
 
+        // Product surfaces have one primary job: help visitors understand
+        // BTC Intelligence / Pro and move toward the whitelist. The legacy
+        // publisher-style newsletter modal is intentionally suppressed here
+        // so it cannot compete with those conversion and retention paths.
+        if (is_page(['pro', 'btc-intelligence'])) return;
+
         $form_id = BM_MAILPOET_FORM_ID; ?>
         <span id="subscribe" hidden></span><span id="newsletter" hidden></span>
         <div id="bm-subscribe-modal" aria-hidden="true">
