@@ -117,6 +117,16 @@ const opportunityCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-oppo
 if (!opportunityCss.includes('.bm-hero-opportunity') || !opportunityCss.includes('.bm-btc-opportunity')) {
   fail('homepage Opportunity CSS does not contain the required hero/card selectors');
 }
+for (const marker of [
+  'grid-template-columns:repeat(30,minmax(0,1fr))',
+  '.bm-direction-card .bm-state-chart .bm-direction-bar.is-bullish span{background:#35cdbb}',
+  '.bm-direction-card .bm-state-chart .bm-direction-bar.is-neutral span{background:#8192aa}',
+  '.bm-direction-card .bm-state-chart .bm-direction-bar.is-bearish span{background:#ff7b6d}',
+]) {
+  if (!opportunityCss.includes(marker)) {
+    fail(`30D homepage context chart lost its semantic/readability contract: ${marker}`);
+  }
+}
 
 const readabilityCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-readability.css'), 'utf8');
 for (const marker of ['--bm-text-subtle-readable', '.bm-bi', '--bmi-text-muted', '.bm-pro-sales', '--bms-text-muted', '.bm-wl__submit']) {
