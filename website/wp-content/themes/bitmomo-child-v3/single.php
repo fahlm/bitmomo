@@ -11,7 +11,10 @@ get_header();
   $bm_tags = get_the_tags();
   $bm_is_ai_lab = has_tag( 'ai-lab' );
   $bm_is_research = has_category( 'riset' );
-  $bm_classification = $bm_is_ai_lab ? 'AI SYSTEMS RESEARCH' : ( $bm_is_research ? 'CRYPTO MARKET RESEARCH' : 'BITMOMO RESEARCH' );
+  $bm_is_market_research = function_exists( 'bitmomo_post_is_market_research' ) && bitmomo_post_is_market_research( get_the_ID() );
+  $bm_classification = $bm_is_ai_lab
+    ? 'AI SYSTEMS RESEARCH'
+    : ( $bm_is_market_research ? 'CRYPTO MARKET RESEARCH' : ( $bm_is_research ? 'BITMOMO RESEARCH ARCHIVE' : 'BITMOMO RESEARCH' ) );
   $bm_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
   $bm_plain_content = wp_strip_all_tags( strip_shortcodes( (string) get_post_field( 'post_content', get_the_ID() ) ) );
   $bm_word_count = str_word_count( $bm_plain_content );
@@ -29,6 +32,8 @@ get_header();
         <h1 class="bm-article-title"><?php the_title(); ?></h1>
         <?php if ( $bm_excerpt ) : ?><p class="bm-article-deck"><?php echo esc_html( $bm_excerpt ); ?></p><?php endif; ?>
         <div class="bm-article-meta">
+          <span><?php esc_html_e( 'Bitmomo Research', 'bitmomo' ); ?></span>
+          <span aria-hidden="true">·</span>
           <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date( 'd M Y' ) ); ?></time>
           <span aria-hidden="true">·</span>
           <span><?php echo esc_html( sprintf( __( '%d menit baca', 'bitmomo' ), $bm_read_minutes ) ); ?></span>
@@ -48,6 +53,11 @@ get_header();
       <aside class="bm-article-standard" aria-label="Standar editorial Bitmomo">
         <strong><?php esc_html_e( 'Standar Bitmomo Research', 'bitmomo' ); ?></strong>
         <p><?php esc_html_e( 'Kami memisahkan data, interpretasi, dan thesis sejauh materi memungkinkan; membatasi claim pada evidence yang tersedia; dan memperbarui analisis ketika konteks material berubah. Research bukan nasihat keuangan.', 'bitmomo' ); ?></p>
+        <dl class="bm-article-standard__meta">
+          <div><dt><?php esc_html_e( 'Klasifikasi', 'bitmomo' ); ?></dt><dd><?php echo esc_html( $bm_classification ); ?></dd></div>
+          <div><dt><?php esc_html_e( 'Publisher', 'bitmomo' ); ?></dt><dd><?php esc_html_e( 'Bitmomo Research', 'bitmomo' ); ?></dd></div>
+          <div><dt><?php esc_html_e( 'Versi', 'bitmomo' ); ?></dt><dd><?php echo esc_html( get_the_modified_date( 'Y-m-d' ) ); ?></dd></div>
+        </dl>
       </aside>
 
       <?php if ( $bm_tags ) : ?>
@@ -80,7 +90,7 @@ get_header();
       'orderby' => 'date',
       'order' => 'DESC',
       'no_found_rows' => true,
-      'update_post_term_cache' => false,
+      'update_post_term_cache' => true,
     ) );
     if ( $bm_related->have_posts() ) : ?>
       <section class="bm-section bm-related">
@@ -89,8 +99,9 @@ get_header();
           <h2 class="bm-heading"><?php esc_html_e( 'Riset Terkait', 'bitmomo' ); ?></h2>
           <div class="bm-research-grid bm-research-grid--related">
             <?php while ( $bm_related->have_posts() ) : $bm_related->the_post();
-              $bm_related_cats = get_the_category();
-              $bm_related_label = $bm_related_cats ? $bm_related_cats[0]->name : __( 'Research', 'bitmomo' );
+              $bm_related_is_ai = has_tag( 'ai-lab' );
+              $bm_related_is_market = function_exists( 'bitmomo_post_is_market_research' ) && bitmomo_post_is_market_research( get_the_ID() );
+              $bm_related_label = $bm_related_is_ai ? 'AI LAB' : ( $bm_related_is_market ? 'MARKET RESEARCH' : 'RESEARCH ARCHIVE' );
             ?>
               <article <?php post_class( 'bm-research-card' ); ?>>
                 <a class="bm-research-card__art" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
@@ -110,9 +121,9 @@ get_header();
     wp_reset_postdata();
   endif;
   unset(
-    $bm_cats, $bm_primary_cat, $bm_tags, $bm_tag, $bm_is_ai_lab, $bm_is_research, $bm_classification,
+    $bm_cats, $bm_primary_cat, $bm_tags, $bm_tag, $bm_is_ai_lab, $bm_is_research, $bm_is_market_research, $bm_classification,
     $bm_excerpt, $bm_plain_content, $bm_word_count, $bm_read_minutes, $bm_modified, $bm_published,
-    $bm_primary_cat_id, $bm_related, $bm_related_cats, $bm_related_label
+    $bm_primary_cat_id, $bm_related, $bm_related_is_ai, $bm_related_is_market, $bm_related_label
   );
   ?>
 <?php endwhile; endif; ?>
