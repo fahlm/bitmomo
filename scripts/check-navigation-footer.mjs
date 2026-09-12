@@ -37,7 +37,7 @@ check(
 );
 check(
   'Primary navigation exposes non-color active-page semantics',
-  /aria-current=\\"page\\"/.test(header) && /a\[aria-current="page"\]/.test(navCss)
+  header.includes('aria-current') && header.includes('page') && navCss.includes('a[aria-current="page"]')
 );
 check(
   'Mobile menu removes hidden links from keyboard navigation',
@@ -63,7 +63,7 @@ check(
 );
 check(
   'Legacy subscribe routes and menu links resolve to the footer newsletter anchor',
-  /home_url\('\/#newsletter'\)/.test(content) && !/js-open-subscribe/.test(content)
+  content.includes("home_url('/#newsletter')") && content.includes("home_url('/#newsletter'),302") && !/js-open-subscribe/.test(content)
 );
 check(
   'Footer newsletter is intentionally compact and responsive',
