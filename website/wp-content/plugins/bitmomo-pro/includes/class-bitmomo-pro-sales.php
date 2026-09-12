@@ -148,7 +148,7 @@ class Bitmomo_Pro_Sales {
 		<section class="bm-pro-sales__hero">
 			<p class="bm-pro-sales__hero-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP — BITMOMO PRO', 'bitmomo-pro' ); ?></p>
 			<h1 class="bm-pro-sales__hero-title"><?php esc_html_e( 'Pahami BTC dalam konteks, bukan sekadar dari potongan data.', 'bitmomo-pro' ); ?></h1>
-			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Decision View BTC hari ini. Altcoin Intelligence, Daily Alpha Discovery, Watchtower, dan 11 AI Analysts segera hadir.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Decision View hari ini. 11 AI Analysts dan Watchtower segera hadir.', 'bitmomo-pro' ); ?></p>
 			<div class="bm-pro-sales__hero-offer">
 				<p class="bm-pro-sales__hero-price"><?php esc_html_e( 'Founding Price Rp149.000/bulan', 'bitmomo-pro' ); ?></p>
 				<p class="bm-pro-sales__hero-price-sub"><?php esc_html_e( 'Rp1.490.000/tahun · harga ini terkunci selama membership tetap aktif.', 'bitmomo-pro' ); ?></p>
@@ -441,7 +441,7 @@ class Bitmomo_Pro_Sales {
 	private function render_final_cta() {
 		?>
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__final-cta">
-			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Bergabung sebelum capability Pro berikutnya dirilis.', 'bitmomo-pro' ); ?></h2>
+			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Bergabung sebelum 11 AI Analysts dan Watchtower dirilis.', 'bitmomo-pro' ); ?></h2>
 			<div class="bm-pro-sales__hero-facts">
 				<div><strong><?php esc_html_e( 'Rp149.000', 'bitmomo-pro' ); ?></strong><span><?php esc_html_e( 'per bulan', 'bitmomo-pro' ); ?></span></div>
 				<div><strong><?php echo esc_html( self::SEAT_CAP ); ?></strong><span><?php esc_html_e( 'Founding Members', 'bitmomo-pro' ); ?></span></div>
