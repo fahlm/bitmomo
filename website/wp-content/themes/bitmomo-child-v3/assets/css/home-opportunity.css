@@ -3,7 +3,6 @@
 .bm-hero-actions .bm-hero-btn{margin:0}
 .bm-hero-link{color:#aebdd2;font-size:14px;font-weight:750;text-decoration:none}
 .bm-hero-link:hover,.bm-hero-link:focus-visible{color:var(--teal)}
-.bm-hero-link:focus-visible{outline:2px solid var(--teal);outline-offset:4px;border-radius:4px}
 
 .bm-direction-card{overflow:hidden}
 .bm-direction-card-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;color:#8294ae;font:800 8px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.1em}
@@ -27,9 +26,8 @@
 .bm-direction-footer span{margin-bottom:3px;font-size:7px}
 .bm-direction-deep-link{color:#9caec5;font-size:11px;font-weight:740;text-decoration:none;white-space:nowrap}
 .bm-direction-deep-link:hover,.bm-direction-deep-link:focus-visible{color:var(--teal)}
-.bm-direction-deep-link:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:3px}
 
-@media(max-width:760px){
+@media(max-width:768px){
  .bm-hero-actions{align-items:stretch;flex-direction:column;gap:12px}.bm-hero-actions .bm-hero-btn{width:100%;justify-content:center}.bm-hero-actions .bm-hero-link{display:block;width:100%;text-align:center}
  .bm-direction-summary{grid-template-columns:1fr;gap:16px}.bm-direction-metric{padding:0;border-left:0}.bm-direction-metric+ .bm-direction-metric{padding-top:16px;border-top:1px solid var(--stroke)}
  .bm-direction-footer{align-items:flex-start;flex-direction:column;gap:10px}.bm-direction-deep-link{white-space:normal}
