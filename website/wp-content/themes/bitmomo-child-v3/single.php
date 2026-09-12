@@ -6,18 +6,15 @@ get_header();
 <main id="primary" class="bm-public-main">
 <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
   <?php
-  $bm_cats = get_the_category();
-  $bm_primary_cat = $bm_cats ? $bm_cats[0] : null;
-  $bm_tags = get_the_tags();
-  $bm_is_ai_lab = has_tag( 'ai-lab' );
-  $bm_is_research = has_category( 'riset' );
-  $bm_classification = $bm_is_ai_lab ? 'AI SYSTEMS RESEARCH' : ( $bm_is_research ? 'CRYPTO MARKET RESEARCH' : 'BITMOMO RESEARCH' );
-  $bm_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
-  $bm_plain_content = wp_strip_all_tags( strip_shortcodes( (string) get_post_field( 'post_content', get_the_ID() ) ) );
-  $bm_word_count = str_word_count( $bm_plain_content );
-  $bm_read_minutes = max( 1, (int) ceil( $bm_word_count / 220 ) );
-  $bm_modified = get_the_modified_time( 'U' );
-  $bm_published = get_the_time( 'U' );
+  $bm_post_id        = get_the_ID();
+  $bm_primary_cat    = bitmomo_primary_public_category( $bm_post_id );
+  $bm_tags           = get_the_tags( $bm_post_id );
+  $bm_research_lane  = bitmomo_post_research_lane( $bm_post_id );
+  $bm_classification = bitmomo_research_classification_label( $bm_post_id );
+  $bm_excerpt        = trim( wp_strip_all_tags( get_the_excerpt( $bm_post_id ) ) );
+  $bm_read_minutes   = bitmomo_estimated_reading_minutes( $bm_post_id );
+  $bm_modified       = get_the_modified_time( 'U', $bm_post_id );
+  $bm_published      = get_the_time( 'U', $bm_post_id );
   ?>
   <article <?php post_class( 'bm-article' ); ?>>
     <div class="bm-container">
@@ -68,51 +65,57 @@ get_header();
   </article>
 
   <?php
-  $bm_primary_cat_id = $bm_primary_cat ? (int) $bm_primary_cat->term_id : 0;
-  if ( $bm_primary_cat_id ) :
-    $bm_related = new WP_Query( array(
-      'post_type' => 'post',
-      'post_status' => 'publish',
-      'post__not_in' => array( get_the_ID() ),
-      'posts_per_page' => 3,
-      'ignore_sticky_posts' => true,
-      'cat' => $bm_primary_cat_id,
-      'orderby' => 'date',
-      'order' => 'DESC',
-      'no_found_rows' => true,
-      'update_post_term_cache' => false,
-    ) );
-    if ( $bm_related->have_posts() ) : ?>
-      <section class="bm-section bm-related">
-        <div class="bm-container">
-          <span class="bm-eyebrow"><?php esc_html_e( 'LANJUTKAN MEMBACA', 'bitmomo' ); ?></span>
-          <h2 class="bm-heading"><?php esc_html_e( 'Riset Terkait', 'bitmomo' ); ?></h2>
-          <div class="bm-research-grid" style="margin-top:24px">
-            <?php while ( $bm_related->have_posts() ) : $bm_related->the_post();
-              $bm_related_cats = get_the_category();
-              $bm_related_label = $bm_related_cats ? $bm_related_cats[0]->name : __( 'Research', 'bitmomo' );
-            ?>
-              <article <?php post_class( 'bm-research-card' ); ?>>
-                <a class="bm-research-card__art" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
-                  <?php if ( has_post_thumbnail() ) the_post_thumbnail( 'bm-card', array( 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
-                </a>
-                <div class="bm-research-card__body">
-                  <span class="bm-research-card__meta"><?php echo esc_html( $bm_related_label . ' · ' . get_the_date( 'd M Y' ) ); ?></span>
-                  <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                  <p><?php echo esc_html( wp_trim_words( get_the_excerpt(), 18, '…' ) ); ?></p>
-                </div>
-              </article>
-            <?php endwhile; ?>
-          </div>
+  $bm_related_args = array(
+    'post_type'              => 'post',
+    'post_status'            => 'publish',
+    'post__not_in'           => array( $bm_post_id ),
+    'posts_per_page'         => 3,
+    'ignore_sticky_posts'    => true,
+    'orderby'                => 'date',
+    'order'                  => 'DESC',
+    'no_found_rows'          => true,
+    'update_post_meta_cache' => false,
+    'update_post_term_cache' => true,
+  );
+  $bm_research_taxonomy = bitmomo_research_taxonomy();
+  if ( 'ai' === $bm_research_lane && $bm_research_taxonomy['ai_lab_tag_id'] ) {
+    $bm_related_args['tag__in'] = array( (int) $bm_research_taxonomy['ai_lab_tag_id'] );
+    if ( $bm_research_taxonomy['riset_id'] ) $bm_related_args['cat'] = (int) $bm_research_taxonomy['riset_id'];
+  } elseif ( $bm_primary_cat ) {
+    $bm_related_args['cat'] = (int) $bm_primary_cat->term_id;
+  }
+
+  $bm_related = new WP_Query( $bm_related_args );
+  if ( $bm_related->have_posts() ) : ?>
+    <section class="bm-section bm-related">
+      <div class="bm-container">
+        <span class="bm-eyebrow"><?php esc_html_e( 'LANJUTKAN MEMBACA', 'bitmomo' ); ?></span>
+        <h2 class="bm-heading"><?php esc_html_e( 'Riset Terkait', 'bitmomo' ); ?></h2>
+        <div class="bm-research-grid bm-related-grid">
+          <?php while ( $bm_related->have_posts() ) : $bm_related->the_post();
+            $bm_related_cat = bitmomo_primary_public_category( get_the_ID() );
+            $bm_related_label = $bm_related_cat ? $bm_related_cat->name : bitmomo_research_classification_label( get_the_ID() );
+          ?>
+            <article <?php post_class( 'bm-research-card' ); ?>>
+              <a class="bm-research-card__art" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
+                <?php if ( has_post_thumbnail() ) the_post_thumbnail( 'bm-card', array( 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
+              </a>
+              <div class="bm-research-card__body">
+                <span class="bm-research-card__meta"><?php echo esc_html( $bm_related_label . ' · ' . get_the_date( 'd M Y' ) ); ?></span>
+                <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                <p><?php echo esc_html( wp_trim_words( get_the_excerpt(), 18, '…' ) ); ?></p>
+              </div>
+            </article>
+          <?php endwhile; ?>
         </div>
-      </section>
-    <?php endif;
-    wp_reset_postdata();
-  endif;
+      </div>
+    </section>
+  <?php endif;
+  wp_reset_postdata();
   unset(
-    $bm_cats, $bm_primary_cat, $bm_tags, $bm_tag, $bm_is_ai_lab, $bm_is_research, $bm_classification,
-    $bm_excerpt, $bm_plain_content, $bm_word_count, $bm_read_minutes, $bm_modified, $bm_published,
-    $bm_primary_cat_id, $bm_related, $bm_related_cats, $bm_related_label
+    $bm_post_id, $bm_primary_cat, $bm_tags, $bm_tag, $bm_research_lane, $bm_classification,
+    $bm_excerpt, $bm_read_minutes, $bm_modified, $bm_published, $bm_related_args,
+    $bm_research_taxonomy, $bm_related, $bm_related_cat, $bm_related_label
   );
   ?>
 <?php endwhile; endif; ?>
