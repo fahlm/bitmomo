@@ -34,9 +34,15 @@ Direct trailing-60m range discrimination remained strong across the chronologica
 
 Alternative recent-range windows such as 15m and 30m were also informative, but trailing 60m range showed the strongest longer intraday holdout discrimination while remaining simple and auditable.
 
+A subsequent P0.2C replay extended the check across Binance BTCUSDT 5-minute history from 2020-01-01 through 2026-09-10. The absolute event rate changed substantially across years and market environments, but `HIGH > NORMAL > LOW` remained ordered in every calendar year and in all nine sufficiently populated trend-context × volatility-context cells at +15m, +30m, +1h, and +2h. This strengthens the V1 interpretation as a relative activity state rather than a fixed probability forecast.
+
 ## Canonical input
 
-Use BTCUSDT market candles at 5-minute cadence.
+Use **Binance BTCUSDT USD-M perpetual** market candles at 5-minute cadence for `opportunity-v1`.
+
+The P0.2C source-sensitivity replay found approximately 96.2% HIGH/NORMAL/LOW state agreement between Spot and USD-M when both sources had a strict valid reference window. USD-M is canonical because the tested 2020–2026 source history is complete while the Spot archive contains historical gaps that materially expand fail-closed periods under strict V1 integrity rules.
+
+Spot may be used for research sensitivity and diagnostics, but it is **not** a silent runtime fallback for the same `opportunity-v1` methodology version. If the canonical USD-M source is unavailable or fails integrity/freshness checks, Opportunity must fail closed.
 
 At each eligible 15-minute evaluation cutoff `T`:
 
@@ -94,6 +100,8 @@ The absolute event rate changed materially between periods, which is precisely w
 
 The ordering remained intact and materially separated.
 
+The multi-year P0.2C replay confirms the same ranking is stable across years and coarse market contexts; it does **not** convert these state labels into fixed event probabilities.
+
 ## Evaluation cadence
 
 Canonical V1 evaluation cadence: every 15 minutes.
@@ -106,9 +114,9 @@ The engine should persist every valid evaluation for forward validation. Custome
 
 Opportunity requires a defensible 14-day reference baseline.
 
-A fresh installation may bootstrap the required closed 5-minute history from the canonical market-data source. Until the baseline is sufficiently available and source integrity checks pass, Opportunity must return `unavailable` rather than fabricate `NORMAL`.
+A fresh installation may bootstrap the required closed 5-minute history from the canonical USD-M market-data source. Until the baseline is sufficiently available and source integrity checks pass, Opportunity must return `unavailable` rather than fabricate `NORMAL`.
 
-Engineering must preserve missingness and source diagnostics. It must not silently fill missing historical observations with neutral values.
+Engineering must preserve missingness and source diagnostics. It must not silently fill missing historical observations with neutral values or switch market source under the same methodology version.
 
 ## Output contract
 
