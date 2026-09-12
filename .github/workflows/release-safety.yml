@@ -11,11 +11,12 @@ on:
       - "config/production-runtime.json"
       - "scripts/build-production-artifact.py"
       - "scripts/check-m2-launch-surfaces.mjs"
+      - "scripts/check-ui-architecture.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/release-safety.yml"
   push:
-    branches: [main, "release/**", "fix/**", "feature/p02a-*"]
+    branches: [main, "release/**", "fix/**", "refactor/**", "feature/p02a-*"]
   workflow_dispatch:
 
 permissions:
@@ -67,6 +68,9 @@ jobs:
           find website/wp-content/themes/bitmomo-child-v3 website/wp-content/plugins/bitmomo-ai website/wp-content/plugins/bitmomo-btc-intelligence website/wp-content/plugins/bitmomo-pro website/wp-content/plugins/bitmomo-regime \
             -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
 
+      - name: Check root-cause UI architecture
+        run: node scripts/check-ui-architecture.mjs
+
       - name: Check M2 launch contract
         run: node scripts/check-m2-launch-surfaces.mjs
 
@@ -84,6 +88,7 @@ jobs:
           actual_count="$(tar -tf dist/first/bitmomo-runtime.tar | wc -l | tr -d ' ')"
           test "${actual_count}" -eq "${expected_count}"
           ! tar -tf dist/first/bitmomo-runtime.tar | grep -Eq '(^|/)tests/|\.md$|\.env($|\.)|\.(key|pem|tmp|temp)$'
+          ! tar -tf dist/first/bitmomo-runtime.tar | grep -Eq 'bitmomo-child-v3/(custom\.css|assets/css/(home-opportunity|public-readability)\.css)$'
 
       - name: Upload reviewed runtime artifact
         uses: actions/upload-artifact@v4
