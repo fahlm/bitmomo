@@ -92,6 +92,20 @@ trait Bitmomo_Assets_Trait {
             $public_surface_deps = ['bitmomo-navigation-footer'];
         }
 
+        // Long-form articles get a dedicated final readability layer. Keep it
+        // single-post only so research typography cannot leak into product UI.
+        if (is_single()) {
+            $article_css_path = get_stylesheet_directory() . '/assets/css/article-reading.css';
+            if (file_exists($article_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-article-reading',
+                    get_stylesheet_directory_uri() . '/assets/css/article-reading.css',
+                    $public_surface_deps,
+                    $this->get_file_version($article_css_path)
+                );
+            }
+        }
+
         // Homepage-only intelligence and conversion presentation. These are
         // intentionally loaded last on the homepage so final conversion layout
         // cannot be overwritten by generic public-surface rules.
