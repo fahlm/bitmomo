@@ -20,6 +20,7 @@ const header = read('header.php');
 const footer = read('footer.php');
 const helpers = read('inc/template-functions.php');
 const frontend = read('inc/trait-bitmomo-frontend.php');
+const assets = read('inc/trait-bitmomo-assets.php');
 const content = read('inc/trait-bitmomo-content.php');
 const js = read('assets/js/bitmomo-frontend.js');
 const navCss = read('assets/css/navigation-footer.css');
@@ -79,9 +80,12 @@ check(
     /data-social=/.test(footer)
 );
 check(
-  'Navigation/footer stylesheet is loaded after the public surface stylesheet',
-  header.indexOf('public-surfaces.css') > -1 &&
-    header.indexOf('navigation-footer.css') > header.indexOf('public-surfaces.css')
+  'Navigation/footer stylesheet is enqueued after the public surface stylesheet',
+  !header.includes('public-surfaces.css') &&
+    assets.indexOf('public-surfaces.css') > -1 &&
+    assets.indexOf('navigation-footer.css') > assets.indexOf('public-surfaces.css') &&
+    assets.includes("'bitmomo-navigation-footer'") &&
+    assets.includes("$public_surface_deps = ['bitmomo-navigation-footer'];")
 );
 
 if (failures.length) {
