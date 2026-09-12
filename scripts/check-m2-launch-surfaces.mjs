@@ -125,11 +125,18 @@ check(
 );
 const proRenderMatch = proSales.match(/public function render_sales[\s\S]*?return ob_get_clean\(\);/);
 const proRender = proRenderMatch ? proRenderMatch[0] : '';
+const todayIndex = proRender.indexOf('render_what_exists_today()');
+const accountabilityIndex = proRender.indexOf('render_accountability()');
+const conversionIndex = proRender.indexOf('render_founding_economics()');
+const roadmapIndex = proRender.indexOf('render_roadmap()');
 check(
-  '/pro tells cold visitors what exists today before roadmap capabilities',
-  proRender.indexOf('render_what_exists_today()') > -1 &&
-  proRender.indexOf('render_altcoin_intelligence()') > -1 &&
-  proRender.indexOf('render_what_exists_today()') < proRender.indexOf('render_altcoin_intelligence()')
+  '/pro tells cold visitors what exists today before proof, conversion and roadmap',
+  todayIndex > -1 && accountabilityIndex > todayIndex && conversionIndex > accountabilityIndex && roadmapIndex > conversionIndex
+);
+check(
+  '/pro collapses future capabilities into one post-conversion roadmap instead of four roadmap walls',
+  /private function render_roadmap\(\)/.test(proSales) &&
+  !/private function render_altcoin_intelligence|private function render_alpha_discovery|private function render_ai_analysts|private function render_watchtower/.test(proSales)
 );
 check('/pro removes the duplicate final conversion block structurally, not with CSS', !/render_final_cta\s*\(/.test(proSalesOutput) && !/bm-pro-sales__final-cta/.test(publicSurfacesCss));
 check('/pro pricing terms match M2 founding package', /Rp149\.000/.test(proSales) && /Rp1\.490\.000/.test(proSales) && /const SEAT_CAP\s*=\s*149/.test(proSales) && /const BATCH_ONE\s*=\s*25/.test(proSales));
