@@ -92,7 +92,7 @@ final class Bitmomo_AI_Runtime_State {
         return [
             'canonical_record_id' => sanitize_text_field((string) ($record['source_record_id'] ?? '')),
             'edition' => sanitize_key((string) ($record['edition'] ?? '')),
-            'edition_id' => sanitize_text_field((string) ($record['edition_id'] ?? ($record['source_record_id'] ?? '')),
+            'edition_id' => sanitize_text_field((string) ($record['edition_id'] ?? ($record['source_record_id'] ?? ''))),
             'session_type' => Bitmomo_AI_Session_Intelligence::normalize_session_type($record['session_type'] ?? ($record['edition'] ?? '')),
             'session_anchor' => sanitize_text_field((string) ($record['session_anchor'] ?? '')),
             'market_timezone' => sanitize_text_field((string) ($record['market_timezone'] ?? Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE)),
