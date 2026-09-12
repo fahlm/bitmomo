@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "config/production-runtime.json"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "scripts/audit-css-debt.mjs"
@@ -15,8 +16,10 @@ on:
       - "chore/**"
       - "feature/**"
       - "fix/**"
+      - "refactor/**"
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "config/production-runtime.json"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "scripts/audit-css-debt.mjs"
@@ -44,15 +47,13 @@ jobs:
       - name: Show PHP version
         run: php --version
 
-      - name: Verify public template ownership
+      - name: Verify canonical frontend ownership
         shell: bash
         run: |
           set -euo pipefail
-
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           expected=(
             "functions.php"
-            "custom.css"
             "front-page.php"
             "page.php"
             "single.php"
@@ -66,20 +67,23 @@ jobs:
             "header.php"
             "footer.php"
             "style.css"
-            "assets/css/home-opportunity.css"
-            "assets/css/public-surfaces.css"
+            "assets/css/foundation.css"
             "assets/css/navigation-footer.css"
-            "assets/css/public-readability.css"
+            "assets/css/public-surfaces.css"
+            "assets/css/home.css"
+            "assets/css/research.css"
+            "assets/css/about.css"
+            "template-parts/home-authority.php"
+            "template-parts/research-hub.php"
+            "template-parts/about-authority.php"
             "template-parts/archive-index.php"
           )
-
           for file in "${expected[@]}"; do
             test -f "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Required public-surface file is missing"
+              echo "::error file=${theme_dir}/${file}::Required canonical frontend file is missing"
               exit 1
             }
           done
-
           test -f "docs/PUBLIC_SURFACE_CONTRACT.md" || {
             echo "::error file=docs/PUBLIC_SURFACE_CONTRACT.md::Public surface contract is missing"
             exit 1
@@ -92,52 +96,54 @@ jobs:
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
 
           if grep -q "Informasi AI &" "${theme_dir}/home.php"; then
-            echo "::error file=${theme_dir}/home.php::Legacy media positioning returned to the posts index"
+            echo "::error file=${theme_dir}/home.php::Legacy media positioning returned"
             exit 1
           fi
-
           if grep -q "big-stories" "${theme_dir}/tag.php"; then
             echo "::error file=${theme_dir}/tag.php::Legacy Big Stories special-case returned"
             exit 1
           fi
 
-          for file in home.php archive.php category.php tag.php search.php index.php; do
+          for file in home.php archive.php tag.php search.php index.php; do
             grep -q "template-parts/archive" "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Archive route must consume the shared archive surface"
+              echo "::error file=${theme_dir}/${file}::Generic archive route must consume shared archive surface"
               exit 1
             }
           done
+          grep -q "template-parts/research', 'hub" "${theme_dir}/category.php" || {
+            echo "::error file=${theme_dir}/category.php::Riset category must own dedicated Research Hub"
+            exit 1
+          }
+          grep -q "template-parts/archive" "${theme_dir}/category.php" || {
+            echo "::error file=${theme_dir}/category.php::Non-Riset categories must retain shared archive fallback"
+            exit 1
+          }
 
+          grep -q "template-parts/home', 'authority" "${theme_dir}/front-page.php" || {
+            echo "::error file=${theme_dir}/front-page.php::Homepage lost research authority layer"
+            exit 1
+          }
           grep -q "template-parts/whitelist" "${theme_dir}/front-page.php" || {
-            echo "::error file=${theme_dir}/front-page.php::Homepage must keep one canonical Pro conversion surface"
+            echo "::error file=${theme_dir}/front-page.php::Homepage lost canonical Pro conversion surface"
             exit 1
           }
-
-          if grep -q "template-parts/pro.*teaser" "${theme_dir}/front-page.php"; then
-            echo "::error file=${theme_dir}/front-page.php::Do not restore separate Pro teaser + whitelist duplication"
+          if grep -q "template-parts/pro.*teaser\|template-parts/newsletter" "${theme_dir}/front-page.php"; then
+            echo "::error file=${theme_dir}/front-page.php::Duplicate conversion/retention surface returned"
             exit 1
           fi
 
-          if grep -q "bm-howworks-future" "${theme_dir}/template-parts/how-it-works.php"; then
-            echo "::error file=${theme_dir}/template-parts/how-it-works.php::Do not restore duplicated future-capability panel"
+          if grep -Eq '<link[[:space:]]+rel=["'"']stylesheet' "${theme_dir}/header.php"; then
+            echo "::error file=${theme_dir}/header.php::Stylesheets must be dependency-managed, not manually injected"
             exit 1
           fi
-
-          grep -q "public-surfaces.css" "${theme_dir}/header.php" || {
-            echo "::error file=${theme_dir}/header.php::Canonical public-surface stylesheet is not loaded"
-            exit 1
-          }
-
-          grep -q "navigation-footer.css" "${theme_dir}/header.php" || {
-            echo "::error file=${theme_dir}/header.php::Navigation/footer stylesheet is not loaded"
-            exit 1
-          }
+          grep -q "foundation.css" "${theme_dir}/inc/trait-bitmomo-assets.php" || exit 1
+          grep -q "navigation-footer.css" "${theme_dir}/inc/trait-bitmomo-assets.php" || exit 1
+          grep -q "public-surfaces.css" "${theme_dir}/inc/trait-bitmomo-assets.php" || exit 1
 
           test ! -f "${theme_dir}/template-parts/pro-teaser.php" || {
-            echo "::error file=${theme_dir}/template-parts/pro-teaser.php::Obsolete standalone Pro teaser relic must not exist"
+            echo "::error file=${theme_dir}/template-parts/pro-teaser.php::Obsolete Pro teaser relic must not exist"
             exit 1
           }
-
           test ! -f "${theme_dir}/template-parts/why-bitmomo.php" || {
             echo "::error file=${theme_dir}/template-parts/why-bitmomo.php::Obsolete Why Bitmomo relic must not exist"
             exit 1
@@ -147,18 +153,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
-
-          if [ "${#php_files[@]}" -eq 0 ]; then
-            echo "::error::No PHP files found in ${theme_dir}"
-            exit 1
-          fi
-
-          for file in "${php_files[@]}"; do
-            php -l "${file}"
-          done
+          test "${#php_files[@]}" -gt 0
+          for file in "${php_files[@]}"; do php -l "${file}"; done
 
       - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
