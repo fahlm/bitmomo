@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "scripts/check-ui-architecture.mjs"
       - ".github/workflows/theme-safety.yml"
   push:
     branches:
@@ -13,6 +14,7 @@ on:
       - "fix/**"
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "scripts/check-ui-architecture.mjs"
       - ".github/workflows/theme-safety.yml"
   workflow_dispatch:
 
@@ -25,7 +27,7 @@ concurrency:
 
 jobs:
   php-syntax:
-    name: PHP syntax and baseline files
+    name: PHP syntax and UI architecture
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -51,6 +53,7 @@ jobs:
             "category.php"
             "tag.php"
             "style.css"
+            "assets/css/home-opportunity.css"
           )
 
           for file in "${expected[@]}"; do
@@ -76,3 +79,6 @@ jobs:
           for file in "${php_files[@]}"; do
             php -l "${file}"
           done
+
+      - name: Enforce UI architecture contract
+        run: node scripts/check-ui-architecture.mjs
