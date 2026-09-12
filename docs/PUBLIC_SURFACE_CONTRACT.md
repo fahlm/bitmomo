@@ -34,13 +34,15 @@ No public Bitmomo route may silently inherit an unreviewed Hello Elementor layou
 
 ## WordPress content ownership boundary
 
-A canonical child-theme wrapper does **not** prove the database content is clean. Ordinary pages still render `the_content()`, so legacy Elementor/database markup can survive inside the new public template.
+A canonical child-theme wrapper does **not** prove the database content is clean. Legacy Elementor/database markup can survive inside the new public template even after route ownership moves to the child theme.
 
-For `/tentang-kami/`, `/kebijakan-privasi/`, `/disclaimer/`, and any migrated ordinary page, staging acceptance must inspect the rendered DOM/body as well as the outer template. Any legacy Elementor layout, embedded duplicate H1, stale full-page container, or unexplained legacy spacing must be reported and migrated explicitly. Do not conceal database-content defects with arbitrary CSS.
+For ordinary pages, `page.php` owns the route-level H1. Rendered WordPress body content passes through `bitmomo_normalize_public_page_body_headings()`, which structurally demotes body-level H1 tags to H2 so legacy database headings cannot create a second route-level H1. Product shortcode surfaces bypass this normalizer because their renderer owns its heading hierarchy.
+
+This heading normalization is not a substitute for content migration. For `/tentang-kami/`, `/kebijakan-privasi/`, `/disclaimer/`, and any migrated ordinary page, staging acceptance must still inspect the rendered DOM/body as well as the outer template. Legacy Elementor full-page containers, stale layout wrappers, unexplained spacing, obsolete copy, or other database-content defects must be reported and migrated explicitly. Do not conceal database-content defects with arbitrary CSS.
 
 ## Mandatory viewport QA before production
 
-Check at **390 / 768 / 1024 / 1440** on at least:
+Check at **360 / 390 / 768 / 1024 / 1440** on at least:
 
 1. `/`
 2. `/btc-intelligence/`
@@ -69,7 +71,7 @@ Acceptance:
 
 ## CI prevention
 
-`theme-safety.yml` fails if:
+`theme-safety.yml` / the UI architecture contract fails if:
 
 - an owned public template disappears;
 - the old media-style posts-index copy returns;
@@ -77,7 +79,9 @@ Acceptance:
 - the old `big-stories` tag-only layout returns;
 - homepage restores separate Pro teaser + whitelist blocks;
 - homepage restores the duplicated full future-capability panel;
-- the canonical public-surface stylesheet is no longer loaded.
+- the canonical public-surface stylesheet is no longer loaded;
+- ordinary-page body content stops passing through the H1 normalizer;
+- the unified homepage whitelist loses its grid shrink/width containment and can overflow narrow viewports.
 
 `release-safety.yml` / the M2 launch-surface contract additionally protects product semantics, including:
 
