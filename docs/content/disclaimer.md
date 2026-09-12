@@ -1,54 +1,91 @@
 # Konten: Disclaimer
 
-Status: draft konten, siap ditinjau founder. Belum di-commit/push. Bukan perubahan kode.
-Slug yang dituju oleh footer (sudah dikodekan di PR frontend, belum di-merge): `disclaimer`
+Status: source-of-truth copy untuk sinkronisasi ke halaman WordPress `/disclaimer/` sebelum launch.
 
 ---
 
 ## SEO METADATA
 
 - **SEO title**: Disclaimer | Bitmomo
-- **Meta description**: Disclaimer Bitmomo: konten kami bersifat informasi dan edukasi, bukan nasihat finansial. Baca sebelum mengambil keputusan berdasarkan analisis kami.
+- **Meta description**: Disclaimer Bitmomo untuk research, BTC Intelligence, evaluasi historis, dan Bitmomo Pro. Informasi bukan nasihat keuangan dan tidak menjamin hasil.
 - **Suggested slug**: `disclaimer`
 
 ---
 
-## ISI HALAMAN
-
 # Disclaimer
 
-Dengan mengakses dan menggunakan bitmomo.id, Anda memahami dan menyetujui hal-hal berikut.
+Dengan mengakses atau menggunakan bitmomo.id, Anda memahami batas penggunaan research dan market intelligence Bitmomo sebagaimana dijelaskan di bawah ini.
 
-## Tujuan Informasi dan Edukasi
+## Informasi dan Research, Bukan Nasihat Keuangan
 
-Seluruh konten di Bitmomo — termasuk artikel, riset, dan Analisis Bitcoin Hari Ini — dibuat untuk tujuan informasi dan edukasi. Konten ini bukan nasihat investasi, bukan rekomendasi untuk membeli atau menjual aset tertentu, dan tidak dirancang untuk kebutuhan finansial spesifik siapa pun.
+Seluruh konten Bitmomo — termasuk artikel, Research Hub, AI Lab, BTC Intelligence, Bitmomo Pro, email brief, dan materi terkait — dibuat untuk tujuan informasi, research, dan edukasi.
+
+Konten Bitmomo bukan nasihat investasi personal, bukan pengelolaan dana, bukan perintah transaksi, dan bukan rekomendasi yang disesuaikan dengan kondisi finansial pengguna tertentu.
+
+Keputusan untuk membeli, menjual, menahan, atau menggunakan aset maupun layanan apa pun tetap merupakan keputusan pengguna.
 
 ## Risiko Pasar Crypto
 
-Bitcoin dan aset crypto lainnya memiliki volatilitas tinggi dan risiko kehilangan modal yang nyata. Kinerja masa lalu, termasuk pola harga yang dibahas dalam analisis kami, tidak menjamin hasil di masa depan.
+Bitcoin dan aset crypto dapat mengalami volatilitas tinggi, perubahan likuiditas, gangguan pasar, risiko operasional, risiko pihak ketiga, serta kehilangan modal sebagian atau seluruhnya.
 
-## Bukan Nasihat Finansial
+Tidak ada analisis, model, indikator, Market State, Directional Bias, Confidence, Expected Range, Scenario Map, Thesis Invalidation, atau fitur Bitmomo lain yang menghilangkan risiko tersebut.
 
-Bitmomo dan tim di baliknya bukan penasihat keuangan berlisensi. Segala keputusan finansial yang Anda ambil berdasarkan informasi di situs ini sepenuhnya menjadi tanggung jawab Anda sendiri. Kami menyarankan Anda melakukan riset tambahan secara mandiri dan, bila diperlukan, berkonsultasi dengan profesional keuangan yang berlisensi sebelum mengambil keputusan.
+## Arti Market State, Bias, dan Confidence
 
-## Hubungan Afiliasi
+**Market State** menjelaskan konteks atau regime pasar yang dideteksi sistem.
 
-Bitmomo dapat menyertakan tautan afiliasi/referral ke layanan pihak ketiga (misalnya penyedia kartu atau pembayaran crypto). Jika Anda mendaftar atau bertransaksi melalui tautan tersebut, Bitmomo berpotensi menerima komisi. Ini tidak menambah biaya apa pun bagi Anda, dan tidak memengaruhi objektivitas analisis yang kami sajikan — namun Anda berhak mengetahuinya, karena itu kami nyatakan secara terbuka di sini dan di setiap tempat tautan afiliasi tersebut muncul.
+**Directional Bias** menjelaskan kecenderungan arah yang didukung evidence saat intelligence dibuat.
 
-## Keterbatasan Data dan Akurasi
+**Confidence** adalah ukuran internal mengenai kekuatan evidence yang mendukung kesimpulan sistem. Confidence **bukan probabilitas bahwa suatu prediksi akan benar**, bukan peluang profit, dan bukan jaminan outcome tertentu.
 
-Analisis Bitmomo, termasuk Analisis Bitcoin Hari Ini, disusun berdasarkan data dan metodologi yang kami jelaskan secara terbuka di halaman terkait. Metodologi ini memiliki keterbatasan, dan Bitmomo belum memiliki rekam jejak historis yang cukup panjang untuk melaporkan tingkat akurasi. Kami tidak menjamin bahwa analisis kami akan terbukti benar, dan kami tidak mencantumkan klaim akurasi sampai data historis yang memadai tersedia.
+## Expected Range dan Skenario
 
-## Tautan Pihak Ketiga
+Expected Range adalah rentang yang dinilai masih masuk akal berdasarkan data dan metodologi pada waktu intelligence dibuat. Harga dapat bergerak di luar rentang tersebut.
 
-Situs ini dapat memuat tautan ke situs pihak ketiga, termasuk namun tidak terbatas pada tautan afiliasi. Bitmomo tidak bertanggung jawab atas konten, kebijakan, atau praktik situs pihak ketiga tersebut.
+Base, Bull, dan Bear Scenario adalah kerangka decision support untuk memahami beberapa jalur pasar yang mungkin terjadi. Skenario bukan janji bahwa salah satunya pasti terwujud.
+
+Thesis Invalidation menjelaskan kondisi yang dapat membuat thesis utama perlu ditinjau ulang; keberadaan invalidation tidak menjamin bahwa perubahan tersebut akan terdeteksi atau terjadi pada harga tertentu secara sempurna.
+
+## Track Record dan Evaluasi Historis
+
+Bitmomo dapat menampilkan evaluasi historis terhadap output sistem, termasuk metrik seperti directional accuracy, expected-range evaluation, data-quality metrics, jumlah observasi (`n`), dan status kecukupan sampel.
+
+Metrik tersebut menggambarkan **hasil evaluasi historis berdasarkan definisi dan sampel yang dinyatakan**, bukan estimasi return pengguna, bukan probabilitas keberhasilan transaksi berikutnya, dan bukan jaminan kinerja masa depan.
+
+Sampel yang masih kecil dapat menghasilkan metrik yang tidak stabil. Karena itu Bitmomo menampilkan ukuran sampel dan, ketika tersedia, status seperti sampel awal atau sampel belum cukup. Perubahan metodologi atau versi sistem juga dapat membuat hasil antarperiode tidak sepenuhnya dapat dibandingkan secara langsung.
+
+## Keterbatasan Data dan Sistem
+
+Market intelligence bergantung pada ketersediaan, ketepatan waktu, dan kualitas data pihak ketiga maupun sistem internal. Data dapat tertunda, tidak lengkap, berubah, atau tidak tersedia.
+
+Bitmomo menggunakan quality gates dan dapat memilih untuk tidak menampilkan intelligence ketika data tidak memenuhi standar minimum. Quality gate mengurangi risiko menampilkan data yang tidak layak, tetapi tidak menjamin bahwa seluruh kesalahan data atau model dapat dicegah.
+
+## AI dan Otomasi
+
+Sebagian workflow Bitmomo dapat menggunakan sistem otomatis atau AI. AI bukan sumber kebenaran yang independen dan output otomatis dapat memiliki keterbatasan. Bitmomo berupaya menggunakan provenance, validation, review, dan evaluation sesuai capability yang tersedia, tetapi tidak menjamin output bebas kesalahan.
+
+Fitur yang masih dalam pengembangan harus diperlakukan sebagai capability yang belum tersedia sampai secara eksplisit dinyatakan live.
+
+## Tautan Afiliasi dan Pihak Ketiga
+
+Sebagian area publik Bitmomo dapat memuat tautan referral/afiliasi ke layanan pihak ketiga. Jika pengguna mendaftar melalui tautan tersebut, Bitmomo dapat menerima komisi tanpa biaya tambahan dari Bitmomo kepada pengguna.
+
+Hubungan afiliasi tidak mengubah fakta bahwa layanan tersebut dioperasikan pihak ketiga. Pengguna harus melakukan evaluasi sendiri terhadap biaya, risiko, legalitas, keamanan, dan kebijakan penyedia tersebut.
+
+Bitmomo Pro dirancang sebagai area tanpa iklan/referral di dalam decision-support experience-nya.
+
+## Tidak Ada Jaminan Ketersediaan
+
+Bitmomo dapat mengalami maintenance, gangguan hosting, kegagalan data source, perubahan API, kegagalan email, atau kondisi lain yang menyebabkan informasi terlambat atau tidak tersedia. Tidak ada jaminan bahwa setiap scheduled update, notifikasi, halaman, atau fitur selalu tersedia tanpa gangguan.
 
 ## Tanggung Jawab Pengguna
 
-Anda bertanggung jawab penuh atas keputusan yang Anda ambil berdasarkan informasi apa pun di situs ini. Bitmomo tidak bertanggung jawab atas kerugian finansial atau kerugian lain yang timbul dari penggunaan informasi di situs ini.
+Pengguna bertanggung jawab untuk memverifikasi informasi yang material bagi keputusannya, mempertimbangkan toleransi risiko sendiri, dan memperoleh nasihat profesional berlisensi jika dibutuhkan.
+
+Sejauh diperbolehkan hukum yang berlaku, Bitmomo tidak bertanggung jawab atas keputusan finansial atau kerugian yang timbul semata-mata karena penggunaan atau ketergantungan pada informasi di situs ini.
 
 ## Perubahan Disclaimer
 
-Disclaimer ini dapat diperbarui dari waktu ke waktu. Versi terbaru selalu tersedia di halaman ini.
+Disclaimer dapat diperbarui ketika produk, metodologi, data source, atau ketentuan operasional berubah secara material. Versi yang berlaku adalah versi terbaru yang dipublikasikan di halaman ini.
 
-*Terakhir diperbarui: [ISI TANGGAL SAAT PUBLIKASI]*
+*Terakhir diperbarui: isi tanggal aktual ketika copy ini disinkronkan ke WordPress production.*
