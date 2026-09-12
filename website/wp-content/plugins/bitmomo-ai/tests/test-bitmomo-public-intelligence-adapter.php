@@ -70,6 +70,7 @@ adapter_check('snapshot exposes public-safe source/as-of/timezone', ($snapshot['
 adapter_check('snapshot explicit allowlist hides internal data', !isset($snapshot['source_record_id'], $snapshot['axes'], $snapshot['score'], $snapshot['risk'], $snapshot['edition']));
 adapter_check('history has one official row per date', $history['available_days'] === 2 && count($history['days']) === 2);
 adapter_check('history prefers US Session official row', $history['days'][1]['market_state'] === 'accumulation');
+adapter_check('history exposes bounded market-state certainty for public charts', ($history['days'][1]['market_state_certainty'] ?? null) === 70 && ($history['days'][0]['market_state_certainty'] ?? null) === 0);
 adapter_check('history excludes reconstructed records', !in_array('2026-09-01', array_column($history['days'], 'date'), true));
 adapter_check('history does not fabricate missing strength', !isset($history['days'][0]['direction_strength']));
 adapter_check('history preserves unknown version', $history['days'][0]['version_group'] === 'unknown');
