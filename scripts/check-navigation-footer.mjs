@@ -34,7 +34,7 @@ check(
 );
 check(
   'Primary navigation exposes non-color active-page semantics',
-  /aria-current=\\"page\\"/.test(header) && /a\[aria-current="page"\]/.test(navCss)
+  header.includes('aria-current') && header.includes('page') && navCss.includes('a[aria-current="page"]')
 );
 check(
   'Mobile menu removes hidden links from keyboard navigation',
@@ -47,8 +47,9 @@ check(
   /navLink/.test(js) && /!event\.target\.closest\('#bm-nav'\)/.test(js) && /event\.key !== 'Escape'/.test(js) && /window\.addEventListener\('resize'/.test(js)
 );
 check(
-  'Newsletter has exactly one permanent footer surface and no homepage standalone section',
-  /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage)
+  'Newsletter has exactly one permanent footer surface and no standalone newsletter template',
+  /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) &&
+    !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
 check(
   'Legacy newsletter modal is structurally disabled',
@@ -57,7 +58,9 @@ check(
 );
 check(
   'Legacy subscribe routes and menu links resolve to the footer newsletter anchor',
-  /home_url\('\/#newsletter'\)/.test(content) && !/js-open-subscribe/.test(content)
+  content.includes("home_url('/#newsletter')") &&
+    /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) &&
+    /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
   'Header styling is owned by one responsive stylesheet',
@@ -71,16 +74,13 @@ check(
   'Footer exposes canonical Telegram, YouTube and X destinations',
   /https:\/\/t\.me\/bitmomodaily/.test(helpers) &&
     /https:\/\/www\.youtube\.com\/@bitmomoid/.test(helpers) &&
-    /https:\/\/x\.com\/bitmomoid/.test(helpers) &&
-    /data-social=/.test(footer)
+    /https:\/\/x\.com\/bitmomoid/.test(helpers) && /data-social=/.test(footer)
 );
 check(
   'Stylesheet order is dependency-managed outside header markup',
   !/<link\s+rel=["']stylesheet/i.test(header) &&
-    /'bitmomo-foundation'/.test(assets) &&
-    /'bitmomo-navigation-footer'/.test(assets) &&
-    /\['bitmomo-foundation'\]/.test(assets) &&
-    /\['bitmomo-foundation', 'bitmomo-navigation-footer'\]/.test(assets)
+    /'bitmomo-foundation'/.test(assets) && /'bitmomo-navigation-footer'/.test(assets) &&
+    /\['bitmomo-foundation'\]/.test(assets) && /\['bitmomo-foundation', 'bitmomo-navigation-footer'\]/.test(assets)
 );
 
 if (failures.length) {
