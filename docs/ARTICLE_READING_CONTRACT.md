@@ -17,6 +17,8 @@ Search titles and descriptions must match the classification of the destination 
 - Qualified Market Research or Intelligence Systems Research uses the `Bitmomo Research` title suffix.
 - Legacy/editorial/unclassified posts use only the `Bitmomo` suffix.
 - Generic membership in the historical `Riset` category is never enough to earn an institutional-research label.
+- A post that still belongs to generic `Riset` but remains canonically `unclassified` is a migration/archive state: it stays reachable by URL but is `noindex,follow` until editorial review gives it an explicit qualified classification or moves it out of that historical bucket.
+- The indexing boundary must be emitted through both WordPress `wp_robots` and Rank Math `rank_math/frontend/robots`; one path must not contradict the other.
 - Meta descriptions prefer the manual excerpt and otherwise derive a concise factual snippet from article content.
 - Search-result copy must not imply a capability, methodology, author, dataset, or research classification that the article cannot support on-page.
 
@@ -58,6 +60,23 @@ The goal is sustained reading comfort, not maximum information density.
 - Heading spacing must make the beginning of a new argument obvious.
 - Body copy must not be pure white against dark backgrounds; headings may use brighter ink.
 - Strong/emphasis styles must remain readable without becoming a second accent system.
+- Qualified research body content must not carry editor-level inline `font-family`, `font-size`, or `line-height` overrides that fragment the reading system.
+
+## Body cleanliness / legacy database boundary
+
+Template ownership does not prove `post_content` is clean. Legacy database markup can survive inside a new single-post template.
+
+For qualified research, the authored `.bm-article-body` must not contain:
+
+- legacy newsletter/signup headings or copy;
+- MailPoet/newsletter forms;
+- the old template-level `.bm-disclaimer` block;
+- legacy navigation chrome;
+- inline typography overrides that bypass the canonical reading system.
+
+The theme must not append legal or conversion chrome into `the_content()`. Site/legal disclosure belongs to the canonical page/footer/trust layer, not inside the authored research text.
+
+Do not hide a dirty database body with arbitrary CSS. Browser acceptance should fail so the actual post content can be migrated or corrected.
 
 ## Figures, captions, tables and technical content
 
@@ -65,7 +84,7 @@ The goal is sustained reading comfort, not maximum information density.
 - Existing media captions are rendered visibly when supplied.
 - In-body figures and captions use a consistent research style.
 - Wide figures may break out modestly beyond the reading column without creating page-level horizontal overflow.
-- Tables remain horizontally scrollable on narrow screens rather than shrinking text below readable sizes.
+- Gutenberg table wrappers and raw legacy HTML tables remain horizontally scrollable on narrow screens rather than shrinking text below readable sizes or widening the page.
 - Code/pre blocks scroll internally and never widen the page.
 - Blockquotes are restrained and typography-led rather than card-like.
 
@@ -99,7 +118,7 @@ For every new qualified research publication, editors should supply a concise on
 
 ## Browser acceptance
 
-The staging browser contract must dynamically discover at least one qualified article from the current Research Hub selectors and audit it at 390px and 1440px.
+The staging browser contract must dynamically discover at least one qualified article from the current Research Hub selectors and audit it at 390px and 1440px. Failure to discover a qualified article is itself a failure; the test must never silently skip the Research → article journey.
 
 Acceptance requires:
 
@@ -117,6 +136,10 @@ Acceptance requires:
 - one research-context breadcrumb;
 - one Research Standard trust block;
 - zero generic `.bm-post-nav` previous/next blocks;
+- zero legacy newsletter/form/disclaimer chrome inside `.bm-article-body`;
+- zero inline typography overrides inside qualified body content;
+- qualified article search title contains `Bitmomo Research`, has a useful description/canonical, and is not `noindex`;
+- a known generic-Riset legacy canary, when present, is neutral and `noindex`;
 - zero console errors and uncaught page errors;
 - zero serious/critical axe violations on acceptance viewports.
 
@@ -125,8 +148,9 @@ Acceptance requires:
 - classification and article metadata helpers: `inc/template-functions.php`;
 - canonical article markup: `single.php`;
 - article reading system: `assets/css/article-reading.css`;
-- SEO title/description ownership: `functions.php`;
-- rendered browser acceptance: `scripts/check-public-ui.mjs`;
+- SEO title/description/robots ownership: `functions.php`;
+- rendered responsive acceptance: `scripts/check-public-ui.mjs`;
+- search-promise/database cleanliness acceptance: `scripts/check-article-cleanliness.mjs`;
 - deployment requirement: `config/production-runtime.json`.
 
 These pieces form one contract. A change to one layer must not silently weaken the others.
