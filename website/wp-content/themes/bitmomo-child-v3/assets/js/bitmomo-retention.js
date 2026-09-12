@@ -50,8 +50,6 @@
       window.dispatchEvent(new CustomEvent('bitmomo:analytics', { detail: payload }));
     }
 
-    // Feed an analytics/tag-manager dataLayer only when one already exists.
-    // Bitmomo does not create or bind itself to a specific provider here.
     if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push(Object.assign({}, payload));
     }
@@ -78,64 +76,21 @@
 
       var delta = now - previous;
       if (delta >= MIN_RETURN_MS) {
-        emit('btc_intelligence_return_visit', {
-          return_window: returnWindow(delta)
-        });
+        emit('btc_intelligence_return_visit', { return_window: returnWindow(delta) });
         window.localStorage.setItem(VISIT_KEY, String(now));
       }
     } catch (error) {
-      // Storage can be blocked by browser/privacy settings. Analytics must
-      // never break the product surface when that happens.
+      // Storage can be unavailable in privacy modes. Analytics never owns UX.
     }
-  }
-
-  /**
-   * Progressive enhancement for repeat visitors: put the information that
-   * answers "what changed since I last looked?" before the detailed spectrum.
-   * No data is recomputed or duplicated; existing server-rendered blocks are
-   * only reordered in the DOM. If markup changes, this fails open and leaves
-   * the canonical server order untouched.
-   */
-  function prioritizeMarketPulse() {
-    var snapshot = document.querySelector('.bm-bi__snapshot');
-    if (!snapshot || snapshot.getAttribute('data-market-pulse-enhanced') === '1') return;
-
-    var pulse = snapshot.querySelector('.bm-bi__session-context');
-    var spectrum = snapshot.querySelector('.bm-bi__spectrum');
-    var freshness = snapshot.querySelector('.bm-bi__freshness');
-    var top = snapshot.querySelector('.bm-bi__snapshot-top');
-
-    if (!pulse || !spectrum) return;
-
-    // What Changed is the most valuable repeat-visit answer, followed by the
-    // current setup/what happened, then the next context to watch.
-    if (pulse.children.length >= 2) {
-      pulse.insertBefore(pulse.children[1], pulse.children[0]);
-    }
-
-    pulse.classList.add('bm-bi__session-context--pulse');
-    pulse.setAttribute('role', 'region');
-    pulse.setAttribute('aria-label', 'Market Pulse: perubahan dan konteks BTC saat ini');
-
-    if (freshness && top) {
-      top.insertAdjacentElement('afterend', freshness);
-      freshness.insertAdjacentElement('afterend', pulse);
-    } else {
-      spectrum.parentNode.insertBefore(pulse, spectrum);
-    }
-
-    snapshot.setAttribute('data-market-pulse-enhanced', '1');
   }
 
   document.addEventListener('click', function (event) {
     var historyControl = event.target && event.target.closest
-      ? event.target.closest('.bmreg-trend-bar, .bm-state-chart .bm-direction-bar')
+      ? event.target.closest('.bmreg-history-bar')
       : null;
 
     if (historyControl) {
-      emit('btc_history_interaction', {
-        history_surface: historyControl.classList.contains('bmreg-trend-bar') ? 'regime_history' : 'market_context'
-      });
+      emit('btc_history_interaction', { history_surface: 'market_state_30d' });
     }
 
     var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
@@ -153,6 +108,13 @@
     }
   }, true);
 
-  prioritizeMarketPulse();
+  document.addEventListener('toggle', function (event) {
+    var details = event.target;
+    if (!details || !details.matches || !details.matches('.bm-bi__details') || !details.open) return;
+    emit('btc_proof_expand', {
+      proof_section: String(details.getAttribute('data-proof-section') || 'unknown').slice(0, 40)
+    });
+  }, true);
+
   trackVisit();
 }());
