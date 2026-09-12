@@ -4,9 +4,12 @@ on:
   pull_request:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css"
+      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "scripts/check-public-ui.mjs"
       - "scripts/audit-css-debt.mjs"
@@ -16,9 +19,12 @@ on:
     branches: [main, "chore/**", "feature/**", "fix/**"]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css"
+      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "scripts/check-public-ui.mjs"
       - "scripts/audit-css-debt.mjs"
@@ -54,9 +60,10 @@ jobs:
           expected=(
             "functions.php" "custom.css" "front-page.php" "page.php" "single.php" "home.php"
             "archive.php" "category.php" "tag.php" "search.php" "404.php" "index.php"
-            "header.php" "footer.php" "style.css" "assets/css/home-opportunity.css"
-            "assets/css/public-surfaces.css" "assets/css/navigation-footer.css"
-            "assets/css/public-readability.css" "template-parts/archive-index.php"
+            "header.php" "footer.php" "style.css" "assets/css/design-system.css"
+            "assets/css/home-opportunity.css" "assets/css/public-surfaces.css"
+            "assets/css/navigation-footer.css" "assets/css/public-readability.css"
+            "assets/css/article-reading.css" "template-parts/archive-index.php"
           )
           for file in "${expected[@]}"; do
             test -f "${theme_dir}/${file}" || { echo "::error file=${theme_dir}/${file}::Required public-surface file is missing"; exit 1; }
@@ -72,6 +79,7 @@ jobs:
           account="website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
 
           ! grep -q "Informasi AI &" "${theme_dir}/home.php"
+          ! grep -q "BITMOMO RESEARCH" "${theme_dir}/home.php"
           ! grep -q "big-stories" "${theme_dir}/tag.php"
 
           for file in home.php archive.php category.php tag.php search.php index.php; do
@@ -79,28 +87,28 @@ jobs:
           done
 
           grep -q "template-parts/whitelist" "${theme_dir}/front-page.php"
+          grep -q 'id="primary"' "${theme_dir}/front-page.php"
           ! grep -q "template-parts/pro.*teaser" "${theme_dir}/front-page.php"
           ! grep -q "bm-howworks-future" "${theme_dir}/template-parts/how-it-works.php"
           ! grep -q "public-surfaces.css" "${theme_dir}/header.php"
+          grep -q "design-system.css" "${asset_trait}"
           grep -q "public-surfaces.css" "${asset_trait}"
           grep -q "navigation-footer.css" "${asset_trait}"
           grep -q "home-conversion.css" "${asset_trait}"
 
           test ! -f "${theme_dir}/template-parts/pro-teaser.php"
           test ! -f "${theme_dir}/template-parts/why-bitmomo.php"
+          test ! -f "${theme_dir}/assets/images/bitmomo-logo.png"
 
-          # Product page.php suppresses the ordinary page H1, so every product
-          # renderer must own a canonical route-level H1 itself.
           grep -q "<h1 class=\"bm-pro-account__title\"" "${account}" || {
             echo "::error file=${account}::Pro account product surface must render its own H1"
             exit 1
           }
 
-          # Never let generic editorial content inherit institutional labels.
           grep -q "bitmomo_post_research_classification" "${theme_dir}/single.php"
           ! grep -q "Riset Terkait" "${theme_dir}/single.php"
 
-      - name: Lint theme and account PHP
+      - name: Lint changed public PHP
         shell: bash
         run: |
           set -euo pipefail
@@ -108,13 +116,22 @@ jobs:
           mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
           test "${#php_files[@]}" -gt 0
           for file in "${php_files[@]}"; do php -l "${file}"; done
+          php -l website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php
           php -l website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php
 
-      - name: Syntax-check browser audit source
-        run: node --check scripts/check-public-ui.mjs
+      - name: Syntax-check browser and contract sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/check-public-ui.mjs
+          node --check scripts/check-terminal-grade-contract.mjs
+          node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
       - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
+
+      - name: Enforce terminal-grade public contract
+        run: node scripts/check-terminal-grade-contract.mjs
 
       - name: Enforce navigation and footer contract
         run: node scripts/check-navigation-footer.mjs
