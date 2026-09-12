@@ -225,13 +225,20 @@ try {
     }
   }
 
-  // Audit one real qualified Research article when the runtime has one.
+  // Audit one real qualified Research article. Failure to discover one is itself
+  // a staging failure because the Research -> article journey remains unproven.
   const discovery = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await discovery.goto(`${baseUrl}/category/riset/`, { waitUntil: 'domcontentloaded', timeout: 45000 });
   const articleHref = await discovery.locator('.bm-research-lead__title a, .bm-research-library__copy h3 a').first().getAttribute('href').catch(() => null);
   await discovery.close();
 
-  if (articleHref) {
+  if (!articleHref) {
+    addFailure(
+      { name: 'qualified-article-discovery' },
+      { width: 1440, height: 1000 },
+      'no qualified Research article discoverable from current Research Hub selectors',
+    );
+  } else {
     const articleUrl = new URL(articleHref, baseUrl).toString();
     for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
       const surface = { name: 'qualified-article', path: articleUrl, marker: '', expectedStatus: 200 };
