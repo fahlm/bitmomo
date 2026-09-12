@@ -1,6 +1,6 @@
 <?php
 /**
- * Bitmomo Child Theme — ULTRA v4.3
+ * Bitmomo Child Theme — ULTRA v4.4
  * - Solid LCP/preload + loading policy
  * - Universal SUBSCRIBE trigger + modal MailPoet
  * - Safe assets optimization (tanpa merusak Gutenberg/Elementor)
@@ -10,7 +10,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('BM_VERSION', '4.3');
+define('BM_VERSION', '4.4');
 define('BM_MAILPOET_FORM_ID', 2);
 define('BM_ARCHIVE_POSTS_PER_PAGE', 18);
 define('BM_CARD_IMAGE_WIDTH', 800);
