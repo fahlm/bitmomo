@@ -112,6 +112,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
             $day = [
                 'date' => $date,
                 'market_state' => $regime,
+                'market_state_certainty' => min(100, max(0, (int) ($record['regime_confidence'] ?? 0))),
                 'directional_bias' => $bias,
                 'version_group' => self::version_or_unknown($record['classifier_version'] ?? ''),
             ];
