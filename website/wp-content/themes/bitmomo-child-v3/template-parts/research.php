@@ -1,67 +1,62 @@
 <?php
-/** Compact BTC/market research surface for the homepage. @package Bitmomo */
+/** Compact qualified market-research surface for the homepage. @package Bitmomo */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$bm_research_target_slugs = array( 'bitcoin', 'makro', 'market-structure' );
-$bm_research_cats = array();
-foreach ( $bm_research_target_slugs as $bm_slug ) {
-	$bm_cat = get_category_by_slug( $bm_slug );
-	if ( $bm_cat ) $bm_research_cats[] = $bm_cat;
-}
+$bm_riset_term = get_category_by_slug( 'riset' );
+$bm_riset_url  = $bm_riset_term ? get_category_link( $bm_riset_term->term_id ) : home_url( '/category/riset/' );
+$bm_market_slugs = function_exists( 'bitmomo_market_research_taxonomy_slugs' )
+	? bitmomo_market_research_taxonomy_slugs()
+	: array( 'bitcoin', 'btc', 'makro', 'macro', 'market-structure', 'derivatives', 'funding-rate', 'etf', 'liquidity', 'likuiditas', 'fundamental', 'fundamentals' );
 
 $bm_research_items = array();
-if ( $bm_research_cats ) {
-	foreach ( $bm_research_cats as $bm_cat ) {
-		$bm_research_query = new WP_Query( array(
-			'posts_per_page' => 1,
-			'post_status' => 'publish',
-			'cat' => $bm_cat->term_id,
-			'orderby' => 'date',
-			'order' => 'DESC',
-			'no_found_rows' => true,
-			'ignore_sticky_posts' => true,
-		) );
-		if ( $bm_research_query->have_posts() ) {
-			while ( $bm_research_query->have_posts() ) {
-				$bm_research_query->the_post();
-				$bm_research_items[] = array(
-					'label' => $bm_cat->name,
-					'title' => get_the_title(),
-					'link' => get_permalink(),
-					'excerpt' => wp_trim_words( get_the_excerpt(), 14, '…' ),
-				);
-			}
-			wp_reset_postdata();
-		}
-	}
-}
 
-$bm_riset_term = get_category_by_slug( 'riset' );
-$bm_riset_url = $bm_riset_term ? get_category_link( $bm_riset_term->term_id ) : home_url( '/category/riset/' );
-
-if ( ! $bm_research_items && $bm_riset_term ) {
-	$bm_fallback_args = array(
-		'posts_per_page' => 3,
-		'post_status' => 'publish',
-		'cat' => $bm_riset_term->term_id,
-		'orderby' => 'date',
-		'order' => 'DESC',
-		'no_found_rows' => true,
+// Homepage research must obey the same institutional qualification boundary as
+// the Research Hub. Broad `Riset` membership alone is never enough: legacy AI
+// or general editorial posts must not leak into the BTC-first launch surface.
+if ( $bm_riset_term && $bm_market_slugs ) {
+	$bm_query_args = array(
+		'posts_per_page'      => 3,
+		'post_status'         => 'publish',
+		'cat'                 => (int) $bm_riset_term->term_id,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'no_found_rows'       => true,
 		'ignore_sticky_posts' => true,
+		'tax_query'           => array(
+			'relation' => 'OR',
+			array(
+				'taxonomy' => 'category',
+				'field'    => 'slug',
+				'terms'    => $bm_market_slugs,
+			),
+			array(
+				'taxonomy' => 'post_tag',
+				'field'    => 'slug',
+				'terms'    => $bm_market_slugs,
+			),
+		),
 	);
+
 	$bm_ai_lab_tag = get_term_by( 'slug', 'ai-lab', 'post_tag' );
 	if ( $bm_ai_lab_tag && ! is_wp_error( $bm_ai_lab_tag ) ) {
-		$bm_fallback_args['tag__not_in'] = array( (int) $bm_ai_lab_tag->term_id );
+		$bm_query_args['tag__not_in'] = array( (int) $bm_ai_lab_tag->term_id );
 	}
-	$bm_research_query = new WP_Query( $bm_fallback_args );
+
+	$bm_research_query = new WP_Query( $bm_query_args );
 	if ( $bm_research_query->have_posts() ) {
 		while ( $bm_research_query->have_posts() ) {
 			$bm_research_query->the_post();
-			$bm_post_cats = get_the_category();
+
+			// Defense in depth: query-level taxonomy is authoritative, while this
+			// helper prevents future query edits from silently widening the surface.
+			if ( function_exists( 'bitmomo_post_is_market_research' ) && ! bitmomo_post_is_market_research( get_the_ID() ) ) {
+				continue;
+			}
+
 			$bm_research_items[] = array(
-				'label' => $bm_post_cats ? $bm_post_cats[0]->name : __( 'Riset', 'bitmomo' ),
-				'title' => get_the_title(),
-				'link' => get_permalink(),
+				'label'   => __( 'Market Research', 'bitmomo' ),
+				'title'   => get_the_title(),
+				'link'    => get_permalink(),
 				'excerpt' => wp_trim_words( get_the_excerpt(), 14, '…' ),
 			);
 		}
@@ -70,7 +65,7 @@ if ( ! $bm_research_items && $bm_riset_term ) {
 }
 
 if ( ! $bm_research_items ) {
-	unset( $bm_research_target_slugs, $bm_research_cats, $bm_research_items, $bm_riset_term, $bm_riset_url, $bm_cat, $bm_research_query, $bm_post_cats, $bm_ai_lab_tag, $bm_fallback_args );
+	unset( $bm_riset_term, $bm_riset_url, $bm_market_slugs, $bm_research_items, $bm_query_args, $bm_ai_lab_tag, $bm_research_query );
 	return;
 }
 ?>
@@ -94,4 +89,4 @@ if ( ! $bm_research_items ) {
     </ul>
   </div>
 </section>
-<?php unset( $bm_research_target_slugs, $bm_research_cats, $bm_research_items, $bm_riset_term, $bm_riset_url, $bm_cat, $bm_research_query, $bm_post_cats, $bm_item, $bm_ai_lab_tag, $bm_fallback_args ); ?>
+<?php unset( $bm_riset_term, $bm_riset_url, $bm_market_slugs, $bm_research_items, $bm_query_args, $bm_ai_lab_tag, $bm_research_query, $bm_item ); ?>
