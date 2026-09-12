@@ -50,8 +50,11 @@ check(
   /navLink/.test(js) && /!event\.target\.closest\('#bm-nav'\)/.test(js) && /event\.key !== 'Escape'/.test(js) && /window\.addEventListener\('resize'/.test(js)
 );
 check(
-  'Newsletter has exactly one permanent footer surface and no homepage standalone section',
-  /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage)
+  'Newsletter has exactly one permanent footer surface and no standalone newsletter template',
+  /id="newsletter"/.test(footer) &&
+    /mailpoet_form/.test(footer) &&
+    !/template-parts\/newsletter/.test(frontPage) &&
+    !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
 check(
   'Legacy newsletter modal is structurally disabled rather than page-by-page suppressed',
