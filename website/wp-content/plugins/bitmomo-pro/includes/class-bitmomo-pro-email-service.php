@@ -34,7 +34,9 @@ class Bitmomo_Pro_Email_Service {
 	private static $instance = null;
 
 	public static function instance() {
-		if ( null === self::$instance ) self::$instance = new self();
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
 		return self::$instance;
 	}
 
@@ -58,10 +60,16 @@ class Bitmomo_Pro_Email_Service {
 	}
 
 	private function confidence_label( $value ) {
-		if ( ! is_numeric( $value ) ) return __( 'Belum tersedia', 'bitmomo-pro' );
+		if ( ! is_numeric( $value ) ) {
+			return __( 'Belum tersedia', 'bitmomo-pro' );
+		}
 		$value = (float) $value;
-		if ( $value >= 70 ) return __( 'Tinggi', 'bitmomo-pro' );
-		if ( $value >= 40 ) return __( 'Sedang', 'bitmomo-pro' );
+		if ( $value >= 70 ) {
+			return __( 'Tinggi', 'bitmomo-pro' );
+		}
+		if ( $value >= 40 ) {
+			return __( 'Sedang', 'bitmomo-pro' );
+		}
 		return __( 'Rendah', 'bitmomo-pro' );
 	}
 
@@ -71,9 +79,11 @@ class Bitmomo_Pro_Email_Service {
 
 	private function build_welcome_email( $user_id ) {
 		$user = get_userdata( $user_id );
-		if ( ! $user ) return null;
+		if ( ! $user ) {
+			return null;
+		}
 
-		$expires_at = get_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_EXPIRES_AT, true );
+		$expires_at   = get_user_meta( $user_id, Bitmomo_Pro_Entitlements::META_EXPIRES_AT, true );
 		$dashboard_url = function_exists( 'bitmomo_pro_get_dashboard_url' ) ? bitmomo_pro_get_dashboard_url() : '';
 		$support_email = $this->support_email();
 
@@ -113,17 +123,25 @@ class Bitmomo_Pro_Email_Service {
 	}
 
 	public function send_welcome_email( $user_id ) {
-		if ( ! bitmomo_user_has_pro_access( $user_id ) ) return array( 'sent' => false, 'error' => __( 'User does not have active Bitmomo Pro access.', 'bitmomo-pro' ) );
+		if ( ! bitmomo_user_has_pro_access( $user_id ) ) {
+			return array( 'sent' => false, 'error' => __( 'User does not have active Bitmomo Pro access.', 'bitmomo-pro' ) );
+		}
 		$email = $this->build_welcome_email( $user_id );
-		if ( null === $email ) return array( 'sent' => false, 'error' => __( 'User not found.', 'bitmomo-pro' ) );
+		if ( null === $email ) {
+			return array( 'sent' => false, 'error' => __( 'User not found.', 'bitmomo-pro' ) );
+		}
 
 		$sent = wp_mail( $email['to'], $email['subject'], $email['body'] );
-		if ( $sent ) update_user_meta( $user_id, self::META_WELCOME_SENT_AT, current_time( 'mysql' ) );
+		if ( $sent ) {
+			update_user_meta( $user_id, self::META_WELCOME_SENT_AT, current_time( 'mysql' ) );
+		}
 		return array( 'sent' => (bool) $sent );
 	}
 
 	public function render_welcome_email_section( $user ) {
-		if ( ! current_user_can( 'manage_options' ) ) return;
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 		$has_access = bitmomo_user_has_pro_access( $user->ID );
 		$last_sent  = get_user_meta( $user->ID, self::META_WELCOME_SENT_AT, true );
 		echo '<h2>' . esc_html__( 'Bitmomo Pro — Email', 'bitmomo-pro' ) . '</h2>';
@@ -131,21 +149,29 @@ class Bitmomo_Pro_Email_Service {
 			echo '<p>' . esc_html__( 'Welcome email hanya bisa dikirim untuk akun dengan akses Bitmomo Pro aktif.', 'bitmomo-pro' ) . '</p>';
 			return;
 		}
-		if ( $last_sent ) printf( '<p>%s <strong>%s</strong></p>', esc_html__( 'Welcome email terakhir dikirim:', 'bitmomo-pro' ), esc_html( $last_sent ) );
-		else echo '<p>' . esc_html__( 'Belum pernah dikirim.', 'bitmomo-pro' ) . '</p>';
+		if ( $last_sent ) {
+			printf( '<p>%s <strong>%s</strong></p>', esc_html__( 'Welcome email terakhir dikirim:', 'bitmomo-pro' ), esc_html( $last_sent ) );
+		} else {
+			echo '<p>' . esc_html__( 'Belum pernah dikirim.', 'bitmomo-pro' ) . '</p>';
+		}
 
 		wp_nonce_field( self::WELCOME_NONCE_ACTION, self::WELCOME_NONCE_FIELD );
 		echo '<input type="hidden" name="user_id" value="' . esc_attr( $user->ID ) . '" />';
 		printf(
 			'<button type="submit" class="button button-secondary" name="action" value="%1$s" formaction="%2$s" formmethod="post">%3$s</button>',
-			esc_attr( self::WELCOME_ACTION ), esc_url( admin_url( 'admin-post.php' ) ),
+			esc_attr( self::WELCOME_ACTION ),
+			esc_url( admin_url( 'admin-post.php' ) ),
 			esc_html( $last_sent ? __( 'Kirim ulang welcome email', 'bitmomo-pro' ) : __( 'Kirim welcome email', 'bitmomo-pro' ) )
 		);
 	}
 
 	public function handle_send_welcome_email() {
-		if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Not allowed.', 'bitmomo-pro' ) );
-		if ( ! isset( $_POST[ self::WELCOME_NONCE_FIELD ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::WELCOME_NONCE_FIELD ] ) ), self::WELCOME_NONCE_ACTION ) ) wp_die( esc_html__( 'Security check failed.', 'bitmomo-pro' ) );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Not allowed.', 'bitmomo-pro' ) );
+		}
+		if ( ! isset( $_POST[ self::WELCOME_NONCE_FIELD ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::WELCOME_NONCE_FIELD ] ) ), self::WELCOME_NONCE_ACTION ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'bitmomo-pro' ) );
+		}
 
 		$user_id = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
 		$result  = $user_id ? $this->send_welcome_email( $user_id ) : array( 'sent' => false, 'error' => 'missing user_id' );
@@ -162,11 +188,17 @@ class Bitmomo_Pro_Email_Service {
 		$users = get_users( array( 'meta_key' => Bitmomo_Pro_Entitlements::META_STATUS, 'meta_value' => 'active' ) );
 		$recipients = array();
 		foreach ( $users as $user ) {
-			if ( 'active' !== Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user->ID ) || ! is_email( $user->user_email ) ) continue;
+			if ( 'active' !== Bitmomo_Pro_Entitlement_Service::instance()->get_status( $user->ID ) || ! is_email( $user->user_email ) ) {
+				continue;
+			}
 			$source  = get_user_meta( $user->ID, Bitmomo_Pro_Entitlements::META_SOURCE, true );
 			$is_test = ( Bitmomo_Pro_Entitlement_Service::TYPE_TEST === $source );
-			if ( $test_mode && ! $is_test ) continue;
-			if ( ! $test_mode && $is_test ) continue;
+			if ( $test_mode && ! $is_test ) {
+				continue;
+			}
+			if ( ! $test_mode && $is_test ) {
+				continue;
+			}
 			$recipients[] = $user;
 		}
 		return $recipients;
@@ -186,15 +218,20 @@ class Bitmomo_Pro_Email_Service {
 		);
 
 		$excerpt = $what_changed;
-		if ( function_exists( 'mb_strlen' ) && mb_strlen( $excerpt ) > 160 ) $excerpt = mb_substr( $excerpt, 0, 157 ) . '...';
-		elseif ( strlen( $excerpt ) > 160 ) $excerpt = substr( $excerpt, 0, 157 ) . '...';
+		if ( function_exists( 'mb_strlen' ) && mb_strlen( $excerpt ) > 160 ) {
+			$excerpt = mb_substr( $excerpt, 0, 157 ) . '...';
+		} elseif ( strlen( $excerpt ) > 160 ) {
+			$excerpt = substr( $excerpt, 0, 157 ) . '...';
+		}
 
 		$dashboard_url = function_exists( 'bitmomo_pro_get_dashboard_url' ) ? bitmomo_pro_get_dashboard_url() : '';
 		$lines   = array();
 		$lines[] = __( 'Brief Bitmomo Pro Hari Ini:', 'bitmomo-pro' );
 		$lines[] = '';
 		$lines[] = sprintf( __( 'Bias: %s', 'bitmomo-pro' ), isset( $bias_label[ $bias ] ) ? $bias_label[ $bias ] : $bias );
-		if ( '' !== $confidence ) $lines[] = sprintf( __( 'Confidence: %s', 'bitmomo-pro' ), $this->confidence_label( $confidence ) );
+		if ( '' !== $confidence ) {
+			$lines[] = sprintf( __( 'Confidence: %s', 'bitmomo-pro' ), $this->confidence_label( $confidence ) );
+		}
 		if ( ! empty( $excerpt ) ) {
 			$lines[] = '';
 			$lines[] = __( 'What Changed:', 'bitmomo-pro' );
@@ -206,29 +243,39 @@ class Bitmomo_Pro_Email_Service {
 			$lines[] = $dashboard_url;
 			$lines[] = '';
 		}
-		if ( ! empty( $timestamp ) ) $lines[] = sprintf( __( 'Update data: %s', 'bitmomo-pro' ), $timestamp );
+		if ( ! empty( $timestamp ) ) {
+			$lines[] = sprintf( __( 'Update data: %s', 'bitmomo-pro' ), $timestamp );
+		}
 
-		return array( 'subject' => __( 'Brief Bitmomo Pro Hari Ini', 'bitmomo-pro' ), 'body' => implode( "\n", $lines ) );
+		return array(
+			'subject' => __( 'Brief Bitmomo Pro Hari Ini', 'bitmomo-pro' ),
+			'body'    => implode( "\n", $lines ),
+		);
 	}
 
 	public function send_daily_brief_email( $post_id, $test_mode = false, $force_resend = false ) {
 		$already_sent = get_post_meta( $post_id, self::META_DAILY_SENT_AT, true );
 		if ( $already_sent && ! $force_resend ) {
 			return array(
-				'sent' => false, 'already_sent' => true, 'sent_at' => $already_sent,
+				'sent'            => false,
+				'already_sent'    => true,
+				'sent_at'         => $already_sent,
 				'recipient_count' => (int) get_post_meta( $post_id, self::META_DAILY_RECIPIENT_COUNT, true ),
-				'success_count' => (int) get_post_meta( $post_id, self::META_DAILY_SUCCESS_COUNT, true ),
-				'failure_count' => (int) get_post_meta( $post_id, self::META_DAILY_FAILURE_COUNT, true ),
+				'success_count'   => (int) get_post_meta( $post_id, self::META_DAILY_SUCCESS_COUNT, true ),
+				'failure_count'   => (int) get_post_meta( $post_id, self::META_DAILY_FAILURE_COUNT, true ),
 			);
 		}
 
-		$email = $this->build_daily_brief_email( $post_id );
+		$email      = $this->build_daily_brief_email( $post_id );
 		$recipients = $this->get_daily_recipients( $test_mode );
-		$success = 0;
-		$failure = 0;
+		$success    = 0;
+		$failure    = 0;
 		foreach ( $recipients as $user ) {
-			if ( wp_mail( $user->user_email, $email['subject'], $email['body'] ) ) $success++;
-			else $failure++;
+			if ( wp_mail( $user->user_email, $email['subject'], $email['body'] ) ) {
+				$success++;
+			} else {
+				$failure++;
+			}
 		}
 
 		update_post_meta( $post_id, self::META_DAILY_SENT_AT, current_time( 'mysql' ) );
@@ -237,11 +284,24 @@ class Bitmomo_Pro_Email_Service {
 		update_post_meta( $post_id, self::META_DAILY_FAILURE_COUNT, $failure );
 		update_post_meta( $post_id, self::META_DAILY_TEST_MODE, $test_mode ? '1' : '' );
 
-		return array( 'sent' => true, 'already_sent' => false, 'recipient_count' => count( $recipients ), 'success_count' => $success, 'failure_count' => $failure );
+		return array(
+			'sent'            => true,
+			'already_sent'    => false,
+			'recipient_count' => count( $recipients ),
+			'success_count'   => $success,
+			'failure_count'   => $failure,
+		);
 	}
 
 	public function add_daily_email_meta_box() {
-		add_meta_box( 'bitmomo_pro_daily_email', __( 'Kirim Email Harian', 'bitmomo-pro' ), array( $this, 'render_daily_email_meta_box' ), Bitmomo_Pro_Briefs::POST_TYPE, 'side', 'default' );
+		add_meta_box(
+			'bitmomo_pro_daily_email',
+			__( 'Kirim Email Harian', 'bitmomo-pro' ),
+			array( $this, 'render_daily_email_meta_box' ),
+			Bitmomo_Pro_Briefs::POST_TYPE,
+			'side',
+			'default'
+		);
 	}
 
 	public function render_daily_email_meta_box( $post ) {
@@ -250,7 +310,7 @@ class Bitmomo_Pro_Email_Service {
 			return;
 		}
 
-		$current = Bitmomo_Pro_Briefs::get_current_brief_for_display();
+		$current    = Bitmomo_Pro_Briefs::get_current_brief_for_display();
 		$is_current = ( null !== $current['brief'] && isset( $current['brief']['id'] ) && (int) $current['brief']['id'] === (int) $post->ID );
 		if ( ! $is_current ) {
 			echo '<p class="description">' . esc_html__( 'Brief ini bukan brief aktif saat ini (lihat Status Rilis) — tidak bisa dikirim sebagai email harian.', 'bitmomo-pro' ) . '</p>';
@@ -261,8 +321,14 @@ class Bitmomo_Pro_Email_Service {
 		if ( $already_sent ) {
 			printf(
 				'<p>%s <strong>%s</strong><br />%s</p>',
-				esc_html__( 'Sudah dikirim:', 'bitmomo-pro' ), esc_html( $already_sent ),
-				esc_html( sprintf( __( '%1$d penerima — %2$d sukses, %3$d gagal.', 'bitmomo-pro' ), (int) get_post_meta( $post->ID, self::META_DAILY_RECIPIENT_COUNT, true ), (int) get_post_meta( $post->ID, self::META_DAILY_SUCCESS_COUNT, true ), (int) get_post_meta( $post->ID, self::META_DAILY_FAILURE_COUNT, true ) ) )
+				esc_html__( 'Sudah dikirim:', 'bitmomo-pro' ),
+				esc_html( $already_sent ),
+				esc_html( sprintf(
+					__( '%1$d penerima — %2$d sukses, %3$d gagal.', 'bitmomo-pro' ),
+					(int) get_post_meta( $post->ID, self::META_DAILY_RECIPIENT_COUNT, true ),
+					(int) get_post_meta( $post->ID, self::META_DAILY_SUCCESS_COUNT, true ),
+					(int) get_post_meta( $post->ID, self::META_DAILY_FAILURE_COUNT, true )
+				) )
 			);
 		}
 
@@ -272,18 +338,29 @@ class Bitmomo_Pro_Email_Service {
 		echo '<input type="hidden" name="post_id" value="' . esc_attr( $post->ID ) . '" />';
 		printf( '<p style="font-size:12px;">%s</p>', esc_html( sprintf( __( 'Penerima real saat ini: %1$d. Akun test/internal: %2$d.', 'bitmomo-pro' ), $real_count, $test_count ) ) );
 		echo '<label style="display:block;margin-bottom:6px;"><input type="checkbox" name="test_mode" value="1" /> ' . esc_html__( 'Test mode (kirim hanya ke akun test/internal)', 'bitmomo-pro' ) . '</label>';
-		if ( $already_sent ) echo '<label style="display:block;margin-bottom:6px;"><input type="checkbox" name="force_resend" value="1" required /> ' . esc_html__( 'Ya, kirim ulang meskipun sudah pernah dikirim', 'bitmomo-pro' ) . '</label>';
-		printf( '<button type="submit" class="button button-primary" name="action" value="%1$s" formaction="%2$s" formmethod="post">%3$s</button>', esc_attr( self::DAILY_ACTION ), esc_url( admin_url( 'admin-post.php' ) ), esc_html__( 'Kirim email harian', 'bitmomo-pro' ) );
+		if ( $already_sent ) {
+			echo '<label style="display:block;margin-bottom:6px;"><input type="checkbox" name="force_resend" value="1" required /> ' . esc_html__( 'Ya, kirim ulang meskipun sudah pernah dikirim', 'bitmomo-pro' ) . '</label>';
+		}
+		printf(
+			'<button type="submit" class="button button-primary" name="action" value="%1$s" formaction="%2$s" formmethod="post">%3$s</button>',
+			esc_attr( self::DAILY_ACTION ),
+			esc_url( admin_url( 'admin-post.php' ) ),
+			esc_html__( 'Kirim email harian', 'bitmomo-pro' )
+		);
 	}
 
 	public function handle_send_daily_email() {
-		if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Not allowed.', 'bitmomo-pro' ) );
-		if ( ! isset( $_POST[ self::DAILY_NONCE_FIELD ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::DAILY_NONCE_FIELD ] ) ), self::DAILY_NONCE_ACTION ) ) wp_die( esc_html__( 'Security check failed.', 'bitmomo-pro' ) );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Not allowed.', 'bitmomo-pro' ) );
+		}
+		if ( ! isset( $_POST[ self::DAILY_NONCE_FIELD ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::DAILY_NONCE_FIELD ] ) ), self::DAILY_NONCE_ACTION ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'bitmomo-pro' ) );
+		}
 
-		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
-		$test_mode = ! empty( $_POST['test_mode'] );
+		$post_id      = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		$test_mode    = ! empty( $_POST['test_mode'] );
 		$force_resend = ! empty( $_POST['force_resend'] );
-		$result = $post_id ? $this->send_daily_brief_email( $post_id, $test_mode, $force_resend ) : array( 'sent' => false );
+		$result       = $post_id ? $this->send_daily_brief_email( $post_id, $test_mode, $force_resend ) : array( 'sent' => false );
 		set_transient( 'bitmomo_pro_daily_result_' . get_current_user_id(), $result, MINUTE_IN_SECONDS );
 		wp_safe_redirect( add_query_arg( 'bitmomo_pro_daily_result', '1', admin_url( 'post.php?post=' . $post_id . '&action=edit' ) ) );
 		exit;
@@ -294,10 +371,14 @@ class Bitmomo_Pro_Email_Service {
 	// ==================================================================
 
 	public function send_whitelist_confirmation_email( $post_id ) {
-		if ( ! $post_id || ! class_exists( 'Bitmomo_Pro_Whitelist' ) ) return array( 'sent' => false, 'error' => __( 'Missing whitelist entry.', 'bitmomo-pro' ) );
+		if ( ! $post_id || ! class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
+			return array( 'sent' => false, 'error' => __( 'Missing whitelist entry.', 'bitmomo-pro' ) );
+		}
 
 		$email = get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_EMAIL, true );
-		if ( ! $email || ! is_email( $email ) ) return array( 'sent' => false, 'error' => __( 'No valid email on this entry.', 'bitmomo-pro' ) );
+		if ( ! $email || ! is_email( $email ) ) {
+			return array( 'sent' => false, 'error' => __( 'No valid email on this entry.', 'bitmomo-pro' ) );
+		}
 
 		$first_name = get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_FIRST_NAME, true );
 		$cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
@@ -336,7 +417,9 @@ class Bitmomo_Pro_Email_Service {
 		$lines[] = __( 'Tim Bitmomo', 'bitmomo-pro' );
 
 		$sent = wp_mail( $email, __( 'Kamu sudah masuk whitelist Bitmomo Pro', 'bitmomo-pro' ), implode( "\n", $lines ) );
-		if ( $sent ) update_post_meta( $post_id, self::META_WHITELIST_CONFIRMATION_SENT_AT, current_time( 'mysql' ) );
+		if ( $sent ) {
+			update_post_meta( $post_id, self::META_WHITELIST_CONFIRMATION_SENT_AT, current_time( 'mysql' ) );
+		}
 		return array( 'sent' => (bool) $sent );
 	}
 
@@ -362,10 +445,19 @@ class Bitmomo_Pro_Email_Service {
 				if ( ! empty( $result['already_sent'] ) ) {
 					echo '<div class="notice notice-warning"><p>' . esc_html__( 'Belum dikirim ulang — brief ini sudah pernah dikirim. Centang "Kirim ulang" jika memang ingin mengirim lagi.', 'bitmomo-pro' ) . '</p></div>';
 				} elseif ( ! empty( $result['sent'] ) ) {
-					printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html( sprintf( __( 'Email harian terkirim ke %1$d penerima — %2$d sukses, %3$d gagal.', 'bitmomo-pro' ), $result['recipient_count'], $result['success_count'], $result['failure_count'] ) ) );
+					printf(
+						'<div class="notice notice-success"><p>%s</p></div>',
+						esc_html( sprintf(
+							__( 'Email harian terkirim ke %1$d penerima — %2$d sukses, %3$d gagal.', 'bitmomo-pro' ),
+							$result['recipient_count'],
+							$result['success_count'],
+							$result['failure_count']
+						) )
+					);
 				} else {
 					echo '<div class="notice notice-error"><p>' . esc_html__( 'Gagal mengirim email harian.', 'bitmomo-pro' ) . '</p></div>';
 				}
+			}
 		}
 	}
 }
