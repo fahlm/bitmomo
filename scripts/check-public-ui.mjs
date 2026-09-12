@@ -9,7 +9,7 @@ fs.mkdirSync(outputDir, { recursive: true });
 
 const surfaces = [
   { name: 'home', path: '/', marker: 'BTC Intelligence' },
-  { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Pahami BTC dalam konteks.', active: 'BTC Intelligence' },
+  { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Pahami kondisi BTC sekarang', active: 'BTC Intelligence' },
   { name: 'pro', path: '/pro/', marker: 'FOUNDING MEMBERSHIP', active: 'BITMOMO PRO' },
   { name: 'help', path: '/help/', marker: 'Help Center' },
   { name: 'research', path: '/category/riset/', marker: 'Riset', active: 'Riset' },
@@ -72,9 +72,7 @@ try {
       if (status !== 200) addFailure(surface, viewport, `HTTP ${status}`);
 
       const bodyText = await page.locator('body').innerText().catch(() => '');
-      if (!bodyText.includes(surface.marker)) {
-        addFailure(surface, viewport, `missing content marker: ${surface.marker}`);
-      }
+      if (!bodyText.includes(surface.marker)) addFailure(surface, viewport, `missing content marker: ${surface.marker}`);
 
       const metrics = await page.evaluate(() => {
         const visible = (element) => {
@@ -89,17 +87,14 @@ try {
         const headerRect = header && visible(header) ? header.getBoundingClientRect() : null;
         const firstH1Rect = h1s[0] ? h1s[0].getBoundingClientRect() : null;
         const navLinks = [...document.querySelectorAll('#bm-nav a')].map((link) => ({
-          text: (link.textContent || '').trim(),
-          href: link.href,
-          current: link.getAttribute('aria-current') || '',
+          text: (link.textContent || '').trim(), href: link.href, current: link.getAttribute('aria-current') || '',
         }));
         const proNavCount = navLinks.filter((link) => {
           try { return new URL(link.href).pathname.replace(/\/+$/, '') === '/pro'; }
           catch { return false; }
         }).length;
         const footerSocial = [...document.querySelectorAll('.bm-footer-social a')].map((link) => ({
-          key: link.getAttribute('data-social') || '',
-          href: link.href,
+          key: link.getAttribute('data-social') || '', href: link.href,
         }));
 
         return {
@@ -119,50 +114,27 @@ try {
       });
 
       const overflow = Math.max(metrics.scrollWidth, metrics.bodyScrollWidth) - metrics.clientWidth;
-      if (overflow > 2) {
-        addFailure(surface, viewport, `horizontal overflow ${overflow}px (scrollWidth=${metrics.scrollWidth}, clientWidth=${metrics.clientWidth})`);
-      }
-
-      if (metrics.h1Count !== 1) {
-        addFailure(surface, viewport, `expected exactly one visible H1, found ${metrics.h1Count}`);
-      }
-
-      if (
-        metrics.headerBottom !== null &&
-        metrics.firstH1Top !== null &&
-        metrics.firstH1Top >= 0 &&
-        metrics.firstH1Top < metrics.headerBottom - 1
-      ) {
+      if (overflow > 2) addFailure(surface, viewport, `horizontal overflow ${overflow}px (scrollWidth=${metrics.scrollWidth}, clientWidth=${metrics.clientWidth})`);
+      if (metrics.h1Count !== 1) addFailure(surface, viewport, `expected exactly one visible H1, found ${metrics.h1Count}`);
+      if (metrics.headerBottom !== null && metrics.firstH1Top !== null && metrics.firstH1Top >= 0 && metrics.firstH1Top < metrics.headerBottom - 1) {
         addFailure(surface, viewport, `first H1 begins under sticky header (${metrics.firstH1Top}px < ${metrics.headerBottom}px)`);
       }
 
       const navLabels = metrics.navLinks.map((link) => link.text);
-      if (expectedNavLabels.some((label) => !navLabels.includes(label))) {
-        addFailure(surface, viewport, `primary navigation labels drifted: ${navLabels.join(' | ')}`);
-      }
-      if (metrics.proNavCount !== 1) {
-        addFailure(surface, viewport, `expected exactly one /pro/ header destination, found ${metrics.proNavCount}`);
-      }
-      if (metrics.legacySubscribeModalCount !== 0) {
-        addFailure(surface, viewport, `legacy newsletter modal returned (${metrics.legacySubscribeModalCount})`);
-      }
-      if (metrics.footerNewsletterCount !== 1) {
-        addFailure(surface, viewport, `expected one compact footer newsletter surface, found ${metrics.footerNewsletterCount}`);
-      }
+      if (expectedNavLabels.some((label) => !navLabels.includes(label))) addFailure(surface, viewport, `primary navigation labels drifted: ${navLabels.join(' | ')}`);
+      if (metrics.proNavCount !== 1) addFailure(surface, viewport, `expected exactly one /pro/ header destination, found ${metrics.proNavCount}`);
+      if (metrics.legacySubscribeModalCount !== 0) addFailure(surface, viewport, `legacy newsletter modal returned (${metrics.legacySubscribeModalCount})`);
+      if (metrics.footerNewsletterCount !== 1) addFailure(surface, viewport, `expected one compact footer newsletter surface, found ${metrics.footerNewsletterCount}`);
 
       if (surface.active) {
         const activeLabels = metrics.navLinks.filter((link) => link.current === 'page').map((link) => link.text);
-        if (!activeLabels.includes(surface.active)) {
-          addFailure(surface, viewport, `missing aria-current for ${surface.active}; active=${activeLabels.join(', ') || 'none'}`);
-        }
+        if (!activeLabels.includes(surface.active)) addFailure(surface, viewport, `missing aria-current for ${surface.active}; active=${activeLabels.join(', ') || 'none'}`);
       }
 
       if (surface.name === 'home') {
         const socialMap = Object.fromEntries(metrics.footerSocial.map((item) => [item.key, item.href.replace(/\/$/, '')]));
         for (const [key, expected] of Object.entries(expectedSocial)) {
-          if ((socialMap[key] || '') !== expected.replace(/\/$/, '')) {
-            addFailure(surface, viewport, `${key} footer destination mismatch: ${socialMap[key] || 'missing'}`);
-          }
+          if ((socialMap[key] || '') !== expected.replace(/\/$/, '')) addFailure(surface, viewport, `${key} footer destination mismatch: ${socialMap[key] || 'missing'}`);
         }
       }
 
@@ -173,39 +145,21 @@ try {
           const opened = await page.evaluate(() => {
             const nav = document.getElementById('bm-nav');
             const button = document.getElementById('bm-hamburger');
-            return {
-              expanded: button?.getAttribute('aria-expanded'),
-              hidden: nav?.getAttribute('aria-hidden'),
-              inert: nav?.hasAttribute('inert'),
-              openClass: nav?.classList.contains('open'),
-            };
+            return { expanded: button?.getAttribute('aria-expanded'), hidden: nav?.getAttribute('aria-hidden'), inert: nav?.hasAttribute('inert'), openClass: nav?.classList.contains('open') };
           });
-          if (opened.expanded !== 'true' || opened.hidden === 'true' || opened.inert || !opened.openClass) {
-            addFailure(surface, viewport, `mobile menu did not become accessible/open: ${JSON.stringify(opened)}`);
-          }
+          if (opened.expanded !== 'true' || opened.hidden === 'true' || opened.inert || !opened.openClass) addFailure(surface, viewport, `mobile menu did not become accessible/open: ${JSON.stringify(opened)}`);
 
           await page.keyboard.press('Escape');
           const closed = await page.evaluate(() => {
             const nav = document.getElementById('bm-nav');
             const button = document.getElementById('bm-hamburger');
-            return {
-              expanded: button?.getAttribute('aria-expanded'),
-              hidden: nav?.getAttribute('aria-hidden'),
-              inert: nav?.hasAttribute('inert'),
-              openClass: nav?.classList.contains('open'),
-            };
+            return { expanded: button?.getAttribute('aria-expanded'), hidden: nav?.getAttribute('aria-hidden'), inert: nav?.hasAttribute('inert'), openClass: nav?.classList.contains('open') };
           });
-          if (closed.expanded !== 'false' || closed.hidden !== 'true' || !closed.inert || closed.openClass) {
-            addFailure(surface, viewport, `mobile menu did not close accessibly on Escape: ${JSON.stringify(closed)}`);
-          }
-        } else {
-          addFailure(surface, viewport, 'mobile hamburger control missing');
-        }
+          if (closed.expanded !== 'false' || closed.hidden !== 'true' || !closed.inert || closed.openClass) addFailure(surface, viewport, `mobile menu did not close accessibly on Escape: ${JSON.stringify(closed)}`);
+        } else addFailure(surface, viewport, 'mobile hamburger control missing');
       }
 
-      for (const error of pageErrors) {
-        addFailure(surface, viewport, `uncaught page error: ${error}`);
-      }
+      for (const error of pageErrors) addFailure(surface, viewport, `uncaught page error: ${error}`);
 
       const screenshotPath = path.join(outputDir, `${surface.name}-${viewport.width}.png`);
       await page.screenshot({ path: screenshotPath, fullPage: true });
@@ -216,48 +170,13 @@ try {
           const axe = await new AxeBuilder({ page }).analyze();
           axeViolations = axe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
           for (const violation of axeViolations) {
-            const targets = violation.nodes
-              .slice(0, 8)
-              .map((node) => (node.target || []).join(' '))
-              .filter(Boolean)
-              .join(', ');
-            addFailure(
-              surface,
-              viewport,
-              `a11y ${violation.impact}: ${violation.id} — ${violation.help}` + (targets ? `; targets: ${targets}` : '')
-            );
+            const targets = violation.nodes.slice(0, 8).map((node) => (node.target || []).join(' ')).filter(Boolean).join(', ');
+            addFailure(surface, viewport, `a11y ${violation.impact}: ${violation.id} — ${violation.help}` + (targets ? `; targets: ${targets}` : ''));
           }
-        } catch (error) {
-          addFailure(surface, viewport, `axe scan failed: ${error.message}`);
-        }
+        } catch (error) { addFailure(surface, viewport, `axe scan failed: ${error.message}`); }
       }
 
-      report.push({
-        surface: surface.name,
-        url,
-        viewport,
-        status,
-        metrics,
-        consoleErrors,
-        pageErrors,
-        axeViolations: axeViolations.map((violation) => ({
-          id: violation.id,
-          impact: violation.impact,
-          help: violation.help,
-          helpUrl: violation.helpUrl,
-          nodeCount: violation.nodes.length,
-          nodes: violation.nodes.map((node) => ({
-            target: node.target,
-            html: node.html,
-            failureSummary: node.failureSummary,
-            impact: node.impact,
-            any: node.any,
-            all: node.all,
-            none: node.none,
-          })),
-        })),
-      });
-
+      report.push({ surface: surface.name, url, viewport, status, metrics, consoleErrors, pageErrors, axeViolations: axeViolations.map((violation) => ({ id: violation.id, impact: violation.impact, help: violation.help, helpUrl: violation.helpUrl, nodeCount: violation.nodes.length })) });
       console.log(`PASS ${surface.name} ${viewport.width}x${viewport.height} HTTP ${status} overflow=${Math.max(0, overflow)}px H1=${metrics.h1Count}`);
       await context.close();
     }
@@ -267,10 +186,8 @@ try {
 }
 
 fs.writeFileSync(path.join(outputDir, 'report.json'), JSON.stringify({ baseUrl, report, failures }, null, 2));
-
 if (failures.length) {
   console.error(`UI browser contract failed with ${failures.length} issue(s).`);
   process.exit(1);
 }
-
 console.log(`PASS UI browser contract across ${surfaces.length} surfaces and ${viewports.length} viewports.`);
