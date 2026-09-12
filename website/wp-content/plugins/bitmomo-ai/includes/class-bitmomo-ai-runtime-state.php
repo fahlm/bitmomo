@@ -52,6 +52,15 @@ final class Bitmomo_AI_Runtime_State {
 
     public static function record_valid_snapshot(array $record, array $gate) {
         $record['quality_gate'] = self::safe_gate($gate);
+        if (class_exists('Bitmomo_AI_Opportunity_Store')) {
+            $record = Bitmomo_AI_Opportunity_Store::attach_to_session_record($record);
+            if (class_exists('Bitmomo_AI_Session_Intelligence') && !empty($record['edition_id'])) {
+                // The scheduler writes the base record immediately before this call.
+                // Re-appending the same edition id replaces that entry with the
+                // Opportunity-enriched canonical snapshot; no second edition is created.
+                Bitmomo_AI_Session_Intelligence::append_record($record);
+            }
+        }
         update_option(self::VALID_OPTION, $record, false);
         update_option('bitmomo_ai_latest_preview', $record, false);
         return $record;
@@ -115,3 +124,6 @@ final class Bitmomo_AI_Runtime_State {
         ];
     }
 }
+
+require_once __DIR__ . '/class-bitmomo-ai-opportunity.php';
+Bitmomo_AI_Opportunity::register();

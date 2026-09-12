@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "artifact_name": "bitmomo-runtime.tar",
-  "expected_file_count": 97,
+  "expected_file_count": 98,
   "include": [
     "*.php",
     "**/*.php",
@@ -48,8 +48,8 @@
       "name": "bitmomo-ai",
       "source": "website/wp-content/plugins/bitmomo-ai",
       "destination": "wp-content/plugins/bitmomo-ai",
-      "expected_file_count": 23,
-      "required": ["bitmomo-ai.php", "includes/class-bitmomo-ai-scheduler.php", "includes/class-bitmomo-ai-runtime-state.php", "includes/class-bitmomo-ai-session-intelligence.php", "includes/class-bitmomo-public-intelligence-adapter.php"]
+      "expected_file_count": 24,
+      "required": ["bitmomo-ai.php", "includes/class-bitmomo-ai-scheduler.php", "includes/class-bitmomo-ai-runtime-state.php", "includes/class-bitmomo-ai-session-intelligence.php", "includes/class-bitmomo-ai-opportunity.php", "includes/class-bitmomo-public-intelligence-adapter.php"]
     },
     {
       "name": "bitmomo-btc-intelligence",
