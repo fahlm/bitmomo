@@ -66,6 +66,27 @@ final class Bitmomo_Public_Intelligence_Adapter {
         ];
     }
 
+    /** Public-safe shell for rendering honest unavailable/partial surfaces. */
+    public static function surface_context() {
+        $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
+            ? Bitmomo_AI_Opportunity_Store::public_latest()
+            : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
+        $projection = class_exists('Bitmomo_AI_Intelligence')
+            ? Bitmomo_AI_Intelligence::free_projection()
+            : [];
+        $source = is_array($projection) ? sanitize_text_field((string) ($projection['source'] ?? '')) : '';
+        $as_of = is_array($projection) ? sanitize_text_field((string) ($projection['timestamp_iso'] ?? '')) : '';
+
+        return [
+            'opportunity' => $opportunity,
+            'provenance' => [
+                'source' => $source !== '' ? $source : null,
+                'as_of' => $as_of !== '' && strtotime($as_of) ? $as_of : null,
+                'timezone' => self::PUBLIC_DISPLAY_TIMEZONE,
+            ],
+        ];
+    }
+
     public static function history() {
         if (!class_exists('Bitmomo_Regime_State_Store')) return self::empty_history();
         $records = Bitmomo_Regime_State_Store::instance()->get_recent(self::HISTORY_LIMIT * 2);
