@@ -135,3 +135,39 @@ if (!function_exists('bitmomo_normalize_public_page_body_headings')) {
         return is_string($normalized) ? $normalized : $source;
     }
 }
+
+/** Authority routes must never inherit old publisher-first SEO metadata. */
+if (!function_exists('bitmomo_authority_seo_title')) {
+    function bitmomo_authority_seo_title($title) {
+        if (is_page('tentang-kami')) {
+            return 'Tentang Bitmomo — Crypto Market & AI Systems Research';
+        }
+        if (is_category('riset')) {
+            return 'Bitmomo Research — Crypto Markets & AI Systems';
+        }
+        return $title;
+    }
+}
+add_filter('pre_get_document_title', 'bitmomo_authority_seo_title', 25);
+add_filter('rank_math/frontend/title', 'bitmomo_authority_seo_title', 25);
+
+if (!function_exists('bitmomo_authority_seo_description')) {
+    function bitmomo_authority_seo_description($description) {
+        if (is_page('tentang-kami')) {
+            return 'Bitmomo adalah research & intelligence platform untuk crypto markets dan AI systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
+        }
+        if (is_category('riset')) {
+            return 'Bitmomo Research menggabungkan crypto market research dan AI systems research untuk menghasilkan intelligence yang dapat ditelusuri, diuji, dan diperbaiki.';
+        }
+        return $description;
+    }
+}
+add_filter('rank_math/frontend/description', 'bitmomo_authority_seo_description', 25);
+
+if (!function_exists('bitmomo_render_authority_meta_fallback')) {
+    function bitmomo_render_authority_meta_fallback() {
+        if (defined('RANK_MATH_VERSION') || (!is_page('tentang-kami') && !is_category('riset'))) return;
+        echo '<meta name="description" content="' . esc_attr(bitmomo_authority_seo_description('')) . '" />' . "\n";
+    }
+}
+add_action('wp_head', 'bitmomo_render_authority_meta_fallback', 2);
