@@ -63,7 +63,9 @@ check(
 );
 check(
   'Legacy subscribe routes and menu links resolve to the footer newsletter anchor',
-  content.includes("home_url('/#newsletter')") && content.includes("home_url('/#newsletter'),302") && !/js-open-subscribe/.test(content)
+  content.includes("home_url('/#newsletter')") &&
+    /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) &&
+    /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
   'Footer newsletter is intentionally compact and responsive',
