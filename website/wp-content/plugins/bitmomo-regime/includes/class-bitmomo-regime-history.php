@@ -47,19 +47,11 @@ class Bitmomo_Regime_History {
 		);
 	}
 
-	/**
-	 * Return the market day the edition belongs to, not the UTC date on which
-	 * the post-close snapshot happened to be stored. Canonical v2 edition ids
-	 * embed the America/New_York session anchor and are the strongest source.
-	 */
+	/** Return the US market day the canonical edition belongs to. */
 	public static function market_date( $record ) {
 		$source_id = (string) ( $record['source_record_id'] ?? '' );
-		if ( preg_match( '/^bitmomo-ai:(\d{4})(\d{2})(\d{2})T/', $source_id, $match ) ) {
-			return $match[1] . '-' . $match[2] . '-' . $match[3];
-		}
-		if ( preg_match( '/^bitmomo-ai:regime:(\d{4}-\d{2}-\d{2})(?::|$)/', $source_id, $match ) ) {
-			return $match[1];
-		}
+		if ( preg_match( '/^bitmomo-ai:(\d{4})(\d{2})(\d{2})T/', $source_id, $match ) ) return $match[1] . '-' . $match[2] . '-' . $match[3];
+		if ( preg_match( '/^bitmomo-ai:regime:(\d{4}-\d{2}-\d{2})(?::|$)/', $source_id, $match ) ) return $match[1];
 
 		$anchor = trim( (string) ( $record['session_anchor'] ?? '' ) );
 		if ( '' !== $anchor ) {
@@ -70,9 +62,8 @@ class Bitmomo_Regime_History {
 
 		$raw = trim( (string) ( $record['as_of'] ?? ( $record['date'] ?? '' ) ) );
 		if ( '' === $raw ) return '';
+		if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $raw ) ) return $raw;
 		try {
-			// Current Regime scheduler persists as_of with gmdate(), so a value
-			// without an offset is explicitly interpreted as UTC here.
 			$timezone = preg_match( '/(?:Z|[+-]\d{2}:?\d{2})$/i', $raw ) ? null : new DateTimeZone( 'UTC' );
 			$date = null === $timezone ? new DateTimeImmutable( $raw ) : new DateTimeImmutable( $raw, $timezone );
 			return $date->setTimezone( new DateTimeZone( self::MARKET_TIMEZONE ) )->format( 'Y-m-d' );
