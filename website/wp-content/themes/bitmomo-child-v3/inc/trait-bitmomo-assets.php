@@ -45,6 +45,19 @@ trait Bitmomo_Assets_Trait {
         $version = $this->get_file_version($custom_css_path);
         wp_enqueue_style('bitmomo-child', $custom_css_uri, ['hello-elementor-style'], $version);
 
+        // Shared public readability contract. This is deliberately separate
+        // from the frozen legacy custom.css: it is the first design-system
+        // migration layer and owns only readable secondary text / CTA contrast.
+        $readability_css_path = get_stylesheet_directory() . '/assets/css/public-readability.css';
+        if (file_exists($readability_css_path)) {
+            wp_enqueue_style(
+                'bitmomo-public-readability',
+                get_stylesheet_directory_uri() . '/assets/css/public-readability.css',
+                ['bitmomo-child'],
+                $this->get_file_version($readability_css_path)
+            );
+        }
+
         // Homepage-only Opportunity/intelligence presentation. This used to be
         // emitted as a large PHP heredoc, which made visual ownership and cache
         // invalidation harder to reason about. Keep CSS in CSS assets only.
@@ -54,7 +67,7 @@ trait Bitmomo_Assets_Trait {
                 wp_enqueue_style(
                     'bitmomo-home-opportunity',
                     get_stylesheet_directory_uri() . '/assets/css/home-opportunity.css',
-                    ['bitmomo-child'],
+                    ['bitmomo-child', 'bitmomo-public-readability'],
                     $this->get_file_version($opportunity_css_path)
                 );
             }
