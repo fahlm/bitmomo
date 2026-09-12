@@ -7,7 +7,7 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
     <div class="bm-footer-grid">
       <div class="bm-footer-brand">
         <strong>bitmomo</strong>
-        <p><?php esc_html_e( 'BTC market intelligence yang mengubah data menjadi konteks, decision support, dan accountability.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Research & intelligence untuk memahami crypto markets dan membangun AI systems yang lebih dapat dipercaya.', 'bitmomo' ); ?></p>
       </div>
 
       <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Produk', 'bitmomo' ); ?>">
@@ -19,8 +19,9 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
 
       <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Riset', 'bitmomo' ); ?>">
         <strong><?php esc_html_e( 'RISET', 'bitmomo' ); ?></strong>
-        <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Riset & Analisis', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( home_url( '/#ai-lab' ) ); ?>"><?php esc_html_e( 'AI Lab', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Research Hub', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/category/riset/#bm-market-research-stream' ) ); ?>"><?php esc_html_e( 'Market Research', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/category/riset/#bm-ai-research-stream' ) ); ?>"><?php esc_html_e( 'AI Lab', 'bitmomo' ); ?></a>
       </nav>
 
       <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Tentang dan legal', 'bitmomo' ); ?>">
@@ -60,7 +61,7 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
 
     <div class="bm-footer-bottom">
       <p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>.</p>
-      <p><?php esc_html_e( 'Market intelligence, bukan nasihat keuangan.', 'bitmomo' ); ?></p>
+      <p><?php esc_html_e( 'Research & market intelligence, bukan nasihat keuangan.', 'bitmomo' ); ?></p>
     </div>
   </div>
 </footer>
