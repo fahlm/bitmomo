@@ -16,11 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
       </li>
       <li>
         <span class="bm-howworks-step-label"><?php esc_html_e( '02 · Decision Support', 'bitmomo' ); ?></span>
-        <p><?php esc_html_e( 'BTC Intelligence menjelaskan kondisi sekarang. Pro menambahkan skenario paling relevan, apa yang perlu dipantau, dan kapan thesis pasar berubah.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'BTC Intelligence menjelaskan kondisi sekarang. Pro menambahkan skenario paling relevan, apa yang perlu dipantau, dan kapan pandangan pasar berubah.', 'bitmomo' ); ?></p>
       </li>
       <li>
         <span class="bm-howworks-step-label"><?php esc_html_e( '03 · Accountability', 'bitmomo' ); ?></span>
-        <p><?php esc_html_e( 'Setiap insight dicatat, diuji, dan dievaluasi terhadap hasil aktual. Data stale atau tidak valid ditahan, bukan dipaksakan menjadi insight.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Setiap insight dicatat, diuji, dan dievaluasi terhadap hasil aktual. Data yang terlambat atau tidak valid ditahan, bukan dipaksakan menjadi insight.', 'bitmomo' ); ?></p>
       </li>
     </ol>
   </div>
