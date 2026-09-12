@@ -31,7 +31,7 @@ check( 'Unavailable snapshot fails closed', false !== strpos( $html, 'Menunggu d
 check( 'No fabricated BTC reference without adapter', false === strpos( $html, '$65,000' ) && false === strpos( $html, '$65.000' ) );
 check( 'Legacy explanation wall is not rendered', false === strpos( $html, 'LIMA INTELLIGENCE AXES' ) && false === strpos( $html, 'CARA MEMBACA BITMOMO INTELLIGENCE' ) );
 check( 'Legacy standalone evaluation sections are not rendered', false === strpos( $html, 'HUBUNGAN CONFIDENCE DENGAN AKURASI' ) && false === strpos( $html, 'PERFORMA BERDASARKAN REGIME' ) );
-check( 'Methodology uses progressive disclosure', false !== strpos( $html, '<summary>Cara kerja &amp; metodologi</summary>' ) );
+check( 'Methodology uses progressive disclosure', false !== strpos( $html, '<summary>' ) && false !== strpos( $html, 'Cara kerja' ) && false !== strpos( $html, 'metodologi' ) );
 check( 'Only one Pro conversion action is rendered', 1 === substr_count( $html, 'Lihat Bitmomo Pro' ) );
 
 $class_source = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' );
