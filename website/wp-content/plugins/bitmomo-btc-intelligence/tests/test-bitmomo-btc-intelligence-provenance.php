@@ -1,7 +1,5 @@
 <?php
 require __DIR__ . '/wp-stubs.php';
-if ( ! function_exists( 'shortcode_exists' ) ) { function shortcode_exists( $tag ) { return false; } }
-if ( ! function_exists( 'do_shortcode' ) ) { function do_shortcode( $value ) { return $value; } }
 if ( ! function_exists( 'home_url' ) ) { function home_url( $path = '/' ) { return 'https://bitmomo.test' . $path; } }
 
 $GLOBALS['__prov_pass'] = 0;
@@ -16,12 +14,13 @@ class Bitmomo_Public_Intelligence_Adapter {
 	public static $surface = array();
 	public static function snapshot() { return self::$snapshot; }
 	public static function surface_context() { return self::$surface; }
-	public static function evaluation_summary() { return null; }
+	public static function history() { return array( 'days' => array() ); }
+	public static function evaluation_summary() { return array(); }
 }
 
 Bitmomo_Public_Intelligence_Adapter::$snapshot = array(
 	'status' => 'fresh', 'btc_reference_price' => 65000,
-	'opportunity' => array( 'status' => 'available', 'state' => 'HIGH', 'knowledge_time' => '2026-09-12T06:30:00+00:00' ),
+	'opportunity' => array( 'status' => 'available', 'state' => 'high', 'knowledge_time' => '2026-09-12T06:30:00+00:00' ),
 	'direction_strength' => 'bullish', 'directional_bias' => 'bullish',
 	'confidence' => array( 'value' => 71, 'label' => 'high' ),
 	'market_state' => 'accumulation', 'market_state_certainty' => 65,
@@ -39,17 +38,18 @@ $method = $reflection->getMethod( 'render_page' );
 $method->setAccessible( true );
 $output = $method->invoke( $instance, array() );
 
-prov_check( 'public page renders canonical source label', false !== strpos( $output, 'SOURCE</strong> Binance public market data' ) );
-prov_check( 'public page renders explicit as-of timestamp in WIB', false !== strpos( $output, 'AS OF</strong> 12 Sep 2026 · 13:20 WIB' ) );
+prov_check( 'public page renders concise canonical source label', false !== strpos( $output, 'Sumber data: Binance' ) );
+prov_check( 'public page renders explicit as-of timestamp in WIB', false !== strpos( $output, '12 Sep 2026 · 13:20 WIB' ) );
 prov_check( 'public page preserves machine-readable canonical as-of timestamp', false !== strpos( $output, 'datetime="2026-09-12T06:20:00+00:00"' ) );
-prov_check( 'public page renders provenance inside the same native current-intelligence component', false !== strpos( $output, 'bm-bi__opportunity' ) && false !== strpos( $output, 'bm-bi__provenance' ) );
-prov_check( 'Opportunity keeps its independent 15m timestamp', false !== strpos( $output, '13:30 WIB' ) && false !== strpos( $output, '15m observation' ) );
+prov_check( 'provenance remains attached to the current reading', false !== strpos( $output, 'bm-bi__snapshot' ) && false !== strpos( $output, 'bm-bi__provenance' ) );
+prov_check( 'independent Opportunity observation timestamp stays out of the visitor surface', false === strpos( $output, '13:30 WIB' ) && false === strpos( $output, '15m observation' ) );
 prov_check( 'public page never exposes source diagnostics', false === strpos( $output, 'source_diagnostics' ) );
 
 Bitmomo_Public_Intelligence_Adapter::$snapshot['provenance']['source'] = 'Binance public market data + Bybit derivatives fallback';
 $instance = $reflection->newInstanceWithoutConstructor();
 $fallback_output = $method->invoke( $instance, array() );
-prov_check( 'fallback provider is disclosed exactly as supplied by the public adapter', false !== strpos( $fallback_output, 'Binance public market data + Bybit derivatives fallback' ) );
+prov_check( 'fallback source is disclosed in compact visitor language', false !== strpos( $fallback_output, 'Sumber data: Binance + Bybit' ) );
+prov_check( 'fallback implementation wording stays out of public copy', false === strpos( $fallback_output, 'derivatives fallback' ) );
 
 if ( $GLOBALS['__prov_fail'] > 0 ) exit( 1 );
 $total = $GLOBALS['__prov_pass'] + $GLOBALS['__prov_fail'];
