@@ -135,14 +135,15 @@ if (/\.bm-footer-(?:group strong|bottom)[^{]*\{[^}]*color:\s*#71839f/s.test(publ
 const btcPage = fs.readFileSync(path.join(btcPluginDir, 'includes/class-bitmomo-btc-intelligence-page.php'), 'utf8');
 const renderPageMatch = btcPage.match(/public function render_page[\s\S]*?return ob_get_clean\(\);/);
 const renderPage = renderPageMatch ? renderPageMatch[0] : '';
-for (const requiredCall of ['render_hero()', 'render_current_snapshot()', 'render_history()', 'render_track_record()', 'render_methodology()', 'render_pro_cta()']) {
+for (const requiredCall of ['render_hero()', 'render_current_snapshot()', 'render_history()', 'render_decision_ledger()', 'render_track_record()', 'render_delayed_proof()', 'render_methodology()', 'render_pro_cta()']) {
   if (!renderPage.includes(requiredCall)) fail(`BTC Intelligence visitor-first hierarchy lost ${requiredCall}`);
 }
 for (const removedCall of ['render_how_it_works()', 'render_five_axes()', 'render_how_to_read()', 'render_confidence_evaluation()', 'render_expected_range_performance()', 'render_regime_performance()', 'render_data_quality()', 'render_historical_regime()']) {
   if (renderPage.includes(removedCall)) fail(`BTC Intelligence explanation/dashboard wall returned via ${removedCall}`);
 }
-if (!btcPage.includes('<details class="bm-bi__details">') || !btcPage.includes("Bagaimana membaca angka ini?")) {
-  fail('methodology must remain behind progressive disclosure');
+const methodologyDetails = btcPage.match(/<details class="bm-bi__details"([^>]*)>[\s\S]*?<summary>[\s\S]*?Metodologi & aturan akuntabilitas[\s\S]*?<\/summary>/);
+if (!methodologyDetails || /\bopen\b/i.test(methodologyDetails[1] || '')) {
+  fail('methodology must remain behind closed progressive disclosure');
 }
 for (const forbidden of ['activity percentile', '60m range', 'OI 24H', '>FUNDING<', '>BASIS<', 'Market State', 'confidence_buckets', 'expected_range_evaluation', 'regime_performance', 'stale_rate_pct', 'settlement_completeness_pct']) {
   if (btcPage.includes(forbidden)) fail(`BTC Intelligence public renderer leaked engine/QA kitchen detail: ${forbidden}`);
