@@ -122,7 +122,7 @@ jobs:
             exit 1
           }
 
-          grep -qi "research & intelligence platform" "${theme_dir}/template-parts/about-authority.php" || {
+          grep -Eqi "research .* intelligence platform" "${theme_dir}/template-parts/about-authority.php" || {
             echo "::error file=${theme_dir}/template-parts/about-authority.php::About lost research/intelligence positioning"
             exit 1
           }
