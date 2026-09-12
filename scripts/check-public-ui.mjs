@@ -9,11 +9,11 @@ fs.mkdirSync(outputDir, { recursive: true });
 
 const surfaces = [
   { name: 'home', path: '/', marker: 'BTC Intelligence' },
-  { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Pahami BTC dalam konteks.' },
-  { name: 'pro', path: '/pro/', marker: 'FOUNDING MEMBERSHIP' },
+  { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Pahami BTC dalam konteks.', active: 'BTC Intelligence' },
+  { name: 'pro', path: '/pro/', marker: 'FOUNDING MEMBERSHIP', active: 'BITMOMO PRO' },
   { name: 'help', path: '/help/', marker: 'Help Center' },
-  { name: 'research', path: '/category/riset/', marker: 'Riset' },
-  { name: 'about', path: '/tentang-kami/', marker: 'Tentang Kami' },
+  { name: 'research', path: '/category/riset/', marker: 'Riset', active: 'Riset' },
+  { name: 'about', path: '/tentang-kami/', marker: 'Tentang Kami', active: 'Tentang' },
   { name: 'privacy', path: '/kebijakan-privasi/', marker: 'Kebijakan Privasi' },
   { name: 'disclaimer', path: '/disclaimer/', marker: 'Disclaimer' },
 ];
@@ -25,6 +25,13 @@ const viewports = [
   { width: 1024, height: 900 },
   { width: 1440, height: 1000 },
 ];
+
+const expectedNavLabels = ['BTC Intelligence', 'Riset', 'Tentang', 'Masuk', 'BITMOMO PRO'];
+const expectedSocial = {
+  telegram: 'https://t.me/bitmomodaily',
+  youtube: 'https://www.youtube.com/@bitmomoid',
+  x: 'https://x.com/bitmomoid',
+};
 
 const failures = [];
 const report = [];
@@ -81,6 +88,19 @@ try {
         const header = document.querySelector('.bm-header');
         const headerRect = header && visible(header) ? header.getBoundingClientRect() : null;
         const firstH1Rect = h1s[0] ? h1s[0].getBoundingClientRect() : null;
+        const navLinks = [...document.querySelectorAll('#bm-nav a')].map((link) => ({
+          text: (link.textContent || '').trim(),
+          href: link.href,
+          current: link.getAttribute('aria-current') || '',
+        }));
+        const proNavCount = navLinks.filter((link) => {
+          try { return new URL(link.href).pathname.replace(/\/+$/, '') === '/pro'; }
+          catch { return false; }
+        }).length;
+        const footerSocial = [...document.querySelectorAll('.bm-footer-social a')].map((link) => ({
+          key: link.getAttribute('data-social') || '',
+          href: link.href,
+        }));
 
         return {
           clientWidth: document.documentElement.clientWidth,
@@ -90,6 +110,11 @@ try {
           headerBottom: headerRect ? headerRect.bottom : null,
           firstH1Top: firstH1Rect ? firstH1Rect.top : null,
           title: document.title,
+          navLinks,
+          proNavCount,
+          legacySubscribeModalCount: document.querySelectorAll('#bm-subscribe-modal').length,
+          footerNewsletterCount: document.querySelectorAll('#newsletter .bm-footer-newsletter').length,
+          footerSocial,
         };
       });
 
@@ -109,6 +134,73 @@ try {
         metrics.firstH1Top < metrics.headerBottom - 1
       ) {
         addFailure(surface, viewport, `first H1 begins under sticky header (${metrics.firstH1Top}px < ${metrics.headerBottom}px)`);
+      }
+
+      const navLabels = metrics.navLinks.map((link) => link.text);
+      if (expectedNavLabels.some((label) => !navLabels.includes(label))) {
+        addFailure(surface, viewport, `primary navigation labels drifted: ${navLabels.join(' | ')}`);
+      }
+      if (metrics.proNavCount !== 1) {
+        addFailure(surface, viewport, `expected exactly one /pro/ header destination, found ${metrics.proNavCount}`);
+      }
+      if (metrics.legacySubscribeModalCount !== 0) {
+        addFailure(surface, viewport, `legacy newsletter modal returned (${metrics.legacySubscribeModalCount})`);
+      }
+      if (metrics.footerNewsletterCount !== 1) {
+        addFailure(surface, viewport, `expected one compact footer newsletter surface, found ${metrics.footerNewsletterCount}`);
+      }
+
+      if (surface.active) {
+        const activeLabels = metrics.navLinks.filter((link) => link.current === 'page').map((link) => link.text);
+        if (!activeLabels.includes(surface.active)) {
+          addFailure(surface, viewport, `missing aria-current for ${surface.active}; active=${activeLabels.join(', ') || 'none'}`);
+        }
+      }
+
+      if (surface.name === 'home') {
+        const socialMap = Object.fromEntries(metrics.footerSocial.map((item) => [item.key, item.href.replace(/\/$/, '')]));
+        for (const [key, expected] of Object.entries(expectedSocial)) {
+          if ((socialMap[key] || '') !== expected.replace(/\/$/, '')) {
+            addFailure(surface, viewport, `${key} footer destination mismatch: ${socialMap[key] || 'missing'}`);
+          }
+        }
+      }
+
+      if (viewport.width === 390) {
+        const hamburger = page.locator('#bm-hamburger');
+        if (await hamburger.count()) {
+          await hamburger.click();
+          const opened = await page.evaluate(() => {
+            const nav = document.getElementById('bm-nav');
+            const button = document.getElementById('bm-hamburger');
+            return {
+              expanded: button?.getAttribute('aria-expanded'),
+              hidden: nav?.getAttribute('aria-hidden'),
+              inert: nav?.hasAttribute('inert'),
+              openClass: nav?.classList.contains('open'),
+            };
+          });
+          if (opened.expanded !== 'true' || opened.hidden === 'true' || opened.inert || !opened.openClass) {
+            addFailure(surface, viewport, `mobile menu did not become accessible/open: ${JSON.stringify(opened)}`);
+          }
+
+          await page.keyboard.press('Escape');
+          const closed = await page.evaluate(() => {
+            const nav = document.getElementById('bm-nav');
+            const button = document.getElementById('bm-hamburger');
+            return {
+              expanded: button?.getAttribute('aria-expanded'),
+              hidden: nav?.getAttribute('aria-hidden'),
+              inert: nav?.hasAttribute('inert'),
+              openClass: nav?.classList.contains('open'),
+            };
+          });
+          if (closed.expanded !== 'false' || closed.hidden !== 'true' || !closed.inert || closed.openClass) {
+            addFailure(surface, viewport, `mobile menu did not close accessibly on Escape: ${JSON.stringify(closed)}`);
+          }
+        } else {
+          addFailure(surface, viewport, 'mobile hamburger control missing');
+        }
       }
 
       for (const error of pageErrors) {
