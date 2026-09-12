@@ -1,105 +1,44 @@
-/*
- * Homepage Opportunity + public intelligence presentation.
- * Kept in a dedicated asset so visual CSS has one inspectable source of truth
- * instead of being emitted from PHP via wp_add_inline_style().
- */
-.bm-hero-opportunity{margin:0 0 22px;padding:20px 22px;border:1px solid rgba(38,208,198,.22);border-radius:14px;background:rgba(7,20,33,.72)}
+/* Homepage Opportunity + public intelligence presentation. */
+.bm-hero-opportunity{margin:0 0 18px;padding:17px 18px;border:1px solid rgba(38,208,198,.18);border-radius:12px;background:rgba(7,20,33,.58)}
 .bm-hero-opportunity-main{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
 .bm-hero-opportunity-main span,.bm-direction-context-label,.bm-btc-opportunity-meta,.bm-btc-opportunity-tag,.bm-btc-reference{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em}
-.bm-hero-opportunity-main span{color:#71839f;font-size:10px;font-weight:800}
-.bm-hero-opportunity-main strong{font-size:clamp(28px,3vw,40px);line-height:1;color:var(--teal)}
-.bm-hero-opportunity.is-normal .bm-hero-opportunity-main strong{color:#9db2cf}
-.bm-hero-opportunity.is-low .bm-hero-opportunity-main strong,.bm-hero-opportunity.is-unavailable .bm-hero-opportunity-main strong{color:#71839f}
-.bm-hero-opportunity p{margin:12px 0 0;color:#aebdd2;font-size:13px;line-height:1.55}
-.bm-hero-opportunity small{display:block;margin-top:12px;color:#6f839e;font:800 9px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em}
-.bm-direction-head--current{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:0 0 18px;border-bottom:1px solid var(--stroke)}
+.bm-hero-opportunity-main span{color:#8294ae;font-size:9px;font-weight:800}
+.bm-hero-opportunity-main strong{font-size:clamp(25px,2.7vw,36px);line-height:1;color:var(--teal)}
+.bm-hero-opportunity.is-normal .bm-hero-opportunity-main strong{color:#a8b7ca}
+.bm-hero-opportunity.is-low .bm-hero-opportunity-main strong,.bm-hero-opportunity.is-unavailable .bm-hero-opportunity-main strong{color:#8294ae}
+.bm-hero-opportunity p{margin:8px 0 0;color:#9fb0c5;font-size:12px;line-height:1.45}
+.bm-hero-opportunity small{display:block;margin-top:8px;color:#71839f;font:800 9px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.1em}
+
+.bm-direction-head--current{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:0 0 14px;border-bottom:1px solid var(--stroke)}
 .bm-direction-head--current .bm-direction-metric{align-items:flex-start;text-align:left}
+.bm-direction-head--current span{color:#71839f;font-size:9px;letter-spacing:.1em}
 .bm-direction-head--current strong{margin-top:2px;color:var(--ink);font-size:12px;text-align:left}
-.bm-direction-context-label{margin:18px 0 0;color:#71839f;font-size:9px;font-weight:800}
-.bm-direction-card .bm-direction-chart{margin-top:12px}
-.bm-direction-card .bm-direction-meta{grid-template-columns:minmax(100px,.7fr) minmax(0,1.7fr) minmax(100px,.7fr)}
 
-/*
- * 30D Market Context chart contract.
- * The legacy stylesheet used a fixed 44px basis and then painted every state
- * bar teal, contradicting the renderer's own semantics (height = certainty,
- * color = directional bias). This homepage layer deliberately owns the final
- * chart presentation so 30 observations remain legible without overflow.
- */
-.bm-direction-card .bm-state-chart{
-  display:grid;
-  grid-template-columns:repeat(30,minmax(0,1fr));
-  align-items:end;
-  gap:clamp(2px,.32vw,5px);
-  height:132px;
-  margin:12px 0 0;
-  padding:12px 0 0;
-  border-bottom:1px solid #263b58;
-}
-.bm-direction-card .bm-state-chart .bm-direction-bar{
-  position:relative;
-  width:100%;
-  min-width:0;
-  height:100%;
-  padding:0;
-  border:0;
-  background:transparent;
-  cursor:pointer;
-}
-.bm-direction-card .bm-state-chart .bm-direction-bar span{
-  position:absolute;
-  right:0;
-  bottom:0;
-  left:0;
-  width:100%;
-  min-height:4px;
-  height:calc(var(--direction-size) * 1%);
-  border-radius:3px 3px 1px 1px;
-  background:#8192aa;
-  opacity:.72;
-  transition:opacity .16s ease,filter .16s ease,transform .16s ease;
-}
-.bm-direction-card .bm-state-chart .bm-direction-bar.is-bullish span{background:#35cdbb}
-.bm-direction-card .bm-state-chart .bm-direction-bar.is-neutral span{background:#8192aa}
-.bm-direction-card .bm-state-chart .bm-direction-bar.is-bearish span{background:#ff7b6d}
-.bm-direction-card .bm-state-chart .bm-direction-bar:hover span,
-.bm-direction-card .bm-state-chart .bm-direction-bar:focus-visible span,
-.bm-direction-card .bm-state-chart .bm-direction-bar.is-selected span{opacity:1;filter:brightness(1.12)}
-.bm-direction-card .bm-state-chart .bm-direction-bar.is-selected::after{
-  content:"";
-  position:absolute;
-  right:50%;
-  bottom:-7px;
-  width:4px;
-  height:4px;
-  border-radius:50%;
-  background:#d9e5f2;
-  transform:translateX(50%);
-}
-.bm-direction-card .bm-state-chart .bm-direction-bar:focus-visible{outline:2px solid #d9e5f2;outline-offset:3px;border-radius:4px}
+.bm-direction-context-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:15px}
+.bm-direction-context-label{margin:0;color:#8294ae;font-size:9px;font-weight:800}
+.bm-direction-legend{display:flex;align-items:center;gap:10px;margin:0;color:#71839f;font-size:9px}
+.bm-direction-legend span{display:inline-flex;align-items:center;gap:4px}
+.bm-direction-legend span:before{content:"";width:5px;height:5px;border-radius:50%;background:#8192aa}
+.bm-direction-legend .is-bullish:before{background:#35cdbb}.bm-direction-legend .is-bearish:before{background:#ff7b6d}
 
-/* Preserve 30 aligned date slots but only label useful anchors. */
-.bm-direction-card .bm-direction-dates{
-  display:grid;
-  grid-template-columns:repeat(30,minmax(0,1fr));
-  gap:clamp(2px,.32vw,5px);
-  margin-top:9px;
-}
-.bm-direction-card .bm-direction-dates span{
-  width:auto;
-  min-width:0;
-  color:transparent;
-  font-size:9px;
-  text-align:center;
-  white-space:nowrap;
-}
-.bm-direction-card .bm-direction-dates span:nth-child(1),
-.bm-direction-card .bm-direction-dates span:nth-child(6),
-.bm-direction-card .bm-direction-dates span:nth-child(11),
-.bm-direction-card .bm-direction-dates span:nth-child(16),
-.bm-direction-card .bm-direction-dates span:nth-child(21),
-.bm-direction-card .bm-direction-dates span:nth-child(26),
-.bm-direction-card .bm-direction-dates span:last-child{color:#8294ae}
+/* 30D Market Context: height = certainty, color = directional bias. */
+.bm-direction-card .bm-state-chart{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));align-items:end;gap:clamp(2px,.3vw,4px);height:112px;margin:8px 0 0;padding:8px 0 0;border-bottom:1px solid #263b58}
+.bm-direction-card .bm-state-chart .bm-direction-bar{position:relative;width:100%;min-width:0;height:100%;padding:0;border:0;background:transparent;cursor:pointer}
+.bm-direction-card .bm-state-chart .bm-direction-bar span{position:absolute;right:0;bottom:0;left:0;width:100%;min-height:4px;height:calc(var(--direction-size) * 1%);border-radius:3px 3px 1px 1px;background:#8192aa;opacity:.64;transition:opacity .16s ease,filter .16s ease}
+.bm-direction-card .bm-state-chart .bm-direction-bar.is-bullish span{background:#35cdbb}.bm-direction-card .bm-state-chart .bm-direction-bar.is-neutral span{background:#8192aa}.bm-direction-card .bm-state-chart .bm-direction-bar.is-bearish span{background:#ff7b6d}
+.bm-direction-card .bm-state-chart .bm-direction-bar:hover span,.bm-direction-card .bm-state-chart .bm-direction-bar:focus-visible span,.bm-direction-card .bm-state-chart .bm-direction-bar.is-selected span{opacity:1;filter:brightness(1.12)}
+.bm-direction-card .bm-state-chart .bm-direction-bar.is-selected::after{content:"";position:absolute;right:50%;bottom:-6px;width:4px;height:4px;border-radius:50%;background:#d9e5f2;transform:translateX(50%)}
+.bm-direction-card .bm-state-chart .bm-direction-bar:focus-visible{outline:2px solid #d9e5f2;outline-offset:2px;border-radius:3px}
+
+.bm-direction-card .bm-direction-dates{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:clamp(2px,.3vw,4px);margin-top:8px}
+.bm-direction-card .bm-direction-dates span{width:auto;min-width:0;color:transparent;font-size:8px;text-align:center;white-space:nowrap}
+.bm-direction-card .bm-direction-dates span:nth-child(1),.bm-direction-card .bm-direction-dates span:nth-child(6),.bm-direction-card .bm-direction-dates span:nth-child(11),.bm-direction-card .bm-direction-dates span:nth-child(16),.bm-direction-card .bm-direction-dates span:nth-child(21),.bm-direction-card .bm-direction-dates span:nth-child(26),.bm-direction-card .bm-direction-dates span:last-child{color:#8294ae}
+
+.bm-direction-detail-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 0;color:#8799b0;font-size:11px;line-height:1.4}
+.bm-direction-detail-line>span:not(:last-child):after,.bm-direction-detail-line>strong:after{content:"·";margin-left:8px;color:#52657e}
+.bm-direction-detail-line strong{font-weight:750}.bm-direction-detail-line strong.is-bullish{color:#46dda5}.bm-direction-detail-line strong.is-bearish{color:#ff8080}.bm-direction-detail-line strong.is-neutral{color:#aebdd2}
+.bm-direction-footerline{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:12px;padding-top:11px;border-top:1px solid var(--stroke);color:#71839f;font-size:10px;line-height:1.4}
+.bm-direction-footerline span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bm-direction-footerline time{flex:0 0 auto}
 
 .bm-btc-opportunity{padding:clamp(26px,3.4vw,44px);border-bottom:1px solid var(--stroke);background:linear-gradient(110deg,rgba(38,208,198,.09),rgba(12,28,42,.12))}
 .bm-btc-opportunity.is-normal{background:linear-gradient(110deg,rgba(121,150,190,.08),rgba(12,28,42,.12))}
@@ -117,18 +56,13 @@
 .bm-btc-bias strong.is-bullish{color:#46dda5}.bm-btc-bias strong.is-bearish{color:#ff8080}.bm-btc-bias strong.is-neutral{color:#aebdd2}
 .bm-btc-confidence-segments{grid-template-columns:repeat(3,minmax(18px,1fr))}
 .bm-btc-reference{color:#8fa2bd;font-size:10px;font-weight:800;white-space:nowrap}
+
 @media(max-width:760px){
- .bm-direction-head--current{grid-template-columns:1fr 1fr}.bm-direction-head--current .bm-direction-metric--state{grid-column:1/-1}
- .bm-hero-opportunity{padding:18px}.bm-hero-opportunity-main{align-items:flex-start;flex-direction:column;gap:8px}
- .bm-direction-card .bm-state-chart{height:104px;gap:2px;padding-top:8px}
- .bm-direction-card .bm-direction-dates{gap:2px}
- .bm-direction-card .bm-direction-dates span{font-size:8px}
- .bm-direction-card .bm-direction-dates span:nth-child(6),
- .bm-direction-card .bm-direction-dates span:nth-child(11),
- .bm-direction-card .bm-direction-dates span:nth-child(16),
- .bm-direction-card .bm-direction-dates span:nth-child(21),
- .bm-direction-card .bm-direction-dates span:nth-child(26){color:transparent}
- .bm-btc-opportunity{padding:25px 22px}.bm-btc-opportunity-head{flex-direction:column;gap:14px}.bm-btc-opportunity-tag{align-self:flex-start}
- .bm-btc-opportunity>p{font-size:15px}.bm-btc-opportunity-meta{align-items:flex-start;flex-direction:column;gap:8px}
- .bm-btc-reference{white-space:normal}
+ .bm-direction-head--current{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.bm-direction-head--current .bm-direction-metric--state{grid-column:auto}
+ .bm-hero-opportunity{padding:15px 16px}.bm-hero-opportunity-main{align-items:baseline;flex-direction:row;gap:8px}
+ .bm-direction-context-head{align-items:flex-start;flex-direction:column;gap:6px}.bm-direction-legend{gap:8px}
+ .bm-direction-card .bm-state-chart{height:88px;gap:2px;padding-top:6px}.bm-direction-card .bm-direction-dates{gap:2px}
+ .bm-direction-card .bm-direction-dates span:nth-child(6),.bm-direction-card .bm-direction-dates span:nth-child(11),.bm-direction-card .bm-direction-dates span:nth-child(16),.bm-direction-card .bm-direction-dates span:nth-child(21),.bm-direction-card .bm-direction-dates span:nth-child(26){color:transparent}
+ .bm-direction-footerline{align-items:flex-start;flex-direction:column;gap:4px}.bm-direction-footerline span{white-space:normal}
+ .bm-btc-opportunity{padding:25px 22px}.bm-btc-opportunity-head{flex-direction:column;gap:14px}.bm-btc-opportunity-tag{align-self:flex-start}.bm-btc-opportunity>p{font-size:15px}.bm-btc-opportunity-meta{align-items:flex-start;flex-direction:column;gap:8px}.bm-btc-reference{white-space:normal}
 }
