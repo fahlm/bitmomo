@@ -1,0 +1,63 @@
+/*
+ * Bitmomo public readability contract.
+ *
+ * This is the first shared design-system migration layer after the legacy
+ * custom.css freeze. It owns cross-surface readable secondary text and CTA
+ * contrast while the older page styles are progressively consolidated.
+ * Keep rules semantic and narrowly scoped; do not use this as a generic
+ * visual hotfix file.
+ */
+
+:root {
+  --bm-text-subtle-readable: #8294ae;
+}
+
+/* Homepage: secondary data labels must remain readable at small mono sizes. */
+.bm-hero-notes,
+.bm-direction-head,
+.bm-direction-head--current .bm-direction-metric > span,
+.bm-direction-context-label,
+.bm-direction-meta dt,
+.bm-direction-detail dt,
+.bm-btc-section-head p,
+.bm-btc-opportunity-meta,
+.bm-btc-overview .bm-btc-kicker,
+.bm-btc-status time,
+.bm-platform-disclosure {
+  color: var(--bm-text-subtle-readable);
+}
+
+.bm-direction-dates,
+.bm-direction-dates > span {
+  color: var(--bm-text-subtle-readable);
+}
+
+/*
+ * Product wrappers expose their own semantic variables. Brighten the muted
+ * token rather than styling dozens of descendants independently. Existing
+ * intentional opacity on micro/price terms still clears WCAG AA with this
+ * source color against the current surfaces.
+ */
+.bm-bi {
+  --bmi-text-muted: #a8b7ca;
+}
+
+.bm-pro-sales {
+  --bms-text-muted: #a8b7ca;
+}
+
+/*
+ * The whitelist is embedded both on /pro and the homepage. Elementor/parent
+ * button rules can otherwise outrank the widget's single-class selector.
+ * Commercial CTA semantics are orange + dark ink everywhere on Bitmomo.
+ */
+.bm-pro-sales .bm-wl__submit {
+  background: var(--bms-orange, #f4ad32);
+  color: #0b1620;
+}
+
+.bm-pro-sales .bm-wl__submit:hover,
+.bm-pro-sales .bm-wl__submit:focus-visible {
+  background: var(--bms-orange-dark, #e69a18);
+  color: #0b1620;
+}
