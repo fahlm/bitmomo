@@ -85,14 +85,6 @@
   }
 
   document.addEventListener('click', function (event) {
-    var historyControl = event.target && event.target.closest
-      ? event.target.closest('.bmreg-history-bar')
-      : null;
-
-    if (historyControl) {
-      emit('btc_history_interaction', { history_surface: 'market_state_30d' });
-    }
-
     var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
     if (!link) return;
 
@@ -111,9 +103,7 @@
   document.addEventListener('toggle', function (event) {
     var details = event.target;
     if (!details || !details.matches || !details.matches('.bm-bi__details') || !details.open) return;
-    emit('btc_proof_expand', {
-      proof_section: String(details.getAttribute('data-proof-section') || 'unknown').slice(0, 40)
-    });
+    emit('btc_methodology_expand');
   }, true);
 
   trackVisit();
