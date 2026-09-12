@@ -58,9 +58,10 @@ trait Bitmomo_Assets_Trait {
             );
         }
 
-        // Homepage-only Opportunity/intelligence presentation. This used to be
-        // emitted as a large PHP heredoc, which made visual ownership and cache
-        // invalidation harder to reason about. Keep CSS in CSS assets only.
+        // Homepage-only intelligence and conversion presentation. Keep each
+        // concern in its own asset so product iteration never grows the frozen
+        // legacy custom.css or couples the whitelist plugin's standalone /pro
+        // presentation to the homepage embed.
         if (is_front_page()) {
             $opportunity_css_path = get_stylesheet_directory() . '/assets/css/home-opportunity.css';
             if (file_exists($opportunity_css_path)) {
@@ -69,6 +70,16 @@ trait Bitmomo_Assets_Trait {
                     get_stylesheet_directory_uri() . '/assets/css/home-opportunity.css',
                     ['bitmomo-child', 'bitmomo-public-readability'],
                     $this->get_file_version($opportunity_css_path)
+                );
+            }
+
+            $conversion_css_path = get_stylesheet_directory() . '/assets/css/home-conversion.css';
+            if (file_exists($conversion_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-home-conversion',
+                    get_stylesheet_directory_uri() . '/assets/css/home-conversion.css',
+                    ['bitmomo-child', 'bitmomo-public-readability', 'bitmomo-home-opportunity'],
+                    $this->get_file_version($conversion_css_path)
                 );
             }
         }
