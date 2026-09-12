@@ -20,19 +20,13 @@ final class Bitmomo_Public_Intelligence_Adapter {
         $as_of = sanitize_text_field((string) ($projection['timestamp_iso'] ?? ''));
         if ($bias === null || $strength === null || $public_source === '' || $as_of === '' || $canonical_source_id === '') return null;
 
-        // Market State is optional unless the Regime record carries the exact
-        // same canonical source id. Never substitute the latest unrelated
-        // Regime record: a missing classification is more truthful than a
-        // coherent-looking snapshot assembled from different editions.
         $market_state = self::regime_or_null($regime['regime'] ?? null);
         $market_state_certainty = $market_state !== null && isset($regime['regime_confidence'])
             ? min(100, max(0, (int) $regime['regime_confidence']))
             : null;
 
         $session_intelligence = is_array($projection['session_intelligence'] ?? null) ? $projection['session_intelligence'] : [];
-        if (is_array($session_intelligence['current_setup'] ?? null)) {
-            $session_intelligence['current_setup']['market_state'] = $market_state;
-        }
+        if (is_array($session_intelligence['current_setup'] ?? null)) $session_intelligence['current_setup']['market_state'] = $market_state;
         $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
             ? Bitmomo_AI_Opportunity_Store::public_latest()
             : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
@@ -79,14 +73,11 @@ final class Bitmomo_Public_Intelligence_Adapter {
         ];
     }
 
-    /** Public-safe shell for rendering honest unavailable/partial surfaces. */
     public static function surface_context() {
         $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
             ? Bitmomo_AI_Opportunity_Store::public_latest()
             : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
-        $projection = class_exists('Bitmomo_AI_Intelligence')
-            ? Bitmomo_AI_Intelligence::free_projection()
-            : [];
+        $projection = class_exists('Bitmomo_AI_Intelligence') ? Bitmomo_AI_Intelligence::free_projection() : [];
         $source = is_array($projection) ? sanitize_text_field((string) ($projection['source'] ?? '')) : '';
         $as_of = is_array($projection) ? sanitize_text_field((string) ($projection['timestamp_iso'] ?? '')) : '';
 
@@ -108,11 +99,15 @@ final class Bitmomo_Public_Intelligence_Adapter {
         $official = [];
         foreach ($records as $record) {
             if (!is_array($record) || ($record['provenance'] ?? '') !== 'recorded_live') continue;
-            $date = substr((string) ($record['as_of'] ?? $record['date'] ?? ''), 0, 10);
+            $date = class_exists('Bitmomo_Regime_History') && method_exists('Bitmomo_Regime_History', 'market_date')
+                ? Bitmomo_Regime_History::market_date($record)
+                : substr((string) ($record['as_of'] ?? $record['date'] ?? ''), 0, 10);
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) continue;
-            if (!isset($official[$date]) || (($record['edition'] ?? '') === 'us_session' && ($official[$date]['edition'] ?? '') !== 'us_session')) {
-                $official[$date] = $record;
-            }
+            $edition = (string) ($record['edition'] ?? '');
+            $existing_edition = isset($official[$date]) ? (string) ($official[$date]['edition'] ?? '') : '';
+            $is_us_session = in_array($edition, ['us_session', 'us_post_close'], true);
+            $existing_is_us_session = in_array($existing_edition, ['us_session', 'us_post_close'], true);
+            if (!isset($official[$date]) || ($is_us_session && !$existing_is_us_session)) $official[$date] = $record;
         }
         ksort($official);
         $official = array_slice($official, -self::HISTORY_LIMIT, null, true);
@@ -156,9 +151,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
         }
 
         $range_versions = [];
-        foreach ((array) ($scorecard['expected_range']['versions'] ?? []) as $version => $metric) {
-            $range_versions[self::version_or_unknown($version)] = self::metric($metric);
-        }
+        foreach ((array) ($scorecard['expected_range']['versions'] ?? []) as $version => $metric) $range_versions[self::version_or_unknown($version)] = self::metric($metric);
 
         return [
             'provenance' => 'canonical_evaluation_scorecard',
@@ -166,7 +159,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
             'sample_rules' => array_map('intval', (array) ($scorecard['sample_rules'] ?? [])),
             'directional_evaluation' => $versions,
             'expected_range_evaluation' => [
-                'policy' => (string) ($scorecard['expected_range']['policy'] ?? 'FROZEN_ORIGINAL_ONLY'),
+                'policy' => (string) ($scorecard['expected_range']['policy'] ?? 'FROZEN_VERSIONED_ORIGINAL_ONLY'),
                 'version_policy' => (string) ($scorecard['expected_range']['version_policy'] ?? 'SINGLE_VERSION'),
                 'versions' => $range_versions,
             ],
