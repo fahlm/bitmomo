@@ -7,7 +7,7 @@ $bm_wl_price_label  = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::P
 $bm_wl_cap          = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::SEAT_CAP : ( class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149 );
 $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::BATCH_ONE : ( class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25 );
 ?>
-<section class="bm-section bm-wl-home" aria-labelledby="bm-wl-home-title">
+<section id="founding-whitelist" class="bm-section bm-wl-home" aria-labelledby="bm-wl-home-title">
   <div class="bm-container">
     <div class="bm-wl-unified">
       <div class="bm-wl-unified__intro">
