@@ -5,15 +5,16 @@ if (!defined('ABSPATH')) exit;
 
 if (!function_exists('bitmomo_render_brand')) {
     function bitmomo_render_brand() {
-        $fallback_logo_url = get_stylesheet_directory_uri() . '/assets/images/bitmomo-logo.png';
-        $logo_url = get_site_icon_url(96, $fallback_logo_url);
+        $logo_url = get_site_icon_url(96);
+        $mark = $logo_url
+            ? sprintf('<img class="bm-brand-mark" src="%s" width="48" height="48" alt="" decoding="async">', esc_url($logo_url))
+            : '<span class="bm-brand-mark-fallback" aria-hidden="true">b</span>';
 
         printf(
-            '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s"><img class="bm-brand-mark" src="%s" width="48" height="48" alt="" decoding="async"><span class="bm-brand-name">bitmomo</span></a></div>',
+            '<div class="bm-brand"><a class="bm-brand-logo" href="%s" aria-label="%s">%s<span class="bm-brand-name">bitmomo</span></a></div>',
             esc_url(home_url('/')),
             esc_attr__('Bitmomo home', 'bitmomo'),
-            esc_url($logo_url),
-            esc_attr__('Bitmomo', 'bitmomo')
+            $mark
         );
     }
 }
