@@ -38,6 +38,64 @@
 		var waErrorEl = document.getElementById('bm-wl-whatsapp-error');
 		var waDoneEl = document.getElementById('bm-wl-whatsapp-done');
 
+		function fieldValue(name) {
+			var field = form.querySelector('[name="' + name + '"]');
+			return field && field.value ? String(field.value).slice(0, 120) : '';
+		}
+
+		function telemetryContext() {
+			return {
+				event_version: 1,
+				source: fieldValue('source'),
+				utm_source: fieldValue('utm_source'),
+				utm_medium: fieldValue('utm_medium'),
+				utm_campaign: fieldValue('utm_campaign'),
+				page_path: window.location.pathname
+			};
+		}
+
+		function emitTelemetry(eventName, extra) {
+			var payload = telemetryContext();
+			payload.event = eventName;
+			if (extra && typeof extra === 'object') {
+				Object.keys(extra).forEach(function (key) {
+					payload[key] = extra[key];
+				});
+			}
+
+			// Provider-neutral browser event. Deliberately excludes email,
+			// first name, WhatsApp number, post_id, nonce and record_token.
+			if (typeof window.CustomEvent === 'function') {
+				window.dispatchEvent(new CustomEvent('bitmomo:analytics', { detail: payload }));
+			}
+
+			// If a tag manager/analytics provider already owns dataLayer, feed it.
+			// Do not create dataLayer here: Bitmomo stays provider-neutral.
+			if (Array.isArray(window.dataLayer)) {
+				window.dataLayer.push(Object.assign({}, payload));
+			}
+		}
+
+		function ctaPlacement(link) {
+			if (link.classList.contains('bm-pro-cta')) return 'homepage_pro_teaser';
+			if (link.classList.contains('bm-wl-teaser-cta')) return 'homepage_whitelist_fallback';
+			if (link.classList.contains('bm-pro-sales__hero-cta')) return 'pro_hero';
+			if (link.closest('.bm-pro-sales__final')) return 'pro_final';
+			return 'pro_sales';
+		}
+
+		document.addEventListener('click', function (event) {
+			var link = event.target && event.target.closest
+				? event.target.closest('a.bm-pro-cta, a.bm-wl-teaser-cta, a.bm-pro-sales__cta')
+				: null;
+			if (!link) return;
+			var href = link.getAttribute('href') || '';
+			emitTelemetry('pro_cta_click', {
+				cta_placement: ctaPlacement(link),
+				cta_target: href.indexOf('#bm-pro-whitelist') !== -1 ? 'whitelist' : 'pro_page'
+			});
+		});
+
 		function showError(message) {
 			if (!errorEl) {
 				return;
@@ -104,6 +162,8 @@
 			setupWhatsappStep(postId, recordToken, hasWhatsapp);
 		}
 
+		emitTelemetry('whitelist_view');
+
 		var query = new URLSearchParams(window.location.search);
 		var deepPost = query.get('bm_wl_post');
 		var deepToken = query.get('bm_wl_token');
@@ -117,6 +177,7 @@
 			hideError();
 
 			if (!config || !config.ajaxUrl || !config.action || !config.nonce) {
+				emitTelemetry('whitelist_error', { error_code: 'configuration' });
 				return;
 			}
 
@@ -126,16 +187,19 @@
 
 			if (!emailField || !emailField.value || emailField.validity.typeMismatch) {
 				showError(i18n.invalid_email || 'Invalid email.');
+				emitTelemetry('whitelist_error', { error_code: 'invalid_email' });
 				return;
 			}
 			if (!consentField || !consentField.checked) {
 				showError(i18n.consent_required || 'Consent required.');
+				emitTelemetry('whitelist_error', { error_code: 'consent_required' });
 				return;
 			}
 
 			var formData = new FormData(form);
 			formData.set('action', config.action);
 			formData.set('bm_wl_nonce', config.nonce);
+			emitTelemetry('whitelist_submit');
 
 			if (submitBtn) {
 				submitBtn.disabled = true;
@@ -158,16 +222,19 @@
 					if (result.json && result.json.success) {
 						var data = result.json.data || {};
 						showSuccess(data.status === 'duplicate', data);
+						emitTelemetry(data.status === 'duplicate' ? 'whitelist_duplicate' : 'whitelist_created');
 						return;
 					}
 					var errorCode = result.json && result.json.data && result.json.data.error;
 					showError((errorCode && i18n[errorCode]) || i18n.generic_error || 'Something went wrong.');
+					emitTelemetry('whitelist_error', { error_code: errorCode || 'server_error' });
 				})
 				.catch(function () {
 					if (submitBtn) {
 						submitBtn.disabled = false;
 					}
 					showError(i18n.generic_error || 'Something went wrong.');
+					emitTelemetry('whitelist_error', { error_code: 'network_error' });
 				});
 		});
 
