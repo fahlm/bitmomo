@@ -1,0 +1,118 @@
+/* Bitmomo About — institutional brand, research and product architecture. */
+.bm-about { min-height: 60vh; }
+
+.bm-about-hero {
+  padding-block: clamp(64px, 9vw, 112px);
+  border-bottom: 1px solid var(--bm-color-border);
+  background: radial-gradient(850px 400px at 85% -10%, rgba(57, 215, 199, .09), transparent 64%);
+}
+
+.bm-about-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+  gap: clamp(34px, 7vw, 96px);
+  align-items: end;
+}
+
+.bm-about-hero h1 {
+  max-width: 840px;
+  margin: 0;
+  font-size: clamp(42px, 6.4vw, 76px);
+  line-height: 1;
+  letter-spacing: -.052em;
+}
+
+.bm-about-hero__copy { display: grid; gap: 16px; }
+.bm-about-hero__copy p { margin: 0; color: var(--bm-color-text-2); font-size: clamp(16px, 1.8vw, 19px); }
+
+.bm-about-section-head { max-width: 840px; margin-bottom: 30px; }
+.bm-about-section-head h2 { margin: 0; font-size: clamp(30px, 4.6vw, 52px); line-height: 1.07; letter-spacing: -.04em; }
+
+.bm-about-domain-grid,
+.bm-about-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.bm-about-domain {
+  min-width: 0;
+  padding: clamp(24px, 3.5vw, 36px);
+  border: 1px solid var(--bm-color-border);
+  border-radius: var(--bm-radius-lg);
+  background: linear-gradient(145deg, var(--bm-color-surface), rgba(13, 33, 48, .58));
+}
+
+.bm-about-domain > span {
+  color: var(--bm-color-accent);
+  font: 800 10px/1.35 var(--bm-font-mono);
+  letter-spacing: .12em;
+}
+
+.bm-about-domain h3 { margin: 11px 0 10px; font-size: clamp(24px, 3vw, 32px); }
+.bm-about-domain p { margin: 0; color: var(--bm-color-text-2); }
+.bm-about-domain__purpose { margin-top: 18px !important; padding-top: 18px; border-top: 1px solid var(--bm-color-border); color: var(--bm-color-text-3) !important; font-size: 13px; }
+
+.bm-about-method { background: var(--bm-color-bg-deep); }
+.bm-about-method__grid {
+  display: grid;
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+  gap: clamp(36px, 7vw, 90px);
+  align-items: start;
+}
+.bm-about-method header h2 { margin: 0; font-size: clamp(32px, 4.8vw, 54px); letter-spacing: -.04em; }
+.bm-about-method header p { margin: 16px 0 0; color: var(--bm-color-text-2); }
+.bm-about-method__steps { margin: 0; padding: 0; list-style: none; counter-reset: bm-about-step; }
+.bm-about-method__steps li {
+  display: grid;
+  grid-template-columns: minmax(120px, .34fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 19px 0;
+  border-top: 1px solid var(--bm-color-border);
+  counter-increment: bm-about-step;
+}
+.bm-about-method__steps li:first-child { border-top-color: var(--bm-color-border-strong); }
+.bm-about-method__steps strong { color: var(--bm-color-text); }
+.bm-about-method__steps strong::before { content: "0" counter(bm-about-step) " · "; color: var(--bm-color-accent); font: 700 10px/1.35 var(--bm-font-mono); }
+.bm-about-method__steps span { color: var(--bm-color-text-2); }
+
+.bm-about-principles__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--bm-color-border);
+  border-radius: var(--bm-radius-md);
+  background: var(--bm-color-border);
+}
+.bm-about-principles__grid article { min-width: 0; padding: 22px; background: var(--bm-color-surface); }
+.bm-about-principles__grid strong { display: block; font-size: 15px; }
+.bm-about-principles__grid p { margin: 8px 0 0; color: var(--bm-color-text-3); font-size: 13px; }
+
+.bm-about-products { background: rgba(255, 255, 255, .01); }
+.bm-about-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bm-about-product-grid article { min-width: 0; padding: 24px; border: 1px solid var(--bm-color-border); border-radius: var(--bm-radius-md); background: var(--bm-color-surface); }
+.bm-about-product-grid small { color: var(--bm-color-accent); font: 800 9px/1.35 var(--bm-font-mono); letter-spacing: .1em; }
+.bm-about-product-grid h3 { margin: 9px 0 9px; font-size: 22px; }
+.bm-about-product-grid p { margin: 0; color: var(--bm-color-text-2); font-size: 14px; }
+.bm-about-product-grid a { display: inline-flex; margin-top: 18px; color: var(--bm-color-text); font-weight: 800; }
+
+.bm-about-boundary { padding-block: 0 clamp(64px, 8vw, 96px); }
+.bm-about-boundary__inner { padding: 24px; border-top: 2px solid var(--bm-color-accent); background: rgba(57, 215, 199, .055); }
+.bm-about-boundary__inner strong { display: block; font-size: 16px; }
+.bm-about-boundary__inner p { margin: 8px 0 0; color: var(--bm-color-text-2); font-size: 13px; }
+
+@media (max-width: 1023px) {
+  .bm-about-hero__grid,
+  .bm-about-method__grid { grid-template-columns: 1fr; }
+  .bm-about-principles__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bm-about-product-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+  .bm-about-hero { padding-block: 48px 60px; }
+  .bm-about-hero h1 { font-size: clamp(40px, 13vw, 58px); }
+  .bm-about-domain-grid,
+  .bm-about-principles__grid { grid-template-columns: 1fr; }
+  .bm-about-method__steps li { grid-template-columns: 1fr; gap: 6px; }
+}
