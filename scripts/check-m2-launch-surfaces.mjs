@@ -31,6 +31,8 @@ const proSalesOutput = withoutCommentLines(proSales);
 const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
 const proWhitelist = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php');
 const proWhitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
+const proReadiness = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-brief-readiness.php');
+const proCanonicalAdapter = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-canonical-adapter.php');
 
 const heroIndex = frontPage.indexOf("template-parts/home', 'hero'");
 const authorityIndex = frontPage.indexOf("template-parts/home', 'authority'");
@@ -53,9 +55,15 @@ check(
   /Kami tidak sekadar memakai AI/.test(aiLab) && /Decentralized AI/.test(aiLab) && /Agent Systems/.test(aiLab) && /AI Evaluation/.test(aiLab)
 );
 check(
-  'Riset route owns a dedicated institutional Research Hub',
+  'Riset route owns a dedicated institutional Research Hub with honest latest-vs-featured semantics',
   /template-parts\/research', 'hub/.test(category) && /Crypto Market Research/.test(researchHub) && /AI Systems Research/.test(researchHub) &&
-    /FEATURED RESEARCH/.test(researchHub) && /RESEARCH STANDARD/.test(researchHub) && /Seluruh publikasi/.test(researchHub)
+    /LATEST RESEARCH/.test(researchHub) && /Publikasi terbaru/.test(researchHub) && !/FEATURED RESEARCH/.test(researchHub) &&
+    /RESEARCH STANDARD/.test(researchHub) && /Seluruh publikasi/.test(researchHub)
+);
+check(
+  'Research Hub requires explicit market taxonomy instead of assuming every non-AI Riset post is market research',
+  /bitmomo_market_research_taxonomy_slugs/.test(researchHub) && /tax_query/.test(researchHub) && /tag__in/.test(researchHub) &&
+    /RESEARCH ARCHIVE/.test(researchHub)
 );
 
 check(
@@ -112,12 +120,21 @@ check('/pro DATA flow is limited to currently supported market inputs',
   /Harga, struktur pasar, funding\/basis, positioning derivatives, momentum, dan volatilitas BTC diproses dari data pasar yang tersedia\./.test(proSalesOutput) &&
   !/order book|sinyal on-chain BTC dikumpulkan secara berkelanjutan/i.test(proSalesOutput)
 );
+check('/pro public sales copy contains no unverified founder/company lineage claims',
+  !/Perseverance Capital|ETHLend|sejak 2016|berpartisipasi sejak awal|\bBNB\b/.test(proSalesOutput)
+);
 check('/pro pricing terms match founding package',
   /Rp149\.000/.test(proSales) && /Rp1\.490\.000/.test(proSales) && /const SEAT_CAP\s*=\s*149/.test(proSales) && /const BATCH_ONE\s*=\s*25/.test(proSales)
 );
 check('/pro avoids fabricated accuracy, placeholders and obsolete refund promises',
   !/XX%|\$XX,XXX|\(placeholder\)|Contoh Tampilan Decision View/.test(proSales) &&
   !/7\s*(hari|day)|refund 7|7-day/i.test(proSales + proHelp) && !/\d+%\s*akurat/i.test(proSales + proHelp)
+);
+check('Pro readiness requires canonical source provenance before a brief can be released',
+  /Canonical Source Record ID wajib diisi/.test(proReadiness) && /source_record_id/.test(proReadiness)
+);
+check('Pro canonical adapter exposes directional_bias explicitly while retaining only a documented legacy alias',
+  /'directional_bias'\s*=>\s*\$bias/.test(proCanonicalAdapter) && /'market_state'\s*=>\s*\$bias/.test(proCanonicalAdapter)
 );
 check('Whitelist says joining does not guarantee a seat', /Masuk whitelist tidak menjamin tempat/.test(proWhitelist));
 check('Whitelist submit JS survives localization issues via data attributes',
