@@ -114,18 +114,23 @@ if (!pageTemplate.includes('if ( $bm_is_product_surface )') || !pageTemplate.inc
 }
 
 const opportunityCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-opportunity.css'), 'utf8');
-if (!opportunityCss.includes('.bm-hero-opportunity') || !opportunityCss.includes('.bm-btc-opportunity')) {
-  fail('homepage Opportunity CSS does not contain the required hero/card selectors');
+for (const marker of ['.bm-hero-actions', '.bm-direction-summary', '.bm-direction-card .bm-state-chart']) {
+  if (!opportunityCss.includes(marker)) {
+    fail(`homepage intelligence UI lost a required presentation primitive: ${marker}`);
+  }
 }
 for (const marker of [
-  'grid-template-columns:repeat(30,minmax(0,1fr))',
+  'grid-template-columns:repeat(var(--bm-history-count),minmax(0,1fr))',
   '.bm-direction-card .bm-state-chart .bm-direction-bar.is-bullish span{background:#35cdbb}',
   '.bm-direction-card .bm-state-chart .bm-direction-bar.is-neutral span{background:#8192aa}',
   '.bm-direction-card .bm-state-chart .bm-direction-bar.is-bearish span{background:#ff7b6d}',
 ]) {
   if (!opportunityCss.includes(marker)) {
-    fail(`30D homepage context chart lost its semantic/readability contract: ${marker}`);
+    fail(`homepage context chart lost its semantic/readability contract: ${marker}`);
   }
+}
+if (opportunityCss.includes('color:#71839f')) {
+  fail('homepage intelligence reintroduced the known sub-AA #71839f micro-text color');
 }
 
 const readabilityCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-readability.css'), 'utf8');
@@ -142,11 +147,19 @@ if (!/\.bm-wl-unified__intro,\s*\.bm-wl-unified__form\s*\{[^}]*min-width:\s*0;[^
 if (!/\.bm-wl-unified__form > \.bm-pro-sales\.bm-wl\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%\s*!important;[^}]*padding-inline:\s*0;[^}]*\}/s.test(publicSurfacesCss)) {
   fail('homepage whitelist wrapper containment is missing; shared Pro wrapper sizing can escape the unified grid');
 }
+if (!/\.bm-howworks-roadmap > a\s*\{[^}]*text-decoration:\s*underline;[^}]*\}/s.test(publicSurfacesCss)) {
+  fail('How It Works roadmap link must retain a non-color affordance');
+}
+if (/\.bm-footer-(?:group strong|bottom)[^{]*\{[^}]*color:\s*#71839f/s.test(publicSurfacesCss)) {
+  fail('footer reintroduced the known sub-AA #71839f text color');
+}
 
 const homepageSubtle = '#8294ae';
 requireContrast('homepage subtle label / card', homepageSubtle, '#0f1d2f');
 requireContrast('homepage subtle label / page', homepageSubtle, '#0c1c2a');
 requireContrast('homepage subtle label / opportunity', homepageSubtle, '#0c1928');
+requireContrast('homepage secondary micro text / card', '#8799b0', '#0f1d2f');
+requireContrast('footer subtle text / footer background', '#8294ae', '#0f2233');
 
 const productMutedSource = '#a8b7ca';
 requireContrast('BTC micro text after 0.75 opacity', alphaBlend(productMutedSource, '#0c1c2a', 0.75), '#0c1c2a');
