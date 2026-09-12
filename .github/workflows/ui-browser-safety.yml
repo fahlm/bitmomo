@@ -1,0 +1,50 @@
+name: UI browser safety
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Optional base URL (production by default; staging URL allowed)
+        required: false
+        default: "https://bitmomo.id"
+  schedule:
+    - cron: "17 18 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ui-browser-safety
+  cancel-in-progress: true
+
+jobs:
+  browser-contract:
+    name: Responsive and accessibility contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install browser audit dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --no-package-lock playwright@1.63.0 @axe-core/playwright@4.13.0
+          npx playwright install --with-deps chromium
+
+      - name: Audit public UI across breakpoints
+        env:
+          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
+          BITMOMO_UI_OUTPUT_DIR: ui-artifacts
+        run: node scripts/check-public-ui.mjs
+
+      - name: Upload screenshots and audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bitmomo-ui-browser-audit-${{ github.run_id }}
+          path: ui-artifacts/
+          if-no-files-found: warn
+          retention-days: 14

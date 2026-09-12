@@ -1,16 +1,16 @@
 <?php
 /**
- * Bitmomo Child Theme — ULTRA v4.2
+ * Bitmomo Child Theme — ULTRA v4.3
  * - Solid LCP/preload + loading policy
  * - Universal SUBSCRIBE trigger + modal MailPoet
  * - Safe assets optimization (tanpa merusak Gutenberg/Elementor)
  * - Optional critical.css inline
- * - HAMBURGER MENU INJECTION (NEW)
+ * - Canonical public snapshot freshness + consistency contract
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BM_VERSION', '4.2');
+define('BM_VERSION', '4.3');
 define('BM_MAILPOET_FORM_ID', 2);
 define('BM_ARCHIVE_POSTS_PER_PAGE', 18);
 define('BM_CARD_IMAGE_WIDTH', 800);
@@ -106,6 +106,96 @@ function bitmomo_render_home_meta_description() {
 add_action('wp_head', 'bitmomo_render_home_meta_description', 2);
 
 /**
+ * Flatten the public adapter into a small, presentation-neutral contract.
+ * This is deliberately limited to fields already public on the site. It is
+ * used by production monitoring to catch stale page-cache regressions without
+ * duplicating any market-intelligence computation in the frontend.
+ */
+function bitmomo_public_snapshot_contract() {
+    $contract = [
+        'schema' => 1,
+        'available' => false,
+        'status' => 'unavailable',
+        'as_of' => '',
+        'market_state' => '',
+        'directional_bias' => '',
+        'direction_strength' => '',
+        'confidence' => '',
+        'opportunity_status' => '',
+        'opportunity_state' => '',
+    ];
+
+    if (!class_exists('Bitmomo_Public_Intelligence_Adapter') || !method_exists('Bitmomo_Public_Intelligence_Adapter', 'snapshot')) {
+        return $contract;
+    }
+
+    $snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
+    if (!is_array($snapshot)) {
+        return $contract;
+    }
+
+    $provenance = is_array($snapshot['provenance'] ?? null) ? $snapshot['provenance'] : [];
+    $freshness = is_array($snapshot['freshness'] ?? null) ? $snapshot['freshness'] : [];
+    $confidence = is_array($snapshot['confidence'] ?? null) ? $snapshot['confidence'] : [];
+    $opportunity = is_array($snapshot['opportunity'] ?? null) ? $snapshot['opportunity'] : [];
+
+    return [
+        'schema' => 1,
+        'available' => true,
+        'status' => sanitize_key((string)($snapshot['status'] ?? 'unavailable')),
+        'as_of' => trim((string)($provenance['as_of'] ?? ($freshness['timestamp_iso'] ?? ''))),
+        'market_state' => sanitize_key((string)($snapshot['market_state'] ?? '')),
+        'directional_bias' => sanitize_key((string)($snapshot['directional_bias'] ?? '')),
+        'direction_strength' => sanitize_key((string)($snapshot['direction_strength'] ?? '')),
+        'confidence' => sanitize_key((string)($confidence['label'] ?? '')),
+        'opportunity_status' => sanitize_key((string)($opportunity['status'] ?? '')),
+        'opportunity_state' => sanitize_key((string)($opportunity['state'] ?? '')),
+    ];
+}
+
+/**
+ * Both public intelligence surfaces emit the exact same machine-readable
+ * contract. If either page is served from stale cache, the production monitor
+ * can compare this value with the uncached adapter endpoint and fail loudly.
+ */
+function bitmomo_render_public_snapshot_contract_meta() {
+    if (!is_front_page() && !is_page('btc-intelligence')) return;
+
+    $json = wp_json_encode(bitmomo_public_snapshot_contract(), JSON_UNESCAPED_SLASHES);
+    if (!is_string($json) || '' === $json) return;
+
+    echo '<meta name="bitmomo-snapshot-contract" content="' . esc_attr($json) . '" />' . "\n";
+}
+add_action('wp_head', 'bitmomo_render_public_snapshot_contract_meta', 3);
+
+/**
+ * Correctness-first P0 cache policy for the homepage. The homepage contains
+ * live Opportunity / Direction / Market State data, so full-page caching can
+ * otherwise make it disagree with /btc-intelligence/. A fragment/ESI strategy
+ * can replace this later, but stale intelligence must never be presented as
+ * current in the meantime.
+ */
+function bitmomo_prevent_homepage_snapshot_cache() {
+    if (!is_front_page()) return;
+
+    if (!defined('DONOTCACHEPAGE')) {
+        define('DONOTCACHEPAGE', true);
+    }
+
+    nocache_headers();
+    do_action('litespeed_control_set_nocache', 'Canonical public intelligence freshness');
+}
+add_action('template_redirect', 'bitmomo_prevent_homepage_snapshot_cache', 1);
+
+/** Public, read-only, uncached contract used only by synthetic monitoring. */
+function bitmomo_ajax_public_snapshot_contract() {
+    nocache_headers();
+    wp_send_json_success(bitmomo_public_snapshot_contract());
+}
+add_action('wp_ajax_nopriv_bitmomo_snapshot_contract', 'bitmomo_ajax_public_snapshot_contract');
+add_action('wp_ajax_bitmomo_snapshot_contract', 'bitmomo_ajax_public_snapshot_contract');
+
+/**
  * Privacy-safe retention telemetry is loaded only on BTC Intelligence.
  * The script stores one local timestamp (no user id / email / device id),
  * emits provider-neutral browser events, and fails open if storage is blocked.
@@ -128,7 +218,6 @@ function bitmomo_enqueue_btc_retention_telemetry() {
     );
 }
 add_action('wp_enqueue_scripts', 'bitmomo_enqueue_btc_retention_telemetry', 30);
-
 
 class Bitmomo_Performance_Optimizer {
 
@@ -190,8 +279,6 @@ class Bitmomo_Performance_Optimizer {
         // Modal/footer + debug
         add_action('wp_footer', [$this, 'render_mailpoet_modal'], 100);
         add_action('wp_footer', [$this, 'performance_debug'], 999);
-        
-        // === HAMBURGER MENU INJECTION (NEW) ===
     }
 
 /* ---------- Helpers ---------- */
