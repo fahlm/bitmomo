@@ -5,117 +5,90 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * The 30-day frontend-safe history projection for Product A (REGIME PR 3).
- *
- * Pure PHP, no WordPress dependency, no I/O — takes an already-fetched
- * array of full state records (as returned by
- * Bitmomo_Regime_State_Store::get_recent()) and shapes them into the
- * narrow, frontend-safe field set the shortcodes/history widget need.
- * Directly unit testable (see tests/test-bitmomo-regime-history.php).
- *
- * Two hard rules from the spec, both enforced here:
- * - NEVER fabricate missing history. If fewer records exist than
- *   requested, `available_days` reports the true count and `days` is
- *   simply shorter — no placeholder/filler rows are ever synthesized.
- * - Only frontend-safe fields are projected: date, regime (+ both
- *   labels), directional_bias, regime_confidence. Diagnostic-only fields
- *   (evidence, conflicts, input_summary/input_hash, source_record_id,
- *   transition_strength/reason, pending_regime/streak, classifier_version)
- *   never leave this class — those stay admin-only, see
- *   Bitmomo_Regime_Admin_Diagnostics.
+ * Missing history is never fabricated and multiple editions are collapsed
+ * onto one canonical US market day, with the US Session record preferred.
  */
 class Bitmomo_Regime_History {
-
-	/**
-	 * The only day-count values the frontend may request, per the spec
-	 * ("support 1/7/14/30 days"). Anything else falls back to DEFAULT_DAYS
-	 * rather than being silently reinterpreted as some arbitrary number.
-	 */
 	const ALLOWED_DAYS = array( 1, 7, 14, 30 );
-
 	const DEFAULT_DAYS = 7;
-
-	/**
-	 * The overall target window Product A's history is meant to reach.
-	 * `available_days` is always compared against this, independent of
-	 * what a given call actually requested, so a caller can render
-	 * "5 of 30 days collected so far" even when it asked for 7.
-	 */
 	const TARGET_DAYS = 30;
+	const MARKET_TIMEZONE = 'America/New_York';
 
-	/**
-	 * @param array $records        Newest-first full state records — the
-	 *                               contract Bitmomo_Regime_State_Store::get_recent()
-	 *                               returns. The caller is expected to have
-	 *                               fetched at most TARGET_DAYS of them;
-	 *                               this method does not re-fetch and does
-	 *                               not enforce that cap itself.
-	 * @param int   $requested_days One of ALLOWED_DAYS. Any other value
-	 *                               (including omission) falls back to
-	 *                               DEFAULT_DAYS.
-	 *
-	 * @return array{requested_days:int,target_days:int,available_days:int,days:array[]}
-	 */
 	public static function for_frontend( array $records, $requested_days = self::DEFAULT_DAYS ) {
-		$requested_days = in_array( $requested_days, self::ALLOWED_DAYS, true )
-			? (int) $requested_days
-			: self::DEFAULT_DAYS;
+		$requested_days = in_array( $requested_days, self::ALLOWED_DAYS, true ) ? (int) $requested_days : self::DEFAULT_DAYS;
 
-		// $records arrives newest-first. Reverse to chronological ascending
-		// (oldest -> newest) for a natural left-to-right time axis, then
-		// keep only the most recent $requested_days of that — never more
-		// than what actually exists.
-		// Collapse multiple live evaluations onto one official calendar day.
-		// Records arrive newest-first; US Session is the official daily bar
-		// whenever it exists, otherwise Morning is used. Append-only storage
-		// remains untouched; this is only a public projection rule.
 		$official = array();
 		foreach ( $records as $record ) {
-			$raw_date = isset( $record['as_of'] ) ? $record['as_of'] : ( $record['date'] ?? '' );
-			$date_key = substr( (string) $raw_date, 0, 10 );
+			$date_key = self::market_date( $record );
 			if ( '' === $date_key ) continue;
-			if ( ! isset( $official[ $date_key ] ) || ( ( $record['edition'] ?? '' ) === 'us_session' && ( $official[ $date_key ]['edition'] ?? '' ) !== 'us_session' ) ) {
+			$edition = (string) ( $record['edition'] ?? '' );
+			$current_edition = isset( $official[ $date_key ] ) ? (string) ( $official[ $date_key ]['edition'] ?? '' ) : '';
+			$is_us_session = in_array( $edition, array( 'us_session', 'us_post_close' ), true );
+			$current_is_us_session = in_array( $current_edition, array( 'us_session', 'us_post_close' ), true );
+			if ( ! isset( $official[ $date_key ] ) || ( $is_us_session && ! $current_is_us_session ) ) {
+				$record['_bitmomo_public_market_date'] = $date_key;
 				$official[ $date_key ] = $record;
 			}
 		}
 		krsort( $official );
 		$official = array_slice( $official, 0, self::TARGET_DAYS, true );
 		$chronological = array_reverse( array_values( $official ) );
-		$available     = count( $chronological );
-
-		$slice = ( $requested_days >= $available )
-			? $chronological
-			: array_slice( $chronological, $available - $requested_days );
+		$available = count( $chronological );
+		$slice = $requested_days >= $available ? $chronological : array_slice( $chronological, $available - $requested_days );
 
 		$days = array();
-		foreach ( $slice as $record ) {
-			$days[] = self::project( $record );
-		}
+		foreach ( $slice as $record ) $days[] = self::project( $record );
 
 		return array(
 			'requested_days' => $requested_days,
-			'target_days'    => self::TARGET_DAYS,
+			'target_days' => self::TARGET_DAYS,
 			'available_days' => $available,
-			'days'           => $days,
+			'days' => $days,
 		);
 	}
 
 	/**
-	 * The frontend-safe field set. Deliberately an explicit whitelist
-	 * (never `array_diff_key`/blacklist) so a new diagnostic-only field
-	 * added to Bitmomo_Regime_State_Store::META_KEYS in the future cannot
-	 * leak to the frontend by omission.
+	 * Return the market day the edition belongs to, not the UTC date on which
+	 * the post-close snapshot happened to be stored. Canonical v2 edition ids
+	 * embed the America/New_York session anchor and are the strongest source.
 	 */
-	private static function project( $record ) {
-		$date = isset( $record['as_of'] ) && '' !== $record['as_of']
-			? $record['as_of']
-			: ( isset( $record['date'] ) ? $record['date'] : null );
+	public static function market_date( $record ) {
+		$source_id = (string) ( $record['source_record_id'] ?? '' );
+		if ( preg_match( '/^bitmomo-ai:(\d{4})(\d{2})(\d{2})T/', $source_id, $match ) ) {
+			return $match[1] . '-' . $match[2] . '-' . $match[3];
+		}
+		if ( preg_match( '/^bitmomo-ai:regime:(\d{4}-\d{2}-\d{2})(?::|$)/', $source_id, $match ) ) {
+			return $match[1];
+		}
 
+		$anchor = trim( (string) ( $record['session_anchor'] ?? '' ) );
+		if ( '' !== $anchor ) {
+			try {
+				return ( new DateTimeImmutable( $anchor ) )->setTimezone( new DateTimeZone( self::MARKET_TIMEZONE ) )->format( 'Y-m-d' );
+			} catch ( Exception $exception ) {}
+		}
+
+		$raw = trim( (string) ( $record['as_of'] ?? ( $record['date'] ?? '' ) ) );
+		if ( '' === $raw ) return '';
+		try {
+			// Current Regime scheduler persists as_of with gmdate(), so a value
+			// without an offset is explicitly interpreted as UTC here.
+			$timezone = preg_match( '/(?:Z|[+-]\d{2}:?\d{2})$/i', $raw ) ? null : new DateTimeZone( 'UTC' );
+			$date = null === $timezone ? new DateTimeImmutable( $raw ) : new DateTimeImmutable( $raw, $timezone );
+			return $date->setTimezone( new DateTimeZone( self::MARKET_TIMEZONE ) )->format( 'Y-m-d' );
+		} catch ( Exception $exception ) {
+			return '';
+		}
+	}
+
+	private static function project( $record ) {
+		$date = (string) ( $record['_bitmomo_public_market_date'] ?? self::market_date( $record ) );
 		return array(
-			'date'              => $date,
-			'regime'            => isset( $record['regime'] ) ? $record['regime'] : null,
-			'regime_label_id'   => Bitmomo_Regime_Taxonomy::regime_label_id( isset( $record['regime'] ) ? $record['regime'] : '' ),
-			'regime_label_en'   => Bitmomo_Regime_Taxonomy::regime_label_en( isset( $record['regime'] ) ? $record['regime'] : '' ),
-			'directional_bias'  => isset( $record['directional_bias'] ) ? $record['directional_bias'] : null,
+			'date' => $date,
+			'regime' => isset( $record['regime'] ) ? $record['regime'] : null,
+			'regime_label_id' => Bitmomo_Regime_Taxonomy::regime_label_id( isset( $record['regime'] ) ? $record['regime'] : '' ),
+			'regime_label_en' => Bitmomo_Regime_Taxonomy::regime_label_en( isset( $record['regime'] ) ? $record['regime'] : '' ),
+			'directional_bias' => isset( $record['directional_bias'] ) ? $record['directional_bias'] : null,
 			'regime_confidence' => isset( $record['regime_confidence'] ) ? $record['regime_confidence'] : null,
 		);
 	}
