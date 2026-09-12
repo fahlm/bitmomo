@@ -17,15 +17,18 @@ check( 'Hero is visitor-first rather than engine-first', false !== strpos( $html
 check( 'Unavailable reading fails closed', false !== strpos( $html, 'Pembacaan arah sedang ditahan' ) );
 check( 'No fabricated BTC reference without adapter', false === strpos( $html, '$65,000' ) && false === strpos( $html, '$65.000' ) );
 check( 'Only one Pro conversion action is rendered', 1 === substr_count( $html, 'Lihat Bitmomo Pro' ) );
+check( 'Page still renders accountability boundaries without data', false !== strpos( $html, 'Decision Ledger' ) && false !== strpos( $html, 'Arsip Pro' ) );
 
 $class_source = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' );
 $css = file_get_contents( dirname( __DIR__ ) . '/assets/css/bitmomo-btc-intelligence.css' );
 check( 'Public page never reads private scorecard directly', 0 === preg_match( '/Bitmomo_AI_Scorecard::/', $class_source ) );
 check( 'Public page never reads raw Regime State Store directly', 0 === preg_match( '/Bitmomo_Regime_State_Store::/', $class_source ) );
 check( 'Public page never calls Pro internals', 0 === preg_match( '/Bitmomo_Pro_[A-Za-z]+::/', $class_source ) );
+check( 'Public page reaches row evidence only through accountability boundary', false !== strpos( $class_source, 'Bitmomo_Btc_Intelligence_Accountability::decision_ledger' ) && false !== strpos( $class_source, 'Bitmomo_Btc_Intelligence_Accountability::delayed_proof' ) );
 check( 'Commercial-orange CTA token remains', false !== strpos( $css, '--bmi-orange:#f4ad32' ) && false !== strpos( $css, 'background:var(--bmi-orange)' ) );
 check( 'Secondary methodology stays progressively disclosed', false !== strpos( $css, '.bm-bi__details' ) );
 check( 'Mobile snapshot collapses to one column', false !== strpos( $css, '.bm-bi__snapshot-grid{grid-template-columns:1fr}' ) );
+check( 'Ledger overflow is contained instead of overflowing the page', false !== strpos( $css, '.bm-bi__ledger-wrap' ) && false !== strpos( $css, 'overflow-x:auto' ) );
 
 class Bitmomo_Public_Intelligence_Adapter {
 	public static $snapshot_fixture = null;
@@ -36,6 +39,13 @@ class Bitmomo_Public_Intelligence_Adapter {
 	public static function surface_context() { return self::$surface_fixture; }
 	public static function history() { return self::$history_fixture; }
 	public static function evaluation_summary() { return self::$evaluation_fixture; }
+}
+
+class Bitmomo_Btc_Intelligence_Accountability {
+	public static $ledger_fixture = array( 'rows' => array() );
+	public static $proof_fixture = array( 'delay_hours' => 48, 'rows' => array() );
+	public static function decision_ledger( $limit = 12 ) { return self::$ledger_fixture; }
+	public static function delayed_proof( $limit = 3 ) { return self::$proof_fixture; }
 }
 
 $opportunity = array(
@@ -90,6 +100,30 @@ Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
 	'data_quality' => array( 'n' => 40, 'stale_rate_pct' => 2.5, 'settlement_completeness_pct' => 92.5, 'sample_status' => 'ADEQUATE' ),
 );
 
+Bitmomo_Btc_Intelligence_Accountability::$ledger_fixture = array(
+	'provenance' => 'recorded_live_matured_outcomes', 'policy' => 'RECENT_MATURED_NO_RESULT_FILTER', 'evaluation_window' => '+24h',
+	'rows' => array(
+		array( 'generated_at' => '2026-09-10T02:00:00+00:00', 'direction' => 'bullish', 'confidence' => 74, 'session' => 'Morning', 'reference_price' => 64000, 'forward_return_pct' => 1.42, 'verdict' => 'aligned' ),
+		array( 'generated_at' => '2026-09-09T13:00:00+00:00', 'direction' => 'bearish', 'confidence' => 69, 'session' => 'US Session', 'reference_price' => 63500, 'forward_return_pct' => 0.88, 'verdict' => 'missed' ),
+		array( 'generated_at' => '2026-09-08T02:00:00+00:00', 'direction' => 'neutral', 'confidence' => 51, 'session' => 'Morning', 'reference_price' => 63100, 'forward_return_pct' => null, 'verdict' => 'unscored' ),
+	),
+);
+Bitmomo_Btc_Intelligence_Accountability::$proof_fixture = array(
+	'provenance' => 'frozen_published_pro_briefs', 'policy' => 'DELAYED_PUBLIC_PROOF_V1', 'delay_hours' => 48,
+	'rows' => array(
+		array(
+			'published_at' => '2026-09-08T12:00:00+00:00', 'market_state' => 'bullish', 'confidence' => 77,
+			'reference_price' => 63000, 'expected_range_low' => 62500, 'expected_range_high' => 64500,
+			'base_scenario' => 'BTC bertahan di atas support dan menguji sisi atas range.',
+			'bull_scenario' => 'Acceptance di atas resistance membuka ekspansi lanjutan.',
+			'bear_scenario' => 'Kehilangan support menggeser fokus ke downside.',
+			'invalidation' => 'Thesis batal jika support utama gagal dipertahankan.',
+			'what_changed' => 'Momentum membaik sementara funding tetap terkendali.',
+			'evaluation_status' => 'evaluated', 'verdict' => 'aligned', 'outcome_return_pct' => 1.11, 'range_hit' => 'yes',
+		),
+	),
+);
+
 $reflection = new ReflectionClass( 'Bitmomo_Btc_Intelligence_Page' );
 $instance = $reflection->newInstanceWithoutConstructor();
 $method = $reflection->getMethod( 'render_page' );
@@ -100,20 +134,26 @@ check( 'Current reading exposes direction in human language', false !== strpos( 
 check( 'Confidence is exact but explicitly not a price probability', false !== strpos( $html, '82/100' ) && false !== strpos( $html, 'bukan probabilitas harga' ) );
 check( 'Activity is translated into a visitor-facing state', false !== strpos( $html, 'AKTIVITAS PASAR' ) && false !== strpos( $html, '>Tinggi<' ) );
 check( 'Opportunity internals are not displayed', false === strpos( $html, 'activity percentile' ) && false === strpos( $html, '60m range' ) && false === strpos( $html, '84.2' ) && false === strpos( $html, '1.17%' ) );
-check( 'Market State taxonomy and classifier certainty stay out of public presentation', false === strpos( $html, 'Ekspansi' ) && false === strpos( $html, '76% certainty' ) && false === strpos( $html, 'MARKET STATE' ) );
+check( 'Market State taxonomy and classifier certainty stay out of current public presentation', false === strpos( $html, 'Ekspansi' ) && false === strpos( $html, 'Distribusi' ) && false === strpos( $html, '76% certainty' ) && false === strpos( $html, 'MARKET STATE' ) );
 check( 'Raw derivative kitchen metrics stay out of public presentation', false === strpos( $html, 'OI 24H' ) && false === strpos( $html, 'FUNDING' ) && false === strpos( $html, 'BASIS' ) );
 check( 'Only two visitor-relevant reasons render', false !== strpos( $html, 'Momentum BTC menguat.' ) && false !== strpos( $html, 'Volatilitas meningkat.' ) && false === strpos( $html, 'Driver ketiga tidak boleh tampil.' ) );
 check( 'What changed is capped and humanized', false !== strpos( $html, 'Arah berubah dari Netral menjadi Bullish.' ) && false !== strpos( $html, 'Keyakinan pembacaan berubah dari 61 menjadi 82.' ) && false === strpos( $html, 'strongest_driver' ) );
 check( 'Public trust metadata is concise', false !== strpos( $html, '13 Sep 2026 · 03:10 WIB' ) && false !== strpos( $html, 'Sumber data: Binance + Bybit' ) );
 check( '30-day context shows direction only', false !== strpos( $html, 'Bullish 2' ) && false !== strpos( $html, 'Netral 1' ) && false !== strpos( $html, 'Bearish 1' ) );
-check( '30-day context does not expose regime or classifier internals', false === strpos( $html, 'Distribusi' ) && false === strpos( $html, 'Akumulasi' ) && false === strpos( $html, 'classifier-secret' ) );
+check( '30-day context does not expose regime or classifier internals', false === strpos( $html, 'classifier-secret' ) );
+check( 'Decision Ledger includes wins, misses and unscored records instead of success-only rows', false !== strpos( $html, 'NO CHERRY-PICKING' ) && false !== strpos( $html, 'SESUAI' ) && false !== strpos( $html, 'MELESET' ) && false !== strpos( $html, 'TAK DINILAI' ) );
+check( 'Decision Ledger shows frozen-time view and forward outcome', false !== strpos( $html, '$64,000' ) && false !== strpos( $html, '+1.42%' ) );
+check( 'Decision Ledger does not dump internal methodology IDs', false === strpos( $html, 'observed-close-24h-v2' ) );
 check( 'Track record uses current methodology outcome only', false !== strpos( $html, '62.9%' ) && false !== strpos( $html, '63.0%' ) && false === strpos( $html, '11.1%' ) );
 check( 'Track record hides engine and classifier version identifiers', false === strpos( $html, 'engine-v2' ) && false === strpos( $html, 'classifier-v2' ) && false === strpos( $html, 'legacy-window-v1' ) );
-check( 'Track record exposes honest denominator', false !== strpos( $html, '35 outcome konklusif · 40 total' ) );
+check( 'Track record exposes honest denominator', false !== strpos( $html, '35 konklusif · 40 total' ) );
 check( 'Track record describes exact +24h evaluation', false !== strpos( $html, 'tepat +24 jam' ) );
-check( 'Legacy methodology is disclosed without dumping identifiers', false !== strpos( $html, 'metodologi sebelumnya tetap disimpan untuk audit' ) );
-check( 'Internal evaluation diagnostics do not render', false === strpos( $html, 'Range hit' ) && false === strpos( $html, 'Settlement complete' ) && false === strpos( $html, 'Stale rate' ) && false === strpos( $html, 'Confidence vs akurasi' ) );
-check( 'Free page does not leak Pro monitoring/scenario fields', false === strpos( $html, 'monitoring_conditions' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'what_to_watch' ) );
+check( 'Legacy methodology is disclosed without dumping identifiers', false !== strpos( $html, 'Metodologi lama tetap disimpan untuk audit' ) );
+check( 'Delayed Pro proof exposes a real historical decision contract', false !== strpos( $html, 'FROM THE PRO ARCHIVE' ) && false !== strpos( $html, 'BTC bertahan di atas support' ) && false !== strpos( $html, 'Thesis batal jika support utama gagal dipertahankan' ) );
+check( 'Delayed Pro proof exposes actual settled outcome and range result', false !== strpos( $html, '+1.11%' ) && false !== strpos( $html, 'Range hit: YA' ) );
+check( 'Delayed Pro proof is explicitly historical and time-delayed', false !== strpos( $html, 'DELAY ≥ 48 JAM' ) && false !== strpos( $html, 'Arsip historis · bukan guidance saat ini' ) );
+check( 'Internal evaluation diagnostics still do not render', false === strpos( $html, 'Settlement complete' ) && false === strpos( $html, 'Stale rate' ) && false === strpos( $html, 'Confidence vs akurasi' ) );
+check( 'Free page does not leak current-Pro internal field identifiers', false === strpos( $html, 'monitoring_conditions' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'what_to_watch' ) );
 
 Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['status'] = 'delayed';
 Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['freshness']['state'] = 'delayed';
