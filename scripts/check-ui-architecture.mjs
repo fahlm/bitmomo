@@ -69,8 +69,8 @@ for (const marker of ['bitmomo_public_snapshot_contract','bitmomo-snapshot-contr
 if (!functionsPhp.includes("'schema' => 2") || functionsPhp.includes("'market_state' =>") || functionsPhp.includes("'opportunity_state' =>")) {
   fail('public snapshot HTML contract must mirror visible public facts only');
 }
-if (!functionsPhp.includes('Decision Ledger') || !functionsPhp.includes('bukti historis Bitmomo Pro')) {
-  fail('launch SEO must describe the accountability/proof product that is actually public');
+if (!functionsPhp.includes('riwayat evaluasi') || !functionsPhp.includes('bukti historis Bitmomo Pro')) {
+  fail('launch SEO must describe accountability and historical proof in visitor language');
 }
 
 const frontendTrait = fs.readFileSync(path.join(themeDir, 'inc/trait-bitmomo-frontend.php'), 'utf8');
