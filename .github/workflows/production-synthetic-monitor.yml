@@ -1,0 +1,121 @@
+name: Production synthetic monitor
+
+on:
+  schedule:
+    - cron: "3,18,33,48 * * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/production-synthetic-monitor.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-synthetic-monitor
+  cancel-in-progress: true
+
+jobs:
+  production-health:
+    name: Public production health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check launch-critical public surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          has_robots_noindex() {
+            python3 - "$1" <<'PY'
+          import re
+          import sys
+
+          with open(sys.argv[1], encoding="utf-8", errors="ignore") as handle:
+              html = handle.read()
+
+          for tag in re.findall(r"<meta\b[^>]*>", html, flags=re.IGNORECASE):
+              is_robots = re.search(r"\bname\s*=\s*['\"]robots['\"]", tag, flags=re.IGNORECASE)
+              is_noindex = re.search(r"\bcontent\s*=\s*['\"][^'\"]*\bnoindex\b", tag, flags=re.IGNORECASE)
+              if is_robots and is_noindex:
+                  raise SystemExit(0)
+
+          raise SystemExit(1)
+          PY
+          }
+
+          check_page() {
+            local url="$1"
+            local marker="$2"
+            local body
+            local code
+            body="$(mktemp)"
+            code="$(curl --location --silent --show-error --max-time 20 --output "${body}" --write-out '%{http_code}' "${url}")"
+
+            if [[ "${code}" != "200" ]]; then
+              echo "::error title=Production HTTP failure::${url} returned HTTP ${code}"
+              cat "${body}" || true
+              exit 1
+            fi
+
+            if ! grep -Fq "${marker}" "${body}"; then
+              echo "::error title=Production content contract failure::${url} is missing marker: ${marker}"
+              exit 1
+            fi
+
+            if grep -Eqi 'Fatal error|Parse error|Uncaught (Error|Exception)|<b>Warning</b>|<b>Notice</b>' "${body}"; then
+              echo "::error title=PHP/runtime leakage::${url} exposes a PHP/runtime error marker"
+              exit 1
+            fi
+
+            if grep -Eqi 'seagreen|staging\.bitmomo|\.hostingersite\.|\.hostingerapp\.' "${body}"; then
+              echo "::error title=Environment leakage::${url} exposes a staging/preview hostname"
+              exit 1
+            fi
+
+            if has_robots_noindex "${body}"; then
+              echo "::error title=Production indexing regression::${url} unexpectedly contains robots noindex"
+              exit 1
+            fi
+
+            rm -f "${body}"
+            echo "PASS ${url}"
+          }
+
+          check_page "https://bitmomo.id/" "BTC Intelligence"
+          check_page "https://bitmomo.id/btc-intelligence/" "Pahami BTC dalam konteks."
+          check_page "https://bitmomo.id/pro/" "FOUNDING MEMBERSHIP"
+
+      - name: Verify BTC Intelligence provenance contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(mktemp)"
+          code="$(curl --location --silent --show-error --max-time 20 --output "${body}" --write-out '%{http_code}' 'https://bitmomo.id/btc-intelligence/')"
+          test "${code}" = "200"
+          grep -Fq 'SOURCE' "${body}"
+          grep -Fq 'AS OF' "${body}"
+          grep -Fq 'WIB' "${body}"
+          rm -f "${body}"
+          echo 'PASS provenance SOURCE / AS OF / WIB'
+
+      - name: Diagnose public Binance USD-M reachability
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          code="$(curl --location --silent --show-error --connect-timeout 5 --max-time 10 --output /tmp/binance-ping --write-out '%{http_code}' 'https://fapi.binance.com/fapi/v1/ping')"
+          rc=$?
+          set -e
+
+          if [[ "${rc}" -ne 0 ]]; then
+            echo "::warning title=External Binance diagnostic::GitHub runner could not connect to Binance USD-M (curl ${rc}, HTTP ${code:-000}). Production Issue #90 remains independently tracked."
+            exit 0
+          fi
+
+          if [[ "${code}" != "200" ]]; then
+            echo "::warning title=External Binance diagnostic::Binance USD-M returned HTTP ${code} from the GitHub runner. Production Issue #90 remains independently tracked."
+            exit 0
+          fi
+
+          echo "PASS external Binance USD-M endpoint reachable from GitHub runner"
