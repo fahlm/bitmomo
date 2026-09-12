@@ -26,6 +26,8 @@ const homeHero = read('website/wp-content/themes/bitmomo-child-v3/template-parts
 const btcCard = read('website/wp-content/themes/bitmomo-child-v3/template-parts/btc-intelligence-card.php');
 const research = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research.php');
 const frontendTrait = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-frontend.php');
+const retentionJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-retention.js');
+const retentionOutput = withoutCommentLines(retentionJs);
 const publicAdapter = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php');
 const btcIntelligencePlugin = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
@@ -145,6 +147,30 @@ check(
 	/BTC \/ MARKET RESEARCH/.test(research)
 		&& /get_term_by\( 'slug', 'ai-lab', 'post_tag' \)/.test(research)
 		&& /tag__not_in/.test(research)
+);
+check(
+	'BTC Intelligence loads a dedicated repeat-use telemetry script only on the product page',
+	/bitmomo_enqueue_btc_retention_telemetry/.test(themeFunctions)
+		&& /is_page\('btc-intelligence'\)/.test(themeFunctions)
+		&& /bitmomo-retention\.js/.test(themeFunctions)
+);
+check(
+	'BTC repeat-use telemetry measures views, meaningful returns, history interactions, and Pro intent provider-neutrally',
+	/btc_intelligence_view/.test(retentionJs)
+		&& /btc_intelligence_return_visit/.test(retentionJs)
+		&& /btc_history_interaction/.test(retentionJs)
+		&& /btc_pro_interest/.test(retentionJs)
+		&& /return_window/.test(retentionJs)
+		&& /CustomEvent\('bitmomo:analytics'/.test(retentionJs)
+		&& /Array\.isArray\(window\.dataLayer\)/.test(retentionJs)
+		&& !/gtag\(|google-analytics|googletagmanager/.test(retentionJs)
+);
+check(
+	'BTC repeat-use telemetry stores only a local timestamp and does not create a persistent identity',
+	/localStorage\.getItem\(VISIT_KEY\)/.test(retentionJs)
+		&& /localStorage\.setItem\(VISIT_KEY, String\(now\)\)/.test(retentionJs)
+		&& /MIN_RETURN_MS/.test(retentionJs)
+		&& !/Math\.random|randomUUID|document\.cookie|user_id|client_id|device_id/.test(retentionOutput)
 );
 
 let pass = 0;
