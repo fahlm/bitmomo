@@ -90,6 +90,11 @@ for (const marker of p0Markers) {
   }
 }
 
+const frontendTrait = fs.readFileSync(path.join(themeDir, 'inc/trait-bitmomo-frontend.php'), 'utf8');
+if (!frontendTrait.includes("is_front_page() || is_page(['pro', 'btc-intelligence'])")) {
+  fail('legacy newsletter modal must stay suppressed on homepage, Pro and BTC Intelligence launch surfaces');
+}
+
 const pageTemplate = fs.readFileSync(path.join(themeDir, 'page.php'), 'utf8');
 const templateFunctions = fs.readFileSync(path.join(themeDir, 'inc/template-functions.php'), 'utf8');
 if (
