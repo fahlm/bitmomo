@@ -2,18 +2,18 @@
 /**
  * Canonical Bitmomo Research Hub.
  *
- * Uses the existing Riset category as the publication source of truth while
- * separating market research from AI Lab by the ai-lab tag. No article is
- * fabricated and no unpublished capability is presented as existing work.
+ * Riset remains the publication source of truth. AI Systems Research is the
+ * ai-lab tagged subset; the remaining Riset corpus is Market Research. All
+ * public surfaces consume the same taxonomy helpers so classification cannot
+ * drift between hub, article and related-content surfaces.
  *
  * @package Bitmomo
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$bm_riset_term = get_category_by_slug( 'riset' );
-$bm_riset_id   = $bm_riset_term ? (int) $bm_riset_term->term_id : 0;
-$bm_ai_tag     = get_term_by( 'slug', 'ai-lab', 'post_tag' );
-$bm_ai_tag_id  = ( $bm_ai_tag && ! is_wp_error( $bm_ai_tag ) ) ? (int) $bm_ai_tag->term_id : 0;
+$bm_taxonomy  = bitmomo_research_taxonomy();
+$bm_riset_id  = (int) $bm_taxonomy['riset_id'];
+$bm_ai_tag_id = (int) $bm_taxonomy['ai_lab_tag_id'];
 
 $bm_featured_posts = $bm_riset_id ? get_posts( array(
     'post_type'              => 'post',
@@ -27,7 +27,8 @@ $bm_featured_posts = $bm_riset_id ? get_posts( array(
     'update_post_meta_cache' => false,
     'update_post_term_cache' => true,
 ) ) : array();
-$bm_featured = $bm_featured_posts ? $bm_featured_posts[0] : null;
+$bm_featured    = $bm_featured_posts ? $bm_featured_posts[0] : null;
+$bm_featured_id = $bm_featured ? (int) $bm_featured->ID : 0;
 
 $bm_market_args = array(
     'post_type'              => 'post',
@@ -42,22 +43,24 @@ $bm_market_args = array(
     'update_post_term_cache' => true,
 );
 if ( $bm_ai_tag_id ) $bm_market_args['tag__not_in'] = array( $bm_ai_tag_id );
-if ( $bm_featured ) $bm_market_args['post__not_in'] = array( (int) $bm_featured->ID );
+if ( $bm_featured_id ) $bm_market_args['post__not_in'] = array( $bm_featured_id );
 $bm_market_posts = $bm_riset_id ? get_posts( $bm_market_args ) : array();
 
-$bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
+$bm_ai_args = array(
     'post_type'              => 'post',
     'post_status'            => 'publish',
     'posts_per_page'         => 4,
     'cat'                    => $bm_riset_id,
-    'tag__in'                => array( $bm_ai_tag_id ),
+    'tag__in'                => $bm_ai_tag_id ? array( $bm_ai_tag_id ) : array( 0 ),
     'orderby'                => 'date',
     'order'                  => 'DESC',
     'ignore_sticky_posts'    => true,
     'no_found_rows'          => true,
     'update_post_meta_cache' => false,
     'update_post_term_cache' => true,
-) ) : array();
+);
+if ( $bm_featured_id ) $bm_ai_args['post__not_in'] = array( $bm_featured_id );
+$bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( $bm_ai_args ) : array();
 ?>
 <section class="bm-research-hub" aria-labelledby="bm-research-hub-title">
   <div class="bm-container">
@@ -76,7 +79,7 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
         <h2>Crypto Market Research</h2>
         <p>Bitcoin, market structure, derivatives positioning, liquidity, macro, volatility, cycle behavior, dan fundamental drivers yang mengubah konteks pasar.</p>
         <ul aria-label="Fokus Crypto Market Research">
-          <li>Bitcoin</li><li>Market Structure</li><li>Derivatives</li><li>Macro & Liquidity</li><li>Fundamentals</li>
+          <li>Bitcoin</li><li>Market Structure</li><li>Derivatives</li><li>Macro &amp; Liquidity</li><li>Fundamentals</li>
         </ul>
       </article>
       <article class="bm-research-discipline">
@@ -90,14 +93,14 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
     </div>
 
     <?php if ( $bm_featured ) :
-      $bm_featured_categories = get_the_category( $bm_featured->ID );
-      $bm_featured_label = $bm_featured_categories ? $bm_featured_categories[0]->name : __( 'Research', 'bitmomo' );
+      $bm_featured_cat = bitmomo_primary_public_category( $bm_featured_id );
+      $bm_featured_label = $bm_featured_cat ? $bm_featured_cat->name : bitmomo_research_classification_label( $bm_featured_id );
       $bm_featured_excerpt = wp_trim_words( get_the_excerpt( $bm_featured ), 34, '…' );
     ?>
       <section class="bm-research-featured" aria-labelledby="bm-featured-research-title">
         <header class="bm-research-section-head">
           <div><span class="bm-eyebrow">FEATURED RESEARCH</span><h2 id="bm-featured-research-title">Riset unggulan terbaru</h2></div>
-          <p>Analisis yang kami anggap paling relevan untuk memahami perubahan pasar atau sistem intelligence saat ini.</p>
+          <p>Analisis terbaru yang kami sorot untuk membantu memahami perubahan pasar atau sistem intelligence.</p>
         </header>
         <article class="bm-research-featured__card">
           <a class="bm-research-featured__media" href="<?php echo esc_url( get_permalink( $bm_featured ) ); ?>" aria-label="<?php echo esc_attr( get_the_title( $bm_featured ) ); ?>">
@@ -177,8 +180,8 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
       <?php if ( have_posts() ) : ?>
         <div class="bm-research-grid">
           <?php while ( have_posts() ) : the_post();
-            $bm_card_categories = get_the_category();
-            $bm_card_label = $bm_card_categories ? $bm_card_categories[0]->name : __( 'Research', 'bitmomo' );
+            $bm_card_cat = bitmomo_primary_public_category( get_the_ID() );
+            $bm_card_label = $bm_card_cat ? $bm_card_cat->name : bitmomo_research_classification_label( get_the_ID() );
           ?>
             <article <?php post_class( 'bm-research-card' ); ?>>
               <a class="bm-research-card__art" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
@@ -203,8 +206,8 @@ $bm_ai_posts = ( $bm_riset_id && $bm_ai_tag_id ) ? get_posts( array(
 </section>
 <?php
 unset(
-  $bm_riset_term, $bm_riset_id, $bm_ai_tag, $bm_ai_tag_id, $bm_featured_posts, $bm_featured,
-  $bm_market_args, $bm_market_posts, $bm_ai_posts, $bm_featured_categories, $bm_featured_label,
-  $bm_featured_excerpt, $bm_post, $bm_card_categories, $bm_card_label
+  $bm_taxonomy, $bm_riset_id, $bm_ai_tag_id, $bm_featured_posts, $bm_featured, $bm_featured_id,
+  $bm_market_args, $bm_market_posts, $bm_ai_args, $bm_ai_posts, $bm_featured_cat, $bm_featured_label,
+  $bm_featured_excerpt, $bm_post, $bm_card_cat, $bm_card_label
 );
 ?>
