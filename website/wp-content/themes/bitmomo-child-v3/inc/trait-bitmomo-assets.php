@@ -29,7 +29,6 @@ trait Bitmomo_Assets_Trait {
     }
 
     public function enqueue_styles() {
-        // Parent (Hello Elementor) style.
         wp_enqueue_style(
             'hello-elementor-style',
             get_template_directory_uri() . '/style.css',
@@ -37,14 +36,8 @@ trait Bitmomo_Assets_Trait {
             null
         );
 
-        // Critical CSS inline (optional).
-        $critical_path = get_stylesheet_directory() . '/critical.css';
-        if (file_exists($critical_path)) {
-            printf("<style>%s</style>\n", @file_get_contents($critical_path));
-        }
-
-        // Legacy child stylesheet remains first. New public layers must be
-        // enqueued after this so they can intentionally neutralize old rules.
+        // Frozen legacy layer. It stays first until migrated away, and must not
+        // receive new public-surface ownership.
         $custom_css_path = get_stylesheet_directory() . '/custom.css';
         wp_enqueue_style(
             'bitmomo-child',
@@ -53,20 +46,30 @@ trait Bitmomo_Assets_Trait {
             $this->get_file_version($custom_css_path)
         );
 
+        // Canonical cross-surface foundation: tokens, keyboard focus, touch
+        // targets, reduced motion and form defaults. Every modern public layer
+        // depends on this rather than adding more rules to custom.css.
+        $design_system_path = get_stylesheet_directory() . '/assets/css/design-system.css';
         $public_base_deps = ['bitmomo-child'];
+        if (file_exists($design_system_path)) {
+            wp_enqueue_style(
+                'bitmomo-design-system',
+                get_stylesheet_directory_uri() . '/assets/css/design-system.css',
+                ['bitmomo-child'],
+                $this->get_file_version($design_system_path)
+            );
+            $public_base_deps = ['bitmomo-design-system'];
+        }
 
-        // Shared public readability contract. This is deliberately separate
-        // from the frozen legacy custom.css: it owns readable secondary text /
-        // CTA contrast and becomes an explicit dependency for public surfaces.
         $readability_css_path = get_stylesheet_directory() . '/assets/css/public-readability.css';
         if (file_exists($readability_css_path)) {
             wp_enqueue_style(
                 'bitmomo-public-readability',
                 get_stylesheet_directory_uri() . '/assets/css/public-readability.css',
-                ['bitmomo-child'],
+                $public_base_deps,
                 $this->get_file_version($readability_css_path)
             );
-            $public_base_deps[] = 'bitmomo-public-readability';
+            $public_base_deps = ['bitmomo-public-readability'];
         }
 
         $public_surface_deps = $public_base_deps;
@@ -92,8 +95,6 @@ trait Bitmomo_Assets_Trait {
             $public_surface_deps = ['bitmomo-navigation-footer'];
         }
 
-        // Long-form articles get a dedicated final readability layer. Keep it
-        // single-post only so research typography cannot leak into product UI.
         if (is_single()) {
             $article_css_path = get_stylesheet_directory() . '/assets/css/article-reading.css';
             if (file_exists($article_css_path)) {
@@ -106,9 +107,6 @@ trait Bitmomo_Assets_Trait {
             }
         }
 
-        // Homepage-only intelligence and conversion presentation. These are
-        // intentionally loaded last on the homepage so final conversion layout
-        // cannot be overwritten by generic public-surface rules.
         if (is_front_page()) {
             $opportunity_css_path = get_stylesheet_directory() . '/assets/css/home-opportunity.css';
             if (file_exists($opportunity_css_path)) {
@@ -132,9 +130,6 @@ trait Bitmomo_Assets_Trait {
             }
         }
 
-        // Institutional authority surfaces own their page-specific layers.
-        // Keep these out of frozen custom.css and after the shared chrome so
-        // their hierarchy cannot be diluted by legacy archive/page rules.
         if (is_category('riset')) {
             $research_css_path = get_stylesheet_directory() . '/assets/css/research.css';
             if (file_exists($research_css_path)) {
@@ -209,10 +204,8 @@ trait Bitmomo_Assets_Trait {
     }
 
     public function add_resource_hints($urls,$rel) {
-        if ($rel==='preconnect') {
-            $urls[] = ['href'=>'https://fonts.gstatic.com','crossorigin'=>true];
-            $urls[] = ['href'=>'https://cdn.bitmomo.id','crossorigin'=>true];
-        }
+        // No speculative third-party preconnects. Add one only when a public
+        // route actually owns a stable render-critical dependency on it.
         return $urls;
     }
 }
