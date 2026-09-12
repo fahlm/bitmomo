@@ -126,6 +126,28 @@ if (!function_exists('bitmomo_post_research_classification')) {
     }
 }
 
+if (!function_exists('bitmomo_post_publication_label')) {
+    /**
+     * Canonical article eyebrow. Generic Riset membership must never upgrade a
+     * legacy/editorial post into institutional research on the article itself.
+     */
+    function bitmomo_post_publication_label($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        $classification = bitmomo_post_research_classification($post_id);
+
+        if ('market' === $classification) return 'MARKET RESEARCH';
+        if ('ai-systems' === $classification) return 'INTELLIGENCE SYSTEMS RESEARCH';
+
+        $categories = get_the_category($post_id);
+        foreach ($categories as $category) {
+            if ('riset' === $category->slug) continue;
+            return strtoupper((string) $category->name);
+        }
+
+        return 'PUBLIKASI';
+    }
+}
+
 if (!function_exists('bitmomo_research_focus_filters')) {
     /**
      * Canonical Research Hub discovery vocabulary. This allowlist owns both UI
@@ -242,6 +264,31 @@ if (!function_exists('bitmomo_post_reading_minutes')) {
         $content = (string) get_post_field('post_content', $post_id);
         $words = str_word_count(wp_strip_all_tags(strip_shortcodes($content)));
         return max(1, (int) ceil($words / 220));
+    }
+}
+
+if (!function_exists('bitmomo_post_manual_deck')) {
+    /** Manual excerpts are editorial decks; generated excerpts are not duplicated above the body. */
+    function bitmomo_post_manual_deck($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        if (!$post_id) return '';
+
+        $excerpt = trim((string) get_post_field('post_excerpt', $post_id));
+        if ('' === $excerpt) return '';
+
+        return trim(wp_strip_all_tags(strip_shortcodes($excerpt)));
+    }
+}
+
+if (!function_exists('bitmomo_post_has_meaningful_update')) {
+    /** Avoid noisy "updated" metadata for tiny autosave/publish-time differences. */
+    function bitmomo_post_has_meaningful_update($post_id = 0) {
+        $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+        if (!$post_id) return false;
+
+        $published = (int) get_post_time('U', true, $post_id);
+        $modified  = (int) get_post_modified_time('U', true, $post_id);
+        return $published > 0 && $modified > ($published + DAY_IN_SECONDS);
     }
 }
 
