@@ -32,6 +32,30 @@ No public Bitmomo route may silently inherit an unreviewed Hello Elementor layou
 - Public product/data claims must describe capabilities and inputs that actually exist in the current live system. Do not imply unsupported continuous order-book/on-chain ingestion, real-time monitoring, 24/7 delivery, or other future capability as live.
 - Navigation, CTA and disclosure semantics remain usable without color alone.
 
+## Navigation and retention contract
+
+The public header is intentionally small. Its primary information architecture is:
+
+- BTC Intelligence
+- Riset
+- Tentang
+- Masuk
+- one commercial `BITMOMO PRO` CTA
+
+`Bitmomo Pro` must not appear a second time as an equal-weight content-navigation link. The active route is expressed with `aria-current="page"` and a non-color visual treatment.
+
+On mobile, a visually collapsed navigation is also removed from keyboard/accessibility traversal. A closed menu uses `inert` + `aria-hidden`; opening restores access. The menu must close after a nav selection, outside click, Escape, and when returning to desktop width.
+
+Newsletter is a retention utility, not a launch conversion hero. There is exactly one permanent public subscribe surface: a compact MailPoet form in the global footer. The former newsletter modal is structurally disabled on every route, and `/subscribe`, `#subscribe`, or legacy newsletter links resolve to the footer anchor rather than opening an overlay.
+
+The footer groups product, research and trust/legal links, then exposes the compact email subscribe form beside canonical social destinations:
+
+- Telegram: `https://t.me/bitmomodaily`
+- YouTube: `https://www.youtube.com/@bitmomoid`
+- X: `https://x.com/bitmomoid`
+
+These destinations may be changed through the narrow public-link filters, but footer markup must not hard-code divergent copies of the URLs.
+
 ## WordPress content ownership boundary
 
 A canonical child-theme wrapper does **not** prove the database content is clean. Legacy Elementor/database markup can survive inside the new public template even after route ownership moves to the child theme.
@@ -67,7 +91,12 @@ Acceptance:
 - touch targets remain usable on mobile;
 - product fail-closed/data semantics remain unchanged;
 - `/pro/` has one canonical conversion path and contains no unsupported live-data claim;
-- `/help/` interactive FAQ/accordion behavior remains functional.
+- `/help/` interactive FAQ/accordion behavior remains functional;
+- header contains one and only one public Pro destination/CTA;
+- desktop nav exposes the intended five destinations and an active-route state;
+- mobile menu opens/closes correctly and hidden links are not keyboard-focusable while closed;
+- footer email form is compact, usable and does not create a second modal/overlay;
+- Telegram, YouTube and X footer destinations resolve to the canonical URLs above.
 
 ## CI prevention
 
@@ -82,6 +111,17 @@ Acceptance:
 - the canonical public-surface stylesheet is no longer loaded;
 - ordinary-page body content stops passing through the H1 normalizer;
 - the unified homepage whitelist loses its grid shrink/width containment and can overflow narrow viewports.
+
+`check-navigation-footer.mjs`, run by both Theme Safety and Full Release Safety, additionally protects:
+
+- one canonical Pro header CTA with no duplicate Pro content-nav entry;
+- `aria-current` active-route semantics;
+- inaccessible closed-mobile-menu prevention via `inert` / `aria-hidden`;
+- footer-only newsletter ownership and structural removal of modal markup;
+- legacy subscribe links resolving to the footer;
+- compact responsive footer MailPoet presentation;
+- canonical Telegram, YouTube and X destinations;
+- deterministic stylesheet ordering for the navigation/footer layer.
 
 `release-safety.yml` / the M2 launch-surface contract additionally protects product semantics, including:
 
