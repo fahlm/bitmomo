@@ -50,11 +50,23 @@ add_filter('hello_elementor_page_title', 'bitmomo_filter_help_page_title');
 
 /** Canonical SEO owner for every launch-critical public surface. */
 function bitmomo_public_seo_title($title) {
-    if (is_front_page()) return 'Bitmomo — BTC Market Intelligence';
+    if (is_front_page()) return 'Bitmomo — Bitcoin Market Intelligence & Research';
     if (is_page('pro')) return 'Bitmomo Pro — BTC Market Intelligence';
     if (is_page('btc-intelligence')) return 'BTC Intelligence — Bitmomo';
     if (is_page('tentang-kami')) return 'Tentang Bitmomo — Market Research & Intelligence Systems';
-    if (is_category('riset')) return 'Bitmomo Research — Markets & Intelligence Systems';
+    if (is_category('riset')) return 'Bitmomo Research — Bitcoin Markets & Intelligence Systems';
+
+    if (is_single()) {
+        $post_id = (int) get_queried_object_id();
+        $post_title = trim(wp_strip_all_tags((string) get_the_title($post_id)));
+        $classification = function_exists('bitmomo_post_research_classification')
+            ? bitmomo_post_research_classification($post_id)
+            : 'unclassified';
+        $suffix = in_array($classification, ['market', 'ai-systems'], true)
+            ? ' — Bitmomo Research'
+            : ' — Bitmomo';
+        return $post_title ? $post_title . $suffix : $title;
+    }
 
     $account = get_page_by_path('pro/account', OBJECT, 'page');
     if ($account && is_page((int) $account->ID)) return 'Akun Bitmomo Pro — Bitmomo';
@@ -65,11 +77,19 @@ add_filter('pre_get_document_title', 'bitmomo_public_seo_title', 20);
 add_filter('rank_math/frontend/title', 'bitmomo_public_seo_title', 20);
 
 function bitmomo_public_seo_description($description) {
-    if (is_front_page()) return 'Bitmomo merangkum arah BTC, tingkat keyakinan analisis, dan alasan utamanya dari data pasar terbaru.';
+    if (is_front_page()) return 'Riset dan market intelligence Bitcoin berbasis evidence: kondisi pasar, konteks, skenario, dan evaluasi thesis dalam satu sistem yang dapat diuji.';
     if (is_page('pro')) return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan pandangan pasar perlu berubah.';
     if (is_page('btc-intelligence')) return 'Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record pembacaan Bitmomo.';
     if (is_page('tentang-kami')) return 'Bitmomo adalah research & intelligence platform untuk digital-asset markets dan intelligence systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
-    if (is_category('riset')) return 'Bitmomo Research menyajikan market research dan intelligence systems research yang berfokus pada evidence, thesis, provenance, dan evaluation.';
+    if (is_category('riset')) return 'Bitmomo Research menyajikan market research Bitcoin dan intelligence systems research dengan evidence, thesis, provenance, dan evaluation yang eksplisit.';
+
+    if (is_single()) {
+        $post_id = (int) get_queried_object_id();
+        $excerpt = trim((string) get_post_field('post_excerpt', $post_id));
+        $source = $excerpt !== '' ? $excerpt : (string) get_post_field('post_content', $post_id);
+        $plain = trim(preg_replace('/\s+/', ' ', wp_strip_all_tags(strip_shortcodes($source))));
+        if ($plain !== '') return wp_trim_words($plain, 30, '…');
+    }
 
     $account = get_page_by_path('pro/account', OBJECT, 'page');
     if ($account && is_page((int) $account->ID)) return 'Masuk untuk melihat status dan akses akun Bitmomo Pro Anda.';
@@ -110,6 +130,7 @@ function bitmomo_render_public_meta_description_fallback() {
     $is_launch_surface = is_front_page()
         || is_page(['pro', 'btc-intelligence', 'tentang-kami'])
         || is_category('riset')
+        || is_single()
         || $is_account;
 
     if (!$is_launch_surface) return;
