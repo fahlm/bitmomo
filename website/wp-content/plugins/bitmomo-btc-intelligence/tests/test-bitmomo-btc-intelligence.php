@@ -34,6 +34,8 @@ $css = file_get_contents( dirname( __DIR__ ) . '/assets/css/bitmomo-btc-intellig
 check( 'Commercial-orange CTA token remains', false !== strpos( $css, '--bmi-orange:#f4ad32' ) && false !== strpos( $css, 'background:var(--bmi-orange)' ) );
 check( 'Confidence has proportional visual meter', false !== strpos( $css, 'width:var(--bm-confidence)' ) );
 check( 'Secondary proof stays progressively disclosed', false !== strpos( $css, '.bm-bi__details' ) );
+check( 'Responsive snapshot collapses to two columns on tablet/mobile', false !== strpos( $css, '.bm-bi__snapshot-grid{grid-template-columns:1fr 1fr}' ) );
+check( 'Narrow Opportunity header stacks instead of overflowing', false !== strpos( $css, '.bm-bi__opportunity-head{align-items:flex-start;flex-direction:column' ) );
 
 class Bitmomo_Public_Intelligence_Adapter {
 	public static $snapshot_fixture = null; public static $surface_fixture = array(); public static $evaluation_fixture = null;
@@ -63,12 +65,12 @@ $metric_a=array('n'=>40,'conclusive_n'=>35,'correct'=>22,'incorrect'=>13,'inconc
 $metric_b=array('n'=>20,'conclusive_n'=>14,'correct'=>8,'incorrect'=>6,'inconclusive'=>6,'accuracy_pct'=>57.1,'sample_status'=>'EARLY SAMPLE');
 Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
 	'directional_evaluation'=>array(
-		'engine-v2 | classifier-v2'=>array('all'=>$metric_a,'rolling_30'=>array_merge($metric_a,array('n'=>30,'conclusive_n'=>27,'accuracy_pct'=>63.0)),'by_direction'=>array('bullish'=>$metric_a,'bearish'=>$metric_b,'neutral'=>$metric_b),'confidence_buckets'=>array(array_merge($metric_b,array('range'=>'70–100')))),
-		'engine-v1 | classifier-v1'=>array('all'=>$metric_b,'rolling_30'=>$metric_b,'by_direction'=>array('bullish'=>$metric_b,'bearish'=>$metric_b,'neutral'=>$metric_b),'confidence_buckets'=>array(array_merge($metric_b,array('range'=>'40–69')))),
+		'engine-v2 | classifier-v2 | observed-close-24h-v2'=>array('latest_generated_at'=>'2026-09-03T00:10:07+00:00','outcome_methodology'=>'observed-close-24h-v2','all'=>$metric_a,'rolling_30'=>array_merge($metric_a,array('n'=>30,'conclusive_n'=>27,'accuracy_pct'=>63.0)),'by_direction'=>array('bullish'=>$metric_a,'bearish'=>$metric_b,'neutral'=>$metric_b),'confidence_buckets'=>array(array_merge($metric_b,array('range'=>'70–100')))),
+		'engine-v1 | classifier-v1 | legacy-window-v1'=>array('latest_generated_at'=>'2026-08-01T00:10:07+00:00','outcome_methodology'=>'legacy-window-v1','all'=>$metric_b,'rolling_30'=>$metric_b,'by_direction'=>array('bullish'=>$metric_b,'bearish'=>$metric_b,'neutral'=>$metric_b),'confidence_buckets'=>array(array_merge($metric_b,array('range'=>'40–69')))),
 	),
-	'expected_range_evaluation'=>array('policy'=>'FROZEN_ORIGINAL_ONLY','versions'=>array('range-v2'=>array('n'=>30,'range_hit_pct'=>70.0,'low_breach_pct'=>13.3,'high_breach_pct'=>16.7,'sample_status'=>'ADEQUATE'),'range-v1'=>array('n'=>12,'range_hit_pct'=>58.3,'low_breach_pct'=>16.7,'high_breach_pct'=>25.0,'sample_status'=>'EARLY SAMPLE'))),
-	'regime_performance'=>array('versions'=>array('classifier-v2'=>array('expansion'=>array('n'=>14,'average_forward_return_pct'=>1.2,'sample_status'=>'EARLY SAMPLE')))),
-	'data_quality'=>array('n'=>40,'stale_rate_pct'=>2.5,'blocked_degraded_rate_pct'=>5.0,'missing_data_rate_pct'=>1.0,'settlement_completeness_pct'=>92.5,'sample_status'=>'ADEQUATE'),
+	'expected_range_evaluation'=>array('policy'=>'FROZEN_VERSIONED_ORIGINAL_ONLY','versions'=>array('engine-v2 | range-model-v1'=>array('n'=>30,'range_hit_pct'=>70.0,'low_breach_pct'=>13.3,'high_breach_pct'=>16.7,'sample_status'=>'ADEQUATE'))),
+	'regime_performance'=>array('versions'=>array('classifier-v2 | observed-close-24h-v2'=>array('expansion'=>array('n'=>14,'average_forward_return_pct'=>1.2,'sample_status'=>'EARLY SAMPLE')))),
+	'data_quality'=>array('n'=>40,'stale_rate_pct'=>2.5,'blocked_degraded_rate_pct'=>5.0,'missing_data_rate_pct'=>1.0,'settlement_n'=>37,'settlement_evaluated_n'=>35,'settlement_missed_n'=>2,'settlement_pending_n'=>3,'settlement_completeness_pct'=>94.6,'sample_status'=>'ADEQUATE'),
 );
 
 $html = render_bmi( $reflection );
@@ -82,9 +84,9 @@ check( 'Observed 24H context renders measurable data', false !== strpos( $html, 
 check( 'What Changed renders current-context deltas', false !== strpos( $html, 'WHAT CHANGED' ) && false !== strpos( $html, 'Bias berubah' ) && false !== strpos( $html, 'Confidence: 61 → 82' ) );
 check( 'Track-record accuracy exposes conclusive denominator', false !== strpos( $html, '35 konklusif · 40 total' ) );
 check( 'Neutral outcomes are included in direction proof', false !== strpos( $html, '>Neutral<' ) );
-check( 'Incompatible directional versions stay separated', false !== strpos( $html, 'engine-v2 | classifier-v2' ) && false !== strpos( $html, 'engine-v1 | classifier-v1' ) );
-check( 'All Expected Range versions remain visible', false !== strpos( $html, 'range-v2' ) && false !== strpos( $html, 'range-v1' ) );
-check( 'Data-quality proof includes settlement completeness', false !== strpos( $html, 'Settlement complete' ) && false !== strpos( $html, '92.5%' ) );
+check( 'Exact and legacy directional methodologies stay visibly separated', false !== strpos( $html, 'engine-v2 | classifier-v2 | observed-close-24h-v2' ) && false !== strpos( $html, 'engine-v1 | classifier-v1 | legacy-window-v1' ) );
+check( 'Only versioned Expected Range proof is represented', false !== strpos( $html, 'engine-v2 | range-model-v1' ) && false === strpos( $html, 'range-v1' ) );
+check( 'Data-quality proof includes matured-window settlement completeness', false !== strpos( $html, 'Settlement complete' ) && false !== strpos( $html, '94.6%' ) );
 check( 'No live Expected Range price is exposed', 0 === preg_match( '/\$[\d,.]+\s*[-–]\s*\$[\d,.]+/', $html ) );
 check( 'Free page does not leak Pro monitoring/scenario fields', false === strpos( $html, 'what_to_watch' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'monitoring_conditions' ) );
 
