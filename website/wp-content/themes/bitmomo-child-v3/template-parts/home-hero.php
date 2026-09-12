@@ -38,7 +38,7 @@ $bm_updated_label = $bm_updated_ts
       <p class="bm-hero-sub">Bitmomo merangkum arah pasar, tingkat keyakinan analisis, alasan utama, dan track record dari data terbaru — dalam satu Decision View.</p>
       <div class="bm-hero-actions">
         <a class="bm-hero-btn" href="#founding-whitelist">Gabung Founding Whitelist</a>
-        <a class="bm-hero-link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat BTC Intelligence →</a>
+        <a class="bm-hero-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Pelajari Bitmomo Pro →</a>
       </div>
       <p class="bm-hero-notes">BTC ONLY <span>·</span> EVIDENCE-DRIVEN <span>·</span> BUKAN SINYAL BELI/JUAL</p>
     </div>
