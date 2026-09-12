@@ -42,35 +42,84 @@
       "source": "website/wp-content/themes/bitmomo-child-v3",
       "destination": "wp-content/themes/bitmomo-child-v3",
       "expected_file_count": 44,
-      "required": ["style.css", "functions.php", "front-page.php", "page.php", "archive.php", "index.php", "assets/css/home-opportunity.css", "assets/css/home-conversion.css", "assets/css/public-surfaces.css", "assets/css/navigation-footer.css", "assets/css/public-readability.css", "assets/css/research.css", "assets/css/about.css", "template-parts/archive-index.php", "template-parts/research-hub.php", "template-parts/about-authority.php", "assets/js/bitmomo-frontend.js", "assets/js/bitmomo-retention.js"]
+      "required": [
+        "style.css",
+        "functions.php",
+        "front-page.php",
+        "page.php",
+        "single.php",
+        "archive.php",
+        "category.php",
+        "search.php",
+        "404.php",
+        "header.php",
+        "footer.php",
+        "inc/template-functions.php",
+        "inc/trait-bitmomo-assets.php",
+        "assets/css/home-opportunity.css",
+        "assets/css/home-conversion.css",
+        "assets/css/public-surfaces.css",
+        "assets/css/navigation-footer.css",
+        "assets/css/public-readability.css",
+        "assets/css/research.css",
+        "assets/css/about.css",
+        "template-parts/archive-index.php",
+        "template-parts/research.php",
+        "template-parts/research-hub.php",
+        "template-parts/about-authority.php",
+        "assets/js/bitmomo-frontend.js",
+        "assets/js/bitmomo-retention.js"
+      ]
     },
     {
       "name": "bitmomo-ai",
       "source": "website/wp-content/plugins/bitmomo-ai",
       "destination": "wp-content/plugins/bitmomo-ai",
       "expected_file_count": 24,
-      "required": ["bitmomo-ai.php", "includes/class-bitmomo-ai-scheduler.php", "includes/class-bitmomo-ai-runtime-state.php", "includes/class-bitmomo-ai-session-intelligence.php", "includes/class-bitmomo-ai-opportunity.php", "includes/class-bitmomo-public-intelligence-adapter.php"]
+      "required": [
+        "bitmomo-ai.php",
+        "includes/class-bitmomo-ai-scheduler.php",
+        "includes/class-bitmomo-ai-runtime-state.php",
+        "includes/class-bitmomo-ai-session-intelligence.php",
+        "includes/class-bitmomo-ai-opportunity.php",
+        "includes/class-bitmomo-public-intelligence-adapter.php"
+      ]
     },
     {
       "name": "bitmomo-btc-intelligence",
       "source": "website/wp-content/plugins/bitmomo-btc-intelligence",
       "destination": "wp-content/plugins/bitmomo-btc-intelligence",
       "expected_file_count": 4,
-      "required": ["bitmomo-btc-intelligence.php", "includes/class-bitmomo-btc-intelligence-page.php"]
+      "required": [
+        "bitmomo-btc-intelligence.php",
+        "includes/class-bitmomo-btc-intelligence-page.php",
+        "includes/class-bitmomo-btc-intelligence-setup.php"
+      ]
     },
     {
       "name": "bitmomo-pro",
       "source": "website/wp-content/plugins/bitmomo-pro",
       "destination": "wp-content/plugins/bitmomo-pro",
       "expected_file_count": 27,
-      "required": ["bitmomo-pro.php", "includes/class-bitmomo-pro-sales.php", "includes/class-bitmomo-pro-whitelist.php", "assets/js/bitmomo-pro-whitelist.js"]
+      "required": [
+        "bitmomo-pro.php",
+        "includes/class-bitmomo-pro-sales.php",
+        "includes/class-bitmomo-pro-whitelist.php",
+        "includes/class-bitmomo-pro-account.php",
+        "assets/css/bitmomo-pro-account.css",
+        "assets/js/bitmomo-pro-whitelist.js"
+      ]
     },
     {
       "name": "bitmomo-regime",
       "source": "website/wp-content/plugins/bitmomo-regime",
       "destination": "wp-content/plugins/bitmomo-regime",
       "expected_file_count": 12,
-      "required": ["bitmomo-regime.php", "includes/class-bitmomo-regime-scheduler.php", "includes/class-bitmomo-regime-state-store.php"]
+      "required": [
+        "bitmomo-regime.php",
+        "includes/class-bitmomo-regime-scheduler.php",
+        "includes/class-bitmomo-regime-state-store.php"
+      ]
     }
   ]
 }
