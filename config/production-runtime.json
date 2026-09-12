@@ -56,6 +56,7 @@
         "footer.php",
         "inc/template-functions.php",
         "inc/trait-bitmomo-assets.php",
+        "assets/css/design-system.css",
         "assets/css/home-opportunity.css",
         "assets/css/home-conversion.css",
         "assets/css/public-surfaces.css",
