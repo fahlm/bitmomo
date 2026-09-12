@@ -5,22 +5,19 @@ const root = process.cwd();
 const theme = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
 const failures = [];
 
-function read(relative) {
-  return fs.readFileSync(path.join(theme, relative), 'utf8');
-}
+function read(relative) { return fs.readFileSync(path.join(theme, relative), 'utf8'); }
 function check(label, condition) {
   if (!condition) failures.push(label);
   console.log(`[${condition ? 'PASS' : 'FAIL'}] ${label}`);
 }
-function occurrences(source, pattern) {
-  return (source.match(pattern) || []).length;
-}
+function occurrences(source, pattern) { return (source.match(pattern) || []).length; }
 
 const header = read('header.php');
 const footer = read('footer.php');
 const helpers = read('inc/template-functions.php');
 const frontend = read('inc/trait-bitmomo-frontend.php');
 const content = read('inc/trait-bitmomo-content.php');
+const assets = read('inc/trait-bitmomo-assets.php');
 const js = read('assets/js/bitmomo-frontend.js');
 const navCss = read('assets/css/navigation-footer.css');
 const frontPage = read('front-page.php');
@@ -32,8 +29,8 @@ check(
     !/>Bitmomo Pro</.test(header)
 );
 check(
-  'Primary navigation keeps the concise launch IA',
-  /BTC Intelligence/.test(header) && /Riset/.test(header) && /Tentang/.test(header) && /Masuk/.test(header) && /BITMOMO PRO/.test(header)
+  'Primary navigation keeps concise product/research/company IA',
+  /BTC Intelligence/.test(header) && /Research/.test(header) && /Tentang/.test(header) && /Masuk/.test(header) && /BITMOMO PRO/.test(header)
 );
 check(
   'Primary navigation exposes non-color active-page semantics',
@@ -54,13 +51,17 @@ check(
   /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage)
 );
 check(
-  'Legacy newsletter modal is structurally disabled rather than page-by-page suppressed',
+  'Legacy newsletter modal is structurally disabled',
   /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontend) &&
     !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontend + js)
 );
 check(
   'Legacy subscribe routes and menu links resolve to the footer newsletter anchor',
   /home_url\('\/#newsletter'\)/.test(content) && !/js-open-subscribe/.test(content)
+);
+check(
+  'Header styling is owned by one responsive stylesheet',
+  /\.bm-header/.test(navCss) && /\.bm-hamburger/.test(navCss) && /@media \(max-width: 900px\)/.test(navCss)
 );
 check(
   'Footer newsletter is intentionally compact and responsive',
@@ -74,9 +75,12 @@ check(
     /data-social=/.test(footer)
 );
 check(
-  'Navigation/footer stylesheet is loaded after the public surface stylesheet',
-  header.indexOf('public-surfaces.css') > -1 &&
-    header.indexOf('navigation-footer.css') > header.indexOf('public-surfaces.css')
+  'Stylesheet order is dependency-managed outside header markup',
+  !/<link\s+rel=["']stylesheet/i.test(header) &&
+    /'bitmomo-foundation'/.test(assets) &&
+    /'bitmomo-navigation-footer'/.test(assets) &&
+    /\['bitmomo-foundation'\]/.test(assets) &&
+    /\['bitmomo-foundation', 'bitmomo-navigation-footer'\]/.test(assets)
 );
 
 if (failures.length) {
@@ -84,5 +88,4 @@ if (failures.length) {
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
-
 console.log('PASS navigation/footer contract.');
