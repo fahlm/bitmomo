@@ -316,21 +316,20 @@ class Bitmomo_Pro_Email_Service {
 		$lines[] = sprintf( __( '%d Founding Members', 'bitmomo-pro' ), $cap );
 		$lines[] = sprintf( __( 'Batch pertama: %d anggota', 'bitmomo-pro' ), $batch );
 		$lines[] = '';
-		$lines[] = __( 'Kami akan menggunakan email ini untuk informasi penting terkait pembukaan akses Bitmomo Pro.', 'bitmomo-pro' );
-		if ( ! get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_WHATSAPP_NUMBER, true ) && method_exists( 'Bitmomo_Pro_Whitelist', 'whatsapp_record_action' ) ) {
-			$whatsapp_url = add_query_arg(
-				array( 'bm_wl_post' => (int) $post_id, 'bm_wl_token' => wp_create_nonce( Bitmomo_Pro_Whitelist::whatsapp_record_action( $post_id ) ) ),
-				home_url( '/pro/' )
-			);
-			$lines[] = __( 'Kamu juga dapat menyimpan nomor WhatsApp sebagai kanal pemberitahuan opsional:', 'bitmomo-pro' );
-			$lines[] = esc_url_raw( $whatsapp_url );
-		}
+		$lines[] = __( 'Email ini digunakan untuk pemberitahuan Bitmomo Pro. Jika kamu menambahkan WhatsApp, nomor tersebut disimpan sebagai kanal pemberitahuan opsional; penggunaan kanal WhatsApp mengikuti sistem yang benar-benar aktif saat akses dibuka.', 'bitmomo-pro' );
 		$lines[] = '';
 		$lines[] = __( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' );
 		$lines[] = '';
-		$lines[] = __( 'Pendaftaran dan pembayaran hanya dilakukan melalui bitmomo.id.', 'bitmomo-pro' );
+		$lines[] = __( 'Email dan WhatsApp hanya digunakan untuk pemberitahuan. Pendaftaran dan pembayaran hanya dilakukan melalui:', 'bitmomo-pro' );
+		$lines[] = 'bitmomo.id';
 		$lines[] = '';
-		$lines[] = __( 'Bitmomo tidak akan pernah meminta password akun, seed phrase, private key, transfer crypto melalui WhatsApp/Telegram, atau pembayaran ke wallet yang dikirim melalui pesan pribadi.', 'bitmomo-pro' );
+		$lines[] = __( 'Bitmomo tidak akan pernah meminta:', 'bitmomo-pro' );
+		$lines[] = __( '- password akun', 'bitmomo-pro' );
+		$lines[] = __( '- seed phrase', 'bitmomo-pro' );
+		$lines[] = __( '- private key', 'bitmomo-pro' );
+		$lines[] = __( '- transfer crypto melalui WhatsApp atau Telegram', 'bitmomo-pro' );
+		$lines[] = __( '- pembayaran ke alamat wallet yang dikirim melalui pesan pribadi', 'bitmomo-pro' );
+		$lines[] = '';
 		$lines[] = __( 'Jika ragu, ketik bitmomo.id langsung di browser.', 'bitmomo-pro' );
 		$lines[] = '';
 		$lines[] = __( 'Salam,', 'bitmomo-pro' );
@@ -367,7 +366,6 @@ class Bitmomo_Pro_Email_Service {
 				} else {
 					echo '<div class="notice notice-error"><p>' . esc_html__( 'Gagal mengirim email harian.', 'bitmomo-pro' ) . '</p></div>';
 				}
-			}
 		}
 	}
 }
