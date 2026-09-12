@@ -75,7 +75,9 @@ jobs:
           python3 scripts/build-production-artifact.py --output-dir dist/first
           python3 scripts/build-production-artifact.py --output-dir dist/second
           cmp dist/first/bitmomo-runtime.tar dist/second/bitmomo-runtime.tar
-          test "$(tar -tf dist/first/bitmomo-runtime.tar | wc -l)" -eq 98
+          expected_count="$(python3 -c 'import json; print(json.load(open("config/production-runtime.json"))["expected_file_count"])')"
+          actual_count="$(tar -tf dist/first/bitmomo-runtime.tar | wc -l | tr -d ' ')"
+          test "${actual_count}" -eq "${expected_count}"
           ! tar -tf dist/first/bitmomo-runtime.tar | grep -Eq '(^|/)tests/|\.md$|\.env($|\.)|\.(key|pem|tmp|temp)$'
 
       - name: Upload reviewed runtime artifact
