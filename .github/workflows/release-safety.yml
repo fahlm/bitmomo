@@ -11,9 +11,10 @@ on:
       - "config/production-runtime.json"
       - "scripts/build-production-artifact.py"
       - "scripts/check-m2-launch-surfaces.mjs"
+      - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/release-safety.yml"
   push:
-    branches: [main, "release/**", "feature/p02a-*"]
+    branches: [main, "release/**", "fix/**", "feature/p02a-*"]
   workflow_dispatch:
 
 permissions:
