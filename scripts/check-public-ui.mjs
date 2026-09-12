@@ -126,7 +126,16 @@ try {
           const axe = await new AxeBuilder({ page }).analyze();
           axeViolations = axe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact));
           for (const violation of axeViolations) {
-            addFailure(surface, viewport, `a11y ${violation.impact}: ${violation.id} — ${violation.help}`);
+            const targets = violation.nodes
+              .slice(0, 8)
+              .map((node) => (node.target || []).join(' '))
+              .filter(Boolean)
+              .join(', ');
+            addFailure(
+              surface,
+              viewport,
+              `a11y ${violation.impact}: ${violation.id} — ${violation.help}` + (targets ? `; targets: ${targets}` : '')
+            );
           }
         } catch (error) {
           addFailure(surface, viewport, `axe scan failed: ${error.message}`);
@@ -145,7 +154,17 @@ try {
           id: violation.id,
           impact: violation.impact,
           help: violation.help,
-          nodes: violation.nodes.length,
+          helpUrl: violation.helpUrl,
+          nodeCount: violation.nodes.length,
+          nodes: violation.nodes.map((node) => ({
+            target: node.target,
+            html: node.html,
+            failureSummary: node.failureSummary,
+            impact: node.impact,
+            any: node.any,
+            all: node.all,
+            none: node.none,
+          })),
         })),
       });
 

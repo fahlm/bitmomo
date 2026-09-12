@@ -5,6 +5,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/audit-css-debt.mjs"
       - ".github/workflows/theme-safety.yml"
   push:
     branches:
@@ -15,6 +16,7 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/audit-css-debt.mjs"
       - ".github/workflows/theme-safety.yml"
   workflow_dispatch:
 
@@ -82,3 +84,6 @@ jobs:
 
       - name: Enforce UI architecture contract
         run: node scripts/check-ui-architecture.mjs
+
+      - name: Report CSS debt baseline
+        run: node scripts/audit-css-debt.mjs
