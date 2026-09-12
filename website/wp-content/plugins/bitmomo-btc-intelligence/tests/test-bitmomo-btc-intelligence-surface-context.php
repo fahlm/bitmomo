@@ -1,5 +1,8 @@
 <?php
 require __DIR__ . '/wp-stubs.php';
+if ( ! function_exists( 'shortcode_exists' ) ) { function shortcode_exists( $tag ) { return false; } }
+if ( ! function_exists( 'do_shortcode' ) ) { function do_shortcode( $value ) { return $value; } }
+if ( ! function_exists( 'home_url' ) ) { function home_url( $path = '/' ) { return 'https://bitmomo.test' . $path; } }
 
 $GLOBALS['__surface_pass'] = 0;
 $GLOBALS['__surface_fail'] = 0;
@@ -13,42 +16,57 @@ class Bitmomo_Public_Intelligence_Adapter {
 	public static $surface = array();
 	public static function snapshot() { return self::$snapshot; }
 	public static function surface_context() { return self::$surface; }
+	public static function evaluation_summary() { return null; }
 }
 
-require dirname( __DIR__ ) . '/bitmomo-btc-intelligence.php';
-$base = '<section class="bm-bi__section bm-bi__section--peak bm-bi__snapshot"><p>legacy</p></section>';
+require dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php';
+$reflection = new ReflectionClass( 'Bitmomo_Btc_Intelligence_Page' );
+function render_surface_fixture( ReflectionClass $reflection ) {
+	$instance = $reflection->newInstanceWithoutConstructor();
+	$method = $reflection->getMethod( 'render_page' );
+	$method->setAccessible( true );
+	return $method->invoke( $instance, array() );
+}
 
+$opportunity = array(
+	'status' => 'available', 'state' => 'high', 'previous_state' => 'normal', 'changed' => true,
+	'knowledge_time' => '2026-09-12T06:30:00+00:00', 'activity_percentile' => 91, 'range_60m_pct' => 1.4,
+);
 Bitmomo_Public_Intelligence_Adapter::$snapshot = array(
-	'direction_strength' => 'bullish',
-	'confidence' => array( 'label' => 'high' ),
-	'market_state' => 'accumulation',
+	'status' => 'fresh', 'btc_reference_price' => 65000,
+	'opportunity' => $opportunity,
+	'direction_strength' => 'bullish', 'directional_bias' => 'bullish',
+	'confidence' => array( 'value' => 74, 'label' => 'high' ),
+	'market_state' => 'accumulation', 'market_state_certainty' => 68,
 	'key_drivers' => array( 'Directional consistency' ),
+	'freshness' => array( 'state' => 'fresh', 'timestamp_iso' => '2026-09-12T06:20:00+00:00' ),
+	'provenance' => array( 'source' => 'Binance public market data', 'as_of' => '2026-09-12T06:20:00+00:00', 'timezone' => 'Asia/Jakarta' ),
+	'session' => array( 'label' => 'US POST-CLOSE' ), 'session_intelligence' => array(),
 );
 Bitmomo_Public_Intelligence_Adapter::$surface = array(
-	'opportunity' => array( 'status' => 'available', 'state' => 'high', 'knowledge_time' => '2026-09-12T06:30:00+00:00' ),
-	'provenance' => array( 'source' => 'Binance public market data', 'as_of' => '2026-09-12T06:20:00+00:00', 'timezone' => 'Asia/Jakarta' ),
+	'opportunity' => $opportunity,
+	'provenance' => Bitmomo_Public_Intelligence_Adapter::$snapshot['provenance'],
 );
-$full = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
-btc_surface_check( 'full snapshot renders ordered intelligence frame', strpos( $full, 'Opportunity' ) < strpos( $full, 'Directional Bias' ) && strpos( $full, 'Directional Bias' ) < strpos( $full, 'Confidence' ) && strpos( $full, 'Confidence' ) < strpos( $full, 'Market State' ) && strpos( $full, 'Market State' ) < strpos( $full, 'Primary Drivers' ) );
-btc_surface_check( 'full snapshot preserves real values', false !== strpos( $full, '>HIGH<' ) && false !== strpos( $full, 'Moderate Bullish' ) && false !== strpos( $full, 'Directional consistency' ) );
+$full = render_surface_fixture( $reflection );
+btc_surface_check( 'full snapshot renders Opportunity before directional intelligence', strpos( $full, 'OPPORTUNITY' ) < strpos( $full, '>BIAS<' ) );
+btc_surface_check( 'full snapshot preserves live values', false !== strpos( $full, '>HIGH<' ) && false !== strpos( $full, 'Bullish' ) && false !== strpos( $full, 'Directional consistency' ) );
+btc_surface_check( 'full snapshot exposes independent Market State certainty', false !== strpos( $full, '68% certainty' ) );
 
 Bitmomo_Public_Intelligence_Adapter::$snapshot = null;
 Bitmomo_Public_Intelligence_Adapter::$surface = array(
-	'opportunity' => array( 'status' => 'unavailable', 'methodology_version' => 'opportunity-v1' ),
+	'opportunity' => $opportunity,
 	'provenance' => array( 'source' => null, 'as_of' => null, 'timezone' => 'Asia/Jakarta' ),
 );
-$unavailable = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
-btc_surface_check( 'null snapshot renders explicit Opportunity unavailable', false !== strpos( $unavailable, 'Opportunity' ) && false !== strpos( $unavailable, 'Belum tersedia' ) );
-btc_surface_check( 'null snapshot renders all unavailable layers', false !== strpos( $unavailable, 'Directional Bias' ) && false !== strpos( $unavailable, 'Confidence' ) && false !== strpos( $unavailable, 'Market State' ) && false !== strpos( $unavailable, 'Primary Drivers' ) );
-btc_surface_check( 'unavailable provenance labels remain truthful', false !== strpos( $unavailable, 'SOURCE</strong> Belum tersedia' ) && false !== strpos( $unavailable, 'AS OF</strong> Belum tersedia · WIB' ) );
-btc_surface_check( 'unavailable direction has no synthetic spectrum marker', false === strpos( $unavailable, 'bm-bi__spectrum-marker' ) );
+$partial = render_surface_fixture( $reflection );
+btc_surface_check( 'Opportunity remains useful when slower directional snapshot is unavailable', false !== strpos( $partial, '>HIGH<' ) && false !== strpos( $partial, 'Directional snapshot sedang menunggu' ) );
+btc_surface_check( 'null directional snapshot does not invent Bias Confidence or Market State values', false === strpos( $partial, '74/100' ) && false === strpos( $partial, '68% certainty' ) );
 
-Bitmomo_Public_Intelligence_Adapter::$surface['opportunity'] = array( 'status' => 'available', 'state' => 'low' );
-$partial = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
-btc_surface_check( 'Opportunity renders independently from null snapshot', false !== strpos( $partial, '>LOW<' ) );
+Bitmomo_Public_Intelligence_Adapter::$surface['opportunity'] = array( 'status' => 'unavailable', 'methodology_version' => 'opportunity-v1' );
+$unavailable = render_surface_fixture( $reflection );
+btc_surface_check( 'fully unavailable state is explicit and fail-closed', false !== strpos( $unavailable, 'OPPORTUNITY' ) && false !== strpos( $unavailable, 'Belum tersedia' ) && false !== strpos( $unavailable, 'Directional snapshot sedang menunggu' ) );
 
-$encoded = $full . $unavailable . $partial;
-foreach ( array( 'source_diagnostics', 'private_note', 'risk', 'axes', 'entitlement' ) as $forbidden ) {
+$encoded = $full . $partial . $unavailable;
+foreach ( array( 'source_diagnostics', 'private_note', 'risk', 'axes', 'entitlement', 'monitoring_conditions', 'scenario_contract' ) as $forbidden ) {
 	btc_surface_check( "no {$forbidden} leak", false === strpos( $encoded, $forbidden ) );
 }
 
