@@ -6,52 +6,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * The public, unprotected sales surface: [bitmomo_pro_sales]
  *
- * Unlike the dashboard shortcode, this renders the same generic content
- * for every visitor — it never reads entitlement state and never includes
- * any paid brief content. Safe to cache; Bitmomo_Pro_Cache deliberately
- * does not touch pages containing this shortcode.
+ * Bitmomo Pro is positioned as a crypto market-intelligence system —
+ * DATA -> CONTEXT -> INTELLIGENCE -> THESIS -> MONITORING -> ACCOUNTABILITY —
+ * in which AI is one component, not the product itself.
  *
- * Positioning (2026-09 sellability redesign): Bitmomo Pro is sold as a
- * crypto market-intelligence system — DATA -> CONTEXT -> INTELLIGENCE ->
- * THESIS -> MONITORING -> ACCOUNTABILITY — in which AI is one component,
- * not the product itself. Altcoin Intelligence, Daily Alpha Discovery,
- * 11 AI Analysts, and Watchtower are in-development capabilities and are
- * marketed honestly as "SEGERA HADIR" (do not imply they are live today,
- * and do not attach an exact ship date, "24/7", "real-time", or a guaranteed
- * Telegram delivery claim to any of them).
+ * Altcoin Intelligence, Daily Alpha Discovery, 11 AI Analysts, and
+ * Watchtower are in-development capabilities and must remain clearly marked
+ * SEGERA HADIR until they are actually live. Do not add exact ship dates,
+ * 24/7/real-time claims, guaranteed Telegram delivery, fabricated track
+ * record numbers, or unverified founder/company lineage to this surface.
  *
- * All facts below (price, seat cap, refund/cancellation wording, product
- * claims) are locked to the Founding Membership terms actually in force.
- * Do not add claims the current product doesn't support (no automated
- * real-time alerts, no fabricated accuracy/track-record numbers, and no
- * claim that upcoming altcoin/discovery capabilities are live) and do not
- * add affiliate content — this plugin's rendering surfaces (dashboard and
- * sales) carry zero affiliate/ad content.
- *
- * The Perseverance Capital / market-experience claims in
- * render_market_experience() are founder-supplied and marked VERIFY BEFORE
- * SHIP in the implementation report — they intentionally carry no dates,
- * amounts, or return figures beyond what the founder confirmed.
- *
- * The six-stage flow in render_intelligence_flow() is a narrative
- * simplification for visitors, not a literal 1:1 map of backend
- * services/classes — do not let future edits imply otherwise.
+ * Pro surfaces carry zero affiliate/ad content.
  */
 class Bitmomo_Pro_Sales {
 
 	const PRICE_LABEL = 'Rp149.000 / bulan atau Rp1.490.000 / tahun';
 	const SEAT_CAP    = 149;
 	const BATCH_ONE   = 25;
-
-	/**
-	 * Staging visual QA (2026-09) confirmed /btc-intelligence/ returns a
-	 * 404 on the live site today. Per that pass's explicit instruction not
-	 * to ship a broken public link, the Accountability section's
-	 * "Lihat metodologi & track record lengkap" CTA is deferred to plain,
-	 * unlinked text until that page ships. Flip this to true (and nothing
-	 * else needs to change -- render_accountability() already branches on
-	 * it) once /btc-intelligence/ is live.
-	 */
 	const METHODOLOGY_PAGE_LIVE = true;
 
 	private static $instance = null;
@@ -99,49 +70,33 @@ class Bitmomo_Pro_Sales {
 	public function render_sales( $atts ) {
 		ob_start();
 		echo '<div class="bm-pro-sales">';
-		$this->render_hero();                 // 1. Hero + Founding Offer
-		$this->render_context_problem();      // 2. Data Is Abundant, Context Is Scarce
-		$this->render_market_experience();    // 3. Built From Market Experience / Perseverance Capital
-		$this->render_intelligence_flow();    // 4. How Bitmomo Turns Data Into Intelligence
+		$this->render_hero();
+		$this->render_context_problem();
+		$this->render_market_experience();
+		$this->render_intelligence_flow();
 
-		// PEAK 2 -- upcoming intelligence capabilities share one product
-		// story. All remain explicitly SEGERA HADIR until actually shipped.
 		echo '<div class="bm-pro-sales__peak-pair">';
-		$this->render_altcoin_intelligence(); // 5. Altcoin Intelligence
-		$this->render_alpha_discovery();      // 6. Daily Alpha Discovery
-		$this->render_ai_analysts();          // 7. 11 AI Analysts
-		$this->render_watchtower();           // 8. Watchtower
+		$this->render_altcoin_intelligence();
+		$this->render_alpha_discovery();
+		$this->render_ai_analysts();
+		$this->render_watchtower();
 		echo '</div>';
 
-		$this->render_what_exists_today();    // 9. What Exists Today
+		$this->render_what_exists_today();
 
-		// PEAK 3 -- Founding Membership Economics, pricing facts, and the
-		// whitelist form merged into one continuous "climax" panel instead
-		// of three stacked cards, so the form reads as the final step of
-		// the offer rather than a separate administrative widget.
 		echo '<div class="bm-pro-sales__climax">';
-		$this->render_founding_economics();   // 10a. Founding Membership Economics
-		$this->render_price();                // 10b. Pricing
-		$this->render_cta();                  // 10c. Whitelist / purchase
+		$this->render_founding_economics();
+		$this->render_price();
+		$this->render_cta();
 		echo '</div>';
 
-		$this->render_accountability();       // 11. Accountability
-		Bitmomo_Pro_Help_Center::render_pro_subset(); // 12. Buying-Objection FAQ
+		$this->render_accountability();
+		Bitmomo_Pro_Help_Center::render_pro_subset();
 		$this->render_disclaimer();
 		echo '</div>';
 		return ob_get_clean();
 	}
 
-	/**
-	 * 1. Hero + Founding Offer. Headline is founder-locked verbatim — do
-	 * not reword. The support line, price-sub line, and hero-facts stat
-	 * row were shortened/restructured in the 2026-09 final polish pass
-	 * (founder review: hero read long, and the 4-box stat row visually
-	 * merged strong/span text into unreadable pairs like
-	 * "149Founding Members"). Three stats now instead of four, with the
-	 * annual price demoted to a small secondary line rather than a fourth
-	 * equal-weight box.
-	 */
 	private function render_hero() {
 		?>
 		<section class="bm-pro-sales__hero">
@@ -162,12 +117,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/**
-	 * Shared hero jump/purchase link. Never a second form — it always either
-	 * scrolls to the one whitelist widget rendered in render_cta()
-	 * (id="bm-pro-whitelist"), or, once bitmomo_pro_get_checkout_url() is
-	 * configured, uses the same real purchase destination as render_cta().
-	 */
 	private function render_cta_link( $extra_class = '' ) {
 		$url   = bitmomo_pro_get_checkout_url();
 		$class = trim( 'bm-pro-sales__cta ' . $extra_class );
@@ -178,41 +127,34 @@ class Bitmomo_Pro_Sales {
 		}
 	}
 
-	/** 2. Data Is Abundant, Context Is Scarce. */
 	private function render_context_problem() {
 		?>
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__context">
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'Data ada di mana-mana. Konteks yang jarang.', 'bitmomo-pro' ); ?></h2>
 			<p class="bm-pro-sales__lead"><?php esc_html_e( 'Pasar kripto tidak kekurangan data. Yang sulit adalah memahami apa arti data itu ketika semuanya berubah pada saat yang sama.', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Tools on-chain dan AI generik berguna, tapi keduanya berhenti di data mentah atau jawaban umum, bukan di pemahaman. Bitmomo mengisi bagian itu: mengubah data pasar menjadi konteks yang bisa langsung dipakai untuk mengambil keputusan.', 'bitmomo-pro' ); ?></p>
-			<p class="bm-pro-sales__pullquote"><?php esc_html_e( 'Data bisa ditemukan di banyak tempat. Konteks dibangun dari pengalaman.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'Chart, data derivatives, dan AI generik dapat membantu melihat potongan masalah. Bitmomo berfokus pada langkah setelah itu: mengubah evidence pasar menjadi konteks, thesis, dan batas invalidation yang lebih mudah dipakai untuk mengambil keputusan.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__pullquote"><?php esc_html_e( 'Lebih banyak data tidak otomatis berarti lebih banyak pemahaman.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
 	}
 
 	/**
-	 * 3. Built From Market Experience / Perseverance Capital.
-	 * VERIFY BEFORE SHIP: founder-supplied claims. No dates/amounts/returns
-	 * beyond what is written here have been confirmed — do not embellish.
+	 * Research-discipline section. Deliberately avoids founder/company
+	 * lineage, dates, investments, returns, or other claims that are not
+	 * independently represented by the product/source contract.
 	 */
 	private function render_market_experience() {
 		?>
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__section--quiet bm-pro-sales__lineage">
-			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'DIBANGUN DARI PENGALAMAN PASAR', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'DIBANGUN DENGAN DISIPLIN RISET', 'bitmomo-pro' ); ?></p>
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'AI adalah bagian dari sistem. Konteks adalah fondasinya.', 'bitmomo-pro' ); ?></h2>
-			<p><?php esc_html_e( 'Bitmomo merupakan pengembangan dari research arm Perseverance Capital, yang aktif di pasar kripto sejak 2016 — termasuk pengalaman berinvestasi Bitcoin secara konsisten dan berpartisipasi sejak awal di ETHLend maupun BNB.', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Pengalaman menghadapi banyak siklus pasar itulah yang menjadi fondasi kerangka analisis Bitmomo, bukan hanya data hari ini.', 'bitmomo-pro' ); ?></p>
-			<p class="bm-pro-sales__lineage-note"><?php esc_html_e( 'Bitmomo bukan dibangun dari prompt semata, tapi dari pengalaman menghadapi siklus pasar yang berulang.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'Kerangka Bitmomo membaca evidence dalam konteks struktur pasar, derivatives positioning, liquidity, volatility, macro, dan perubahan regime — bukan memperlakukan satu indikator sebagai jawaban.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'AI digunakan sebagai bagian dari research dan evaluation workflow. Source, uncertainty, quality gate, thesis, dan invalidation tetap harus dapat dijelaskan dan diuji.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__lineage-note"><?php esc_html_e( 'Tujuannya bukan menghasilkan lebih banyak output. Tujuannya menghasilkan intelligence yang lebih dapat dipertanggungjawabkan.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
 	}
 
-	/**
-	 * 4. How Bitmomo Turns Data Into Intelligence — six-stage narrative
-	 * flow. Horizontal on desktop, stacked vertically on mobile (CSS).
-	 * These are simplified explainer labels for visitors, not a literal
-	 * map of backend services/classes.
-	 */
 	private function render_intelligence_flow() {
 		$stages = array(
 			array(
@@ -221,11 +163,11 @@ class Bitmomo_Pro_Sales {
 			),
 			array(
 				'label' => __( 'CONTEXT', 'bitmomo-pro' ),
-				'desc'  => __( 'Data itu dibaca melalui pengalaman pasar — regime seperti apa ini, dan seberapa mirip dengan siklus sebelumnya.', 'bitmomo-pro' ),
+				'desc'  => __( 'Data dibaca bersama struktur, positioning, volatilitas, dan regime sehingga perubahan material dapat dipisahkan dari noise.', 'bitmomo-pro' ),
 			),
 			array(
 				'label' => __( 'INTELLIGENCE', 'bitmomo-pro' ),
-				'desc'  => __( 'Konteks itu diproses menjadi kondisi pasar yang jelas: Market State, Bias, dan Confidence.', 'bitmomo-pro' ),
+				'desc'  => __( 'Konteks diproses menjadi kondisi pasar yang jelas: Market State, Directional Bias, dan Confidence.', 'bitmomo-pro' ),
 			),
 			array(
 				'label' => __( 'THESIS', 'bitmomo-pro' ),
@@ -256,7 +198,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/** 5. Altcoin Intelligence — SEGERA HADIR. */
 	private function render_altcoin_intelligence() {
 		?>
 		<section class="bm-pro-sales__section bm-pro-sales__section--peak bm-pro-sales__altcoin-intelligence">
@@ -270,7 +211,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/** 6. Daily Alpha Discovery — SEGERA HADIR. */
 	private function render_alpha_discovery() {
 		?>
 		<section class="bm-pro-sales__section bm-pro-sales__section--peak bm-pro-sales__alpha-discovery">
@@ -284,7 +224,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/** 7. 11 AI Analysts — SEGERA HADIR. */
 	private function render_ai_analysts() {
 		$areas = array( __( 'Trend', 'bitmomo-pro' ), __( 'Structure', 'bitmomo-pro' ), __( 'Derivatives', 'bitmomo-pro' ), __( 'Volatility', 'bitmomo-pro' ), __( 'Positioning', 'bitmomo-pro' ), __( 'Market Context', 'bitmomo-pro' ), __( '+ lainnya', 'bitmomo-pro' ) );
 		?>
@@ -303,7 +242,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/** 8. Watchtower — SEGERA HADIR. */
 	private function render_watchtower() {
 		?>
 		<section class="bm-pro-sales__section bm-pro-sales__section--peak bm-pro-sales__watchtower">
@@ -317,11 +255,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/**
-	 * 9. What Exists Today. Real, currently-live capability only — no
-	 * preview, no mock example, no skeleton (founder decision, 2026-09).
-	 * Definitions mirror Bitmomo_Pro_Help_Center's canonical wording.
-	 */
 	private function render_what_exists_today() {
 		?>
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__today">
@@ -339,7 +272,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/** 10a. Founding Membership Economics. First block inside the climax panel. */
 	private function render_founding_economics() {
 		?>
 		<div class="bm-pro-sales__climax-block bm-pro-sales__economics">
@@ -365,20 +297,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/**
-	 * 10b. Pricing stage strip, immediately above the whitelist form.
-	 *
-	 * Staging visual QA (2026-09) found this block repeating the same
-	 * "FOUNDING MEMBERSHIP / Rp149.000 per bulan / Rp1.490.000 per tahun /
-	 * 149 Founding Members / Batch pertama: 25 anggota" facts the widget
-	 * immediately below (Bitmomo_Pro_Whitelist::render_widget(), or the
-	 * real purchase link) already shows on its own -- reading as padding
-	 * rather than an economic-advantage framing. Trimmed to only the facts
-	 * that are NOT already repeated one section down: the whitelist-stage
-	 * badge and the cancellation/payment terms. All required price facts
-	 * still appear exactly once on the page (hero) plus once more directly
-	 * on the CTA/whitelist block below -- never a third time here.
-	 */
 	private function render_price() {
 		?>
 		<div class="bm-pro-sales__climax-block bm-pro-sales__climax-divider bm-pro-sales__price">
@@ -389,16 +307,6 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
-	/**
-	 * 10c. Whitelist. Reuses bitmomo_pro_get_checkout_url() (PR #64's
-	 * fail-closed checkout URL) as the single source of truth for which
-	 * CTA to show — never duplicated here. Checkout configured -> real
-	 * purchase CTA, whitelist never shown as the primary action. Checkout
-	 * not configured -> the Founding Membership Whitelist widget takes
-	 * over this same slot (its markup carries id="bm-pro-whitelist", which
-	 * the hero button scrolls to). No whitelist logic is touched here — only
-	 * where it renders on the page.
-	 */
 	private function render_cta() {
 		$url = bitmomo_pro_get_checkout_url();
 		echo '<div class="bm-pro-sales__climax-block bm-pro-sales__climax-divider bm-pro-sales__cta-section">';
@@ -409,16 +317,11 @@ class Bitmomo_Pro_Sales {
 				echo '<span class="bm-pro-sales__cta bm-pro-sales__cta--pending" id="bm-pro-whitelist">' . esc_html__( 'Pendaftaran Founding Membership segera dibuka.', 'bitmomo-pro' ) . '</span>';
 			}
 		} else {
-			printf(
-				'<a class="bm-pro-sales__cta" href="%1$s">%2$s</a>',
-				esc_url( $url ),
-				esc_html__( 'Kunci Harga Founding', 'bitmomo-pro' )
-			);
+			printf( '<a class="bm-pro-sales__cta" href="%1$s">%2$s</a>', esc_url( $url ), esc_html__( 'Kunci Harga Founding', 'bitmomo-pro' ) );
 		}
 		echo '</div>';
 	}
 
-	/** 11. Accountability — short; full methodology lives at /btc-intelligence/. */
 	private function render_accountability() {
 		?>
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__section--quiet bm-pro-sales__accountability">
