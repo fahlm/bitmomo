@@ -4,16 +4,16 @@
  *
  * Homepage responsibility is intentionally narrow: explain the product,
  * show the current BTC reading, convert interest, and surface useful research.
- * Deeper history, methodology, AI-system research and accountability belong on
- * their dedicated destinations rather than competing with the launch funnel.
+ * Deeper history, methodology, AI-system research and referral/editorial
+ * content belong on their dedicated destinations rather than competing with
+ * the launch funnel.
  *
  * 1. Header
  * 2. Current BTC reading
  * 3. Bitmomo Pro + Founding conversion
  * 4. How Bitmomo works
  * 5. Latest research
- * 6. Platforms we use
- * 7. Footer
+ * 6. Footer
  *
  * @package Bitmomo
  */
@@ -25,6 +25,5 @@ get_header();
   <?php get_template_part( 'template-parts/whitelist' ); ?>
   <?php get_template_part( 'template-parts/how-it-works' ); ?>
   <?php get_template_part( 'template-parts/research' ); ?>
-  <?php get_template_part( 'template-parts/platform' ); ?>
 </main>
 <?php get_footer(); ?>
