@@ -13,6 +13,8 @@ const frontPage = read('website/wp-content/themes/bitmomo-child-v3/front-page.ph
 const themeFunctions = read('website/wp-content/themes/bitmomo-child-v3/functions.php');
 const header = read('website/wp-content/themes/bitmomo-child-v3/header.php');
 const publicSurfacesCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/public-surfaces.css');
+const homeConversionCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home-conversion.css');
+const assetsTrait = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php');
 const homeHero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const homeWhitelist = read('website/wp-content/themes/bitmomo-child-v3/template-parts/whitelist.php');
 const research = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research.php');
@@ -42,6 +44,17 @@ check(
 		&& /bitmomo_pro_get_checkout_url\(\)/.test(homeWhitelist)
 		&& /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(homeWhitelist)
 		&& /home_url\(\s*'\/pro\/'\s*\)/.test(homeWhitelist)
+);
+check(
+	'Homepage whitelist is an integrated conversion surface instead of a nested standalone card',
+	/Bitmomo_Pro_Sales::PRICE_LABEL/.test(homeWhitelist)
+		&& /bm-wl-unified__facts/.test(homeWhitelist)
+		&& /bm-wl-unified__form-head/.test(homeWhitelist)
+		&& !/bm-wl-unified__features/.test(homeWhitelist)
+		&& /home-conversion\.css/.test(assetsTrait)
+		&& /\.bm-wl-home \.bm-wl-unified__form \.bm-wl__panel/.test(homeConversionCss)
+		&& /#bm-wl-form-panel > \.bm-wl__price/.test(homeConversionCss)
+		&& /grid-template-columns:\s*minmax\(0,\s*1\.25fr\)\s*minmax\(0,\s*\.75fr\)/.test(homeConversionCss)
 );
 check('Primary nav exposes /pro/ as the public Pro destination', /home_url\(\s*'\/pro\/'\s*\)/.test(header));
 
