@@ -1,11 +1,24 @@
 <?php
-/** Homepage hero and truthful 30-day direction visualization. @package Bitmomo */
+/** Homepage hero with Opportunity-first current state and truthful 30-day context. @package Bitmomo */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$bm_hero_intel = class_exists( 'Bitmomo_AI_Intelligence' )
-    ? Bitmomo_AI_Intelligence::free_projection()
-    : array();
-$bm_hero_available = in_array( sanitize_key( (string) ( $bm_hero_intel['status'] ?? '' ) ), array( 'fresh', 'delayed' ), true );
+$bm_snapshot = class_exists( 'Bitmomo_Public_Intelligence_Adapter' )
+    ? Bitmomo_Public_Intelligence_Adapter::snapshot()
+    : null;
+$bm_hero_available = is_array( $bm_snapshot ) && in_array( sanitize_key( (string) ( $bm_snapshot['status'] ?? '' ) ), array( 'fresh', 'delayed' ), true );
+
+$bm_opportunity = $bm_hero_available && is_array( $bm_snapshot['opportunity'] ?? null ) ? $bm_snapshot['opportunity'] : array();
+$bm_opportunity_available = 'available' === sanitize_key( (string) ( $bm_opportunity['status'] ?? '' ) );
+$bm_opportunity_state = $bm_opportunity_available ? sanitize_key( (string) ( $bm_opportunity['state'] ?? '' ) ) : '';
+$bm_opportunity_labels = array( 'high' => 'HIGH', 'normal' => 'NORMAL', 'low' => 'LOW' );
+$bm_opportunity_copy = array(
+    'high'   => 'Aktivitas jangka pendek relatif tinggi. Peluang pergerakan bermakna meningkat dibanding periode yang lebih tenang.',
+    'normal' => 'Aktivitas jangka pendek berada di sekitar tengah distribusi 14 hari terakhir.',
+    'low'    => 'Aktivitas jangka pendek relatif rendah. Pasar sedang lebih tenang dibanding periode yang lebih aktif.',
+);
+$bm_opportunity_previous = sanitize_key( (string) ( $bm_opportunity['previous_state'] ?? '' ) );
+$bm_opportunity_changed = $bm_opportunity_available && ! empty( $bm_opportunity['changed'] ) && isset( $bm_opportunity_labels[ $bm_opportunity_previous ] );
+
 $bm_hero_records = array();
 if ( class_exists( 'Bitmomo_Regime_State_Store' ) ) {
     $bm_hero_records = Bitmomo_Regime_State_Store::instance()->get_recent( 30 );
@@ -22,7 +35,6 @@ foreach ( $bm_hero_records as $bm_record ) {
 }
 ksort( $bm_hero_official );
 $bm_hero_official = array_slice( $bm_hero_official, -30, null, true );
-$bm_hero_latest = $bm_hero_official ? end( $bm_hero_official ) : array();
 
 $bm_direction_label = static function ( $strength, $bias ) {
     $labels = array(
@@ -35,76 +47,44 @@ $bm_direction_label = static function ( $strength, $bias ) {
     $strength = sanitize_key( (string) $strength );
     if ( isset( $labels[ $strength ] ) ) return $labels[ $strength ];
     $bias = sanitize_key( (string) $bias );
-    if ( in_array( $bias, array( 'bullish', 'bearish', 'neutral' ), true ) ) return ucfirst( $bias );
-    return 'Neutral';
+    return in_array( $bias, array( 'bullish', 'bearish', 'neutral' ), true ) ? ucfirst( $bias ) : '';
 };
 
-// Directional Bias: prefer the live canonical projection over a possibly-stale
-// regime-record snapshot, so the hero stays consistent with the BTC Intelligence
-// card below it. Collapses entirely (no hardcoded fallback) when bias is absent.
-$bm_raw_bias = sanitize_key( (string) ( $bm_hero_intel['bias'] ?? ( $bm_hero_latest['directional_bias'] ?? '' ) ) );
+$bm_raw_bias = $bm_hero_available ? sanitize_key( (string) ( $bm_snapshot['directional_bias'] ?? '' ) ) : '';
 $bm_bias_valid = in_array( $bm_raw_bias, array( 'bullish', 'bearish', 'neutral' ), true );
-
-// Canonical Insight Confidence is produced ONLY by Bitmomo_AI_Signal_Engine
-// (reached here via Bitmomo_AI_Intelligence::free_projection()['confidence']).
-// It is NOT the same metric as the Regime classifier's regime_confidence
-// (a classification-certainty score from a different, isolated pipeline --
-// see class-bitmomo-regime-classifier.php vs class-bitmomo-ai-signal-engine.php).
-// Fails closed when the AI projection is unavailable: never substitutes
-// regime_confidence for canonical Confidence.
-$bm_confidence_available = $bm_hero_available && isset( $bm_hero_intel['confidence'] );
-
-$bm_latest_strength = sanitize_key( (string) ( $bm_hero_intel['direction_strength'] ?? '' ) );
+$bm_latest_strength = $bm_hero_available ? sanitize_key( (string) ( $bm_snapshot['direction_strength'] ?? '' ) ) : '';
 $bm_latest_direction = $bm_bias_valid ? $bm_direction_label( $bm_latest_strength, $bm_raw_bias ) : '';
 
-// Market State: always sourced from the canonical regime plugin -- never from
-// the AI projection's legacy `market_state` field, which is just a bias relabel.
-$bm_market_state = class_exists( 'Bitmomo_Regime_Taxonomy' ) && ! empty( $bm_hero_latest['regime'] )
-    ? Bitmomo_Regime_Taxonomy::regime_label_id( $bm_hero_latest['regime'] )
-    : 'Belum tersedia';
-$bm_hero_drivers = $bm_hero_available && is_array( $bm_hero_intel['key_drivers'] ?? null )
-    ? array_values( array_filter( array_map( 'strval', $bm_hero_intel['key_drivers'] ) ) )
+$bm_raw_market_state = $bm_hero_available ? sanitize_key( (string) ( $bm_snapshot['market_state'] ?? '' ) ) : '';
+$bm_market_state = 'Belum tersedia';
+if ( '' !== $bm_raw_market_state ) {
+    $bm_market_state = class_exists( 'Bitmomo_Regime_Taxonomy' )
+        ? Bitmomo_Regime_Taxonomy::regime_label_id( $bm_raw_market_state )
+        : ucfirst( str_replace( '_', ' ', $bm_raw_market_state ) );
+}
+
+$bm_confidence_map = array( 'high' => 'Tinggi', 'medium' => 'Sedang', 'low' => 'Rendah' );
+$bm_confidence_key = $bm_hero_available ? sanitize_key( (string) ( $bm_snapshot['confidence']['label'] ?? '' ) ) : '';
+$bm_confidence_label = $bm_confidence_map[ $bm_confidence_key ] ?? 'Belum tersedia';
+$bm_hero_drivers = $bm_hero_available && is_array( $bm_snapshot['key_drivers'] ?? null )
+    ? array_values( array_filter( array_map( 'strval', $bm_snapshot['key_drivers'] ) ) )
     : array();
 $bm_hero_driver = trim( (string) ( $bm_hero_drivers[0] ?? '' ) );
-$bm_hero_updated = ! empty( $bm_hero_intel['timestamp_iso'] ) ? strtotime( $bm_hero_intel['timestamp_iso'] ) : false;
-$bm_session_label = $bm_hero_available ? trim( (string) ( $bm_hero_intel['session_label'] ?? '' ) ) : '';
+$bm_hero_updated = $bm_hero_available && ! empty( $bm_snapshot['freshness']['timestamp_iso'] ) ? strtotime( $bm_snapshot['freshness']['timestamp_iso'] ) : false;
+$bm_session_label = $bm_hero_available ? trim( (string) ( $bm_snapshot['session']['label'] ?? '' ) ) : '';
 
-// Plain-language 0-100 -> level bucket. Pure display math, not itself tied to
-// either concept -- used BOTH for canonical Confidence (below, when available)
-// and for the historical chart's Market State Certainty (regime_confidence).
-// Reusing the same three-tier wording (Tinggi/Sedang/Rendah) is the existing
-// customer-facing value representation; the two concepts stay separated by
-// their labels ("CONFIDENCE" vs "MARKET STATE CERTAINTY"), never by this
-// bucketing function.
 $bm_level_bucket = static function ( $value ) {
     $value = (float) $value;
     if ( $value >= 70 ) return 'Tinggi';
     if ( $value >= 40 ) return 'Sedang';
     return 'Rendah';
 };
-
-// The word "Confidence" is reserved for this canonical value. When the AI
-// projection is unavailable, this fails closed to 'Belum tersedia' -- it is
-// never backfilled from regime_confidence or any other metric.
-$bm_confidence_label = $bm_confidence_available
-    ? $bm_level_bucket( (float) $bm_hero_intel['confidence'] )
-    : 'Belum tersedia';
-
-// Canonical bias -> display label. Historical regime records only ever carry
-// the three-way Bitmomo_Regime_Taxonomy bias (bullish/neutral/bearish) -- NOT
-// the five-way strong/moderate strength used above for the live projection.
-// That strength value does not exist per historical day, so it is never
-// fabricated here; each bar shows only the bias its own record genuinely has.
 $bm_bias_display_label = static function ( $bias ) {
     $bias = sanitize_key( (string) $bias );
     $labels = array( 'bullish' => 'Bullish', 'neutral' => 'Neutral', 'bearish' => 'Bearish' );
     return isset( $labels[ $bias ] ) ? $labels[ $bias ] : 'Belum tersedia';
 };
 
-// Pre-render the detail state for the latest (default-selected) observation
-// so the panel is meaningful before any interaction and still works with
-// JavaScript disabled. 'certainty' here is Market State Certainty
-// (regime_confidence), deliberately never labelled or keyed "confidence".
 $bm_hero_default_detail = array( 'date' => '', 'bias' => 'Belum tersedia', 'bias_class' => '', 'certainty' => 'Belum tersedia', 'state' => 'Belum tersedia' );
 if ( $bm_hero_official ) {
     $bm_default_day    = array_key_last( $bm_hero_official );
@@ -126,31 +106,48 @@ if ( $bm_hero_official ) {
     <div class="bm-hero-copy">
       <p class="bm-hero-eyebrow"><span aria-hidden="true"></span>BTC INTELLIGENCE PLATFORM</p>
       <h1 class="bm-hero-title" id="bm-home-title">BTC Intelligence untuk pasar yang berubah cepat.</h1>
-      <p class="bm-hero-sub">Pahami kondisi BTC sekarang, skenario berikutnya, dan apa yang dapat mengubah thesis pasar — tanpa menyatukan puluhan indikator sendiri.</p>
+      <p class="bm-hero-sub">Ketahui kapan BTC sedang aktif, ke mana evidence condong, dan konteks apa yang perlu dipantau berikutnya — tanpa menyatukan puluhan indikator sendiri.</p>
       <div class="bm-hero-actions">
         <a class="bm-hero-btn" href="#bm-btc-title">Lihat BTC Intelligence</a>
         <a class="bm-hero-btn bm-hero-btn--secondary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Pelajari Bitmomo Pro</a>
       </div>
-      <p class="bm-hero-notes">SNAPSHOT HARIAN GRATIS <span>·</span> TANPA SINYAL INSTAN <span>·</span> BTC ONLY</p>
+      <p class="bm-hero-notes">OPPORTUNITY INTRADAY <span>·</span> BUKAN SINYAL BELI/JUAL <span>·</span> BTC ONLY</p>
     </div>
 
-    <article class="bm-direction-card" aria-label="Market State dan Directional Bias 30 hari">
-      <header class="bm-direction-head">
-        <div class="bm-direction-metric bm-direction-metric--state">
-          <span>MARKET STATE / 30D</span>
-          <strong><?php echo esc_html( strtoupper( $bm_market_state ) ); ?></strong>
+    <article class="bm-direction-card" aria-label="Opportunity dan konteks BTC saat ini">
+      <div class="bm-hero-opportunity <?php echo esc_attr( $bm_opportunity_available ? 'is-' . $bm_opportunity_state : 'is-unavailable' ); ?>">
+        <div class="bm-hero-opportunity-main">
+          <span>OPPORTUNITY</span>
+          <strong><?php echo esc_html( $bm_opportunity_available && isset( $bm_opportunity_labels[ $bm_opportunity_state ] ) ? $bm_opportunity_labels[ $bm_opportunity_state ] : 'BELUM TERSEDIA' ); ?></strong>
         </div>
-        <?php if ( $bm_latest_direction ) : ?>
+        <p><?php echo esc_html( $bm_opportunity_available && isset( $bm_opportunity_copy[ $bm_opportunity_state ] ) ? $bm_opportunity_copy[ $bm_opportunity_state ] : 'Menunggu baseline dan data 5 menit yang memenuhi standar kualitas.' ); ?></p>
+        <?php if ( $bm_opportunity_changed ) : ?>
+          <small>CHANGED <?php echo esc_html( $bm_opportunity_labels[ $bm_opportunity_previous ] . ' → ' . $bm_opportunity_labels[ $bm_opportunity_state ] ); ?></small>
+        <?php else : ?>
+          <small>AKTIVITAS, BUKAN ARAH HARGA</small>
+        <?php endif; ?>
+      </div>
+
+      <header class="bm-direction-head bm-direction-head--current">
         <div class="bm-direction-metric bm-direction-metric--bias">
           <span>DIRECTIONAL BIAS</span>
-          <strong><?php echo esc_html( strtoupper( $bm_latest_direction ) ); ?></strong>
+          <strong><?php echo esc_html( $bm_latest_direction ?: 'BELUM TERSEDIA' ); ?></strong>
         </div>
-        <?php endif; ?>
+        <div class="bm-direction-metric">
+          <span>CONFIDENCE</span>
+          <strong><?php echo esc_html( strtoupper( $bm_confidence_label ) ); ?></strong>
+        </div>
+        <div class="bm-direction-metric bm-direction-metric--state">
+          <span>MARKET STATE</span>
+          <strong><?php echo esc_html( strtoupper( $bm_market_state ) ); ?></strong>
+        </div>
       </header>
+
+      <p class="bm-direction-context-label">30D MARKET CONTEXT</p>
       <div
         class="bm-direction-chart bm-state-chart"
         role="group"
-        aria-label="Riwayat Market State resmi. Tinggi batang mengikuti Market State Certainty, warna mengikuti Directional Bias. Pilih satu batang untuk detail."
+        aria-label="Riwayat Market State resmi 30 hari. Tinggi batang mengikuti Market State Certainty, warna mengikuti Directional Bias. Pilih satu batang untuk detail."
       >
         <?php if ( $bm_hero_official ) :
           $bm_last_day = array_key_last( $bm_hero_official );
@@ -165,8 +162,7 @@ if ( $bm_hero_official ) {
           $bm_is_current = ( $bm_day === $bm_last_day );
           $bm_bar_classes = 'bm-direction-bar';
           if ( $bm_bar_bias_valid ) $bm_bar_classes .= ' is-' . $bm_bar_bias;
-          if ( $bm_is_current ) $bm_bar_classes .= ' is-current';
-          if ( $bm_is_current ) $bm_bar_classes .= ' is-selected';
+          if ( $bm_is_current ) $bm_bar_classes .= ' is-current is-selected';
         ?>
           <button
             type="button"
@@ -183,7 +179,7 @@ if ( $bm_hero_official ) {
           ><span></span></button>
         <?php endforeach; ?>
         <?php else : ?>
-          <p class="bm-direction-empty">Riwayat Direction akan tampil setelah evaluasi pasar resmi tersedia.</p>
+          <p class="bm-direction-empty">Riwayat Market State akan tampil setelah evaluasi resmi tersedia.</p>
         <?php endif; ?>
       </div>
       <?php if ( $bm_hero_official ) : ?>
@@ -195,8 +191,7 @@ if ( $bm_hero_official ) {
       <?php endif; ?>
       <dl class="bm-direction-meta">
         <?php if ( '' !== $bm_session_label ) : ?><div><dt>SESSION</dt><dd><?php echo esc_html( $bm_session_label ); ?></dd></div><?php endif; ?>
-        <div><dt>CONFIDENCE</dt><dd><?php echo esc_html( $bm_confidence_label ); ?></dd></div>
-        <div class="bm-direction-meta-driver"><dt>DRIVER</dt><dd><?php echo esc_html( $bm_hero_driver ?: 'Belum tersedia' ); ?></dd></div>
+        <div class="bm-direction-meta-driver"><dt>PRIMARY DRIVER</dt><dd><?php echo esc_html( $bm_hero_driver ?: 'Belum tersedia' ); ?></dd></div>
         <div><dt>UPDATED</dt><dd><?php echo esc_html( $bm_hero_updated ? wp_date( 'H:i', $bm_hero_updated ) . ' WIB' : 'Belum tersedia' ); ?></dd></div>
       </dl>
       <?php if ( $bm_hero_official ) : ?>
@@ -211,10 +206,12 @@ if ( $bm_hero_official ) {
   </div>
 </section>
 <?php unset(
-  $bm_hero_intel, $bm_hero_available, $bm_hero_records, $bm_hero_official, $bm_hero_latest,
-  $bm_direction_label, $bm_raw_bias, $bm_bias_valid, $bm_confidence_available, $bm_latest_strength,
-  $bm_latest_direction, $bm_market_state, $bm_hero_drivers, $bm_hero_driver, $bm_hero_updated,
-  $bm_level_bucket, $bm_confidence_label, $bm_bias_display_label, $bm_hero_default_detail,
+  $bm_snapshot, $bm_hero_available, $bm_opportunity, $bm_opportunity_available, $bm_opportunity_state,
+  $bm_opportunity_labels, $bm_opportunity_copy, $bm_opportunity_previous, $bm_opportunity_changed,
+  $bm_hero_records, $bm_hero_official, $bm_direction_label, $bm_raw_bias, $bm_bias_valid,
+  $bm_latest_strength, $bm_latest_direction, $bm_raw_market_state, $bm_market_state,
+  $bm_confidence_map, $bm_confidence_key, $bm_confidence_label, $bm_hero_drivers, $bm_hero_driver,
+  $bm_hero_updated, $bm_session_label, $bm_level_bucket, $bm_bias_display_label, $bm_hero_default_detail,
   $bm_default_day, $bm_default_record, $bm_default_bias, $bm_record, $bm_date_key, $bm_day, $bm_conf,
   $bm_state_label, $bm_last_day, $bm_bar_bias, $bm_bar_bias_valid, $bm_bar_bias_label,
   $bm_bar_certainty_label, $bm_bar_date_short, $bm_is_current, $bm_bar_classes
