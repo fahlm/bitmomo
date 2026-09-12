@@ -2,7 +2,9 @@
 
 ## Purpose
 
-No public Bitmomo route may silently inherit an unreviewed Hello Elementor layout. Every public route must have an explicit Bitmomo owner, responsive acceptance, and a known content hierarchy.
+No public Bitmomo route may silently inherit an unreviewed Hello Elementor layout. Every public route must have an explicit Bitmomo owner, responsive acceptance, a known content hierarchy, and a deliberate **public information boundary**.
+
+Public pages are product surfaces, not engine observability dashboards. A fact belongs on a public page only when it is useful to a visitor, understandable without knowing Bitmomo's internal architecture, and appropriate to expose outside the engine/research layer.
 
 ## Route ownership
 
@@ -18,6 +20,87 @@ No public Bitmomo route may silently inherit an unreviewed Hello Elementor layou
 | search | `search.php` -> shared archive |
 | single article | `single.php` |
 | unknown/fallback | `index.php` / `404.php` |
+
+## Public information boundary
+
+### Homepage
+
+The homepage answers one question quickly: **what is Bitmomo's current BTC reading?**
+
+Its public intelligence card is deliberately limited to:
+
+- **Arah** — Bullish / Netral / Bearish;
+- **Keyakinan** — the exact confidence score plus a plain-language label, explicitly not a price probability;
+- **Alasan utama** — one concise public-safe driver;
+- **Diperbarui** — the canonical observation/update time;
+- one link to deeper BTC Intelligence context.
+
+The homepage must **not** grow back into a mini-dashboard. Do not expose Opportunity internals, activity percentiles, raw 60-minute ranges, Market State taxonomy/certainty, raw derivative fields, engine/classifier identifiers, QA diagnostics, or a duplicate 30-day chart on the homepage.
+
+The homepage launch hierarchy is intentionally narrow:
+
+1. current BTC reading;
+2. Bitmomo Pro / Founding conversion;
+3. short explanation of how Bitmomo turns market data into a reading;
+4. concise market research;
+5. footer.
+
+AI Lab belongs on a dedicated research surface, not in the homepage launch funnel. Direct referral cards also do not belong in the launch hierarchy. Referral/platform content may return only as clearly editorial articles with transparent disclosure rather than a promotional card that links directly to an affiliate destination.
+
+### BTC Intelligence
+
+`/btc-intelligence/` owns the deeper public context and accountability layer. It should answer:
+
+1. What is the current BTC reading?
+2. Why does Bitmomo read the market that way?
+3. What materially changed from the previous canonical reading?
+4. How has directional context changed over the recent 30-day record?
+5. How has the **current evaluation methodology** performed against future outcomes?
+
+The main public reading may expose:
+
+- reference BTC price;
+- directional reading in human language;
+- confidence score with a clear explanation;
+- market activity translated to `Tinggi / Normal / Rendah` without exposing percentile/range internals;
+- up to two public-safe reasons;
+- up to two human-readable changes;
+- concise data source and exact WIB timestamp.
+
+The 30-day public context is **direction-only**. It may summarize Bullish / Netral / Bearish official daily records and must never fabricate missing days.
+
+The public track record displays only the current compatible directional-evaluation methodology as the primary proof. It may show overall, rolling recent, Bullish and Bearish accuracy with honest conclusive/total denominators and sample status. Older incompatible methodologies stay preserved for audit but must not be mixed into, or presented as peers of, the current headline proof.
+
+The current directional outcome contract is anchored exactly at **+24 hours** from the observation time, using a compatible price provider and exactly 24 closed hourly candles. For Bullish/Bearish outcomes, moves between -0.5% and +0.5% are inconclusive and excluded from the accuracy denominator; conclusive and total counts remain visible.
+
+### What stays in the engine/research layer
+
+The following may exist in adapters, stores, admin diagnostics, tests, or research tooling but are not public UI primitives:
+
+- Opportunity methodology name, activity percentile and raw 60-minute range;
+- Market State classifier taxonomy and classifier certainty;
+- raw OI, funding, basis, long/short and taker metrics as a customer-facing grid;
+- individual five-axis/debug scores;
+- engine/classifier/version identifiers;
+- confidence calibration buckets;
+- Expected Range QA until a genuinely frozen/versioned range methodology exists;
+- Regime forward-return QA;
+- stale/blocked/missing-data rates and settlement-completeness diagnostics;
+- provider implementation/fallback wording;
+- source diagnostics, internal evidence, record IDs and private notes;
+- Pro-only scenarios, monitoring conditions, watched range and invalidation details on the free surface.
+
+Methodology explanation on `/btc-intelligence/` remains behind progressive disclosure. It explains concepts in visitor language; it is not a dump of engine internals.
+
+## Data-correctness contract behind the public reading
+
+A clean public UI is not permission to weaken the engine. Inputs that affect the displayed reading must be more rigorously validated than the information exposed on screen.
+
+- Directional settlement is exact +24h, provider-compatible and versioned. Late/misaligned windows fail closed rather than borrowing a convenient later endpoint.
+- Open-interest `24H` change uses exactly 24 hourly intervals (25 observations), not the first and last values of an arbitrary larger fetch.
+- Successful derivative inputs may affect a new reading only while their observation timestamps remain within cadence-aware freshness limits. A successful-but-stale or untimestamped derivative input fails the quality gate rather than silently influencing Bias/Confidence.
+- Expected Range public-comparable proof requires a frozen original plus an explicit methodology version. Support/resistance zones must never be relabeled as a forecast Expected Range.
+- US pre-open/post-close editions are grouped by canonical US market day rather than raw UTC calendar date.
 
 ## Visual contract
 
@@ -88,7 +171,11 @@ Acceptance:
 - consistent header/footer;
 - no legacy Hello Elementor or Elementor full-page layout inside ordinary-page body content;
 - no PHP fatal or material browser-console error;
+- zero serious/critical accessibility violations at acceptance viewports;
 - touch targets remain usable on mobile;
+- homepage reading remains limited to Arah / Keyakinan / Alasan Utama / update time;
+- BTC Intelligence does not expose the engine/QA kitchen-detail list above;
+- track-record headline proof uses only the current compatible methodology;
 - product fail-closed/data semantics remain unchanged;
 - `/pro/` has one canonical conversion path and contains no unsupported live-data claim;
 - `/help/` interactive FAQ/accordion behavior remains functional;
@@ -100,40 +187,35 @@ Acceptance:
 
 ## CI prevention
 
-`theme-safety.yml` / the UI architecture contract fails if:
+Theme/UI architecture checks protect the **information hierarchy**, not a frozen implementation primitive. CI must fail if:
 
 - an owned public template disappears;
 - the old media-style posts-index copy returns;
 - archive routes diverge from the shared archive surface;
-- the old `big-stories` tag-only layout returns;
-- homepage restores separate Pro teaser + whitelist blocks;
-- homepage restores the duplicated full future-capability panel;
-- the canonical public-surface stylesheet is no longer loaded;
+- homepage restores a duplicate BTC card, 30-day engine dashboard, AI Lab block, direct referral block, separate Pro teaser + whitelist, or newsletter hero;
+- homepage loses Arah / Keyakinan / Alasan Utama / update time;
+- BTC Intelligence re-exposes engine/QA kitchen details;
+- methodology stops being progressively disclosed;
+- the canonical public-surface styles are no longer loaded;
 - ordinary-page body content stops passing through the H1 normalizer;
 - the unified homepage whitelist loses its grid shrink/width containment and can overflow narrow viewports.
 
-`check-navigation-footer.mjs`, run by both Theme Safety and Full Release Safety, additionally protects:
+`check-navigation-footer.mjs` additionally protects one canonical Pro header CTA, `aria-current`, accessible mobile navigation, footer-only newsletter ownership, and canonical social destinations.
 
-- one canonical Pro header CTA with no duplicate Pro content-nav entry;
-- `aria-current` active-route semantics;
-- inaccessible closed-mobile-menu prevention via `inert` / `aria-hidden`;
-- footer-only newsletter ownership and structural removal of modal markup;
-- legacy subscribe links resolving to the footer;
-- compact responsive footer MailPoet presentation;
-- canonical Telegram, YouTube and X destinations;
-- deterministic stylesheet ordering for the navigation/footer layer.
-
-`release-safety.yml` / the M2 launch-surface contract additionally protects product semantics, including:
-
-- one provider-neutral Pro conversion path;
-- removal of the redundant final Pro conversion block at source level rather than through CSS;
-- current Pro DATA copy restricted to supported market inputs;
-- no unsupported continuous order-book/on-chain ingestion claim;
-- fail-closed BTC Intelligence/provenance behavior;
-- privacy-safe whitelist and repeat-use telemetry contracts.
+The M2 launch-surface contract additionally protects the visitor-first information boundary, provider-neutral conversion, supported-data claims, fail-closed intelligence/provenance behavior, and privacy-safe acquisition/repeat-use telemetry.
 
 ## Continuous production checks
 
-The production synthetic monitor runs every 15 minutes and checks the launch-critical product routes plus Help, Research, About and legal surfaces for HTTP/content availability, runtime/PHP leakage, staging-host leakage and accidental `noindex`. BTC Intelligence provenance (`SOURCE / AS OF / WIB`) and the external Binance USD-M diagnostic remain separate explicit checks.
+The production monitor checks launch-critical routes for HTTP/content availability, runtime/PHP leakage, environment leakage and accidental `noindex`.
+
+Beginning with theme **v4.4 / public snapshot schema 2**, the machine-readable consistency contract is intentionally narrow and mirrors visible public facts only:
+
+- schema;
+- availability/status;
+- canonical as-of time;
+- directional bias;
+- confidence label.
+
+It must not serialize Market State, direction-strength detail, Opportunity state or other engine internals simply for monitoring convenience. BTC Intelligence separately exposes concise human trust metadata (`Sumber data` + exact WIB timestamp); provider diagnostics remain internal.
 
 This contract is deliberately structural. CI and synthetic monitoring cannot prove rendered visual quality, WordPress database-body cleanliness, or browser interaction quality; staging browser QA remains mandatory before a whole-site UI candidate is merged or promoted.
