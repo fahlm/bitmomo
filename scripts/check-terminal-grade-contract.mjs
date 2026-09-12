@@ -4,7 +4,6 @@ import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const theme = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
-const pro = path.join(root, 'website/wp-content/plugins/bitmomo-pro');
 const failures = [];
 
 function read(file) { return fs.readFileSync(path.join(root, file), 'utf8'); }
@@ -29,6 +28,7 @@ const hero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/hom
 const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/design-system.css');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
+const btcMain = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const account = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php');
 const whitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
 const runtime = read('config/production-runtime.json');
@@ -80,10 +80,15 @@ check('One public noindex predicate owns all utility/archive side doors',
   functions.includes("rank_math/frontend/robots")
 );
 
-check('Pro runtime detaches its legacy duplicate SEO owner',
+check('Pro runtime detaches its legacy duplicate SEO owner and busts public asset cache',
   proMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   proMain.includes("remove_action( 'wp_head'") &&
   proMain.includes("BITMOMO_PRO_VERSION', '0.12.7'")
+);
+check('BTC Intelligence runtime detaches duplicate SEO owner and busts public asset cache',
+  btcMain.includes("remove_filter( 'rank_math/frontend/description'") &&
+  btcMain.includes("remove_action( 'wp_head'") &&
+  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.2.1'")
 );
 check('Theme runtime version changed with public contract', functions.includes("define('BM_VERSION', '4.6')"));
 
