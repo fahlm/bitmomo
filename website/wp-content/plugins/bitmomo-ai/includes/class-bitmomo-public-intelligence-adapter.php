@@ -18,10 +18,14 @@ final class Bitmomo_Public_Intelligence_Adapter {
         if (is_array($session_intelligence['current_setup'] ?? null)) {
             $session_intelligence['current_setup']['market_state'] = self::regime_or_null($regime['regime'] ?? null);
         }
+        $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
+            ? Bitmomo_AI_Opportunity_Store::public_latest()
+            : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
 
         return [
             'status' => (string) $projection['status'],
             'btc_reference_price' => (float) ($projection['price'] ?? 0),
+            'opportunity' => $opportunity,
             'market_state' => self::regime_or_null($regime['regime'] ?? null),
             'directional_bias' => $bias,
             'direction_strength' => $strength,
@@ -49,6 +53,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
             'versions' => [
                 'engine' => defined('BITMOMO_AI_VERSION') ? BITMOMO_AI_VERSION : 'unknown',
                 'classifier' => self::version_or_unknown($regime['classifier_version'] ?? ''),
+                'opportunity' => (string) ($opportunity['methodology_version'] ?? 'opportunity-v1'),
             ],
         ];
     }
