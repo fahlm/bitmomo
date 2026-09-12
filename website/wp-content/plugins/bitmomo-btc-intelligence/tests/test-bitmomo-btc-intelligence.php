@@ -1,100 +1,126 @@
 <?php
 require __DIR__ . '/wp-stubs.php';
-if ( ! function_exists( 'shortcode_exists' ) ) { function shortcode_exists( $tag ) { return false; } }
-if ( ! function_exists( 'do_shortcode' ) ) { function do_shortcode( $value ) { return $value; } }
 if ( ! function_exists( 'home_url' ) ) { function home_url( $path = '/' ) { return 'https://bitmomo.test' . $path; } }
 
 $GLOBALS['__pass'] = 0; $GLOBALS['__fail'] = 0;
 function check( $label, $cond ) { if ( $cond ) { $GLOBALS['__pass']++; echo "[PASS] $label\n"; } else { $GLOBALS['__fail']++; echo "[FAIL] $label\n"; } }
-
-class Bitmomo_Regime_Taxonomy {
-	public static function regime_label_id( $regime ) { return array( 'accumulation'=>'Akumulasi','expansion'=>'Ekspansi','distribution'=>'Distribusi','capitulation'=>'Kapitulasi','transition'=>'Transisi' )[ $regime ] ?? $regime; }
-}
 
 require dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php';
 require dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-setup.php';
 
 $page = Bitmomo_Btc_Intelligence_Page::instance();
 $html = $page->render_page( array() );
-check( 'Page renders without adapter', strlen( $html ) > 500 );
+check( 'Page renders without public adapter', strlen( $html ) > 400 );
 check( 'Page has canonical wrapper', false !== strpos( $html, 'class="bm-bi"' ) );
-check( 'Hero explains live-context value', false !== strpos( $html, 'Aktivitas pasar, arah evidence, perubahan konteks' ) );
-check( 'Unavailable directional snapshot fails closed', false !== strpos( $html, 'Directional snapshot sedang menunggu data yang memenuhi standar kualitas Bitmomo.' ) );
+check( 'Hero is visitor-first rather than engine-first', false !== strpos( $html, 'tanpa tenggelam dalam data' ) );
+check( 'Unavailable reading fails closed', false !== strpos( $html, 'Pembacaan arah sedang ditahan' ) );
 check( 'No fabricated BTC reference without adapter', false === strpos( $html, '$65,000' ) && false === strpos( $html, '$65.000' ) );
 check( 'Only one Pro conversion action is rendered', 1 === substr_count( $html, 'Lihat Bitmomo Pro' ) );
 
 $class_source = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' );
-$plugin_source = file_get_contents( dirname( __DIR__ ) . '/bitmomo-btc-intelligence.php' );
+$css = file_get_contents( dirname( __DIR__ ) . '/assets/css/bitmomo-btc-intelligence.css' );
 check( 'Public page never reads private scorecard directly', 0 === preg_match( '/Bitmomo_AI_Scorecard::/', $class_source ) );
 check( 'Public page never reads raw Regime State Store directly', 0 === preg_match( '/Bitmomo_Regime_State_Store::/', $class_source ) );
 check( 'Public page never calls Pro internals', 0 === preg_match( '/Bitmomo_Pro_[A-Za-z]+::/', $class_source ) );
-check( 'Stale shortcode-output Opportunity bridge is removed', false === strpos( $plugin_source, 'Bitmomo_Btc_Opportunity_UI' ) && false === strpos( $plugin_source, 'do_shortcode_tag' ) );
-
-$css = file_get_contents( dirname( __DIR__ ) . '/assets/css/bitmomo-btc-intelligence.css' );
 check( 'Commercial-orange CTA token remains', false !== strpos( $css, '--bmi-orange:#f4ad32' ) && false !== strpos( $css, 'background:var(--bmi-orange)' ) );
-check( 'Confidence has proportional visual meter', false !== strpos( $css, 'width:var(--bm-confidence)' ) );
-check( 'Secondary proof stays progressively disclosed', false !== strpos( $css, '.bm-bi__details' ) );
-check( 'Responsive snapshot collapses to two columns on tablet/mobile', false !== strpos( $css, '.bm-bi__snapshot-grid{grid-template-columns:1fr 1fr}' ) );
-check( 'Narrow Opportunity header stacks instead of overflowing', false !== strpos( $css, '.bm-bi__opportunity-head{align-items:flex-start;flex-direction:column' ) );
+check( 'Secondary methodology stays progressively disclosed', false !== strpos( $css, '.bm-bi__details' ) );
+check( 'Mobile snapshot collapses to one column', false !== strpos( $css, '.bm-bi__snapshot-grid{grid-template-columns:1fr}' ) );
 
 class Bitmomo_Public_Intelligence_Adapter {
-	public static $snapshot_fixture = null; public static $surface_fixture = array(); public static $evaluation_fixture = null;
+	public static $snapshot_fixture = null;
+	public static $surface_fixture = array();
+	public static $history_fixture = array( 'days' => array() );
+	public static $evaluation_fixture = array();
 	public static function snapshot() { return self::$snapshot_fixture; }
 	public static function surface_context() { return self::$surface_fixture; }
+	public static function history() { return self::$history_fixture; }
 	public static function evaluation_summary() { return self::$evaluation_fixture; }
 }
-$reflection = new ReflectionClass( 'Bitmomo_Btc_Intelligence_Page' );
-function render_bmi( ReflectionClass $reflection ) { $instance=$reflection->newInstanceWithoutConstructor(); $method=$reflection->getMethod('render_page'); $method->setAccessible(true); return $method->invoke($instance,array()); }
 
-$opportunity = array( 'status'=>'available','state'=>'high','previous_state'=>'normal','changed'=>true,'knowledge_time'=>'2026-09-03T00:15:00+00:00','activity_percentile'=>84.2,'range_60m_pct'=>1.17,'methodology_version'=>'opportunity-v1' );
+$opportunity = array(
+	'status' => 'available', 'state' => 'high', 'previous_state' => 'normal', 'changed' => true,
+	'knowledge_time' => '2026-09-12T20:15:00+00:00', 'activity_percentile' => 84.2,
+	'range_60m_pct' => 1.17, 'methodology_version' => 'opportunity-v1',
+);
 Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = array(
-	'status'=>'fresh','btc_reference_price'=>65000.0,'opportunity'=>$opportunity,'market_state'=>'expansion','market_state_certainty'=>76,
-	'directional_bias'=>'bullish','direction_strength'=>'strong_bullish','confidence'=>array('value'=>82,'label'=>'high'),
-	'freshness'=>array('state'=>'fresh','timestamp_iso'=>'2026-09-03T00:10:07+00:00','label'=>'fresh'),
-	'provenance'=>array('source'=>'Binance public market data','as_of'=>'2026-09-03T00:10:07+00:00','timezone'=>'Asia/Jakarta'),
-	'key_drivers'=>array('Funding elevated','Spot volume rising','Structure improving','Fourth driver should not render'),
-	'session'=>array('label'=>'US POST-CLOSE'),
-	'session_intelligence'=>array(
-		'what_happened'=>array('btc_change_pct'=>2.25,'derivatives_context'=>array('open_interest_change_24h_pct'=>3.5,'funding_rate'=>0.0001,'basis_pct'=>0.12)),
-		'comparison'=>array('status'=>'compared'),
-		'what_changed'=>array(array('field'=>'directional_bias','from'=>'neutral','to'=>'bullish'),array('field'=>'confidence','from'=>61,'to'=>82),array('field'=>'strongest_driver','from'=>'Old driver','to'=>'Structure improving')),
+	'status' => 'fresh', 'btc_reference_price' => 65000.0, 'opportunity' => $opportunity,
+	'market_state' => 'expansion', 'market_state_certainty' => 76,
+	'directional_bias' => 'bullish', 'direction_strength' => 'strong_bullish',
+	'confidence' => array( 'value' => 82, 'label' => 'high' ),
+	'freshness' => array( 'state' => 'fresh', 'timestamp_iso' => '2026-09-12T20:10:07+00:00', 'label' => 'fresh' ),
+	'provenance' => array( 'source' => 'Binance public market data + Bybit derivatives fallback', 'as_of' => '2026-09-12T20:10:07+00:00', 'timezone' => 'Asia/Jakarta' ),
+	'key_drivers' => array( 'Momentum BTC menguat.', 'Volatilitas meningkat.', 'Driver ketiga tidak boleh tampil.' ),
+	'session' => array( 'label' => 'US POST-CLOSE', 'edition_id' => 'internal-edition-id' ),
+	'session_intelligence' => array(
+		'what_happened' => array( 'btc_change_pct' => 2.25, 'derivatives_context' => array( 'open_interest_change_24h_pct' => 3.5, 'funding_rate' => 0.0001, 'basis_pct' => 0.12 ) ),
+		'comparison' => array( 'status' => 'compared' ),
+		'what_changed' => array(
+			array( 'field' => 'directional_bias', 'from' => 'neutral', 'to' => 'bullish' ),
+			array( 'field' => 'confidence', 'from' => 61, 'to' => 82 ),
+			array( 'field' => 'strongest_driver', 'from' => 'old', 'to' => 'new' ),
+		),
+	),
+	'versions' => array( 'engine' => 'engine-secret-v2', 'classifier' => 'classifier-secret-v2' ),
+);
+Bitmomo_Public_Intelligence_Adapter::$surface_fixture = array( 'opportunity' => $opportunity );
+Bitmomo_Public_Intelligence_Adapter::$history_fixture = array(
+	'target_days' => 30, 'available_days' => 4,
+	'days' => array(
+		array( 'date' => '2026-09-09', 'directional_bias' => 'bearish', 'market_state' => 'distribution', 'market_state_certainty' => 88, 'version_group' => 'classifier-secret-v1' ),
+		array( 'date' => '2026-09-10', 'directional_bias' => 'neutral', 'market_state' => 'transition', 'market_state_certainty' => 44, 'version_group' => 'classifier-secret-v1' ),
+		array( 'date' => '2026-09-11', 'directional_bias' => 'bullish', 'market_state' => 'accumulation', 'market_state_certainty' => 71, 'version_group' => 'classifier-secret-v2' ),
+		array( 'date' => '2026-09-12', 'directional_bias' => 'bullish', 'market_state' => 'expansion', 'market_state_certainty' => 76, 'version_group' => 'classifier-secret-v2' ),
 	),
 );
-Bitmomo_Public_Intelligence_Adapter::$surface_fixture = array( 'opportunity'=>$opportunity, 'provenance'=>Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['provenance'] );
-$metric_a=array('n'=>40,'conclusive_n'=>35,'correct'=>22,'incorrect'=>13,'inconclusive'=>5,'accuracy_pct'=>62.9,'sample_status'=>'ADEQUATE');
-$metric_b=array('n'=>20,'conclusive_n'=>14,'correct'=>8,'incorrect'=>6,'inconclusive'=>6,'accuracy_pct'=>57.1,'sample_status'=>'EARLY SAMPLE');
+$current_metric = array( 'n' => 40, 'conclusive_n' => 35, 'correct' => 22, 'incorrect' => 13, 'inconclusive' => 5, 'accuracy_pct' => 62.9, 'sample_status' => 'ADEQUATE' );
+$rolling_metric = array_merge( $current_metric, array( 'n' => 30, 'conclusive_n' => 27, 'accuracy_pct' => 63.0 ) );
+$legacy_metric = array( 'n' => 20, 'conclusive_n' => 18, 'accuracy_pct' => 11.1, 'sample_status' => 'EARLY SAMPLE' );
 Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
-	'directional_evaluation'=>array(
-		'engine-v2 | classifier-v2 | observed-close-24h-v2'=>array('latest_generated_at'=>'2026-09-03T00:10:07+00:00','outcome_methodology'=>'observed-close-24h-v2','all'=>$metric_a,'rolling_30'=>array_merge($metric_a,array('n'=>30,'conclusive_n'=>27,'accuracy_pct'=>63.0)),'by_direction'=>array('bullish'=>$metric_a,'bearish'=>$metric_b,'neutral'=>$metric_b),'confidence_buckets'=>array(array_merge($metric_b,array('range'=>'70–100')))),
-		'engine-v1 | classifier-v1 | legacy-window-v1'=>array('latest_generated_at'=>'2026-08-01T00:10:07+00:00','outcome_methodology'=>'legacy-window-v1','all'=>$metric_b,'rolling_30'=>$metric_b,'by_direction'=>array('bullish'=>$metric_b,'bearish'=>$metric_b,'neutral'=>$metric_b),'confidence_buckets'=>array(array_merge($metric_b,array('range'=>'40–69')))),
+	'directional_evaluation' => array(
+		'engine-v2 | classifier-v2 | observed-close-24h-v2' => array(
+			'outcome_methodology' => 'observed-close-24h-v2', 'all' => $current_metric, 'rolling_30' => $rolling_metric,
+			'by_direction' => array( 'bullish' => $current_metric, 'bearish' => array_merge( $current_metric, array( 'accuracy_pct' => 57.1 ) ), 'neutral' => $current_metric ),
+			'confidence_buckets' => array( array_merge( $current_metric, array( 'range' => '70–100' ) ) ),
+		),
+		'engine-v1 | classifier-v1 | legacy-window-v1' => array( 'all' => $legacy_metric, 'rolling_30' => $legacy_metric, 'by_direction' => array( 'bullish' => $legacy_metric ) ),
 	),
-	'expected_range_evaluation'=>array('policy'=>'FROZEN_VERSIONED_ORIGINAL_ONLY','versions'=>array('engine-v2 | range-model-v1'=>array('n'=>30,'range_hit_pct'=>70.0,'low_breach_pct'=>13.3,'high_breach_pct'=>16.7,'sample_status'=>'ADEQUATE'))),
-	'regime_performance'=>array('versions'=>array('classifier-v2 | observed-close-24h-v2'=>array('expansion'=>array('n'=>14,'average_forward_return_pct'=>1.2,'sample_status'=>'EARLY SAMPLE')))),
-	'data_quality'=>array('n'=>40,'stale_rate_pct'=>2.5,'blocked_degraded_rate_pct'=>5.0,'missing_data_rate_pct'=>1.0,'settlement_n'=>37,'settlement_evaluated_n'=>35,'settlement_missed_n'=>2,'settlement_pending_n'=>3,'settlement_completeness_pct'=>94.6,'sample_status'=>'ADEQUATE'),
+	'expected_range_evaluation' => array( 'versions' => array( 'range-v2' => array( 'n' => 30, 'range_hit_pct' => 70.0 ) ) ),
+	'regime_performance' => array( 'versions' => array( 'classifier-v2' => array( 'expansion' => array( 'n' => 14, 'average_forward_return_pct' => 1.2 ) ) ) ),
+	'data_quality' => array( 'n' => 40, 'stale_rate_pct' => 2.5, 'settlement_completeness_pct' => 92.5, 'sample_status' => 'ADEQUATE' ),
 );
 
-$html = render_bmi( $reflection );
-check( 'Opportunity renders natively with live activity context', false !== strpos( $html, 'bm-bi__opportunity is-high' ) && false !== strpos( $html, 'activity percentile' ) && false !== strpos( $html, '60m range' ) );
-check( 'Snapshot renders BTC, state and same-edition certainty', ( false !== strpos( $html, '65,000' ) || false !== strpos( $html, '65.000' ) ) && false !== strpos( $html, 'Ekspansi' ) && false !== strpos( $html, '76% certainty' ) );
-check( 'Directional strength and exact confidence render', false !== strpos( $html, 'Strong Bullish' ) && false !== strpos( $html, '82/100' ) && false !== strpos( $html, 'bukan probabilitas' ) );
-check( 'Driver list is capped at three', false !== strpos( $html, 'Structure improving' ) && false === strpos( $html, 'Fourth driver should not render' ) );
-check( 'Freshness renders exact WIB timestamp', false !== strpos( $html, '03 Sep 2026 · 07:10 WIB' ) );
-check( 'Direction marker uses strength zone', false !== strpos( $html, '--bm-zone:4' ) );
-check( 'Observed 24H context renders measurable data', false !== strpos( $html, 'OBSERVED 24H' ) && false !== strpos( $html, 'OI 24H' ) && false !== strpos( $html, 'FUNDING' ) );
-check( 'What Changed renders current-context deltas', false !== strpos( $html, 'WHAT CHANGED' ) && false !== strpos( $html, 'Bias berubah' ) && false !== strpos( $html, 'Confidence: 61 → 82' ) );
-check( 'Track-record accuracy exposes conclusive denominator', false !== strpos( $html, '35 konklusif · 40 total' ) );
-check( 'Neutral outcomes are included in direction proof', false !== strpos( $html, '>Neutral<' ) );
-check( 'Exact and legacy directional methodologies stay visibly separated', false !== strpos( $html, 'engine-v2 | classifier-v2 | observed-close-24h-v2' ) && false !== strpos( $html, 'engine-v1 | classifier-v1 | legacy-window-v1' ) );
-check( 'Only versioned Expected Range proof is represented', false !== strpos( $html, 'engine-v2 | range-model-v1' ) && false === strpos( $html, 'range-v1' ) );
-check( 'Data-quality proof includes matured-window settlement completeness', false !== strpos( $html, 'Settlement complete' ) && false !== strpos( $html, '94.6%' ) );
-check( 'No live Expected Range price is exposed', 0 === preg_match( '/\$[\d,.]+\s*[-–]\s*\$[\d,.]+/', $html ) );
-check( 'Free page does not leak Pro monitoring/scenario fields', false === strpos( $html, 'what_to_watch' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'monitoring_conditions' ) );
+$reflection = new ReflectionClass( 'Bitmomo_Btc_Intelligence_Page' );
+$instance = $reflection->newInstanceWithoutConstructor();
+$method = $reflection->getMethod( 'render_page' );
+$method->setAccessible( true );
+$html = $method->invoke( $instance, array() );
 
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['status']='delayed'; Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['freshness']['state']='delayed';
-check( 'Delayed intelligence is explicitly labelled', false !== strpos( render_bmi($reflection), 'DATA TERTUNDA' ) );
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['status']='fresh'; Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['freshness']['state']='fresh'; Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['market_state']=null; Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['market_state_certainty']=null;
-$partial=render_bmi($reflection);
-check( 'Missing same-edition Market State stays pending while other intelligence remains usable', false !== strpos($partial,'classification pending') && false !== strpos($partial,'Strong Bullish') );
+check( 'Current reading exposes direction in human language', false !== strpos( $html, 'Bullish kuat' ) );
+check( 'Confidence is exact but explicitly not a price probability', false !== strpos( $html, '82/100' ) && false !== strpos( $html, 'bukan probabilitas harga' ) );
+check( 'Activity is translated into a visitor-facing state', false !== strpos( $html, 'AKTIVITAS PASAR' ) && false !== strpos( $html, '>Tinggi<' ) );
+check( 'Opportunity internals are not displayed', false === strpos( $html, 'activity percentile' ) && false === strpos( $html, '60m range' ) && false === strpos( $html, '84.2' ) && false === strpos( $html, '1.17%' ) );
+check( 'Market State taxonomy and classifier certainty stay out of public presentation', false === strpos( $html, 'Ekspansi' ) && false === strpos( $html, '76% certainty' ) && false === strpos( $html, 'MARKET STATE' ) );
+check( 'Raw derivative kitchen metrics stay out of public presentation', false === strpos( $html, 'OI 24H' ) && false === strpos( $html, 'FUNDING' ) && false === strpos( $html, 'BASIS' ) );
+check( 'Only two visitor-relevant reasons render', false !== strpos( $html, 'Momentum BTC menguat.' ) && false !== strpos( $html, 'Volatilitas meningkat.' ) && false === strpos( $html, 'Driver ketiga tidak boleh tampil.' ) );
+check( 'What changed is capped and humanized', false !== strpos( $html, 'Arah berubah dari Netral menjadi Bullish.' ) && false !== strpos( $html, 'Keyakinan pembacaan berubah dari 61 menjadi 82.' ) && false === strpos( $html, 'strongest_driver' ) );
+check( 'Public trust metadata is concise', false !== strpos( $html, '13 Sep 2026 · 03:10 WIB' ) && false !== strpos( $html, 'Sumber data: Binance + Bybit' ) );
+check( '30-day context shows direction only', false !== strpos( $html, 'Bullish 2' ) && false !== strpos( $html, 'Netral 1' ) && false !== strpos( $html, 'Bearish 1' ) );
+check( '30-day context does not expose regime or classifier internals', false === strpos( $html, 'Distribusi' ) && false === strpos( $html, 'Akumulasi' ) && false === strpos( $html, 'classifier-secret' ) );
+check( 'Track record uses current methodology outcome only', false !== strpos( $html, '62.9%' ) && false !== strpos( $html, '63.0%' ) && false === strpos( $html, '11.1%' ) );
+check( 'Track record hides engine and classifier version identifiers', false === strpos( $html, 'engine-v2' ) && false === strpos( $html, 'classifier-v2' ) && false === strpos( $html, 'legacy-window-v1' ) );
+check( 'Track record exposes honest denominator', false !== strpos( $html, '35 outcome konklusif · 40 total' ) );
+check( 'Track record describes exact +24h evaluation', false !== strpos( $html, 'tepat +24 jam' ) );
+check( 'Legacy methodology is disclosed without dumping identifiers', false !== strpos( $html, 'metodologi sebelumnya tetap disimpan untuk audit' ) );
+check( 'Internal evaluation diagnostics do not render', false === strpos( $html, 'Range hit' ) && false === strpos( $html, 'Settlement complete' ) && false === strpos( $html, 'Stale rate' ) && false === strpos( $html, 'Confidence vs akurasi' ) );
+check( 'Free page does not leak Pro monitoring/scenario fields', false === strpos( $html, 'monitoring_conditions' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'what_to_watch' ) );
 
-$setup=Bitmomo_Btc_Intelligence_Setup::instance(); check('Setup class instantiates',$setup instanceof Bitmomo_Btc_Intelligence_Setup);
-printf("\n%d/%d passed.\n",$GLOBALS['__pass'],$GLOBALS['__pass']+$GLOBALS['__fail']); exit($GLOBALS['__fail']===0?0:1);
+Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['status'] = 'delayed';
+Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['freshness']['state'] = 'delayed';
+$delayed_instance = $reflection->newInstanceWithoutConstructor();
+$delayed_html = $method->invoke( $delayed_instance, array() );
+check( 'Delayed intelligence is explicitly labelled', false !== strpos( $delayed_html, 'DATA TERTUNDA' ) );
+
+$setup = Bitmomo_Btc_Intelligence_Setup::instance();
+check( 'Setup class instantiates', $setup instanceof Bitmomo_Btc_Intelligence_Setup );
+printf( "\n%d/%d passed.\n", $GLOBALS['__pass'], $GLOBALS['__pass'] + $GLOBALS['__fail'] );
+exit( $GLOBALS['__fail'] === 0 ? 0 : 1 );
