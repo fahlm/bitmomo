@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Bitmomo AI
  * Description: Editorial foundation for AI Market Insight and Bitcoin Signal.
- * Version: 1.4.0
+ * Version: 1.4.1
  * Author: Bitmomo
  * Text Domain: bitmomo-ai
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BITMOMO_AI_VERSION', '1.4.0');
+define('BITMOMO_AI_VERSION', '1.4.1');
 define('BITMOMO_AI_FILE', __FILE__);
 define('BITMOMO_AI_DIR', plugin_dir_path(__FILE__));
 define('BITMOMO_AI_URL', plugin_dir_url(__FILE__));
@@ -47,6 +47,7 @@ final class Bitmomo_AI_Intelligence {
         return [
             'status' => $state,
             'price' => (float) ($data['close'] ?? 0),
+            'source' => self::public_source_label($data),
             'bias' => $bias,
             'direction_strength' => $direction_strength,
             'market_state' => self::market_state_label($bias),
@@ -174,6 +175,31 @@ final class Bitmomo_AI_Intelligence {
             'status' => sanitize_key((string) ($attempt['status'] ?? 'unknown')),
             'quality_status' => sanitize_key((string) ($attempt['quality_gate']['status'] ?? 'unknown')),
         ];
+    }
+
+    /**
+     * Public-safe provider label derived only from the canonical snapshot's
+     * normalized quality metadata. Unknown providers fail closed at the public
+     * adapter boundary instead of leaking internal diagnostics or guessing.
+     */
+    private static function public_source_label(array $data) {
+        $quality = is_array($data['quality'] ?? null) ? $data['quality'] : [];
+        $raw = strtolower(trim((string) ($quality['source'] ?? '')));
+        if ($raw === '') return '';
+
+        $has_binance = strpos($raw, 'binance') !== false;
+        $has_bybit = strpos($raw, 'bybit') !== false;
+
+        if ($has_binance && $has_bybit) {
+            return __('Binance public market data + Bybit derivatives fallback', 'bitmomo-ai');
+        }
+        if ($has_binance) {
+            return __('Binance public market data', 'bitmomo-ai');
+        }
+        if ($has_bybit) {
+            return __('Bybit public market data', 'bitmomo-ai');
+        }
+        return '';
     }
 
     private static function source_is_stale(array $source) {

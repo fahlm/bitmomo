@@ -47,7 +47,8 @@ $input = [
     'direction' => ['adx' => 30, 'plus_di' => 30, 'minus_di' => 10, 'bias_1h' => 'bullish', 'bias_4h' => 'bullish', 'bias_1d' => 'bullish'],
     'carry' => ['funding_rate' => 0, 'basis_pct' => 0], 'structure' => ['state' => 'range'],
     'crowding' => ['oi_change_24h_pct' => 0, 'price_change_24h_pct' => 0],
-    'volatility' => ['regime' => 'normal', 'atr_pct_1h' => 1], 'quality' => ['status' => 'complete'],
+    'volatility' => ['regime' => 'normal', 'atr_pct_1h' => 1],
+    'quality' => ['status' => 'complete', 'source' => 'Binance public market data + Binance USD-M'],
 ];
 $evaluation = Bitmomo_AI_Signal_Engine::evaluate($input);
 $GLOBALS['adapter_options']['bitmomo_ai_latest_preview'] = ['time' => gmdate('c'), 'data' => $input, 'evaluation' => $evaluation, 'edition' => 'morning', 'source_record_id' => 'secret-id'];
@@ -65,7 +66,8 @@ $snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
 $history = Bitmomo_Public_Intelligence_Adapter::history();
 $summary = Bitmomo_Public_Intelligence_Adapter::evaluation_summary();
 adapter_check('snapshot resolves canonical fields', $snapshot['market_state'] === 'accumulation' && $snapshot['direction_strength'] === $evaluation['direction_strength']);
-adapter_check('snapshot explicit allowlist hides source/internal data', !isset($snapshot['source_record_id'], $snapshot['axes'], $snapshot['score'], $snapshot['risk'], $snapshot['edition']));
+adapter_check('snapshot exposes public-safe source/as-of/timezone', ($snapshot['provenance']['source'] ?? '') === 'Binance public market data' && ($snapshot['provenance']['as_of'] ?? '') !== '' && ($snapshot['provenance']['timezone'] ?? '') === 'Asia/Jakarta');
+adapter_check('snapshot explicit allowlist hides internal data', !isset($snapshot['source_record_id'], $snapshot['axes'], $snapshot['score'], $snapshot['risk'], $snapshot['edition']));
 adapter_check('history has one official row per date', $history['available_days'] === 2 && count($history['days']) === 2);
 adapter_check('history prefers US Session official row', $history['days'][1]['market_state'] === 'accumulation');
 adapter_check('history excludes reconstructed records', !in_array('2026-09-01', array_column($history['days'], 'date'), true));
@@ -75,7 +77,15 @@ adapter_check('evaluation preserves version separation', $summary['version_polic
 adapter_check('evaluation preserves backend sample status', $summary['directional_evaluation']['engine-v1 | classifier-v1']['all']['sample_status'] === 'INSUFFICIENT SAMPLE');
 adapter_check('Expected Range is aggregate frozen-original evaluation only', $summary['expected_range_evaluation']['policy'] === 'FROZEN_ORIGINAL_ONLY' && !isset($summary['expected_range_evaluation']['current_range']));
 $encoded = json_encode([$snapshot, $history, $summary]);
-foreach (['axes', 'risk', 'source_record_id', 'evidence', 'private_note', 'baselines'] as $forbidden) adapter_check("no {$forbidden} leak", strpos($encoded, '"' . $forbidden . '"') === false);
+foreach (['axes', 'risk', 'source_record_id', 'source_diagnostics', 'evidence', 'private_note', 'baselines'] as $forbidden) adapter_check("no {$forbidden} leak", strpos($encoded, '"' . $forbidden . '"') === false);
+
+$GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['data']['quality']['source'] = 'Binance public market data + Bybit linear perpetual fallback';
+$fallback_snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
+adapter_check('Bybit fallback is disclosed without exposing diagnostics', ($fallback_snapshot['provenance']['source'] ?? '') === 'Binance public market data + Bybit derivatives fallback');
+
+$GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['data']['quality']['source'] = 'internal-provider-do-not-publish';
+adapter_check('unrecognized provider fails closed instead of guessing a source label', Bitmomo_Public_Intelligence_Adapter::snapshot() === null);
+$GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['data']['quality']['source'] = 'Binance public market data + Binance USD-M';
 
 $GLOBALS['adapter_options']['bitmomo_ai_latest_quality_gate'] = ['status' => 'blocked'];
 adapter_check('new blocked attempt does not hide the previous valid snapshot', Bitmomo_Public_Intelligence_Adapter::snapshot() !== null);

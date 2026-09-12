@@ -23,6 +23,8 @@ const frontPage = read('website/wp-content/themes/bitmomo-child-v3/front-page.ph
 const header = read('website/wp-content/themes/bitmomo-child-v3/header.php');
 const homeHero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const btcCard = read('website/wp-content/themes/bitmomo-child-v3/template-parts/btc-intelligence-card.php');
+const publicAdapter = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php');
+const btcIntelligencePlugin = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
 const proSalesOutput = withoutCommentLines(proSales);
 const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
@@ -56,6 +58,29 @@ check(
 		&& /Aktivitas · bukan arah/.test(btcCard)
 		&& /Opportunity mengukur aktivitas, bukan arah harga/.test(btcCard)
 		&& !/Risk-On|Risk-Off|RISK-ON|RISK-OFF/.test(btcCard)
+);
+check(
+	'Public adapter exposes source, as-of, and display timezone as one fail-closed provenance contract',
+	/'provenance'\s*=>\s*\[/.test(publicAdapter)
+		&& /'source'\s*=>\s*\$public_source/.test(publicAdapter)
+		&& /'as_of'\s*=>\s*\$as_of/.test(publicAdapter)
+		&& /'timezone'\s*=>\s*self::PUBLIC_DISPLAY_TIMEZONE/.test(publicAdapter)
+		&& /\$public_source\s*===\s*''/.test(publicAdapter)
+);
+check(
+	'Homepage BTC card renders canonical source plus explicit as-of timezone',
+	/\['provenance'\]/.test(btcCard)
+		&& /SOURCE %s/.test(btcCard)
+		&& /AS OF/.test(btcCard)
+		&& /\$bitmomo_timezone_label/.test(btcCard)
+);
+check(
+	'Public BTC Intelligence renders provenance from the adapter without hardcoded providers',
+	/\$snapshot\['provenance'\]/.test(btcIntelligencePlugin)
+		&& /bm-bi__snapshot-provenance/.test(btcIntelligencePlugin)
+		&& /SOURCE/.test(btcIntelligencePlugin)
+		&& /AS OF/.test(btcIntelligencePlugin)
+		&& !/Binance public market data|Bybit derivatives fallback/.test(btcCard + btcIntelligencePlugin)
 );
 
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));

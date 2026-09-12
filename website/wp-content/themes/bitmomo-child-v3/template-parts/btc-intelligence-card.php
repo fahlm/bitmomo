@@ -51,7 +51,12 @@ $bitmomo_active_segments = $bitmomo_confidence_segments[ $bitmomo_confidence_key
 $bitmomo_key_drivers = $bitmomo_available && is_array( $bitmomo_snapshot['key_drivers'] ?? null )
     ? array_slice( array_values( array_filter( array_map( 'strval', $bitmomo_snapshot['key_drivers'] ) ) ), 0, 5 )
     : array();
-$bitmomo_updated = $bitmomo_available && ! empty( $bitmomo_snapshot['freshness']['timestamp_iso'] ) ? strtotime( $bitmomo_snapshot['freshness']['timestamp_iso'] ) : false;
+$bitmomo_provenance = $bitmomo_available && is_array( $bitmomo_snapshot['provenance'] ?? null ) ? $bitmomo_snapshot['provenance'] : array();
+$bitmomo_source = trim( (string) ( $bitmomo_provenance['source'] ?? '' ) );
+$bitmomo_as_of = trim( (string) ( $bitmomo_provenance['as_of'] ?? ( $bitmomo_snapshot['freshness']['timestamp_iso'] ?? '' ) ) );
+$bitmomo_timezone = trim( (string) ( $bitmomo_provenance['timezone'] ?? 'Asia/Jakarta' ) );
+$bitmomo_timezone_label = 'Asia/Jakarta' === $bitmomo_timezone ? 'WIB' : $bitmomo_timezone;
+$bitmomo_updated = $bitmomo_as_of ? strtotime( $bitmomo_as_of ) : false;
 ?>
 <section class="bm-section bm-btc" aria-labelledby="bm-btc-title">
   <div class="bm-container">
@@ -126,10 +131,10 @@ $bitmomo_updated = $bitmomo_available && ! empty( $bitmomo_snapshot['freshness']
         <footer class="bm-btc-status">
           <div>
             <span class="bm-btc-reference"><?php echo esc_html( sprintf( __( 'BTC Reference $%s', 'bitmomo' ), number_format_i18n( (float) ( $bitmomo_snapshot['btc_reference_price'] ?? 0 ), 0 ) ) ); ?></span>
-            <time datetime="<?php echo esc_attr( (string) ( $bitmomo_snapshot['freshness']['timestamp_iso'] ?? '' ) ); ?>">UPDATED <?php echo esc_html( $bitmomo_updated ? wp_date( 'd M Y · H:i', $bitmomo_updated ) . ' WIB' : __( 'Belum tersedia', 'bitmomo' ) ); ?></time>
+            <time datetime="<?php echo esc_attr( $bitmomo_as_of ); ?>">AS OF <?php echo esc_html( $bitmomo_updated ? wp_date( 'd M Y · H:i', $bitmomo_updated ) . ' ' . $bitmomo_timezone_label : __( 'Belum tersedia', 'bitmomo' ) ); ?></time>
             <span class="bm-btc-freshness is-<?php echo esc_attr( $bitmomo_status ); ?>"><i aria-hidden="true"></i><?php echo $bitmomo_status === 'fresh' ? esc_html__( 'Data terkini', 'bitmomo' ) : esc_html__( 'Data tertunda', 'bitmomo' ); ?></span>
           </div>
-          <p class="bm-btc-disclaimer"><?php esc_html_e( 'Bukan sinyal beli/jual dan bukan nasihat keuangan. Opportunity mengukur aktivitas, bukan arah harga.', 'bitmomo' ); ?></p>
+          <p class="bm-btc-disclaimer"><strong><?php echo esc_html( sprintf( __( 'SOURCE %s', 'bitmomo' ), $bitmomo_source ) ); ?></strong><br><?php esc_html_e( 'Bukan sinyal beli/jual dan bukan nasihat keuangan. Opportunity mengukur aktivitas, bukan arah harga.', 'bitmomo' ); ?></p>
         </footer>
       <?php endif; ?>
     </article>
@@ -142,5 +147,6 @@ $bitmomo_updated = $bitmomo_available && ! empty( $bitmomo_snapshot['freshness']
   $bitmomo_opportunity_changed, $bitmomo_opportunity_updated, $bitmomo_market_state, $bitmomo_regime_label,
   $bitmomo_raw_bias, $bitmomo_bias_valid, $bitmomo_strength, $bitmomo_direction_labels, $bitmomo_direction_label,
   $bitmomo_confidence_map, $bitmomo_confidence_key, $bitmomo_confidence_label, $bitmomo_confidence_segments,
-  $bitmomo_active_segments, $bitmomo_key_drivers, $bitmomo_updated, $bitmomo_segment, $bitmomo_driver
+  $bitmomo_active_segments, $bitmomo_key_drivers, $bitmomo_provenance, $bitmomo_source, $bitmomo_as_of,
+  $bitmomo_timezone, $bitmomo_timezone_label, $bitmomo_updated, $bitmomo_segment, $bitmomo_driver
 ); ?>
