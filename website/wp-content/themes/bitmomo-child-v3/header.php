@@ -1,9 +1,5 @@
 <?php
-/**
- * Shared site header for the Bitmomo child theme.
- *
- * @package Bitmomo
- */
+/** Shared site header for the Bitmomo child theme. @package Bitmomo */
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -28,6 +24,7 @@
       $bm_about_url = $bm_about_page ? get_permalink( $bm_about_page ) : home_url( '/tentang-kami/' );
       $bm_account_page = get_page_by_path( 'pro/account', OBJECT, 'page' );
       $bm_account_url = $bm_account_page ? get_permalink( $bm_account_page ) : home_url( '/pro/account/' );
+      $bm_is_account = $bm_account_page ? is_page( (int) $bm_account_page->ID ) : is_page( 'account' );
       $bm_is_research = is_category( 'riset' ) || ( is_single() && has_category( 'riset' ) );
       ?>
       <div class="bm-nav-groups">
@@ -37,11 +34,11 @@
           <li><a href="<?php echo esc_url( $bm_about_url ); ?>"<?php echo is_page( 'tentang-kami' ) ? ' aria-current="page"' : ''; ?>>Tentang</a></li>
         </ul>
         <ul class="bm-nav-list bm-nav-list--actions">
-          <li><a class="bm-nav-login" href="<?php echo esc_url( $bm_account_url ); ?>"<?php echo is_page( 'pro/account' ) ? ' aria-current="page"' : ''; ?>>Masuk</a></li>
+          <li><a class="bm-nav-login" href="<?php echo esc_url( $bm_account_url ); ?>"<?php echo $bm_is_account ? ' aria-current="page"' : ''; ?>>Masuk</a></li>
           <li><a class="bm-nav-pro" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"<?php echo is_page( 'pro' ) ? ' aria-current="page"' : ''; ?>>BITMOMO PRO</a></li>
         </ul>
       </div>
     </nav>
   </div>
 </header>
-<?php unset( $bm_riset_term, $bm_riset_url, $bm_about_page, $bm_about_url, $bm_account_page, $bm_account_url, $bm_is_research ); ?>
+<?php unset( $bm_riset_term, $bm_riset_url, $bm_about_page, $bm_about_url, $bm_account_page, $bm_account_url, $bm_is_account, $bm_is_research ); ?>
