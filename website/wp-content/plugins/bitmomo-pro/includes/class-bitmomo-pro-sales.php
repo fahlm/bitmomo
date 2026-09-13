@@ -182,7 +182,7 @@ class Bitmomo_Pro_Sales {
 			</div>
 			<p class="bm-pro-sales__section-intro"><?php esc_html_e( 'Contoh di bawah hanya memakai brief Pro historis yang sudah melewati delay publik dan settlement gate. Guidance aktif tidak pernah dibocorkan ke landing page.', 'bitmomo-pro' ); ?></p>
 			<?php if ( $row ) :
-				$published = ! empty( $row['published_at'] ) && strtotime( $row['published_at'] ) ? wp_date( 'd M Y · H:i', strtotime( $row['published_at'] ) ) . ' WIB' : '—';
+				$published = $this->format_wib( $row['published_at'] ?? '' );
 				$state = sanitize_key( (string) ( $row['market_state'] ?? '' ) );
 				$verdict = sanitize_key( (string) ( $row['verdict'] ?? 'unscored' ) );
 				?>
@@ -279,7 +279,7 @@ class Bitmomo_Pro_Sales {
 		<section class="bm-pro-sales__section--editorial bm-pro-sales__lineage">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'DIBANGUN DARI PENGALAMAN PASAR', 'bitmomo-pro' ); ?></p>
 			<h2 class="bm-pro-sales__section-title"><?php esc_html_e( 'AI adalah bagian dari sistem. Konteks adalah fondasinya.', 'bitmomo-pro' ); ?></h2>
-			<p><?php esc_html_e( 'Bitmomo dikembangkan dari pengalaman riset dan partisipasi di pasar kripto sejak 2016. Kerangka analisisnya dibangun untuk membaca pasar lintas siklus, lalu menggunakan AI sebagai alat untuk membantu compression, consistency, dan monitoring — bukan sebagai oracle.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'Bitmomo dikembangkan dari disiplin market research dan pengalaman membaca pasar kripto lintas siklus. Kerangka analisisnya menggunakan AI sebagai alat untuk membantu compression, consistency, dan monitoring — bukan sebagai oracle.', 'bitmomo-pro' ); ?></p>
 			<div class="bm-pro-sales__principles"><span><?php esc_html_e( 'Pengalaman lintas siklus', 'bitmomo-pro' ); ?></span><span><?php esc_html_e( 'Evidence-first', 'bitmomo-pro' ); ?></span><span><?php esc_html_e( 'Forward evaluation', 'bitmomo-pro' ); ?></span></div>
 			<a class="bm-pro-sales__text-link" href="<?php echo esc_url( home_url( '/tentang-kami/' ) ); ?>"><?php esc_html_e( 'Tentang Bitmomo →', 'bitmomo-pro' ); ?></a>
 		</section>
@@ -379,6 +379,7 @@ class Bitmomo_Pro_Sales {
 		<nav class="bm-pro-sales__trust-links" aria-label="<?php esc_attr_e( 'Trust dan kebijakan Bitmomo Pro', 'bitmomo-pro' ); ?>">
 			<a href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>"><?php esc_html_e( 'Decision Ledger', 'bitmomo-pro' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/help/' ) ); ?>"><?php esc_html_e( 'Help Center', 'bitmomo-pro' ); ?></a>
+			<a href="mailto:hi@bitmomo.id"><?php esc_html_e( 'Support', 'bitmomo-pro' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>"><?php esc_html_e( 'Kebijakan Privasi', 'bitmomo-pro' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>"><?php esc_html_e( 'Disclaimer', 'bitmomo-pro' ); ?></a>
 		</nav>
@@ -389,6 +390,13 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section class="bm-pro-sales__disclaimer"><p><?php esc_html_e( 'Bitmomo Pro adalah alat bantu analisis, bukan nasihat keuangan. Pergerakan harga BTC dan aset kripto memiliki risiko; keputusan trading sepenuhnya tanggung jawab pengguna.', 'bitmomo-pro' ); ?></p></section>
 		<?php
+	}
+
+	private function format_wib( $value ) {
+		$timestamp = strtotime( (string) $value );
+		if ( ! $timestamp ) return '—';
+		$date = new DateTimeImmutable( '@' . $timestamp );
+		return $date->setTimezone( new DateTimeZone( 'Asia/Jakarta' ) )->format( 'd M Y · H:i' ) . ' WIB';
 	}
 
 	private function format_price( $value ) {
