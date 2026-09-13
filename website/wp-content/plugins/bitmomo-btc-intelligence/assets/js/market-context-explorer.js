@@ -13,7 +13,8 @@
     range: config.defaultRange || '30d',
     active: new Set(['btc']),
     payload: null,
-    controller: null
+    controller: null,
+    requestSeq: 0
   };
 
   root.classList.add('bm-bi--market-context');
@@ -130,29 +131,50 @@
 
   async function loadRange(range) {
     if (state.controller) state.controller.abort();
-    state.controller = new AbortController();
+
+    const requestId = ++state.requestSeq;
+    const controller = new AbortController();
+    state.controller = controller;
+
+    // A selected range owns its own payload. Never let an older successful
+    // range remain interactive while a new range is loading or has failed.
+    state.payload = null;
+    state.active = new Set(['btc']);
+    explorer.compareGroup.replaceChildren();
+    explorer.legend.replaceChildren();
+    explorer.chart.innerHTML = '<div class="bm-mc__loading" role="status">Memuat konteks pasar…</div>';
+    explorer.status.textContent = 'Memuat data perbandingan pasar.';
     setLoading(true);
+
     try {
       const url = new URL(config.endpoint, window.location.origin);
       url.searchParams.set('range', range);
       const response = await fetch(url.toString(), {
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
-        signal: state.controller.signal
+        signal: controller.signal
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
-      if (!payload || !Array.isArray(payload.series)) throw new Error('Invalid market-context payload');
+      if (requestId !== state.requestSeq || range !== state.range) return;
+      if (!payload || payload.range !== range || !Array.isArray(payload.series)) throw new Error('Invalid market-context payload');
       state.payload = payload;
       syncCurrentDecision(payload.current || {});
       renderSeriesControls();
       renderChart();
     } catch (error) {
       if (error && error.name === 'AbortError') return;
+      if (requestId !== state.requestSeq || range !== state.range) return;
+
+      state.payload = null;
+      state.active = new Set(['btc']);
+      explorer.compareGroup.replaceChildren();
       explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Konteks pasar belum tersedia.</strong><span>Decision View di atas tetap menggunakan data canonical Bitmomo.</span></div>';
       explorer.legend.replaceChildren();
       explorer.status.textContent = 'Market Context Explorer gagal dimuat; pembacaan BTC utama tidak terpengaruh.';
     } finally {
+      if (requestId !== state.requestSeq) return;
+      if (state.controller === controller) state.controller = null;
       setLoading(false);
     }
   }
