@@ -1,9 +1,11 @@
 """Read-only Hyperliquid market selector dry-run.
 
 This adapter subscribes to public L2/trade feeds and prints a rolling leaderboard.
-It NEVER creates an Exchange client and has no order-submission path. Empirical
-execution metrics remain UNKNOWN until a separate dry-run execution estimator feeds
-ExecutionObservation records into the observers, so the selector fails closed.
+It NEVER creates an Exchange client and has no order-submission path.
+
+Optional finalized shadow/paper execution feedback can be tailed from JSONL via
+--feedback-jsonl. Missing execution feedback remains UNKNOWN, so the selector fails
+closed rather than inventing fill/maker/P10K economics from book snapshots.
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ from hyperliquid.utils import constants
 
 from .config import DEFAULT_CONFIG
 from .eligibility import evaluate_market
-from .models import Verdict
+from .feedback import ExecutionFeedbackRouter, JsonlExecutionFeedbackTailer
 from .observer import BookObservation, MarketObserver, TradeObservation
 from .ranker import rank_markets
 from .supervisor import MarketSupervisor
@@ -51,6 +53,14 @@ def main():
     parser.add_argument("--coins", default="")
     parser.add_argument("--interval", type=int, default=30)
     parser.add_argument("--window", type=int, default=900)
+    parser.add_argument(
+        "--feedback-jsonl",
+        default="",
+        help=(
+            "Optional JSONL written by a shadow/paper execution engine. "
+            "No file means execution economics stay UNKNOWN."
+        ),
+    )
     args = parser.parse_args()
 
     cfg = DEFAULT_CONFIG
@@ -73,6 +83,12 @@ def main():
 
     lock = threading.Lock()
     supervisor = MarketSupervisor(cfg)
+    feedback_router = ExecutionFeedbackRouter(observers)
+    feedback_tailer = (
+        JsonlExecutionFeedbackTailer(args.feedback_jsonl)
+        if args.feedback_jsonl.strip()
+        else None
+    )
 
     def make_book_callback(coin):
         def on_book(message):
@@ -123,11 +139,21 @@ def main():
 
     print("BITMOMO HYPERLIQUID SELECTOR — DRY RUN")
     print("Trading: DISABLED | Wallet: NOT USED | Fail-closed: ENABLED")
-    print("Execution economics remain UNKNOWN until dry-run execution samples exist.")
+    if feedback_tailer:
+        print(f"Execution feedback: {feedback_tailer.path}")
+    else:
+        print("Execution feedback: NONE — economics remain UNKNOWN/WATCH")
 
     try:
         while True:
             time.sleep(args.interval)
+
+            feedback_loaded = 0
+            if feedback_tailer is not None:
+                events = feedback_tailer.poll()
+                with lock:
+                    feedback_loaded = feedback_router.route_many(events)
+
             with lock:
                 metrics = [observer.snapshot() for observer in observers.values()]
 
@@ -141,6 +167,15 @@ def main():
                 f"SUPERVISOR state={decision.state.value} active={decision.active_market or '-'} "
                 f"action={decision.action} new_entries={'YES' if decision.allow_new_entries else 'NO'}"
             )
+            if feedback_tailer is not None:
+                print(
+                    "FEEDBACK "
+                    f"loaded={feedback_loaded} "
+                    f"accepted={feedback_router.stats.accepted} "
+                    f"dedup={feedback_router.stats.duplicate} "
+                    f"unknown_coin={feedback_router.stats.unknown_coin} "
+                    f"invalid={feedback_tailer.stats.invalid}"
+                )
             print(
                 "Rank Coin       Verdict      Score Spread  Queue/$100 Trades/m ExecN Maker   Markout5  P10K      T10K"
             )
