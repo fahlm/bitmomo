@@ -59,7 +59,7 @@ if ( $bm_riset_term && $bm_market_slugs ) {
                 'label'        => function_exists( 'bitmomo_post_research_topic_label' ) ? bitmomo_post_research_topic_label( get_the_ID() ) : __( 'Market Research', 'bitmomo' ),
                 'title'        => get_the_title(),
                 'link'         => get_permalink(),
-                'excerpt'      => wp_trim_words( get_the_excerpt(), 18, '…' ),
+                'excerpt'      => wp_trim_words( get_the_excerpt(), 14, '…' ),
                 'date_iso'     => get_the_date( DATE_W3C ),
                 'date_label'   => get_the_date( 'd M Y' ),
                 'reading_time' => max( 1, (int) $bm_reading_minutes ),
