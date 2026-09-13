@@ -28,6 +28,8 @@ $html   = Bitmomo_Pro_Sales::instance()->render_sales( array() );
 $source = file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-sales.php' );
 $css    = file_get_contents( __DIR__ . '/../assets/css/bitmomo-pro-sales.css' );
 $help   = file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-help-center.php' );
+$whitelist_source = file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-whitelist.php' );
+$email_source = file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-email-service.php' );
 
 // Basic integrity / truthfulness.
 check( 'RENDER: sales page is non-empty and owns one root surface', is_string( $html ) && strlen( $html ) > 3000 && false !== strpos( $html, '<div class="bm-pro-sales">' ) );
@@ -35,11 +37,12 @@ check( 'TRUTH: no placeholder preview values', false === strpos( $html, 'XX%' ) 
 check( 'TRUTH: no fabricated accuracy claim', 0 === preg_match( '/\d+%\s*akurat/i', $html ) );
 check( 'TRUTH: no 24/7 or realtime claim for non-realtime capabilities', false === stripos( $html, '24/7' ) && false === stripos( $html, 'real-time' ) && false === stripos( $html, 'real time' ) );
 check( 'TRUTH: old public seven-day refund promise cannot return', 0 === preg_match( '/7\s*(hari|day)|refund 7|7-day/i', $html . $help ) );
+check( 'TRUTH: sales page does not claim Decision View is live today regardless of quality gate', false === strpos( $html, 'Decision View aktif hari ini' ) && false === strpos( $html, 'Decision View BTC, aktif setiap hari.' ) );
 
 // Hero: current product, offer, and first action are understandable immediately.
 check( 'HERO: canonical product headline remains present', false !== strpos( $html, 'Pahami BTC dalam konteks, bukan sekadar dari potongan data.' ) );
-check( 'HERO: current Decision View is the value proposition', false !== strpos( $html, 'Decision View harian untuk memahami rentang, skenario, invalidation, dan perubahan penting BTC' ) );
-check( 'HERO: status boundary says Decision View is active now', false !== strpos( $html, 'Decision View aktif hari ini' ) );
+check( 'HERO: current Decision View is the value proposition', false !== strpos( $html, 'Decision View BTC untuk memahami rentang, skenario, invalidation, dan perubahan penting' ) );
+check( 'HERO: status boundary identifies product rather than fabricating live state', false !== strpos( $html, 'Decision View · produk inti Pro' ) );
 check( 'HERO: buy/sell misconception is handled above the fold', false !== strpos( $html, 'Bukan sinyal buy / sell' ) );
 check( 'HERO: current hero does not sell future analyst/watchtower capability', false === strpos( substr( $html, 0, (int) strpos( $html, 'id="pro-product"' ) ), '11 AI Analysts' ) && false === strpos( substr( $html, 0, (int) strpos( $html, 'id="pro-product"' ) ), 'Watchtower' ) );
 check( 'HERO: monthly and annual founding economics are visible', false !== strpos( $html, 'Founding Price Rp149.000/bulan' ) && false !== strpos( $html, 'Rp1.490.000/tahun' ) && false !== strpos( $html, 'hemat Rp298.000' ) );
@@ -75,6 +78,7 @@ check( 'FLOW: roadmap stays after the buying decision and FAQ', strpos( $html, '
 foreach ( array( 'Expected Range', 'Scenario Map', 'Thesis Invalidation', 'What Changed', 'Confidence Explanation' ) as $deliverable ) {
 	check( 'CURRENT PRODUCT: ' . $deliverable . ' is visible', false !== strpos( $html, $deliverable ) );
 }
+check( 'CURRENT PRODUCT: quality-gate honesty is explicit', false !== strpos( $html, 'Intelligence hanya ditampilkan ketika data memenuhi quality gate yang berlaku.' ) );
 check( 'FREE VS PRO: decision boundary is explicit', false !== strpos( $html, 'Bedanya bukan lebih banyak data. Bedanya adalah keputusan apa yang dibantu.' ) );
 check( 'FREE VS PRO: free/current and Pro/next framing is explicit', false !== strpos( $html, 'Free menjawab “apa yang terjadi sekarang”. Pro menambahkan scenario planning, invalidation, dan monitoring' ) );
 
@@ -109,7 +113,8 @@ check( 'PRICE: founding cap and operational first batch remain canonical', Bitmo
 check( 'PRICE: features are stated equal across billing periods', false !== strpos( $html, 'Fitur sama pada paket bulanan dan tahunan.' ) );
 check( 'TERMS: cancel-anytime access-through-paid-period is visible before form', false !== strpos( $html, 'Batalkan kapan saja. Akses tetap aktif sampai akhir periode berlangganan yang sudah dibayar.' ) );
 check( 'TERMS: final-payment policy includes access-failure exception', false !== strpos( $html, 'kegagalan pemberian akses dari sisi Bitmomo' ) );
-check( 'FOUNDING: locked-price boundary remains explicit', false !== strpos( $html, 'Founding Members yang menjaga membership tetap aktif dapat mempertahankan Founding Price selamanya.' ) );
+check( 'FOUNDING: locked-price boundary remains explicit without lifetime overclaim', false !== strpos( $html, 'Founding Members yang menjaga membership tetap aktif mempertahankan Founding Price selama membership tersebut tetap aktif.' ) && false === strpos( $html, 'Founding Price selamanya' ) );
+check( 'FOUNDING: future new-member price is conditional, not manufactured urgency', false !== strpos( $html, 'Harga untuk member baru dapat berubah' ) && false === strpos( $html, 'Harga membership baru akan berubah' ) );
 check( 'FOUNDING: standalone future-product pricing boundary remains explicit', false !== strpos( $html, 'Produk standalone Bitmomo di masa depan dapat memiliki pricing tersendiri.' ) );
 
 // Buyer FAQ must answer purchase objections, not let speculative roadmap dominate.
@@ -122,6 +127,8 @@ foreach ( array( 'apa-itu-11-ai-analysts', 'apa-itu-watchtower', 'apakah-analyst
 }
 check( 'FAQ: answers are sourced from canonical Help Center categories()', false !== strpos( $source, 'Bitmomo_Pro_Help_Center::categories()' ) );
 check( 'FAQ: full Help Center remains linked', false !== strpos( $html, '/help/' ) );
+check( 'HELP: public product name is BTC Intelligence, not the retired BTC Daily Intelligence label', false !== strpos( $help, "'title' => 'BTC Intelligence'") && false === strpos( $help, "'title' => 'BTC Daily Intelligence'") );
+check( 'HELP: legacy Tren AI route is not part of the product trust journey', false === strpos( $help, '/category/tren-ai/' ) && false !== strpos( $help, "'focus', 'systems'") );
 
 // Roadmap is compact and explicitly not live.
 check( 'ROADMAP: future capability is collapsed behind native details', false !== strpos( $html, '<section class="bm-pro-sales__roadmap">') && false !== strpos( $html, '<details>' ) );
@@ -132,13 +139,17 @@ foreach ( array( 'Altcoin Intelligence', 'Daily Alpha Discovery', '11 AI Analyst
 check( 'ROADMAP: no promised release date', false !== strpos( $html, 'tidak memiliki tanggal rilis yang dijanjikan' ) );
 check( 'ROADMAP: old standalone future-wall methods remain absent', false === strpos( $source, 'render_altcoin_intelligence' ) && false === strpos( $source, 'render_alpha_discovery' ) && false === strpos( $source, 'render_ai_analysts' ) && false === strpos( $source, 'render_watchtower' ) );
 
-// Whitelist write path and privacy behavior stay unchanged.
+// Whitelist write path and privacy behavior.
 reset_test_sales_state();
 $whitelist = Bitmomo_Pro_Whitelist::instance();
 $result = $whitelist->submit_entry( array( 'email' => 'salespagecheck@example.com', 'consent' => true, 'source' => 'pro_page' ) );
 check( 'WHITELIST: canonical submit_entry still creates a record', true === $result['ok'] && 'created' === $result['status'] );
 check( 'WHITELIST: canonical storage still deduplicates into one record', 1 === $whitelist->count_total() );
 check( 'WHITELIST: joining still explicitly does not guarantee a seat', false !== strpos( $html, 'Masuk whitelist tidak menjamin tempat.' ) );
+check( 'WHITELIST: consent exposes canonical Privacy link', false !== strpos( $html, '/kebijakan-privasi/' ) );
+check( 'WHITELIST: WhatsApp acquisition is fail-closed by default', false === Bitmomo_Pro_Whitelist::whatsapp_opt_in_enabled() && false === strpos( $html, 'Tambahkan WhatsApp agar tidak melewatkan pemberitahuan' ) );
+check( 'WHITELIST: dormant WhatsApp capability requires explicit enablement', false !== strpos( $whitelist_source, 'BITMOMO_PRO_WHATSAPP_OPT_IN_ENABLED' ) && false !== strpos( $whitelist_source, 'bitmomo_pro_whatsapp_opt_in_enabled' ) );
+check( 'EMAIL: whitelist confirmation copy is channel-aware', false !== strpos( $email_source, 'Kami akan mengirim pemberitahuan melalui email ini saat akses dibuka.' ) && false !== strpos( $email_source, 'if ( $whatsapp_enabled )' ) );
 
 function reset_test_sales_state() {
 	$GLOBALS['__wp_stub_posts']      = array();
@@ -166,6 +177,7 @@ check( 'PERFORMANCE: sales CSS uses dedicated asset version for deterministic ca
 
 // Trust layer must exist but must not fabricate Terms before a canonical page exists.
 check( 'TRUST: Decision Ledger, Help, Privacy and Disclaimer are directly discoverable', false !== strpos( $html, 'Decision Ledger' ) && false !== strpos( $html, 'Help Center' ) && false !== strpos( $html, 'Kebijakan Privasi' ) && false !== strpos( $html, 'Disclaimer' ) );
+check( 'TRUST: support uses canonical configured email instead of hard-coded public identity', false !== strpos( $source, 'bitmomo_pro_support_email' ) && false === strpos( $source, 'mailto:hi@bitmomo.id' ) );
 check( 'TRUST: sales page does not fabricate a Syarat Layanan route', false === strpos( $source, '/syarat-layanan/' ) );
 
 $failures = array_values( array_filter( $results, function( $row ) { return ! $row['pass']; } ) );
