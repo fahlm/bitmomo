@@ -546,6 +546,7 @@ class Bitmomo_Pro_Email_Service {
 					);
 				} else {
 					echo '<div class="notice notice-error"><p>' . esc_html__( 'Gagal mengirim email harian.', 'bitmomo-pro' ) . '</p></div>';
+				}
 			}
 		}
 	}
