@@ -33,7 +33,7 @@ check(
 );
 check(
   'Primary navigation exposes non-color active-page semantics',
-  header.includes('aria-current') && header.includes('page') && navCss.includes('a[aria-current="page"]')
+  header.includes('aria-current') && header.includes('page') && navCss.includes('a:not(.bm-nav-pro)[aria-current="page"]::after')
 );
 check(
   'Research active state uses canonical classification instead of historical category membership',
@@ -59,6 +59,23 @@ check(
   /event\.key !== 'Tab'/.test(js) && /menuFocusable\(\)/.test(js) && /window\.addEventListener\('resize'/.test(js)
 );
 check(
+  'Canonical header geometry uses the shared institutional shell',
+  /--bm-public-width:\s*1180px/.test(designCss) && /--bm-header-height:\s*64px/.test(designCss) &&
+  /width:\s*min\(100%, var\(--bm-public-width/.test(navCss) && /height:\s*var\(--bm-header-height/.test(navCss)
+);
+check(
+  'Mobile navigation is viewport-bounded instead of using a fragile fixed max-height',
+  /100dvh/.test(navCss) && /overflow-y:\s*auto/.test(navCss) && !/max-height:\s*390px/.test(navCss)
+);
+check(
+  'Mobile navigation preserves comfortable touch targets',
+  /width:\s*44px/.test(navCss) && /min-height:\s*48px/.test(navCss)
+);
+check(
+  'One shared commercial action token owns the Pro header action',
+  /--bm-action:\s*#f4ad32/.test(designCss) && /background:\s*var\(--bm-action/.test(navCss) && /--bm-action-hover/.test(designCss)
+);
+check(
   'Newsletter has exactly one permanent footer surface and no standalone newsletter template',
   /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
@@ -71,8 +88,22 @@ check(
   content.includes("home_url('/#newsletter')") && /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) && /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
-  'Footer newsletter is intentionally compact and responsive',
-  /\.bm-footer-connect/.test(navCss) && /\.bm-footer-newsletter/.test(navCss) && /@media \(max-width: 640px\)/.test(navCss)
+  'Footer uses institutional product, research and trust information architecture',
+  /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) && /Research Standard/.test(footer) &&
+  /Help Center/.test(footer) && /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
+);
+check(
+  'Footer brand reuses the canonical Bitmomo brand renderer',
+  /bitmomo_render_brand\(\)/.test(footer) && /Market intelligence untuk memahami kondisi BTC/.test(footer)
+);
+check(
+  'Footer newsletter is intentionally secondary to the primary Pro action',
+  /\.bm-footer-connect/.test(navCss) && /\.bm-footer-newsletter/.test(navCss) &&
+  /border:\s*1px solid rgba\(38,208,198/.test(navCss) && /background:\s*transparent !important/.test(navCss)
+);
+check(
+  'Footer social navigation is visually quiet rather than a wall of pills',
+  /\.bm-footer-social a,[\s\S]*?border:\s*0;/.test(navCss) && /background:\s*transparent;/.test(navCss)
 );
 check(
   'Footer exposes canonical Telegram, YouTube and X destinations',
@@ -89,4 +120,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PASS navigation/footer contract.');
+console.log('PASS navigation/footer institutional contract.');
