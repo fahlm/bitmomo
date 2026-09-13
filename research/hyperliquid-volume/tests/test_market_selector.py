@@ -46,6 +46,16 @@ def test_stale_feed_hard_rejects():
     assert result.hard_fail is True
 
 
+def test_stale_trade_feed_hard_rejects_after_warmup():
+    cfg = SelectorConfig()
+    m = good_metrics()
+    m.trade_age_seconds = 99
+    result = evaluate_market(m, cfg)
+    assert result.verdict == Verdict.REJECT
+    assert result.hard_fail is True
+    assert result.reasons == ["stale_trade_feed"]
+
+
 def test_unknown_execution_metrics_never_qualify():
     cfg = SelectorConfig()
     m = good_metrics()
