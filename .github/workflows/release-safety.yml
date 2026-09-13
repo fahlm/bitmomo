@@ -2,6 +2,7 @@ name: Full release safety
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-ai/**"
@@ -13,7 +14,7 @@ on:
       - "scripts/check-m2-launch-surfaces.mjs"
       - ".github/workflows/release-safety.yml"
   push:
-    branches: [main, "release/**"]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +26,7 @@ concurrency:
 
 jobs:
   release:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: Runtime, contracts, and artifact
     runs-on: ubuntu-latest
     timeout-minutes: 10
