@@ -150,7 +150,7 @@ jobs:
           grep -q "RESEARCH PROGRAMS" "${hub}"
           grep -q "INTELLIGENCE SYSTEMS" "${hub}"
           grep -q "research_q" "${hub}"
-          grep -q "KEY FINDING" "${hub}"
+          grep -Eq "TEMUAN UTAMA|RINGKASAN RISET" "${hub}"
           grep -q "RESEARCH FIGURE" "${hub}"
           grep -q "bitmomo_post_reading_minutes" "${hub}"
           grep -q "bitmomo_post_matches_research_focus" "${hub}"
