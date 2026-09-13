@@ -38,6 +38,7 @@ $bm_updated_label = $bm_updated_ts
 $bm_source = $bm_available ? trim( (string) ( $bm_snapshot['provenance']['source'] ?? '' ) ) : '';
 $bm_source_label = $bm_source !== '' ? $bm_source : 'Sumber belum tersedia';
 $bm_status_label = 'delayed' === $bm_status ? 'DATA TERTUNDA' : ( $bm_available ? 'DATA TERBARU' : 'BELUM TERSEDIA' );
+$bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
 ?>
 <section class="bm-home-hero" aria-labelledby="bm-home-title">
   <div class="bm-container">
@@ -45,7 +46,7 @@ $bm_status_label = 'delayed' === $bm_status ? 'DATA TERTUNDA' : ( $bm_available 
       <div class="bm-home-hero__copy">
         <p class="bm-home-hero__eyebrow">BTC MARKET INTELLIGENCE</p>
         <h1 class="bm-home-hero__title" id="bm-home-title">Pahami kondisi BTC sekarang. Ketahui apa yang perlu dipantau berikutnya.</h1>
-        <p class="bm-home-hero__lead">BTC Intelligence merangkum directional bias, confidence, dan driver utama. Bitmomo Pro menambahkan skenario, rentang yang dipantau, dan kondisi yang mengubah pandangan. Setiap pembacaan dicatat agar hasilnya dapat ditinjau kembali.</p>
+        <p class="bm-home-hero__lead">BTC Intelligence merangkum arah, keyakinan, dan alasan utama di balik pembacaan pasar. Bitmomo Pro menambahkan skenario, rentang yang dipantau, dan kondisi yang mengubah pandangan. Setiap pembacaan dicatat agar hasilnya dapat ditinjau kembali.</p>
 
         <div class="bm-home-hero__actions">
           <a class="bm-home-hero__primary" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_primary">Buka BTC Intelligence</a>
@@ -62,39 +63,39 @@ $bm_status_label = 'delayed' === $bm_status ? 'DATA TERTUNDA' : ( $bm_available 
       <article class="bm-home-reading" aria-label="Pembacaan BTC terbaru">
         <header class="bm-home-reading__head">
           <span class="bm-home-reading__label">CURRENT BTC READING</span>
-          <strong class="bm-home-reading__status<?php echo 'delayed' === $bm_status ? ' is-delayed' : ''; ?>"><?php echo esc_html( $bm_status_label ); ?></strong>
+          <strong class="bm-home-reading__status<?php echo esc_attr( $bm_status_class ); ?>"><?php echo esc_html( $bm_status_label ); ?></strong>
         </header>
 
         <dl class="bm-home-reading__metrics">
           <div class="bm-home-reading__metric">
-            <dt>Directional Bias</dt>
+            <dt>ARAH</dt>
             <dd class="is-<?php echo esc_attr( in_array( $bm_bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? $bm_bias : 'unknown' ); ?>"><?php echo esc_html( $bm_bias_label ); ?></dd>
             <small>Arah evidence pasar saat ini.</small>
           </div>
           <div class="bm-home-reading__metric">
-            <dt>Confidence</dt>
+            <dt>KEYAKINAN</dt>
             <dd><?php echo null !== $bm_confidence ? esc_html( ( $bm_confidence_label ? $bm_confidence_label . ' · ' : '' ) . $bm_confidence . '/100' ) : esc_html__( 'Belum tersedia', 'bitmomo' ); ?></dd>
             <small>Konsistensi evidence, bukan peluang harga.</small>
           </div>
           <div class="bm-home-reading__metric">
-            <dt>BTC Reference</dt>
+            <dt>REFERENSI BTC</dt>
             <dd><?php echo esc_html( $bm_price_label ); ?></dd>
             <small>Harga referensi pada waktu pembacaan.</small>
           </div>
           <div class="bm-home-reading__metric">
-            <dt>As of</dt>
+            <dt>DIPERBARUI</dt>
             <dd><?php echo esc_html( $bm_updated_label ); ?></dd>
             <small>Timestamp pembacaan publik.</small>
           </div>
         </dl>
 
         <div class="bm-home-reading__driver">
-          <span>PRIMARY DRIVER</span>
+          <span>ALASAN UTAMA</span>
           <p><?php echo esc_html( $bm_driver ?: 'Pembacaan terbaru belum tersedia.' ); ?></p>
         </div>
 
         <footer class="bm-home-reading__footer">
-          <p class="bm-home-reading__source"><strong>SOURCE</strong><br><?php echo esc_html( $bm_source_label ); ?></p>
+          <p class="bm-home-reading__source"><strong>SUMBER</strong><br><?php echo esc_html( $bm_source_label ); ?></p>
           <a class="bm-home-reading__link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_market_card">Buka pembacaan lengkap →</a>
         </footer>
       </article>
@@ -114,11 +115,16 @@ $bm_status_label = 'delayed' === $bm_status ? 'DATA TERTUNDA' : ( $bm_available 
         <p>Data yang terlambat atau tidak valid ditandai atau ditahan, bukan dipaksakan menjadi insight.</p>
       </div>
     </div>
+
+    <p class="bm-home-hero__notes" aria-label="Founding access">
+      <span>SETELAH MENINJAU PRODUK & BUKTI</span>
+      <a class="bm-home-reading__link" href="#founding-whitelist" data-bm-event="homepage_whitelist_jump" data-bm-placement="proof_after_accountability">Lihat Founding Access →</a>
+    </p>
   </div>
 </section>
 <?php unset(
     $bm_snapshot, $bm_status, $bm_available, $bm_bias, $bm_bias_labels, $bm_bias_label,
     $bm_confidence, $bm_confidence_key, $bm_confidence_labels, $bm_confidence_label,
     $bm_price, $bm_price_label, $bm_drivers, $bm_driver, $bm_updated_iso, $bm_updated_ts,
-    $bm_updated_label, $bm_source, $bm_source_label, $bm_status_label
+    $bm_updated_label, $bm_source, $bm_source_label, $bm_status_label, $bm_status_class
 ); ?>
