@@ -142,7 +142,13 @@ check(
 
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
 check('/pro sales page renders one whitelist/purchase CTA path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
-check('/pro sales copy keeps future capabilities clearly not-live', /SEGERA HADIR/.test(proSalesOutput) && /Belum tersedia hari ini/.test(proHelp) && !/24\/7|real-time|real time/.test(proSalesOutput));
+check(
+  '/pro sales copy keeps future capabilities clearly not-live',
+  /SEGERA HADIR/.test(proSalesOutput)
+    && /belum live hari ini/i.test(proSalesOutput)
+    && /belum tersedia saat ini/i.test(proHelp)
+    && !/24\/7|real-time|real time/.test(proSalesOutput)
+);
 check(
   '/pro DATA flow is limited to currently supported market inputs',
   /Harga, struktur pasar, funding\/basis, positioning derivatives, momentum, dan volatilitas BTC diproses dari data pasar yang tersedia\./.test(proSalesOutput)
