@@ -78,10 +78,10 @@ $privacy_content_current = $privacy_page && $contains_all(
     $privacy_page->post_content,
     array(
         "Founding Whitelist dan Komunikasi Produk",
-        "WhatsApp Opsional",
+        "WhatsApp Jika Diaktifkan",
         "utm_source",
         "telemetri first-party",
-        "Terakhir diperbarui: 13 September 2026",
+        "Terakhir diperbarui: 14 September 2026",
     )
 );
 $disclaimer_content_current = $disclaimer_page && $contains_all(
@@ -132,13 +132,18 @@ $btc_operational = ! empty( $snapshot["available"] )
 $whitelist_operational = class_exists( "Bitmomo_Pro_Whitelist" )
     && shortcode_exists( "bitmomo_pro_whitelist" )
     && false !== has_action( "wp_ajax_nopriv_" . Bitmomo_Pro_Whitelist::AJAX_ACTION );
+$whatsapp_opt_in_enabled = class_exists( "Bitmomo_Pro_Whitelist" )
+    && method_exists( "Bitmomo_Pro_Whitelist", "whatsapp_opt_in_enabled" )
+    && Bitmomo_Pro_Whitelist::whatsapp_opt_in_enabled();
 
-// Staging must prove that a whitelist confirmation reaches the canonical
-// wp_mail boundary with the expected recipient/content. The staging safety
-// layer may still block external delivery; this probe never requires a real
-// message to leave staging and its temporary record is always removed.
+// Exercise the real whitelist core write path rather than constructing a
+// synthetic post manually: reject missing consent -> create -> persist ->
+// dedupe. Capture the generated wp_mail arguments and short-circuit transport
+// before PHPMailer so this probe can never send an external message.
+$whitelist_persistence_contract = false;
 $whitelist_confirmation_contract = false;
 $whitelist_confirmation_capture_count = 0;
+$whitelist_probe_cleaned = true;
 if ( class_exists( "Bitmomo_Pro_Email_Service" ) && class_exists( "Bitmomo_Pro_Whitelist" ) ) {
     $captured_mails = array();
     add_filter(
@@ -150,67 +155,97 @@ if ( class_exists( "Bitmomo_Pro_Email_Service" ) && class_exists( "Bitmomo_Pro_W
         PHP_INT_MIN,
         1
     );
+    add_filter( "pre_wp_mail", static function () { return true; }, PHP_INT_MIN, 2 );
 
     $probe_email = "bitmomo-staging-readiness+" . time() . "@example.com";
-    $probe_post_id = wp_insert_post(
-        array(
-            "post_type"   => Bitmomo_Pro_Whitelist::POST_TYPE,
-            "post_status" => "publish",
-            "post_title"  => "Bitmomo staging readiness email probe",
-        ),
-        true
+    $service = Bitmomo_Pro_Whitelist::instance();
+    $common = array(
+        "email"        => $probe_email,
+        "first_name"   => "Staging",
+        "source"       => "staging_readiness",
+        "landing_page" => home_url( "/pro/" ),
+        "utm_source"   => "staging-readiness",
+        "utm_medium"   => "release-gate",
+        "utm_campaign" => "whitelist-v1",
+        "referrer"     => "",
     );
 
-    if ( ! is_wp_error( $probe_post_id ) && $probe_post_id ) {
-        update_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_EMAIL, $probe_email );
-        update_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_EMAIL_NORMALIZED, $probe_email );
-        update_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_FIRST_NAME, "Staging" );
+    $missing_consent = $service->submit_entry( array_merge( $common, array( "consent" => false ) ) );
+    $missing_consent_rejected = empty( $missing_consent["ok"] )
+        && "consent_required" === ( $missing_consent["error"] ?? "" )
+        && 0 === $service->find_post_id_by_email( $probe_email );
 
-        Bitmomo_Pro_Email_Service::instance()->send_whitelist_confirmation_email( $probe_post_id );
-        $whitelist_confirmation_capture_count = count( $captured_mails );
-        $mail = 1 === $whitelist_confirmation_capture_count ? $captured_mails[0] : array();
-        $to = $mail["to"] ?? "";
-        $recipient_matches = is_array( $to ) ? in_array( $probe_email, $to, true ) : $probe_email === (string) $to;
-        $subject = (string) ( $mail["subject"] ?? "" );
-        $message = (string) ( $mail["message"] ?? "" );
+    $created = $service->submit_entry( array_merge( $common, array( "consent" => true ) ) );
+    $probe_post_id = ! empty( $created["ok"] ) ? (int) ( $created["post_id"] ?? 0 ) : 0;
+    $duplicate = $service->submit_entry( array_merge( $common, array( "consent" => true ) ) );
 
-        $whitelist_confirmation_contract = $recipient_matches
-            && false !== strpos( $subject, "whitelist Bitmomo Pro" )
-            && false !== strpos( $message, "Whitelist berhasil" )
-            && false !== strpos( $message, "bitmomo.id" )
-            && false !== strpos( $message, "tidak menjamin tempat" );
+    $persisted = $probe_post_id > 0
+        && Bitmomo_Pro_Whitelist::POST_TYPE === get_post_type( $probe_post_id )
+        && $probe_email === get_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_EMAIL_NORMALIZED, true )
+        && "waiting" === get_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_STATUS, true )
+        && "staging_readiness" === get_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_SOURCE, true )
+        && "unclassified" === get_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_VALIDATION_CLASS, true )
+        && "" !== get_post_meta( $probe_post_id, Bitmomo_Pro_Whitelist::META_CONSENT_AT, true );
 
+    $deduped = ! empty( $duplicate["ok"] )
+        && "duplicate" === ( $duplicate["status"] ?? "" )
+        && $probe_post_id === (int) ( $duplicate["post_id"] ?? 0 );
+
+    $whitelist_confirmation_capture_count = count( $captured_mails );
+    $mail = 1 === $whitelist_confirmation_capture_count ? $captured_mails[0] : array();
+    $to = $mail["to"] ?? "";
+    $recipient_matches = is_array( $to ) ? in_array( $probe_email, $to, true ) : $probe_email === (string) $to;
+    $subject = (string) ( $mail["subject"] ?? "" );
+    $message = (string) ( $mail["message"] ?? "" );
+
+    $whitelist_persistence_contract = $missing_consent_rejected
+        && "created" === ( $created["status"] ?? "" )
+        && $persisted
+        && $deduped;
+
+    $whitelist_confirmation_contract = $recipient_matches
+        && false !== strpos( $subject, "whitelist Bitmomo Pro" )
+        && false !== strpos( $message, "Whitelist berhasil" )
+        && false !== strpos( $message, "bitmomo.id" )
+        && false !== strpos( $message, "tidak menjamin tempat" )
+        && false === strpos( $message, "Tambahkan nomor WhatsApp" );
+
+    if ( $probe_post_id > 0 ) {
         wp_delete_post( $probe_post_id, true );
     }
+    $whitelist_probe_cleaned = 0 === $service->find_post_id_by_email( $probe_email );
 }
 
 $checkout_url = function_exists( "bitmomo_pro_get_checkout_url" ) ? (string) bitmomo_pro_get_checkout_url() : "";
 $mailpoet_active = is_plugin_active( "mailpoet/mailpoet.php" );
 
 $report = array(
-    "profile"                           => $profile,
-    "theme_version"                     => defined( "BM_VERSION" ) ? BM_VERSION : "",
-    "btc_plugin_active"                 => is_plugin_active( "bitmomo-btc-intelligence/bitmomo-btc-intelligence.php" ),
-    "pro_plugin_active"                 => is_plugin_active( "bitmomo-pro/bitmomo-pro.php" ),
-    "ai_plugin_active"                  => is_plugin_active( "bitmomo-ai/bitmomo-ai.php" ),
-    "mailpoet_active"                   => $mailpoet_active,
-    "privacy_published"                 => (bool) $privacy_page,
-    "privacy_content_current"           => (bool) $privacy_content_current,
-    "disclaimer_published"              => (bool) $disclaimer_page,
-    "disclaimer_content_current"        => (bool) $disclaimer_content_current,
-    "terms_published"                   => (bool) $terms_page,
-    "qualified_market_research"         => $qualified_market_research,
-    "minimum_qualified_market_research" => $min_qualified_research,
-    "btc_snapshot_available"            => ! empty( $snapshot["available"] ),
-    "btc_snapshot_status"               => $btc_status,
-    "btc_snapshot_timestamp"            => $btc_timestamp_iso,
-    "btc_snapshot_age_hours"            => $btc_age_hours,
-    "btc_max_launch_age_hours"           => $max_btc_age_hours,
-    "btc_operational"                   => $btc_operational,
-    "whitelist_operational"             => $whitelist_operational,
-    "whitelist_confirmation_contract"   => $whitelist_confirmation_contract,
+    "profile"                              => $profile,
+    "theme_version"                        => defined( "BM_VERSION" ) ? BM_VERSION : "",
+    "btc_plugin_active"                    => is_plugin_active( "bitmomo-btc-intelligence/bitmomo-btc-intelligence.php" ),
+    "pro_plugin_active"                    => is_plugin_active( "bitmomo-pro/bitmomo-pro.php" ),
+    "ai_plugin_active"                     => is_plugin_active( "bitmomo-ai/bitmomo-ai.php" ),
+    "mailpoet_active"                      => $mailpoet_active,
+    "privacy_published"                    => (bool) $privacy_page,
+    "privacy_content_current"              => (bool) $privacy_content_current,
+    "disclaimer_published"                 => (bool) $disclaimer_page,
+    "disclaimer_content_current"           => (bool) $disclaimer_content_current,
+    "terms_published"                      => (bool) $terms_page,
+    "qualified_market_research"            => $qualified_market_research,
+    "minimum_qualified_market_research"    => $min_qualified_research,
+    "btc_snapshot_available"               => ! empty( $snapshot["available"] ),
+    "btc_snapshot_status"                  => $btc_status,
+    "btc_snapshot_timestamp"               => $btc_timestamp_iso,
+    "btc_snapshot_age_hours"               => $btc_age_hours,
+    "btc_max_launch_age_hours"              => $max_btc_age_hours,
+    "btc_operational"                      => $btc_operational,
+    "whitelist_operational"                => $whitelist_operational,
+    "whatsapp_opt_in_enabled"              => $whatsapp_opt_in_enabled,
+    "whitelist_persistence_contract"       => $whitelist_persistence_contract,
+    "whitelist_confirmation_contract"      => $whitelist_confirmation_contract,
     "whitelist_confirmation_capture_count" => $whitelist_confirmation_capture_count,
-    "checkout_configured"               => "" !== trim( $checkout_url ),
+    "whitelist_probe_cleaned"              => $whitelist_probe_cleaned,
+    "checkout_configured"                  => "" !== trim( $checkout_url ),
 );
 
 echo wp_json_encode( $report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n";
@@ -229,7 +264,10 @@ $blocking = array(
 
 if ( "whitelist" === $profile ) {
     $blocking["whitelist_operational"] = $whitelist_operational;
+    $blocking["whatsapp_opt_in_fail_closed"] = ! $whatsapp_opt_in_enabled;
+    $blocking["whitelist_persistence_contract"] = $whitelist_persistence_contract;
     $blocking["whitelist_confirmation_contract"] = $whitelist_confirmation_contract;
+    $blocking["whitelist_probe_cleaned"] = $whitelist_probe_cleaned;
     $blocking["checkout_not_live"] = "" === trim( $checkout_url );
 } else {
     $blocking["terms_published"] = $report["terms_published"];
