@@ -9,13 +9,18 @@ on:
       - "website/wp-content/plugins/bitmomo-pro/**"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
+      - "scripts/check-staging-asset-coherence.py"
       - ".github/workflows/ui-browser-safety.yml"
   workflow_dispatch:
     inputs:
       base_url:
-        description: Optional base URL (production by default; staging URL allowed)
+        description: Target URL (canonical staging by default; production may be entered explicitly)
+        required: true
+        default: "https://seagreen-snail-158456.hostingersite.com"
+      expected_social_json:
+        description: Optional JSON map of social channels that must render exactly; {} keeps fail-closed semantics
         required: false
-        default: "https://bitmomo.id"
+        default: "{}"
   schedule:
     - cron: "17 18 * * *"
 
@@ -23,7 +28,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ui-browser-safety
+  group: ui-browser-safety-${{ github.ref }}-${{ github.event.inputs.base_url || 'production' }}
   cancel-in-progress: true
 
 jobs:
@@ -45,9 +50,10 @@ jobs:
           set -euo pipefail
           echo "run_audit=true" >> "${GITHUB_OUTPUT}"
 
-          # Scheduled runs are production monitors: always audit the runtime
-          # that is actually live. Manual runs may intentionally target staging
-          # or another candidate URL, so they also always run.
+          # Scheduled runs are production monitors. Manual runs intentionally
+          # target the URL supplied by the release operator and must never be
+          # silently skipped. Only automatic main pushes use the semantic-theme
+          # version gate to avoid testing production before deployment catches up.
           if [[ "${EVENT_NAME}" != "push" ]]; then
             echo "Browser audit enabled for ${EVENT_NAME}."
             exit 0
@@ -94,6 +100,13 @@ jobs:
             echo "Scheduled production monitoring remains enabled and manual staging audits remain available."
           fi
 
+      - name: Verify staging HTML/CDN asset coherence
+        if: steps.version_gate.outputs.run_audit == 'true' && github.event_name == 'workflow_dispatch' && contains(github.event.inputs.base_url, 'hostingersite.com')
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/check-staging-asset-coherence.py --base-url "${{ github.event.inputs.base_url }}"
+
       - name: Install browser audit dependencies
         if: steps.version_gate.outputs.run_audit == 'true'
         shell: bash
@@ -107,6 +120,7 @@ jobs:
         env:
           BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
           BITMOMO_UI_OUTPUT_DIR: ui-artifacts
+          BITMOMO_EXPECTED_SOCIAL_JSON: ${{ github.event.inputs.expected_social_json || '{}' }}
         run: node scripts/check-public-ui.mjs
 
       - name: Audit article search promise and body cleanliness
