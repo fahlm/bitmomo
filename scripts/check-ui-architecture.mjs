@@ -49,7 +49,7 @@ function requireContrast(label, foreground, background, minimum = WCAG_AA_NORMAL
 
 const requiredFiles = [
   'functions.php', 'custom.css', 'front-page.php', 'page.php', 'inc/template-functions.php',
-  'assets/css/design-system.css', 'assets/css/home-opportunity.css', 'assets/css/home-conversion.css',
+  'assets/css/design-system.css', 'assets/css/home.css', 'assets/css/home-conversion.css',
   'assets/css/public-readability.css', 'assets/css/public-surfaces.css', 'assets/js/bitmomo-frontend.js',
 ];
 for (const relative of requiredFiles) {
@@ -93,6 +93,13 @@ if (frontPage.includes("get_template_part( 'template-parts/newsletter' )")) {
 if (frontPage.includes("template-parts/ai") || frontPage.includes("template-parts/platform")) {
   fail('homepage launch hierarchy must not be diluted by AI Lab or direct referral surfaces');
 }
+const heroIndex = frontPage.indexOf("template-parts/home', 'hero'");
+const howIndex = frontPage.indexOf("template-parts/how-it-works");
+const conversionIndex = frontPage.indexOf("template-parts/whitelist");
+const researchIndex = frontPage.indexOf("template-parts/research");
+if (!(heroIndex > -1 && howIndex > heroIndex && conversionIndex > howIndex && researchIndex > conversionIndex)) {
+  fail('homepage hierarchy must remain value/proof -> mechanism -> conversion -> research');
+}
 
 const frontendJs = fs.readFileSync(path.join(themeDir, 'assets/js/bitmomo-frontend.js'), 'utf8');
 for (const retiredMarker of ['bmreg-trend', 'bmreg-price-line', 'bm-state-chart', 'bm-direction-detail-certainty', 'bm-direction-detail-state']) {
@@ -123,24 +130,31 @@ if (!pageTemplate.includes('if ( $bm_is_product_surface )') || !pageTemplate.inc
   fail('product shortcode pages must retain renderer-owned heading/content pass-through');
 }
 
+const assetsTrait = fs.readFileSync(path.join(themeDir, 'inc/trait-bitmomo-assets.php'), 'utf8');
 const homeHero = fs.readFileSync(path.join(themeDir, 'template-parts/home-hero.php'), 'utf8');
 const homeWhitelist = fs.readFileSync(path.join(themeDir, 'template-parts/whitelist.php'), 'utf8');
 const homeConversionCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-conversion.css'), 'utf8');
-const opportunityCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-opportunity.css'), 'utf8');
-for (const marker of ['.bm-hero-actions', '.bm-direction-summary', '.bm-direction-driver', '.bm-direction-footer']) {
-  if (!opportunityCss.includes(marker)) fail(`homepage intelligence UI lost a required visitor-facing primitive: ${marker}`);
+const homeCss = fs.readFileSync(path.join(themeDir, 'assets/css/home.css'), 'utf8');
+if (!assetsTrait.includes('assets/css/home.css') || !assetsTrait.includes("'bitmomo-home'")) {
+  fail('homepage must load its explicit first-party presentation owner');
 }
-for (const marker of ['>ARAH<', '>KEYAKINAN<', '>ALASAN UTAMA<', '>DIPERBARUI<']) {
+for (const marker of ['.bm-home-hero', '.bm-home-reading', '.bm-home-proof', '.bm-howworks', '.bm-home-research']) {
+  if (!homeCss.includes(marker)) fail(`homepage stylesheet lost institutional primitive: ${marker}`);
+}
+for (const marker of ['>ARAH<', '>KEYAKINAN<', '>REFERENSI BTC<', '>DIPERBARUI<', '>ALASAN UTAMA<', '<strong>SUMBER</strong>']) {
   if (!homeHero.includes(marker)) fail(`homepage current reading lost required visitor-facing information: ${marker}`);
 }
 for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()', '<style', 'Decision View']) {
   if (homeHero.includes(forbidden)) fail(`homepage leaked retired/internal or privately-owned presentation detail: ${forbidden}`);
 }
-if (!/class="bm-hero-btn"[^>]+\/btc-intelligence\//.test(homeHero) || !homeHero.includes('Buka BTC Intelligence')) {
+if (!/class="bm-home-hero__primary"[^>]+\/btc-intelligence\//.test(homeHero) || !homeHero.includes('Buka BTC Intelligence')) {
   fail('homepage primary hero action must open the product before asking for commitment');
 }
 if (!homeHero.includes('href="#founding-whitelist"') || !homeHero.includes('/btc-intelligence/#decision-ledger')) {
-  fail('homepage must retain secondary whitelist access and a direct accountability proof path');
+  fail('homepage must retain post-proof whitelist access and a direct accountability proof path');
+}
+if (homeHero.indexOf('/btc-intelligence/#decision-ledger') > homeHero.indexOf('href="#founding-whitelist"')) {
+  fail('homepage commitment must not appear before its direct accountability proof path');
 }
 if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitelist.includes('Tidak ada pembayaran sekarang')) {
   fail('homepage whitelist must expose proof and remove payment ambiguity');
@@ -148,7 +162,9 @@ if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitel
 if (!homeConversionCss.includes('input[name="first_name"]') || !homeConversionCss.includes('.bm-wl__continuation')) {
   fail('homepage conversion CSS must support email-first acquisition and post-signup continuation');
 }
-if (opportunityCss.includes('color:#71839f')) fail('homepage intelligence reintroduced the known sub-AA #71839f micro-text color');
+for (const lowContrast of ['color: #71839f', 'color:#71839f', 'color: #667993', 'color:#667993']) {
+  if (homeCss.includes(lowContrast)) fail(`homepage stylesheet reintroduced known sub-AA micro-text: ${lowContrast}`);
+}
 
 const designCss = fs.readFileSync(path.join(themeDir, 'assets/css/design-system.css'), 'utf8');
 for (const marker of ['.bm-skip-link', 'prefers-reduced-motion: reduce', '--bm-focus-ring', '44px !important']) {
