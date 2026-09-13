@@ -1,117 +1,122 @@
 # Current Bitmomo Release Status
 
-**Last updated:** 2026-09-13  
+**Last updated:** 2026-09-14  
 **Production authorization:** **HOLD / NO-GO**  
-**Canonical coordination issue:** #131 — P0 Governance: converge to one canonical whitelist release line
+**Canonical coordination issue:** #131  
+**Canonical release PR:** #135  
+**Canonical release branch:** `release/whitelist-v1`
 
-This file is the fast entry point for engineers. It records **release topology**, not product roadmap.
+This file is the fast entry point for engineers. It records release topology and current acceptance state, not the broader product roadmap.
 
-## Current canonical integrated source
+## Canonical source topology
 
-- Repository default branch: `main`
-- Governance baseline merged to `main`: `418c0074665bb2a5aed77592dc19bef334f3fb93`
-- `main` is the canonical integrated source for ordinary engineering work.
-- Historical release/component branches remain evidence/input only unless #131 explicitly promotes their semantics into the new canonical release line.
+- Default branch / ordinary engineering source of truth: `main`.
+- `main` at the start of convergence: `eb58057012484db6fe2382582e392f2fa0300f28`.
+- One and only active whitelist release line: `release/whitelist-v1` / PR #135.
+- Initial semantic convergence commit: `cdc07a7a02ae35883b43b7987f143d1bc63513f2`.
+- Canonical convergence record: `docs/RELEASE_CONVERGENCE_WHITELIST_V1.md`.
+- Until the release is frozen for artifact generation, documentation-only commits may advance the PR head. Always use the exact current #135 head when recording CI/artifact/staging evidence.
 
-## Why production is on hold
-
-Two historical launch/release ancestries exist for the same whitelist/public-surface objective and they are materially diverged:
-
-| Line | Ref | Status |
-|---|---|---|
-| staging/home+chrome integration | `release/staging-home-chrome-integration` @ `8bb9402e9668d335e4ac505538fd05d11b2222c7` | release input; **not canonical alone** |
-| integrated candidate | PR #123 / `chatgpt/integrated-release-candidate-v1` @ `725433ccc2510ace770b8871e84638844c16a60f` | draft convergence input; **not canonical alone** |
-
-Git comparison showed real divergence: PR #123 carries 36 commits not present in the staging line, while the staging line carries 15 commits not present in PR #123 from their common ancestry.
-
-Therefore no engineer should infer “latest = canonical.”
-
-## Temporary rules until #131 is resolved
-
-- Do not create a third independent release candidate.
-- Do not promote either historical line to production by assumption.
-- New ordinary engineering work starts from current `main` unless it is explicitly part of the #131 convergence.
-- PR #129 is release-governance input, not a separate release authority.
-- PR #126 is a Draft product delta that must be deliberately ported/reconciled into the single final launch candidate.
-- PR #123 remains Draft and held under #131.
-- Production remains unchanged until the exact single candidate passes the release state machine.
-
-## Target topology
-
-The release convergence should end with:
+## Release topology
 
 ```text
 main
-  └─ release/whitelist-v1
-       ├─ reconciled public UI/chrome/homepage
-       ├─ reconciled BTC Market Context/integrity fixes
-       ├─ reconciled Pro conversion work
-       ├─ release-governance hardening
-       └─ staging-only fixes if proven necessary
-             ↓
-       SOURCE
-             ↓
-       ARTIFACT
-             ↓
-       STAGING
-             ↓
-       RUNTIME
-             ↓
-       BROWSER
-             ↓
-       PRODUCT READY
-             ↓
-       PRODUCTION AUTHORIZED
-             ↓
-       PRODUCTION VERIFIED
-             ↓
-            main
+  └─ release/whitelist-v1  ← PR #135, the only release authority
+       ↓
+     SOURCE
+       ↓
+     ARTIFACT
+       ↓
+     STAGING
+       ↓
+     RUNTIME
+       ↓
+     BROWSER
+       ↓
+     PRODUCT READY
+       ↓
+     PRODUCTION AUTHORIZED
+       ↓
+     PRODUCTION VERIFIED
+       ↓
+     merge accepted state back to main
 ```
+
+No engineer should create another whitelist integration/release branch unless #131 explicitly changes this topology.
+
+## What was converged
+
+PR #135 starts from current `main` and semantically reconciles the former release inputs:
+
+- **#123:** institutional public/site convergence + BTC Market Context and integrity fixes — retained as product baseline.
+- **historical staging integration `8bb9402e...`:** audited as evidence; required shared-chrome behavior is already present or superseded, so old ancestry was not merged wholesale.
+- **#126:** exact three-file institutional Pro conversion delta — retained.
+- **#129:** release provenance, staging parity, asset coherence, browser/readiness and CI-efficiency hardening — retained selectively.
+- **#129 standalone Homepage Research workflow:** intentionally rejected as redundant because authoritative Full Release Safety already owns the same source contract.
+- **current `main` governance:** PR template, contribution workflow, engineering operating model and release handoff contract — retained as canonical.
+
+Detailed KEEP / REJECT / ALREADY-PRESENT rationale lives in `docs/RELEASE_CONVERGENCE_WHITELIST_V1.md`.
 
 ## Active release PR queue
 
-Exactly three release-related PRs remain intentionally open, and all are **Draft** pending #131 convergence:
+Exactly **one** release PR is actionable:
 
-- #123 — integrated site + BTC Market Context candidate; one side of the divergence.
-- #126 — institutional Pro conversion delta; must be ported/rebased into the canonical line.
-- #129 — release-governance/staging-acceptance hardening; must be reconciled into the canonical line.
+- **#135 — `release: canonical whitelist v1 convergence` — DRAFT.**
 
-An engineer should not create another release/integration PR without updating #131 and this file first.
+Former release inputs #123, #126 and #129 are closed as **ABSORBED / SUPERSEDED**. Their branches, commits, discussions and historical evidence remain available for audit but are not independent release paths.
+
+## Current release state
+
+| Gate | State | Meaning |
+|---|---|---|
+| SOURCE | **CONVERGED / REVIEW REQUIRED** | One canonical source line exists; exact canonical head has not yet completed executable CI. |
+| CI | **BLOCKED / NOT RUN on canonical head** | GitHub-hosted Actions capacity is unavailable; do not interpret zero-step runner failures as source failures or passes. |
+| ARTIFACT | **NOT GENERATED** | No artifact from the canonical #135 head is accepted. |
+| STAGING | **NOT DEPLOYED** | Canonical #135 artifact has not been deployed to staging. |
+| RUNTIME | **NOT VERIFIED** | Source/tree/hash/cache/data parity not yet checked on the canonical candidate. |
+| BROWSER | **NOT VERIFIED** | Responsive, keyboard, zoom, console and Axe acceptance not yet run on the canonical candidate. |
+| PRODUCT READY | **NOT VERIFIED** | Whitelist/readiness profile has not yet passed on the canonical candidate. |
+| PRODUCTION AUTHORIZED | **NO** | No production promotion is authorized. |
+| PRODUCTION VERIFIED | **NO** | Production remains untouched by this convergence. |
 
 ## Release-critical issues
 
-- #131 — release topology convergence / single coordination point.
-- #125 — GitHub Actions capacity/infrastructure blocker.
-- #127 — paid-checkout trust gate; does **not** block whitelist-only launch unless paid checkout is enabled.
+- **#131** — canonical whitelist release coordination and acceptance state.
+- **#125** — GitHub Actions capacity/infrastructure blocker.
+- **#134** — repository-admin enforcement: protect `main` and enable automatic branch cleanup.
+- **#127** — paid-checkout trust gate; it does **not** block whitelist-only launch while checkout remains disabled.
 
-## Historical release inputs now closed
+## Rules while #135 is Draft
 
-Closed does not mean erased. It means **not independently actionable**. Branches, commits, PR discussion, tests, artifacts and rationale remain available for semantic reconciliation and archaeology.
+- Do not deploy any artifact from #119/#121/#122/#123 or historical staging branches.
+- Do not create a second release candidate.
+- Do not mark #135 Ready merely to trigger CI while the candidate is still changing.
+- Product/component work that belongs in this launch must be reconciled deliberately into #135, not stacked into another release branch.
+- Unrelated ordinary engineering still starts from current `main`.
+- Production stays unchanged until the exact canonical artifact passes every staging gate and receives explicit production authorization.
 
-Governance cleanup on 2026-09-13 closed:
+## Next executable gate
 
-- old Bitmomo Pro stack #27–#34, #36, #38 after integration through #39;
-- Regime stacked PRs #41/#42 after direct integrations #50/#51;
-- Watchtower/hardening #43–#49 as deferred archive;
-- public/frontend alternative #111 as a superseded parallel architecture path;
-- release ancestors/components #103, #116, #119, #120, #121, #122 as absorbed/superseded release inputs.
+When GitHub Actions capacity is operational:
 
-## Repository governance now active
+1. freeze the exact #135 head;
+2. mark the candidate Ready only when source is stable;
+3. verify authoritative workflows actually receive a runner and execute;
+4. require all applicable source/deterministic contracts to pass;
+5. generate one deterministic artifact from that exact head and record commit/tree/hash;
+6. deploy only that artifact to canonical staging;
+7. verify filesystem/source/tree/hash, cache/CDN asset bytes and data/provider readiness;
+8. run browser/accessibility/product-readiness acceptance;
+9. request explicit production authorization;
+10. promote and verify the exact accepted artifact;
+11. merge the verified release state back to `main` and retire the release branch.
 
-Merged through #132:
+## Engineer start-here
 
-- `.github/pull_request_template.md` requires base/dependency/supersession/release-state/safety/rollback context;
-- `CONTRIBUTING.md` defines the short day-to-day workflow;
-- `docs/ENGINEERING_OPERATING_MODEL.md` defines the canonical source-of-truth, branch/stacking, PR, CI and release model;
-- `docs/RELEASE_HANDOFF_TEMPLATE.md` defines the exact staging/production handoff format.
+Before touching launch/release surfaces:
 
-## What every engineer should do before starting work
-
-1. Read this file.
-2. Read #131 if touching launch/public/release surfaces.
-3. Pull current `main`.
-4. Search open PRs for file/scope overlap.
-5. Branch from `main` unless a real code dependency requires otherwise.
-6. Use the PR template and explicitly declare base/dependency/release impact.
-
-If this file and an open PR disagree, resolve the source-of-truth conflict before creating another integration branch.
+1. read this file;
+2. read #131;
+3. inspect Draft PR #135;
+4. pull current `main` for unrelated work;
+5. do not infer authority from PR number, branch age, artifact age or the word “latest” in historical discussion.
