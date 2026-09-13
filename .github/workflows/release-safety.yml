@@ -15,7 +15,7 @@ on:
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/release-safety.yml"
   push:
-    branches: [main, "release/**", "fix/**", "feature/p02a-*"]
+    branches: [main, "release/**"]
   workflow_dispatch:
 
 permissions:
