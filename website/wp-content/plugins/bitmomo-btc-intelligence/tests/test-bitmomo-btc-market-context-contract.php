@@ -79,6 +79,11 @@ market_context_check(
 	false !== strpos( $context, "'type'       => 'decision'" )
 );
 market_context_check(
+	'First in-range observation is not mislabeled as a thesis transition without prior history',
+	false !== strpos( $context, '$changed = null !== $previous && (' ) &&
+	false === strpos( $context, '$changed = null === $previous ||' )
+);
+market_context_check(
 	'Current Decision View enhancement consumes public-safe market state without recomputing engine logic',
 	false !== strpos( $context, 'Bitmomo_Public_Intelligence_Adapter::snapshot()' ) &&
 	false !== strpos( $context, "'market_state'" ) &&
@@ -89,6 +94,19 @@ market_context_check(
 	false !== strpos( $context, "'expected_range'" ) && false !== strpos( $context, "'available' => false" ) &&
 	false === strpos( $context, 'Bitmomo_Pro_Briefs' ) && false === strpos( $context, 'Bitmomo_Pro_Performance' ) &&
 	false === strpos( $context, '_bitmomo_pro_')
+);
+market_context_check(
+	'Range changes invalidate stale payload and comparison controls before the new request resolves',
+	false !== strpos( $js, 'state.payload = null;') &&
+	false !== strpos( $js, "state.active = new Set(['btc']);") &&
+	false !== strpos( $js, 'explorer.compareGroup.replaceChildren();')
+);
+market_context_check(
+	'Late or mismatched range responses cannot overwrite the latest range',
+	false !== strpos( $js, 'requestSeq: 0') &&
+	false !== strpos( $js, 'const requestId = ++state.requestSeq;') &&
+	false !== strpos( $js, 'requestId !== state.requestSeq || range !== state.range') &&
+	false !== strpos( $js, 'payload.range !== range')
 );
 market_context_check(
 	'Comparison is capped to three active series and actual source values remain visible in tooltip',
