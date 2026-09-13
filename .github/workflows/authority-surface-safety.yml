@@ -7,9 +7,13 @@ on:
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/css/**"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
+      - "scripts/check-navigation-footer.mjs"
+      - "scripts/check-public-design-consistency.mjs"
+      - "scripts/check-ui-architecture.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
@@ -18,15 +22,19 @@ on:
       - ".github/workflows/authority-surface-safety.yml"
       - ".github/workflows/ui-browser-safety.yml"
   push:
-    branches: [main, "fix/**", "feature/**", "feat/**"]
+    branches: [main, "fix/**", "feature/**", "feat/**", "chatgpt/**"]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/css/**"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
+      - "scripts/check-navigation-footer.mjs"
+      - "scripts/check-public-design-consistency.mjs"
+      - "scripts/check-ui-architecture.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
@@ -77,6 +85,9 @@ jobs:
           done
           node --check scripts/check-public-ui.mjs
           node --check scripts/check-article-cleanliness.mjs
+          node --check scripts/check-navigation-footer.mjs
+          node --check scripts/check-public-design-consistency.mjs
+          node --check scripts/check-ui-architecture.mjs
           node --check scripts/check-terminal-grade-contract.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
@@ -186,6 +197,7 @@ jobs:
           theme="website/wp-content/themes/bitmomo-child-v3"
           single="${theme}/single.php"
           css="${theme}/assets/css/article-reading.css"
+          design="${theme}/assets/css/design-system.css"
           functions="${theme}/functions.php"
           contract="docs/ARTICLE_READING_CONTRACT.md"
           browser="scripts/check-public-ui.mjs"
@@ -201,7 +213,11 @@ jobs:
           grep -q "bm-related--editorial" "${single}"
           ! grep -q "bm-post-nav" "${single}"
 
-          grep -q -- "--bm-article-reading: 720px" "${css}"
+          grep -q -- "--bm-reading-width: 720px" "${design}"
+          grep -q -- "--bm-article-wide: 920px" "${design}"
+          grep -q "var(--bm-reading-width)" "${css}"
+          grep -q "var(--bm-article-wide)" "${css}"
+          ! grep -Eqi "font-family:[^;]*Inter" "${css}"
           grep -q "font-size: clamp(17px" "${css}"
           grep -q "bm-article-body > table" "${css}"
           grep -q "display: block" "${css}"
@@ -259,6 +275,12 @@ jobs:
           grep -q "remove_action( 'wp_head'" "${btc_main}"
           grep -q "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2'" "${btc_main}"
           grep -q "class-bitmomo-btc-intelligence-accountability.php" "${btc_main}"
+
+      - name: Enforce institutional navigation/footer invariants
+        run: node scripts/check-navigation-footer.mjs
+
+      - name: Enforce sitewide design-system ownership
+        run: node scripts/check-public-design-consistency.mjs
 
       - name: Enforce terminal-grade public invariants
         run: node scripts/check-terminal-grade-contract.mjs
