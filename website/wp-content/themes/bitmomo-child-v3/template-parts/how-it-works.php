@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     <ol class="bm-howworks-steps">
       <li>
         <span class="bm-howworks-step-label"><?php esc_html_e( '01 · COMPRESSION', 'bitmomo' ); ?></span>
-        <p><?php esc_html_e( 'Data pasar yang relevan diringkas menjadi pembacaan yang dapat dipahami dengan cepat, tanpa kehilangan konteks utama.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Puluhan data pasar diringkas menjadi insight yang jelas dan mudah dipahami, tanpa menghilangkan konteks yang paling relevan.', 'bitmomo' ); ?></p>
       </li>
       <li>
         <span class="bm-howworks-step-label"><?php esc_html_e( '02 · DECISION SUPPORT', 'bitmomo' ); ?></span>
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
       </li>
       <li>
         <span class="bm-howworks-step-label"><?php esc_html_e( '03 · ACCOUNTABILITY', 'bitmomo' ); ?></span>
-        <p><?php esc_html_e( 'Setiap pembacaan dicatat sebelum outcome dan dievaluasi terhadap hasil aktual. Data bermasalah ditahan, bukan dipaksakan.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Setiap insight dicatat, diuji, dan dievaluasi terhadap hasil aktual. Data bermasalah ditahan, bukan dipaksakan menjadi kesimpulan.', 'bitmomo' ); ?></p>
       </li>
     </ol>
   </div>
