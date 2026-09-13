@@ -1,9 +1,8 @@
 /*
  * Founding Membership Whitelist widget.
- * Renders inside .bm-pro-sales (bitmomo-pro-sales.css), so it reuses that
- * wrapper's --bms-* custom properties instead of defining a new token set.
- * Compact by design -- not another giant card. Mobile-first, readable at
- * 360px with no horizontal overflow.
+ * Renders inside .bm-pro-sales and reuses its product-scoped layout variables.
+ * Commercial intent is always Bitmomo action orange; teal remains an
+ * intelligence/status accent. Mobile-first with no horizontal overflow.
  */
 
 .bm-wl {
@@ -13,18 +12,17 @@
 
 .bm-wl__panel {
 	padding: 18px 16px;
-	border: 1px solid var( --bms-border );
-	border-radius: 12px;
-	background: var( --bms-surface );
+	border: 1px solid var(--bms-border);
+	border-radius: var(--bm-radius-lg);
+	background: var(--bms-surface);
 	text-align: left;
 }
 
 .bm-wl__eyebrow {
 	margin: 0 0 6px;
-	color: var( --bms-teal );
-	font-size: 0.72rem;
-	font-weight: 700;
-	letter-spacing: 0.1em;
+	color: var(--bm-teal);
+	font: 800 11px/1.35 var(--bm-font-mono);
+	letter-spacing: .1em;
 	text-transform: uppercase;
 }
 
@@ -37,54 +35,55 @@
 
 .bm-wl__cap {
 	margin: 8px 0 0;
-	color: var( --bms-text-muted );
-	font-size: 0.85rem;
+	color: var(--bm-text-muted);
+	font-size: .85rem;
 	line-height: 1.5;
 }
 
 .bm-wl__sub {
 	margin: 10px 0 0;
-	color: var( --bms-text-muted );
-	font-size: 0.9rem;
+	color: var(--bm-text-muted);
+	font-size: .9rem;
 	line-height: 1.5;
 }
 
 #bm-wl-form {
-	margin-top: 14px;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+	margin-top: 14px;
 }
 
 .bm-wl__field {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
-	font-size: 0.82rem;
-	color: var( --bms-text-muted );
+	color: var(--bm-text-muted);
+	font-size: .82rem;
 }
 
 .bm-wl__field input {
+	min-height: var(--bm-touch-target-mobile);
 	padding: 10px 12px;
-	border: 1px solid var( --bms-border );
-	border-radius: 8px;
-	background: var( --bms-bg );
-	color: var( --bms-text );
-	font-size: 0.95rem;
+	border: 1px solid var(--bms-border);
+	border-radius: var(--bm-radius-md);
+	background: var(--bms-bg);
+	color: var(--bm-text);
+	font-size: .95rem;
 }
 
-.bm-wl__field input:focus {
-	outline: 2px solid var( --bms-teal );
-	outline-offset: 1px;
+.bm-wl__field input:focus-visible {
+	outline: var(--bm-focus-ring);
+	outline-offset: var(--bm-focus-offset);
 }
 
 .bm-wl__consent {
 	display: flex;
 	align-items: flex-start;
 	gap: 8px;
-	font-size: 0.78rem;
+	color: var(--bm-text-muted);
+	font-size: .78rem;
 	line-height: 1.45;
-	color: var( --bms-text-muted );
 }
 
 .bm-wl__consent input {
@@ -94,41 +93,42 @@
 
 .bm-wl__error {
 	margin: 0;
-	color: var( --bms-bear );
-	font-size: 0.82rem;
+	color: var(--bm-negative);
+	font-size: .82rem;
 	line-height: 1.4;
 }
 
 .bm-wl__submit {
 	display: inline-flex;
+	min-height: var(--bm-touch-target-mobile);
 	align-items: center;
 	justify-content: center;
 	padding: 13px 20px;
 	border: 0;
-	border-radius: 8px;
-	background: var( --bms-teal );
-	color: #06201c;
-	font-weight: 700;
-	font-size: 0.95rem;
+	border-radius: var(--bm-radius-md);
+	background: var(--bm-action);
+	color: #0b1620;
+	font-size: .95rem;
+	font-weight: 800;
 	cursor: pointer;
 }
 
-.bm-wl__submit:hover {
-	background: var( --bms-teal-dark );
-	color: #eafffb;
+.bm-wl__submit:hover,
+.bm-wl__submit:focus-visible {
+	background: var(--bm-action-hover);
+	color: #0b1620;
 }
 
 .bm-wl__submit:disabled {
-	opacity: 0.6;
-	cursor: default;
+	opacity: .6;
+	cursor: not-allowed;
 }
 
 .bm-wl__note {
 	margin: 12px 0 0;
-	color: var( --bms-text-muted );
-	font-size: 0.72rem;
+	color: var(--bm-text-subtle);
+	font-size: .72rem;
 	line-height: 1.5;
-	opacity: 0.85;
 }
 
 .bm-wl__success-title {
@@ -139,27 +139,21 @@
 
 .bm-wl__success-small {
 	margin: 10px 0 0;
-	color: var( --bms-text-muted );
-	font-size: 0.75rem;
+	color: var(--bm-text-muted);
+	font-size: .75rem;
 	line-height: 1.5;
 }
 
-/*
- * Optional second-step WhatsApp opt-in -- shown only inside the success
- * panel, after a successful email submit, and only when no number is on
- * file yet. Fluid/flex layout throughout (no fixed pixel widths) so a
- * long typed number never forces horizontal scroll at 360px.
- */
 .bm-wl-whatsapp {
 	margin-top: 16px;
 	padding-top: 14px;
-	border-top: 1px solid var( --bms-border );
+	border-top: 1px solid var(--bms-border);
 }
 
 .bm-wl-whatsapp__label {
 	margin: 0 0 8px;
-	color: var( --bms-text );
-	font-size: 0.88rem;
+	color: var(--bm-text);
+	font-size: .88rem;
 	font-weight: 700;
 }
 
@@ -170,91 +164,88 @@
 }
 
 .bm-wl-whatsapp__prefix {
-	flex: 0 0 auto;
 	display: inline-flex;
-	align-items: center;
 	padding: 0 10px;
-	border: 1px solid var( --bms-border );
-	border-radius: 8px;
-	background: var( --bms-bg );
-	color: var( --bms-text-muted );
-	font-size: 0.9rem;
+	flex: 0 0 auto;
+	align-items: center;
+	border: 1px solid var(--bms-border);
+	border-radius: var(--bm-radius-md);
+	background: var(--bms-bg);
+	color: var(--bm-text-muted);
+	font-size: .9rem;
 	font-weight: 700;
 }
 
 .bm-wl-whatsapp__input {
-	flex: 1 1 auto;
 	min-width: 0;
+	min-height: var(--bm-touch-target-mobile);
 	padding: 10px 12px;
-	border: 1px solid var( --bms-border );
-	border-radius: 8px;
-	background: var( --bms-bg );
-	color: var( --bms-text );
-	font-size: 0.95rem;
+	flex: 1 1 auto;
+	border: 1px solid var(--bms-border);
+	border-radius: var(--bm-radius-md);
+	background: var(--bms-bg);
+	color: var(--bm-text);
+	font-size: .95rem;
 }
 
-.bm-wl-whatsapp__input:focus {
-	outline: 2px solid var( --bms-teal );
-	outline-offset: 1px;
+.bm-wl-whatsapp__input:focus-visible {
+	outline: var(--bm-focus-ring);
+	outline-offset: var(--bm-focus-offset);
 }
 
 .bm-wl-whatsapp__error {
 	margin: 8px 0 0;
-	color: var( --bms-bear );
-	font-size: 0.8rem;
+	color: var(--bm-negative);
+	font-size: .8rem;
 	line-height: 1.4;
 }
 
 .bm-wl-whatsapp__submit {
 	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	width: 100%;
+	min-height: var(--bm-touch-target-mobile);
 	margin-top: 10px;
 	padding: 12px 16px;
-	border: 1px solid var( --bms-teal );
-	border-radius: 8px;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--bm-teal);
+	border-radius: var(--bm-radius-md);
 	background: transparent;
-	color: var( --bms-teal );
+	color: var(--bm-teal);
+	font-size: .85rem;
 	font-weight: 700;
-	font-size: 0.85rem;
-	letter-spacing: 0.02em;
+	letter-spacing: .02em;
 	cursor: pointer;
 }
 
-.bm-wl-whatsapp__submit:hover {
-	background: var( --bms-teal );
-	color: #06201c;
+.bm-wl-whatsapp__submit:hover,
+.bm-wl-whatsapp__submit:focus-visible {
+	background: rgba(38,208,198,.10);
+	color: var(--bm-text);
 }
 
 .bm-wl-whatsapp__submit:disabled {
-	opacity: 0.6;
-	cursor: default;
+	opacity: .6;
+	cursor: not-allowed;
 }
 
 .bm-wl-whatsapp__note {
 	margin: 8px 0 0;
-	color: var( --bms-text-muted );
-	font-size: 0.72rem;
+	color: var(--bm-text-subtle);
+	font-size: .72rem;
 	line-height: 1.5;
-	opacity: 0.85;
 }
 
 .bm-wl-whatsapp__done {
 	margin-top: 16px;
 	padding-top: 14px;
-	border-top: 1px solid var( --bms-border );
-	color: var( --bms-teal );
-	font-size: 0.85rem;
+	border-top: 1px solid var(--bms-border);
+	color: var(--bm-positive);
+	font-size: .85rem;
 	font-weight: 700;
 }
 
-@media ( max-width: 400px ) {
-	.bm-wl__panel {
-		padding: 16px 14px;
-	}
-
-	.bm-wl-whatsapp__prefix {
-		padding: 0 8px;
-	}
+@media (max-width: 400px) {
+	.bm-wl__panel { padding: 16px 14px; }
+	.bm-wl-whatsapp__prefix { padding: 0 8px; }
 }
