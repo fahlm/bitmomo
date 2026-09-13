@@ -48,13 +48,13 @@ class Bitmomo_Pro_Help_Center {
 
 	public function render_meta_description() {
 		if ( is_page( 'help' ) && ! defined( 'RANK_MATH_VERSION' ) ) {
-			echo '<meta name="description" content="' . esc_attr__( 'Pelajari BTC Daily Intelligence, Market State, Bitmomo Pro, Founding Membership, pembayaran, dan metodologi Bitmomo.', 'bitmomo-pro' ) . '" />' . "\n";
+			echo '<meta name="description" content="' . esc_attr__( 'Pelajari BTC Intelligence, Market State, Bitmomo Pro, Founding Membership, pembayaran, dan metodologi Bitmomo.', 'bitmomo-pro' ) . '" />' . "\n";
 		}
 	}
 
 	public function filter_meta_description( $description ) {
 		if ( is_page( 'help' ) ) {
-			return __( 'Pelajari BTC Daily Intelligence, Market State, Bitmomo Pro, Founding Membership, pembayaran, dan metodologi Bitmomo.', 'bitmomo-pro' );
+			return __( 'Pelajari BTC Intelligence, Market State, Bitmomo Pro, Founding Membership, pembayaran, dan metodologi Bitmomo.', 'bitmomo-pro' );
 		}
 		return $description;
 	}
@@ -78,11 +78,11 @@ class Bitmomo_Pro_Help_Center {
 				),
 			),
 			'btc-daily-intelligence' => array(
-				'title' => 'BTC Daily Intelligence',
+				'title' => 'BTC Intelligence',
 				'items' => array(
-					self::q( 'apa-itu-btc-daily-intelligence', 'Apa itu BTC Daily Intelligence?', array( 'BTC Daily Intelligence adalah snapshot gratis kondisi BTC terbaru dari Bitmomo.', 'Tujuannya sederhana:', '“Apa yang sedang terjadi dengan BTC sekarang?”' ) ),
-					self::q( 'jadwal-btc-daily-intelligence', 'Seberapa sering BTC Daily Intelligence diperbarui?', array( 'BTC Daily Intelligence dijadwalkan dua kali sehari:', '<strong>Morning Intelligence</strong> — sekitar 07.10 WIB<br><strong>US Session Intelligence</strong> — sekitar 19.10 WIB', 'Update hanya dianggap valid jika data memenuhi quality gate Bitmomo.' ) ),
-					self::q( 'mengapa-dua-kali-sehari', 'Kenapa Bitmomo memperbarui BTC Intelligence dua kali sehari?', array( 'Kedua update memiliki fungsi yang berbeda.', 'Morning Intelligence merangkum kondisi BTC setelah pergerakan semalam dan perubahan dibanding US Session sebelumnya.', 'US Session Intelligence memberikan kondisi BTC terbaru menjelang periode penting sesi AS dan membandingkannya dengan kondisi pagi.', 'Di antara scheduled updates tersebut, Watchtower nantinya dirancang untuk membantu mendeteksi perubahan penting.' ) ),
+					self::q( 'apa-itu-btc-daily-intelligence', 'Apa itu BTC Intelligence?', array( 'BTC Intelligence adalah pembacaan gratis kondisi BTC terbaru dari Bitmomo.', 'Tujuannya sederhana:', '“Apa yang sedang terjadi dengan BTC sekarang?”' ) ),
+					self::q( 'jadwal-btc-daily-intelligence', 'Seberapa sering BTC Intelligence diperbarui?', array( 'BTC Intelligence dijadwalkan dua kali sehari:', '<strong>Morning Intelligence</strong> — sekitar 07.10 WIB<br><strong>US Session Intelligence</strong> — sekitar 19.10 WIB', 'Jadwal adalah target operasional. Update hanya ditampilkan sebagai current intelligence jika data memenuhi quality gate Bitmomo.' ) ),
+					self::q( 'mengapa-dua-kali-sehari', 'Kenapa Bitmomo memperbarui BTC Intelligence dua kali sehari?', array( 'Kedua update memiliki fungsi yang berbeda.', 'Morning Intelligence merangkum kondisi BTC setelah pergerakan semalam dan perubahan dibanding US Session sebelumnya.', 'US Session Intelligence memberikan kondisi BTC terbaru menjelang periode penting sesi AS dan membandingkannya dengan kondisi pagi.', 'Di antara scheduled updates tersebut, Watchtower direncanakan sebagai capability monitoring tambahan dan belum tersedia saat ini.' ) ),
 					self::q( 'quality-gate', 'Apa yang terjadi jika data tidak memenuhi standar kualitas?', array( 'Bitmomo menggunakan quality gate sebelum intelligence dianggap valid.', 'Jika data tidak memenuhi standar, Bitmomo lebih memilih tidak menampilkan current intelligence daripada mengisi kekosongan dengan angka atau analisis yang tidak dapat dipertanggungjawabkan.' ) ),
 				),
 			),
@@ -99,8 +99,8 @@ class Bitmomo_Pro_Help_Center {
 			'bitmomo-pro' => array(
 				'title' => 'Bitmomo Pro',
 				'items' => array(
-					self::q( 'apa-itu-bitmomo-pro', 'Apa itu Bitmomo Pro?', array( 'Bitmomo Pro adalah decision-support layer untuk BTC yang membantu Anda memahami apa yang mungkin terjadi berikutnya, apa yang dapat membatalkan thesis utama, dan apa yang berubah dibanding update sebelumnya.', 'Pro melengkapi BTC Daily Intelligence gratis dengan Expected Range, Scenario Map, Thesis Invalidation, What Changed, dan fitur Pro lainnya.' ) ),
-					self::q( 'free-vs-pro', 'Apa bedanya BTC Daily Intelligence gratis dengan Bitmomo Pro?', array( 'BTC Daily Intelligence gratis menjawab:', '“Apa yang sedang terjadi sekarang?”', 'Bitmomo Pro melangkah lebih jauh untuk membantu menjawab:', '“Apa berikutnya?”<br>“Apa yang dapat membatalkan thesis?”<br>“Apa yang berubah?”' ) ),
+					self::q( 'apa-itu-bitmomo-pro', 'Apa itu Bitmomo Pro?', array( 'Bitmomo Pro adalah decision-support layer untuk BTC yang membantu Anda memahami apa yang mungkin terjadi berikutnya, apa yang dapat membatalkan thesis utama, dan apa yang berubah dibanding update sebelumnya.', 'Pro melengkapi BTC Intelligence gratis dengan Expected Range, Scenario Map, Thesis Invalidation, What Changed, dan fitur Pro lainnya.' ) ),
+					self::q( 'free-vs-pro', 'Apa bedanya BTC Intelligence gratis dengan Bitmomo Pro?', array( 'BTC Intelligence gratis menjawab:', '“Apa yang sedang terjadi sekarang?”', 'Bitmomo Pro melangkah lebih jauh untuk membantu menjawab:', '“Apa berikutnya?”<br>“Apa yang dapat membatalkan thesis?”<br>“Apa yang berubah?”' ) ),
 					self::q( 'apa-itu-expected-range', 'Apa itu Expected Range?', array( 'Expected Range adalah rentang harga yang dinilai masih masuk akal berdasarkan kondisi dan data yang tersedia ketika intelligence dibuat.', 'Expected Range bukan jaminan bahwa BTC pasti tetap berada di dalam rentang tersebut.' ) ),
 					self::q( 'apa-itu-scenario-map', 'Apa itu Scenario Map?', array( 'Scenario Map menyusun beberapa kemungkinan kondisi pasar menjadi:', 'Base<br>Bull<br>Bear', 'Tujuannya bukan menebak satu masa depan, tetapi membantu pengguna memahami kemungkinan jalur pasar dan kondisi yang mendukung masing-masing skenario.' ) ),
 					self::q( 'apa-itu-thesis-invalidation', 'Apa itu Thesis Invalidation?', array( 'Thesis Invalidation adalah kondisi yang membuat thesis utama Bitmomo tidak lagi layak dipertahankan.', 'Analisis yang baik bukan hanya menjelaskan apa yang mungkin terjadi, tetapi juga kapan thesis tersebut perlu dianggap salah atau dievaluasi ulang.' ) ),
@@ -113,9 +113,9 @@ class Bitmomo_Pro_Help_Center {
 					self::q( 'harga-bitmomo-pro', 'Berapa harga Bitmomo Pro?', array( 'Founding Membership tersedia dalam dua pilihan:', '<strong>Bulanan</strong> — Rp149.000/bulan<br><strong>Tahunan</strong> — Rp1.490.000/tahun', 'Keduanya memberikan akses ke fitur Bitmomo Pro yang sama.' ) ),
 					self::q( 'apa-itu-founding-membership', 'Apa itu Founding Membership?', array( 'Founding Membership adalah membership khusus untuk member awal Bitmomo Pro.', 'Total Founding Membership dibatasi hingga 149 member.', 'Batch pertama dibuka untuk 25 member.', 'Selama membership tetap aktif, Founding Member mempertahankan founding price dan mendapatkan fitur baru yang ditambahkan ke Bitmomo Pro ketika tersedia.' ) ),
 					self::q( 'bulanan-vs-tahunan', 'Apa beda paket bulanan dan tahunan?', array( 'Fitur yang diperoleh sama.', 'Perbedaannya adalah periode pembayaran.', '<strong>Bulanan:</strong><br>Rp149.000 setiap bulan.', '<strong>Tahunan:</strong><br>Rp1.490.000 untuk 12 bulan.', 'Paket tahunan memiliki harga efektif yang lebih rendah dan mengurangi kebutuhan melakukan pembayaran manual setiap bulan.' ) ),
-					self::q( 'apakah-founding-price-tetap', 'Apakah harga Bitmomo Pro akan tetap Rp149.000/bulan?', array( 'Rp149.000/bulan adalah Founding Price.', 'Harga membership baru akan berubah seiring pengembangan fitur dan teknologi Bitmomo Pro.', 'Founding Members yang menjaga membership tetap aktif dapat mempertahankan Founding Price selamanya.' ) ),
-					self::q( 'setelah-kuota-149-penuh', 'Apa yang terjadi setelah kuota 149 Founding Members terpenuhi?', array( 'Setelah kuota 149 Founding Members terpenuhi, pendaftaran Bitmomo Pro akan ditutup sementara untuk member baru.', 'Fokus kami akan beralih ke pengembangan produk, peningkatan kualitas intelligence, dan pengumpulan feedback dari Founding Members sebelum membuka akses kembali ke publik.', 'Rp149.000/bulan adalah Founding Price. Harga membership baru akan berubah seiring pengembangan fitur dan teknologi Bitmomo Pro.', 'Founding Members yang menjaga membership tetap aktif dapat mempertahankan Founding Price selamanya.' ) ),
-					self::q( 'member-baru-setelah-penuh', 'Apakah Bitmomo akan menerima member baru setelah Founding Membership penuh?', array( 'Tidak untuk sementara waktu.', 'Setelah 149 tempat terisi, kami berencana menutup pendaftaran dan fokus bekerja bersama cohort Founding Members untuk menyempurnakan produk sebelum menentukan kapan akses publik dibuka kembali.' ) ),
+					self::q( 'apakah-founding-price-tetap', 'Apakah harga Bitmomo Pro akan tetap Rp149.000/bulan?', array( 'Rp149.000/bulan adalah Founding Price untuk membership ini.', 'Harga untuk member baru dapat berubah seiring pengembangan Bitmomo Pro.', 'Founding Members mempertahankan Founding Price selama membership mereka tetap aktif.' ) ),
+					self::q( 'setelah-kuota-149-penuh', 'Apa yang terjadi setelah kuota 149 Founding Members terpenuhi?', array( 'Setelah kuota 149 Founding Members terpenuhi, pendaftaran Founding Membership ditutup untuk member baru.', 'Bitmomo dapat membuka bentuk akses berikutnya di kemudian hari dengan terms atau harga yang berbeda.', 'Founding Members mempertahankan Founding Price selama membership mereka tetap aktif.' ) ),
+					self::q( 'member-baru-setelah-penuh', 'Apakah Bitmomo akan menerima member baru setelah Founding Membership penuh?', array( 'Founding Membership tidak menerima member baru setelah kapasitas 149 anggota terpenuhi.', 'Jika akses publik lain dibuka di kemudian hari, terms dan harga dapat berbeda dari Founding Membership.' ) ),
 					self::q( 'semua-produk-masa-depan', 'Apakah Founding Members mendapatkan semua produk Bitmomo di masa depan?', array( 'Tidak.', 'Founding benefit berlaku untuk fitur baru yang ditambahkan ke Bitmomo Pro, termasuk 11 AI Analysts dan Watchtower jika diluncurkan sebagai bagian dari Bitmomo Pro.', 'Produk standalone Bitmomo di masa depan dapat memiliki pricing tersendiri.' ) ),
 					self::q( 'berhenti-dan-bergabung-kembali', 'Apa yang terjadi jika saya berhenti berlangganan lalu bergabung kembali?', array( 'Akses tetap tersedia sampai akhir periode yang sudah dibayar.', 'Setelah membership benar-benar berakhir, founding price sebelumnya tidak dijamin masih tersedia jika Anda bergabung kembali di kemudian hari.' ) ),
 				),
@@ -134,21 +134,21 @@ class Bitmomo_Pro_Help_Center {
 				'title' => '11 AI Analysts & Watchtower',
 				'statuses' => array( '11 AI ANALYSTS — SEGERA HADIR', 'BITMOMO WATCHTOWER — SEGERA HADIR', 'TELEGRAM ALERTS — SEGERA HADIR' ),
 				'items' => array(
-					self::q( 'apa-itu-11-ai-analysts', 'Apa itu 11 AI Analysts?', array( '11 AI Analysts adalah sebelas analyst AI spesialis yang sedang dikembangkan untuk membaca BTC dari perspektif berbeda dan memberikan verdict masing-masing.', 'Area analisisnya mencakup antara lain trend, volatility, momentum, market structure, derivatives, flow, sentiment, macro, historical regime, dan event risk.', 'Hasilnya dirancang untuk disatukan menjadi satu Bitmomo Decision View.', 'Sedang dalam pengembangan aktif dan akan menjadi bagian dari Bitmomo Pro berikutnya.' ), 'SEGERA HADIR' ),
-					self::q( 'analysts-dan-watchtower', 'Bagaimana 11 AI Analysts dan Watchtower bekerja bersama?', array( '<strong>“11 AI Analysts membangun thesis. Watchtower menjaganya tetap relevan.”</strong>', '“Dua kali sehari, 11 analyst memberi verdict. Di antaranya, Watchtower mendeteksi perubahan penting dan mengirim update ke Telegram.”', 'Ini menggambarkan capability yang direncanakan dan belum tersedia saat ini.' ), 'SEGERA HADIR' ),
-					self::q( 'apakah-analysts-tersedia', 'Kapan 11 AI Analysts dan Watchtower tersedia?', array( 'Belum tersedia hari ini.', 'Sedang dalam pengembangan aktif dan akan menjadi bagian dari Bitmomo Pro berikutnya.', 'Ketika tersedia, sistem ini dirancang untuk memberikan berbagai perspektif spesialis pada scheduled intelligence Bitmomo.' ), 'SEGERA HADIR' ),
-					self::q( 'apa-itu-watchtower', 'Apa itu Bitmomo Watchtower?', array( 'Watchtower adalah monitoring layer Bitmomo yang sedang dikembangkan untuk mendeteksi perubahan penting di antara scheduled intelligence updates.', 'Tujuannya adalah membantu menjaga thesis Bitmomo tetap relevan ketika kondisi pasar berubah.', 'Sedang dalam pengembangan aktif dan akan menjadi bagian dari Bitmomo Pro berikutnya.' ), 'SEGERA HADIR' ),
+					self::q( 'apa-itu-11-ai-analysts', 'Apa itu 11 AI Analysts?', array( '11 AI Analysts adalah sebelas analyst AI spesialis yang sedang dikembangkan untuk membaca BTC dari perspektif berbeda dan memberikan verdict masing-masing.', 'Area analisisnya mencakup antara lain trend, volatility, momentum, market structure, derivatives, flow, sentiment, macro, historical regime, dan event risk.', 'Hasilnya dirancang untuk disatukan menjadi satu Bitmomo Decision View.', 'Capability ini belum tersedia saat ini dan tidak memiliki tanggal rilis yang dijanjikan.' ), 'SEGERA HADIR' ),
+					self::q( 'analysts-dan-watchtower', 'Bagaimana 11 AI Analysts dan Watchtower dirancang bekerja bersama?', array( '<strong>“11 AI Analysts membangun thesis. Watchtower menjaganya tetap relevan.”</strong>', 'Konsepnya: scheduled intelligence membangun thesis; Watchtower memantau perubahan yang cukup material untuk membuat thesis perlu ditinjau kembali.', 'Ini menggambarkan capability yang direncanakan dan belum tersedia saat ini.' ), 'SEGERA HADIR' ),
+					self::q( 'apakah-analysts-tersedia', 'Kapan 11 AI Analysts dan Watchtower tersedia?', array( 'Belum tersedia saat ini.', 'Tidak ada tanggal rilis yang dijanjikan.', 'Jika dirilis, capability ini tetap harus melewati riset, validasi, dan release gate Bitmomo sebelum ditampilkan sebagai bagian dari produk.' ), 'SEGERA HADIR' ),
+					self::q( 'apa-itu-watchtower', 'Apa itu Bitmomo Watchtower?', array( 'Watchtower adalah monitoring layer yang sedang dikembangkan untuk mendeteksi perubahan penting di antara scheduled intelligence updates.', 'Tujuannya adalah membantu menjaga thesis Bitmomo tetap relevan ketika kondisi pasar berubah.', 'Capability ini belum tersedia saat ini.' ), 'SEGERA HADIR' ),
 					self::q( 'watchtower-bukan-news-feed', 'Apakah Watchtower akan mengirim setiap berita dan pergerakan pasar?', array( 'Tidak.', 'Watchtower dirancang sebagai high-signal monitoring system, bukan news feed.', 'Tujuannya adalah menyaring perubahan yang cukup penting untuk membuat kondisi atau thesis pasar perlu diperhatikan kembali.' ), 'SEGERA HADIR' ),
-					self::q( 'telegram-alerts', 'Apakah Telegram Alerts sudah tersedia?', array( 'Belum.', 'Telegram Alerts merupakan bagian dari Watchtower yang masih dalam pengembangan.' ), 'SEGERA HADIR' ),
-					self::q( 'founders-mendapat-analysts-watchtower', 'Apakah Founding Members akan mendapatkan 11 AI Analysts dan Watchtower?', array( 'Ya, jika fitur tersebut diluncurkan sebagai bagian dari Bitmomo Pro.', 'Founding Members yang menjaga membership tetap aktif akan mendapatkan fitur tersebut tanpa kehilangan founding price mereka.' ), 'SEGERA HADIR' ),
+					self::q( 'telegram-alerts', 'Apakah Telegram Alerts sudah tersedia?', array( 'Belum.', 'Telegram Alerts merupakan capability yang direncanakan bersama Watchtower dan belum tersedia saat ini.' ), 'SEGERA HADIR' ),
+					self::q( 'founders-mendapat-analysts-watchtower', 'Apakah Founding Members akan mendapatkan 11 AI Analysts dan Watchtower?', array( 'Jika fitur tersebut diluncurkan sebagai bagian dari Bitmomo Pro, Founding Members yang membership-nya tetap aktif akan mendapatkannya sebagai bagian dari Pro.', 'Fitur yang menjadi produk standalone di masa depan dapat memiliki terms berbeda.' ), 'SEGERA HADIR' ),
 				),
 			),
 			'ai-lab-decentralized-ai' => array(
-				'title' => 'AI Lab & Decentralized AI',
+				'title' => 'Intelligence Systems Research',
 				'items' => array(
-					self::q( 'apa-itu-ai-lab', 'Apa itu Bitmomo AI Lab?', array( 'Bitmomo AI Lab adalah R&D layer Bitmomo yang meneliti teknologi dan pendekatan AI yang dapat meningkatkan kualitas intelligence system yang kami bangun.', 'Fokus riset mencakup antara lain:', 'Decentralized AI<br>Agent Systems<br>AI Evaluation', '“Kami tidak hanya meneliti bagaimana membuat AI lebih pintar, tetapi bagaimana memastikan intelligence yang dihasilkan tetap dapat dipercaya ketika model, provider, dan kondisi pasar terus berubah.”' ) ),
-					self::q( 'mengapa-decentralized-ai', 'Mengapa Bitmomo AI Lab meneliti decentralized AI?', array( 'Bitmomo meneliti decentralized AI bukan hanya karena sektor ini memiliki potensi investasi yang menarik, tetapi juga karena kami melihat kemungkinan bahwa teknologinya dapat menjadi bagian penting dari infrastructure intelligence Bitmomo di masa depan.', 'Sistem AI tertutup dapat berubah dari waktu ke waktu—baik dari sisi model, behavior, pricing, maupun kebijakan—tanpa memberikan pengguna visibilitas penuh terhadap apa yang berubah di balik sistem tersebut.', 'Untuk produk intelligence yang menuntut konsistensi dan accountability, ketergantungan pada black-box provider menciptakan risiko tersendiri.', 'Decentralized AI menawarkan pendekatan yang berbeda: lebih banyak transparansi terhadap model dan provider yang digunakan, kemungkinan membandingkan performa antar-model secara lebih terbuka, serta mekanisme insentif dan evaluasi yang dapat dibuat lebih auditable.', 'Bagi Bitmomo, hal ini menarik karena kualitas AI tidak hanya perlu tinggi, tetapi juga dapat diuji, dibandingkan, dan dipantau dari waktu ke waktu.', 'Tujuan riset kami bukan berasumsi bahwa decentralized AI selalu lebih baik daripada closed AI. Kami ingin memahami kapan arsitektur terdesentralisasi benar-benar dapat meningkatkan reliability, transparency, model diversity, dan verifiability dari sistem intelligence yang kami bangun.' ) ),
-					self::q( 'hubungan-ai-lab-dengan-pro', 'Apa hubungan riset decentralized AI dengan Bitmomo Pro?', array( 'AI Lab berfungsi sebagai R&D layer Bitmomo.', 'Jika suatu teknologi terbukti meningkatkan kualitas, consistency, transparency, atau kemampuan evaluasi sistem intelligence kami, teknologi tersebut dapat diadopsi ke produk Bitmomo di masa depan.' ) ),
+					self::q( 'apa-itu-ai-lab', 'Apa itu Intelligence Systems Research Bitmomo?', array( 'Ini adalah R&D layer Bitmomo yang meneliti teknologi dan pendekatan AI yang dapat meningkatkan kualitas intelligence system yang kami bangun.', 'Fokus riset mencakup antara lain:', 'Decentralized AI<br>Agent Systems<br>AI Evaluation', 'Tujuannya bukan menambah buzzword, tetapi memahami bagaimana reliability, transparency, model diversity, dan verifiability dapat ditingkatkan.' ) ),
+					self::q( 'mengapa-decentralized-ai', 'Mengapa Bitmomo meneliti decentralized AI?', array( 'Sistem AI tertutup dapat berubah dari waktu ke waktu—baik dari sisi model, behavior, pricing, maupun kebijakan—tanpa memberikan pengguna visibilitas penuh terhadap apa yang berubah di balik sistem tersebut.', 'Untuk produk intelligence yang menuntut konsistensi dan accountability, ketergantungan pada black-box provider menciptakan risiko tersendiri.', 'Decentralized AI menawarkan pendekatan yang berbeda: lebih banyak transparansi terhadap model dan provider yang digunakan, kemungkinan membandingkan performa antar-model secara lebih terbuka, serta mekanisme insentif dan evaluasi yang dapat dibuat lebih auditable.', 'Tujuan riset kami bukan berasumsi bahwa decentralized AI selalu lebih baik daripada closed AI. Kami ingin memahami kapan arsitektur terdesentralisasi benar-benar dapat meningkatkan reliability, transparency, model diversity, dan verifiability dari sistem intelligence yang kami bangun.' ) ),
+					self::q( 'hubungan-ai-lab-dengan-pro', 'Apa hubungan Intelligence Systems Research dengan Bitmomo Pro?', array( 'Riset ini berfungsi sebagai R&D layer Bitmomo.', 'Jika suatu teknologi terbukti meningkatkan kualitas, consistency, transparency, atau kemampuan evaluasi sistem intelligence kami, teknologi tersebut dapat diadopsi ke produk Bitmomo di masa depan.' ) ),
 				),
 			),
 			'data-ai-methodology' => array(
@@ -215,15 +215,22 @@ class Bitmomo_Pro_Help_Center {
 		<?php
 	}
 
+	private static function support_email() {
+		$email = sanitize_email( (string) apply_filters( 'bitmomo_pro_support_email', get_option( 'admin_email' ) ) );
+		return is_email( $email ) ? $email : '';
+	}
+
 	public function render_help_center() {
 		$categories = self::categories();
+		$support_email = self::support_email();
+		$systems_url = add_query_arg( 'focus', 'systems', home_url( '/category/riset/' ) );
 		ob_start();
 		?>
 		<div class="bm-help" id="bm-help-content">
 			<header class="bm-help__hero">
 				<p class="bm-help__eyebrow">BITMOMO HELP CENTER</p>
 				<h1 class="bm-help__title">Temukan jawaban tentang Bitmomo</h1>
-				<p>Pelajari cara kerja BTC Daily Intelligence, Market State, Bitmomo Pro, Founding Membership, dan metodologi kami.</p>
+				<p>Pelajari cara kerja BTC Intelligence, Market State, Bitmomo Pro, Founding Membership, dan metodologi kami.</p>
 			</header>
 			<nav class="bm-help__nav" aria-label="Kategori Help Center">
 				<?php foreach ( $categories as $slug => $category ) : ?><a href="#<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $category['title'] ); ?></a><?php endforeach; ?>
@@ -237,14 +244,16 @@ class Bitmomo_Pro_Help_Center {
 			<?php endforeach; ?>
 			<nav class="bm-help__related" aria-label="Tautan terkait">
 				<a href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Bitmomo Pro</a>
-				<a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">BTC Daily Intelligence</a>
-				<a href="<?php echo esc_url( home_url( '/category/tren-ai/' ) ); ?>">AI Lab</a>
-				<a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>">Research</a>
+				<a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">BTC Intelligence</a>
+				<a href="<?php echo esc_url( $systems_url ); ?>">Intelligence Systems Research</a>
+				<a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>">Market Research</a>
+				<?php if ( $support_email ) : ?><a href="mailto:<?php echo esc_attr( $support_email ); ?>">Support</a><?php endif; ?>
 				<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>">Privacy</a>
 				<a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>">Disclaimer</a>
 			</nav>
 		</div>
 		<?php
+		unset( $support_email, $systems_url );
 		return ob_get_clean();
 	}
 
