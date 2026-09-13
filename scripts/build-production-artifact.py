@@ -110,6 +110,7 @@ def main() -> int:
     config = json.loads(CONFIG_PATH.read_text())
     files, exclusions = collect(config)
     commit = git("rev-parse", "HEAD")
+    source_tree = git("rev-parse", "HEAD^{tree}")
     source_epoch = int(git("show", "-s", "--format=%ct", "HEAD"))
     output = (ROOT / args.output_dir).resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -119,6 +120,7 @@ def main() -> int:
     manifest = {
         "schema": 1,
         "source_commit": commit,
+        "source_tree": source_tree,
         "source_date_epoch": source_epoch,
         "build_timestamp": datetime.now(timezone.utc).isoformat(),
         "packaging_definition": str(CONFIG_PATH.relative_to(ROOT)),
@@ -132,6 +134,7 @@ def main() -> int:
     manifest_path = output / "bitmomo-runtime-manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     print(f"source_commit={commit}")
+    print(f"source_tree={source_tree}")
     print(f"runtime_files={len(files)}")
     print(f"excluded_source_files={len(exclusions)}")
     print(f"artifact_sha256={manifest['artifact_sha256']}")
