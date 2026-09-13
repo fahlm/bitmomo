@@ -2,21 +2,7 @@ name: Theme safety checks
 
 on:
   pull_request:
-    paths:
-      - "website/wp-content/themes/bitmomo-child-v3/**"
-      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
-      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
-      - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css"
-      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
-      - "scripts/check-ui-architecture.mjs"
-      - "scripts/check-terminal-grade-contract.mjs"
-      - "scripts/check-navigation-footer.mjs"
-      - "scripts/check-public-ui.mjs"
-      - "scripts/audit-css-debt.mjs"
-      - "docs/PUBLIC_SURFACE_CONTRACT.md"
-      - ".github/workflows/theme-safety.yml"
-  push:
-    branches: [main, "chore/**", "feature/**", "fix/**", "release/**"]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
@@ -41,6 +27,7 @@ concurrency:
 
 jobs:
   php-syntax:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: PHP syntax, public-surface and UI architecture
     runs-on: ubuntu-latest
     timeout-minutes: 5
