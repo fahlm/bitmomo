@@ -1,4 +1,4 @@
-"""Read-only Hyperliquid market selector dry-run.
+"""Read-only Hyperliquid market selector dry-run with resilient feed recovery.
 
 This adapter subscribes to public L2/trade feeds and prints a rolling leaderboard.
 It NEVER creates an Exchange client and has no order-submission path.
@@ -7,8 +7,9 @@ Execution economics can come from either:
 1. an external shadow/paper producer via --feedback-jsonl; or
 2. the built-in conservative standardized probe via --shadow-probe.
 
-Both are research-only. Missing execution feedback remains UNKNOWN, so the selector
-fails closed rather than inventing fill/maker/P10K economics from book snapshots.
+Missing execution feedback remains UNKNOWN. Transport recovery is generation-fenced:
+callbacks from an old websocket are ignored after reconnect, and the supervisor stays
+fail-closed until the replacement generation receives fresh book data.
 """
 
 from __future__ import annotations
@@ -33,6 +34,7 @@ from .observer import BookObservation, MarketObserver, TradeObservation
 from .ranker import rank_markets
 from .shadow_probe import ShadowProbeConfig, ShadowProbeEngine
 from .supervisor import MarketSupervisor
+from .transport import FeedHealth
 
 
 def discover_markets(info: Info, top_n: int, min_volume: float) -> list[tuple[str, float]]:
@@ -56,12 +58,41 @@ def fmt(value, suffix="", digits=2):
     return f"{value:.{digits}f}{suffix}"
 
 
+def safe_disconnect(info: Info | None, timeout_seconds: float = 5.0) -> None:
+    """Disconnect without letting a stuck SDK cleanup block the supervisor."""
+
+    if info is None:
+        return
+
+    error_holder: list[BaseException] = []
+
+    def _disconnect():
+        try:
+            info.disconnect_websocket()
+        except BaseException as exc:  # cleanup must not take down research loop
+            error_holder.append(exc)
+
+    worker = threading.Thread(target=_disconnect, daemon=True)
+    worker.start()
+    worker.join(timeout_seconds)
+    if worker.is_alive():
+        print("DISCONNECT_TIMEOUT continuing with new generation")
+    elif error_holder:
+        print(f"DISCONNECT_ERROR {type(error_holder[0]).__name__}: {error_holder[0]}")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--top", type=int, default=12)
     parser.add_argument("--coins", default="")
     parser.add_argument("--interval", type=int, default=30)
     parser.add_argument("--window", type=int, default=900)
+    parser.add_argument(
+        "--transport-stale-seconds",
+        type=float,
+        default=60.0,
+        help="Reconnect when all watched L2 book feeds are stale for this long.",
+    )
     parser.add_argument(
         "--feedback-jsonl",
         default="",
@@ -93,15 +124,14 @@ def main():
         parser.error("--feedback-jsonl and --shadow-output-jsonl must be different files")
 
     cfg = DEFAULT_CONFIG
-    info = Info(constants.MAINNET_API_URL, skip_ws=False)
+    current_info = Info(constants.MAINNET_API_URL, skip_ws=False)
 
     if args.coins.strip():
         discovered = [(x.strip(), 0.0) for x in args.coins.split(",") if x.strip()]
-        # Populate 24h volumes from metadata when possible.
-        metadata = dict(discover_markets(info, 500, 0))
+        metadata = dict(discover_markets(current_info, 500, 0))
         discovered = [(coin, metadata.get(coin, 0.0)) for coin, _ in discovered]
     else:
-        discovered = discover_markets(info, args.top, cfg.min_day_volume_usd)
+        discovered = discover_markets(current_info, args.top, cfg.min_day_volume_usd)
 
     observers: Dict[str, MarketObserver] = {
         coin: MarketObserver(coin, cfg, window_seconds=args.window)
@@ -124,6 +154,12 @@ def main():
         if args.shadow_probe
         else {}
     )
+    health = FeedHealth.for_coins(
+        observers.keys(),
+        stale_seconds=args.transport_stale_seconds,
+        initial_backoff_seconds=2.0,
+        max_backoff_seconds=30.0,
+    )
 
     def persist_probe_events(events):
         if not args.shadow_output_jsonl:
@@ -131,7 +167,7 @@ def main():
         for event in events:
             append_feedback_event(args.shadow_output_jsonl, event)
 
-    def make_book_callback(coin):
+    def make_book_callback(coin, generation):
         def on_book(message):
             data = message.get("data")
             if not data:
@@ -151,6 +187,8 @@ def main():
             )
             emitted = []
             with lock:
+                if not health.note_book(generation, coin):
+                    return
                 observers[coin].on_book(obs)
                 if coin in probes:
                     metrics = observers[coin].snapshot(now_ms=obs.timestamp_ms)
@@ -160,11 +198,13 @@ def main():
             persist_probe_events(emitted)
         return on_book
 
-    def make_trade_callback(coin):
+    def make_trade_callback(coin, generation):
         def on_trades(message):
             rows = message.get("data") or []
             emitted = []
             with lock:
+                if not health.accepts(generation):
+                    return
                 for trade in rows:
                     obs = TradeObservation(
                         timestamp_ms=int(trade["time"]),
@@ -180,18 +220,58 @@ def main():
             persist_probe_events(emitted)
         return on_trades
 
-    for coin in observers:
-        info.subscribe(
-            {"type": "l2Book", "coin": coin, "fast": True},
-            make_book_callback(coin),
-        )
-        info.subscribe(
-            {"type": "trades", "coin": coin},
-            make_trade_callback(coin),
-        )
+    def subscribe_generation(info: Info, generation: int) -> None:
+        for coin in observers:
+            info.subscribe(
+                {"type": "l2Book", "coin": coin, "fast": True},
+                make_book_callback(coin, generation),
+            )
+            info.subscribe(
+                {"type": "trades", "coin": coin},
+                make_trade_callback(coin, generation),
+            )
 
-    print("BITMOMO HYPERLIQUID SELECTOR — DRY RUN")
+    with lock:
+        initial_generation = health.start_generation()
+    subscribe_generation(current_info, initial_generation)
+    print(f"CONNECT generation={initial_generation}")
+
+    def reconnect(reason: str) -> None:
+        nonlocal current_info
+
+        print(f"TRANSPORT_STALE reason={reason}")
+        safe_disconnect(current_info)
+
+        while True:
+            with lock:
+                delay = health.register_reconnect()
+                reconnect_number = health.reconnects
+                next_generation = health.generation + 1
+            print(
+                f"RECONNECT number={reconnect_number} "
+                f"backoff={delay:.0f}s next_generation={next_generation}"
+            )
+            time.sleep(delay)
+
+            replacement = None
+            try:
+                replacement = Info(constants.MAINNET_API_URL, skip_ws=False)
+                with lock:
+                    generation = health.start_generation()
+                subscribe_generation(replacement, generation)
+                current_info = replacement
+                print(f"CONNECT generation={generation}")
+                return
+            except Exception as exc:
+                print(f"CONNECTION_ERROR {type(exc).__name__}: {exc}")
+                safe_disconnect(replacement)
+
+    print("BITMOMO HYPERLIQUID SELECTOR — RESILIENT DRY RUN")
     print("Trading: DISABLED | Wallet: NOT USED | Fail-closed: ENABLED")
+    print(
+        f"Transport watchdog: {args.transport_stale_seconds:.0f}s all-book stale | "
+        "Reconnect: AUTOMATIC"
+    )
     if args.shadow_probe:
         print(f"Built-in shadow probe: ENABLED ({probe_cfg.policy_id})")
         print("Probe status: PROVISIONAL RESEARCH, not validated alpha")
@@ -206,6 +286,12 @@ def main():
         while True:
             time.sleep(args.interval)
 
+            with lock:
+                transport_stale = health.all_books_stale()
+            if transport_stale:
+                reconnect("all_book_feeds_stale")
+                continue
+
             feedback_loaded = 0
             if feedback_tailer is not None:
                 events = feedback_tailer.poll()
@@ -214,13 +300,25 @@ def main():
 
             with lock:
                 metrics = [observer.snapshot() for observer in observers.values()]
+                generation = health.generation
+                reconnects = health.reconnects
+                feed_healthy = health.healthy
+                max_book_age = health.max_book_age()
 
             results = [evaluate_market(item, cfg) for item in metrics]
-            decision = supervisor.decide(results, inventory_flat=True)
+            decision = supervisor.decide(
+                results,
+                inventory_flat=True,
+                hard_fault=None if feed_healthy else "feed_reconnecting",
+            )
             ranking = rank_markets(results)
             by_coin = {item.coin: item for item in metrics}
 
             print("\n" + "=" * 118)
+            print(
+                f"HEALTH generation={generation} healthy={'YES' if feed_healthy else 'NO'} "
+                f"max_book_age={max_book_age:.1f}s reconnects={reconnects}"
+            )
             print(
                 f"SUPERVISOR state={decision.state.value} active={decision.active_market or '-'} "
                 f"action={decision.action} new_entries={'YES' if decision.allow_new_entries else 'NO'}"
@@ -253,7 +351,7 @@ def main():
                     f"{fmt(m.t10k_hours, 'h'):>8}"
                 )
     finally:
-        info.disconnect_websocket()
+        safe_disconnect(current_info)
 
 
 if __name__ == "__main__":
