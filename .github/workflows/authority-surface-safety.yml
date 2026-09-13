@@ -18,7 +18,7 @@ on:
       - ".github/workflows/authority-surface-safety.yml"
       - ".github/workflows/ui-browser-safety.yml"
   push:
-    branches: [main, "fix/**", "feature/**", "feat/**"]
+    branches: [main, "fix/**", "feature/**", "feat/**", "release/**"]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
