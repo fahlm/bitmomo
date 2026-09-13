@@ -27,6 +27,7 @@ const assets = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmom
 const hero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/design-system.css');
 const navCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/navigation-footer.css');
+const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
 const btcMain = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
@@ -41,6 +42,14 @@ check('Canonical design-system layer exists and is runtime-required',
   assets.includes("'bitmomo-design-system'") &&
   runtime.includes('"assets/css/design-system.css"')
 );
+check('Institutional homepage layer exists, is loaded, and is runtime-required',
+  fs.existsSync(path.join(theme, 'assets/css/home.css')) &&
+  assets.includes('assets/css/home.css') &&
+  assets.includes("'bitmomo-home'") &&
+  runtime.includes('"assets/css/home.css"') &&
+  homeCss.includes('.bm-home-hero') && homeCss.includes('.bm-home-reading') &&
+  homeCss.includes('.bm-home-proof') && homeCss.includes('.bm-home-research')
+);
 
 const customCss = path.join(theme, 'custom.css');
 let customGitSha = '';
@@ -52,7 +61,16 @@ const inlineStyleOwners = themePhp.filter((file) => /<style\b/i.test(fs.readFile
 check('Theme templates contain no ad-hoc inline <style> ownership', inlineStyleOwners.length === 0);
 check('Homepage hero has no private breakpoint/style island', !/<style\b/i.test(hero) && !hero.includes('Decision View'));
 check('Homepage is product-first and exposes accountability proof before commitment',
-  hero.includes('Buka BTC Intelligence') && hero.includes('#founding-whitelist') && hero.includes('/btc-intelligence/#decision-ledger')
+  hero.includes('Buka BTC Intelligence') &&
+  hero.includes('/btc-intelligence/#decision-ledger') &&
+  hero.includes('PUBLIC LEDGER') &&
+  hero.includes('href="#founding-whitelist"') &&
+  hero.indexOf('/btc-intelligence/#decision-ledger') < hero.indexOf('href="#founding-whitelist"')
+);
+check('Homepage current reading exposes finance-grade context without engine internals',
+  hero.includes('>ARAH<') && hero.includes('>KEYAKINAN<') && hero.includes('>REFERENSI BTC<') &&
+  hero.includes('>DIPERBARUI<') && hero.includes('>ALASAN UTAMA<') && hero.includes('<strong>SUMBER</strong>') &&
+  !/market_state|market_state_certainty|direction_strength|Bitmomo_Public_Intelligence_Adapter::history/.test(hero)
 );
 
 check('Every route has one keyboard skip target contract',
@@ -104,9 +122,12 @@ check('BTC public accountability boundary remains read-only',
   btcAccountability.includes('recorded_live') && btcAccountability.includes('window_missed') &&
   !/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/.test(btcAccountability)
 );
-check('Theme runtime version changed with reconciled public contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes reconciled accountability module and 113 managed files',
-  runtime.includes('"expected_file_count": 113') && runtime.includes('class-bitmomo-btc-intelligence-accountability.php')
+check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
+check('Runtime manifest includes homepage layer, accountability module and 114 managed files',
+  runtime.includes('"expected_file_count": 114') &&
+  runtime.includes('"expected_file_count": 46') &&
+  runtime.includes('"assets/css/home.css"') &&
+  runtime.includes('class-bitmomo-btc-intelligence-accountability.php')
 );
 
 check('Account flow has no pre-checkout dead end and renders human dates',

@@ -126,6 +126,7 @@ jobs:
           ! grep -q "BITMOMO RESEARCH" "${home}"
 
           grep -q "design-system.css" "${assets}"
+          grep -q "home.css" "${assets}"
           grep -q "article-reading.css" "${assets}"
           grep -q "research.css" "${assets}"
           grep -q "about.css" "${assets}"
@@ -137,12 +138,14 @@ jobs:
           manifest = json.load(open('config/production-runtime.json', encoding='utf-8'))
           components = {c['name']: c for c in manifest.get('components', [])}
           total = sum(int(c.get('expected_file_count', 0)) for c in components.values())
-          assert int(manifest.get('expected_file_count', -1)) == total == 113
-          assert int(components['bitmomo-child-v3']['expected_file_count']) == 45
+          assert int(manifest.get('expected_file_count', -1)) == total == 114
+          assert int(components['bitmomo-child-v3']['expected_file_count']) == 46
           assert int(components['bitmomo-btc-intelligence']['expected_file_count']) == 5
+          assert 'assets/css/home.css' in components['bitmomo-child-v3']['required']
           assert 'includes/class-bitmomo-btc-intelligence-accountability.php' in components['bitmomo-btc-intelligence']['required']
           PY
           grep -q '"assets/css/design-system.css"' config/production-runtime.json
+          grep -q '"assets/css/home.css"' config/production-runtime.json
           grep -q '"assets/css/article-reading.css"' config/production-runtime.json
 
       - name: Enforce institutional Research Hub UX

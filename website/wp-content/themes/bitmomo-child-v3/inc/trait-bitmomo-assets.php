@@ -108,15 +108,18 @@ trait Bitmomo_Assets_Trait {
         }
 
         if (is_front_page()) {
-            $opportunity_css_path = get_stylesheet_directory() . '/assets/css/home-opportunity.css';
-            if (file_exists($opportunity_css_path)) {
+            // One explicit homepage owner. The old Opportunity stylesheet is no
+            // longer loaded because the canonical front page no longer renders
+            // that standalone component.
+            $home_css_path = get_stylesheet_directory() . '/assets/css/home.css';
+            if (file_exists($home_css_path)) {
                 wp_enqueue_style(
-                    'bitmomo-home-opportunity',
-                    get_stylesheet_directory_uri() . '/assets/css/home-opportunity.css',
+                    'bitmomo-home',
+                    get_stylesheet_directory_uri() . '/assets/css/home.css',
                     $public_surface_deps,
-                    $this->get_file_version($opportunity_css_path)
+                    $this->get_file_version($home_css_path)
                 );
-                $public_surface_deps = ['bitmomo-home-opportunity'];
+                $public_surface_deps = ['bitmomo-home'];
             }
 
             $conversion_css_path = get_stylesheet_directory() . '/assets/css/home-conversion.css';
