@@ -1,0 +1,257 @@
+name: Authority surface safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
+      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
+      - "scripts/check-public-ui.mjs"
+      - "scripts/check-article-cleanliness.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
+      - "docs/content/tentang-kami.md"
+      - "docs/RESEARCH_HUB_CONTRACT.md"
+      - "docs/ARTICLE_READING_CONTRACT.md"
+      - "config/production-runtime.json"
+      - ".github/workflows/authority-surface-safety.yml"
+      - ".github/workflows/ui-browser-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: authority-surface-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  authority-contract:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint authority PHP and browser contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in \
+            website/wp-content/themes/bitmomo-child-v3/functions.php \
+            website/wp-content/themes/bitmomo-child-v3/header.php \
+            website/wp-content/themes/bitmomo-child-v3/home.php \
+            website/wp-content/themes/bitmomo-child-v3/page.php \
+            website/wp-content/themes/bitmomo-child-v3/single.php \
+            website/wp-content/themes/bitmomo-child-v3/category.php \
+            website/wp-content/themes/bitmomo-child-v3/footer.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/research.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
+            website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php; do
+            php -l "$file"
+          done
+          node --check scripts/check-public-ui.mjs
+          node --check scripts/check-article-cleanliness.mjs
+          node --check scripts/check-terminal-grade-contract.mjs
+          node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
+
+      - name: Enforce one institutional classification boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme="website/wp-content/themes/bitmomo-child-v3"
+          helpers="${theme}/inc/template-functions.php"
+          about="${theme}/template-parts/about-authority.php"
+          hub="${theme}/template-parts/research-hub.php"
+          home_research="${theme}/template-parts/research.php"
+          single="${theme}/single.php"
+          header="${theme}/header.php"
+          home="${theme}/home.php"
+          assets="${theme}/inc/trait-bitmomo-assets.php"
+          content="${theme}/inc/trait-bitmomo-content.php"
+
+          grep -q "template-parts/about" "${theme}/page.php"
+          grep -q "template-parts/research" "${theme}/category.php"
+          grep -Eqi "research .* intelligence platform" "${about}"
+          ! grep -Eqi "media independen|media independent" "${about}"
+
+          grep -q "bitmomo_market_research_taxonomy_slugs" "${helpers}"
+          grep -q "bitmomo_post_is_market_research" "${helpers}"
+          grep -q "bitmomo_post_is_ai_systems_research" "${helpers}"
+          grep -q "bitmomo_post_research_classification" "${helpers}"
+          grep -q "bitmomo_post_publication_label" "${helpers}"
+          grep -q "bitmomo_research_focus_filters" "${helpers}"
+          grep -q "bitmomo_post_matches_research_focus" "${helpers}"
+          grep -q "bitmomo_post_research_topic_label" "${helpers}"
+          grep -q "bitmomo_post_reading_minutes" "${helpers}"
+          grep -q "bitmomo_post_manual_deck" "${helpers}"
+          grep -q "bitmomo_post_has_meaningful_update" "${helpers}"
+
+          grep -q "tag__not_in" "${hub}"
+          grep -q "bitmomo_post_is_market_research" "${home_research}"
+          grep -q "bitmomo_post_research_classification" "${single}"
+          grep -q "bitmomo_post_publication_label" "${single}"
+          grep -q "Market Research Terkait" "${single}"
+          grep -q "Intelligence Systems Research Terkait" "${single}"
+          ! grep -q "Riset Terkait" "${single}"
+
+          grep -q "bitmomo_post_research_classification" "${header}"
+          ! grep -q "is_single() && has_category" "${header}"
+          grep -q "Arsip Publikasi" "${home}"
+          ! grep -q "BITMOMO RESEARCH" "${home}"
+
+          grep -q "design-system.css" "${assets}"
+          grep -q "home.css" "${assets}"
+          grep -q "article-reading.css" "${assets}"
+          grep -q "research.css" "${assets}"
+          grep -q "about.css" "${assets}"
+          ! grep -q "bm-disclaimer" "${content}"
+          grep -q "must remain the authored publication itself" "${content}"
+
+          python3 - <<'PY'
+          import json
+          manifest = json.load(open('config/production-runtime.json', encoding='utf-8'))
+          components = {c['name']: c for c in manifest.get('components', [])}
+          total = sum(int(c.get('expected_file_count', 0)) for c in components.values())
+          assert int(manifest.get('expected_file_count', -1)) == total == 114
+          assert int(components['bitmomo-child-v3']['expected_file_count']) == 46
+          assert int(components['bitmomo-btc-intelligence']['expected_file_count']) == 5
+          assert 'assets/css/home.css' in components['bitmomo-child-v3']['required']
+          assert 'includes/class-bitmomo-btc-intelligence-accountability.php' in components['bitmomo-btc-intelligence']['required']
+          PY
+          grep -q '"assets/css/design-system.css"' config/production-runtime.json
+          grep -q '"assets/css/home.css"' config/production-runtime.json
+          grep -q '"assets/css/article-reading.css"' config/production-runtime.json
+
+      - name: Enforce institutional Research Hub UX
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme="website/wp-content/themes/bitmomo-child-v3"
+          hub="${theme}/template-parts/research-hub.php"
+          css="${theme}/assets/css/research.css"
+          footer="${theme}/footer.php"
+          contract="docs/RESEARCH_HUB_CONTRACT.md"
+
+          grep -q "The Research Hub is a research workspace" "${contract}"
+          grep -q "RESEARCH LIBRARY" "${hub}"
+          grep -q "RESEARCH PROGRAMS" "${hub}"
+          grep -q "INTELLIGENCE SYSTEMS" "${hub}"
+          grep -q "research_q" "${hub}"
+          grep -q "KEY FINDING" "${hub}"
+          grep -q "RESEARCH FIGURE" "${hub}"
+          grep -q "bitmomo_post_reading_minutes" "${hub}"
+          grep -q "bitmomo_post_matches_research_focus" "${hub}"
+          ! grep -q "Gabung Founding Whitelist" "${hub}"
+          grep -q "Intelligence Systems" "${footer}"
+
+          library_line="$(grep -n "RESEARCH LIBRARY" "${hub}" | head -1 | cut -d: -f1)"
+          method_line="$(grep -n "RESEARCH STANDARD" "${hub}" | tail -1 | cut -d: -f1)"
+          test "${library_line}" -lt "${method_line}"
+
+          grep -q "bm-research-filter" "${css}"
+          grep -q "bm-research-library__list" "${css}"
+          grep -q "bm-research-programs__list" "${css}"
+          grep -q "bm-research-methodology" "${css}"
+
+      - name: Enforce Google-to-article reading contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme="website/wp-content/themes/bitmomo-child-v3"
+          single="${theme}/single.php"
+          css="${theme}/assets/css/article-reading.css"
+          functions="${theme}/functions.php"
+          contract="docs/ARTICLE_READING_CONTRACT.md"
+          browser="scripts/check-public-ui.mjs"
+          cleanliness="scripts/check-article-cleanliness.mjs"
+
+          grep -q "Google/search result → article orientation" "${contract}"
+          grep -q "noindex,follow" "${contract}"
+          grep -q "Body cleanliness / legacy database boundary" "${contract}"
+          grep -q "Bitmomo Research" "${single}"
+          grep -q "Dipublikasikan" "${single}"
+          grep -q "menit baca" "${single}"
+          grep -q "RESEARCH STANDARD" "${single}"
+          grep -q "bm-related--editorial" "${single}"
+          ! grep -q "bm-post-nav" "${single}"
+
+          grep -q -- "--bm-article-reading: 720px" "${css}"
+          grep -q "font-size: clamp(17px" "${css}"
+          grep -q "bm-article-body > table" "${css}"
+          grep -q "display: block" "${css}"
+          grep -q "overflow-x: auto" "${css}"
+          grep -q "@media (max-width: 720px)" "${css}"
+
+          grep -q "Bitmomo — Bitcoin Market Intelligence & Research" "${functions}"
+          grep -q "Bitmomo Research — Bitcoin Markets & Intelligence Systems" "${functions}"
+          grep -q "bitmomo_should_noindex_public_view" "${functions}"
+          grep -q "bitmomo_is_unclassified_legacy_research_post" "${functions}"
+          grep -q "rank_math/frontend/robots" "${functions}"
+          grep -q "get_post_field('post_excerpt'" "${functions}"
+          grep -q "define('BM_VERSION', '4.7')" "${functions}"
+          grep -q "Version: 4.7" "${theme}/style.css"
+
+          grep -q "bm-research-lead__title a" "${browser}"
+          grep -q "no qualified Research article discoverable" "${browser}"
+          grep -q "reading column too wide" "${browser}"
+          grep -q "article body font too small" "${browser}"
+          grep -q "article line-height too tight" "${browser}"
+          grep -q "generic previous/next post navigation returned" "${browser}"
+
+          grep -q "inline typography overrides" "${cleanliness}"
+          grep -q "Subscribe Newsletter Bitmomo" "${cleanliness}"
+          grep -q "agi-superintelligence-dan-blockchain" "${cleanliness}"
+          grep -q "Legacy generic-Riset canary is still indexable" "${cleanliness}"
+          grep -q "Qualified article title does not carry the Bitmomo Research search promise" "${cleanliness}"
+
+      - name: Enforce single SEO owner and utility indexability
+        shell: bash
+        run: |
+          set -euo pipefail
+          theme="website/wp-content/themes/bitmomo-child-v3"
+          functions="${theme}/functions.php"
+          helpers="${theme}/inc/template-functions.php"
+          pro_main="website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
+          btc_main="website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php"
+
+          grep -q "Tentang Bitmomo — Market Research & Intelligence Systems" "${functions}"
+          grep -q "Bitmomo Research — Bitcoin Markets & Intelligence Systems" "${functions}"
+          grep -q "Bitmomo — Bitcoin Market Intelligence & Research" "${functions}"
+          grep -q "bitmomo_should_noindex_public_view" "${functions}"
+          grep -q "is_search()" "${functions}"
+          grep -q "is_archive() && !is_category('riset')" "${functions}"
+          grep -q "rank_math/frontend/title" "${functions}"
+          grep -q "rank_math/frontend/description" "${functions}"
+          grep -q "rank_math/frontend/robots" "${functions}"
+          ! grep -q "rank_math/frontend/title" "${helpers}"
+          ! grep -q "rank_math/frontend/description" "${helpers}"
+
+          grep -q "remove_filter( 'rank_math/frontend/description'" "${pro_main}"
+          grep -q "remove_action( 'wp_head'" "${pro_main}"
+          grep -q "BITMOMO_PRO_VERSION', '0.12.7'" "${pro_main}"
+          grep -q "remove_filter( 'rank_math/frontend/description'" "${btc_main}"
+          grep -q "remove_action( 'wp_head'" "${btc_main}"
+          grep -q "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2'" "${btc_main}"
+          grep -q "class-bitmomo-btc-intelligence-accountability.php" "${btc_main}"
+
+      - name: Enforce terminal-grade public invariants
+        run: node scripts/check-terminal-grade-contract.mjs
+
+      - name: Prevent publisher-first source-of-truth regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "canonical brand/source-of-truth" docs/content/tentang-kami.md
+          grep -q "research & intelligence platform" docs/content/tentang-kami.md
+          grep -q 'Copy publik Bitmomo tidak boleh menggunakan positioning seperti "media independen"' docs/content/tentang-kami.md

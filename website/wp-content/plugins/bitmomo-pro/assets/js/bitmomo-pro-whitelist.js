@@ -3,9 +3,7 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 		var form = document.getElementById('bm-wl-form');
-		if (!form) {
-			return;
-		}
+		if (!form) return;
 
 		var localizedConfig = window.bitmomoProWhitelist || {};
 		var nonceField = form.querySelector('input[name="bm_wl_nonce"]');
@@ -25,22 +23,63 @@
 				not_found: 'Sesi sudah tidak berlaku. Muat ulang halaman dan coba lagi.'
 			}
 		};
+
 		var errorEl = document.getElementById('bm-wl-error');
 		var formPanel = document.getElementById('bm-wl-form-panel');
 		var successPanel = document.getElementById('bm-wl-success-panel');
 		var successTitle = document.getElementById('bm-wl-success-title');
 		var submitBtn = form.querySelector('.bm-wl__submit');
+		var submitLabel = submitBtn ? submitBtn.textContent : '';
+		var emailField = form.querySelector('input[name="email"]');
+		var consentField = form.querySelector('input[name="consent"]');
 
-		// Optional second-step WhatsApp opt-in elements.
 		var waStep = document.getElementById('bm-wl-whatsapp-step');
 		var waNumberInput = document.getElementById('bm-wl-whatsapp-number');
 		var waSubmitBtn = document.getElementById('bm-wl-whatsapp-submit');
+		var waSubmitLabel = waSubmitBtn ? waSubmitBtn.textContent : '';
 		var waErrorEl = document.getElementById('bm-wl-whatsapp-error');
 		var waDoneEl = document.getElementById('bm-wl-whatsapp-done');
+
+		function ensureAnnouncementSemantics() {
+			if (errorEl) {
+				errorEl.setAttribute('role', 'alert');
+				errorEl.setAttribute('aria-live', 'assertive');
+			}
+			if (successPanel) successPanel.setAttribute('aria-live', 'polite');
+			if (successTitle) successTitle.setAttribute('tabindex', '-1');
+			if (waErrorEl) {
+				waErrorEl.setAttribute('role', 'alert');
+				waErrorEl.setAttribute('aria-live', 'assertive');
+			}
+			if (waDoneEl) {
+				waDoneEl.setAttribute('role', 'status');
+				waDoneEl.setAttribute('tabindex', '-1');
+			}
+		}
 
 		function fieldValue(name) {
 			var field = form.querySelector('[name="' + name + '"]');
 			return field && field.value ? String(field.value).slice(0, 120) : '';
+		}
+
+		function setFieldValue(name, value) {
+			var field = form.querySelector('[name="' + name + '"]');
+			if (field) field.value = value || '';
+		}
+
+		function safeUrlWithoutQuery(value) {
+			if (!value) return '';
+			try {
+				var url = new URL(value, window.location.origin);
+				return url.origin + url.pathname;
+			} catch (error) {
+				return '';
+			}
+		}
+
+		function refreshPrivacyBoundAcquisitionContext() {
+			setFieldValue('landing_page', window.location.origin + window.location.pathname);
+			setFieldValue('referrer', safeUrlWithoutQuery(document.referrer));
 		}
 
 		function telemetryContext() {
@@ -58,19 +97,12 @@
 			var payload = telemetryContext();
 			payload.event = eventName;
 			if (extra && typeof extra === 'object') {
-				Object.keys(extra).forEach(function (key) {
-					payload[key] = extra[key];
-				});
+				Object.keys(extra).forEach(function (key) { payload[key] = extra[key]; });
 			}
 
-			// Provider-neutral browser event. Deliberately excludes email,
-			// first name, WhatsApp number, post_id, nonce and record_token.
 			if (typeof window.CustomEvent === 'function') {
 				window.dispatchEvent(new CustomEvent('bitmomo:analytics', { detail: payload }));
 			}
-
-			// If a tag manager/analytics provider already owns dataLayer, feed it.
-			// Do not create dataLayer here: Bitmomo stays provider-neutral.
 			if (Array.isArray(window.dataLayer)) {
 				window.dataLayer.push(Object.assign({}, payload));
 			}
@@ -96,47 +128,81 @@
 			});
 		});
 
-		function showError(message) {
-			if (!errorEl) {
-				return;
+		function detachErrorDescription(field, id) {
+			if (!field) return;
+			field.removeAttribute('aria-invalid');
+			var ids = (field.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean).filter(function (item) { return item !== id; });
+			if (ids.length) field.setAttribute('aria-describedby', ids.join(' '));
+			else field.removeAttribute('aria-describedby');
+		}
+
+		function attachErrorDescription(field, id) {
+			if (!field) return;
+			field.setAttribute('aria-invalid', 'true');
+			var ids = (field.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+			if (ids.indexOf(id) === -1) ids.push(id);
+			field.setAttribute('aria-describedby', ids.join(' '));
+		}
+
+		function showError(message, field) {
+			if (errorEl) {
+				errorEl.textContent = message;
+				errorEl.hidden = false;
 			}
-			errorEl.textContent = message;
-			errorEl.hidden = false;
+			if (field) {
+				attachErrorDescription(field, 'bm-wl-error');
+				field.focus();
+			}
 		}
 
 		function hideError() {
-			if (!errorEl) {
-				return;
+			if (errorEl) {
+				errorEl.hidden = true;
+				errorEl.textContent = '';
 			}
-			errorEl.hidden = true;
-			errorEl.textContent = '';
+			detachErrorDescription(emailField, 'bm-wl-error');
+			detachErrorDescription(consentField, 'bm-wl-error');
 		}
 
 		function showWhatsappError(message) {
-			if (!waErrorEl) {
-				return;
+			if (waErrorEl) {
+				waErrorEl.textContent = message;
+				waErrorEl.hidden = false;
 			}
-			waErrorEl.textContent = message;
-			waErrorEl.hidden = false;
+			if (waNumberInput) {
+				attachErrorDescription(waNumberInput, 'bm-wl-whatsapp-error');
+				waNumberInput.focus();
+			}
 		}
 
 		function hideWhatsappError() {
-			if (!waErrorEl) {
-				return;
+			if (waErrorEl) {
+				waErrorEl.hidden = true;
+				waErrorEl.textContent = '';
 			}
-			waErrorEl.hidden = true;
-			waErrorEl.textContent = '';
+			detachErrorDescription(waNumberInput, 'bm-wl-whatsapp-error');
 		}
 
-		// Reveals the WhatsApp step for a record that doesn't have a number
-		// on file yet; a record that already has one (fresh signup that
-		// somehow already carries it, or a duplicate resubmission) never
-		// gets re-asked — it just stays hidden and the plain success state
-		// is shown instead.
-		function setupWhatsappStep(postId, recordToken, hasWhatsapp) {
-			if (!waStep) {
-				return;
+		function setSubmitBusy(isBusy) {
+			if (isBusy) form.setAttribute('aria-busy', 'true');
+			else form.removeAttribute('aria-busy');
+			if (!submitBtn) return;
+			submitBtn.disabled = isBusy;
+			submitBtn.textContent = isBusy ? 'MENGIRIM…' : submitLabel;
+		}
+
+		function setWhatsappBusy(isBusy) {
+			if (waStep) {
+				if (isBusy) waStep.setAttribute('aria-busy', 'true');
+				else waStep.removeAttribute('aria-busy');
 			}
+			if (!waSubmitBtn) return;
+			waSubmitBtn.disabled = isBusy;
+			waSubmitBtn.textContent = isBusy ? 'MENYIMPAN…' : waSubmitLabel;
+		}
+
+		function setupWhatsappStep(postId, recordToken, hasWhatsapp) {
+			if (!waStep) return;
 			if (hasWhatsapp || !postId || !recordToken) {
 				waStep.hidden = true;
 				return;
@@ -147,9 +213,7 @@
 		}
 
 		function showSuccess(isDuplicate, data) {
-			if (!formPanel || !successPanel) {
-				return;
-			}
+			if (!formPanel || !successPanel) return;
 			if (successTitle && isDuplicate && config && config.i18n) {
 				successTitle.textContent = config.i18n.duplicate_title;
 			}
@@ -160,38 +224,32 @@
 			var recordToken = data && data.record_token;
 			var hasWhatsapp = !!(data && data.has_whatsapp);
 			setupWhatsappStep(postId, recordToken, hasWhatsapp);
+			if (successTitle) successTitle.focus();
 		}
 
-		var query = new URLSearchParams(window.location.search);
-		var deepPost = query.get('bm_wl_post');
-		var deepToken = query.get('bm_wl_token');
-		if (deepPost && deepToken) {
-			showSuccess(false, { post_id: deepPost, record_token: deepToken, has_whatsapp: false });
-			window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
-		} else {
-			emitTelemetry('whitelist_view');
-		}
+		ensureAnnouncementSemantics();
+		refreshPrivacyBoundAcquisitionContext();
+		emitTelemetry('whitelist_view');
 
 		form.addEventListener('submit', function (event) {
 			event.preventDefault();
 			hideError();
+			refreshPrivacyBoundAcquisitionContext();
 
 			if (!config || !config.ajaxUrl || !config.action || !config.nonce) {
+				showError((config && config.i18n && config.i18n.generic_error) || 'Terjadi kesalahan. Coba lagi.');
 				emitTelemetry('whitelist_error', { error_code: 'configuration' });
 				return;
 			}
 
 			var i18n = config.i18n || {};
-			var emailField = form.querySelector('input[name="email"]');
-			var consentField = form.querySelector('input[name="consent"]');
-
-			if (!emailField || !emailField.value || emailField.validity.typeMismatch) {
-				showError(i18n.invalid_email || 'Invalid email.');
+			if (!emailField || !emailField.value || !emailField.validity.valid) {
+				showError(i18n.invalid_email || 'Invalid email.', emailField);
 				emitTelemetry('whitelist_error', { error_code: 'invalid_email' });
 				return;
 			}
 			if (!consentField || !consentField.checked) {
-				showError(i18n.consent_required || 'Consent required.');
+				showError(i18n.consent_required || 'Consent required.', consentField);
 				emitTelemetry('whitelist_error', { error_code: 'consent_required' });
 				return;
 			}
@@ -200,10 +258,7 @@
 			formData.set('action', config.action);
 			formData.set('bm_wl_nonce', config.nonce);
 			emitTelemetry('whitelist_submit');
-
-			if (submitBtn) {
-				submitBtn.disabled = true;
-			}
+			setSubmitBusy(true);
 
 			fetch(config.ajaxUrl, {
 				method: 'POST',
@@ -211,14 +266,9 @@
 				body: formData
 			})
 				.then(function (response) {
-					return response.json().then(function (json) {
-						return { ok: response.ok, json: json };
-					});
+					return response.json().then(function (json) { return { ok: response.ok, json: json }; });
 				})
 				.then(function (result) {
-					if (submitBtn) {
-						submitBtn.disabled = false;
-					}
 					if (result.json && result.json.success) {
 						var data = result.json.data || {};
 						showSuccess(data.status === 'duplicate', data);
@@ -230,22 +280,19 @@
 					emitTelemetry('whitelist_error', { error_code: errorCode || 'server_error' });
 				})
 				.catch(function () {
-					if (submitBtn) {
-						submitBtn.disabled = false;
-					}
 					showError(i18n.generic_error || 'Something went wrong.');
 					emitTelemetry('whitelist_error', { error_code: 'network_error' });
-				});
+				})
+				.finally(function () { setSubmitBusy(false); });
 		});
 
-		if (!waSubmitBtn || !waStep) {
-			return;
-		}
+		if (!waSubmitBtn || !waStep) return;
 
 		waSubmitBtn.addEventListener('click', function () {
 			hideWhatsappError();
 
 			if (!config || !config.ajaxUrl || !config.whatsappAction || !config.whatsappNonce) {
+				showWhatsappError((config && config.i18n && config.i18n.generic_error) || 'Terjadi kesalahan. Coba lagi.');
 				return;
 			}
 
@@ -253,10 +300,8 @@
 			var postId = waStep.getAttribute('data-post-id');
 			var recordToken = waStep.getAttribute('data-record-token');
 			var rawNumber = waNumberInput ? waNumberInput.value : '';
-
-			// Light client-side sanity check only -- the server is the
-			// single source of truth for normalization/validation.
 			var digitsOnly = (rawNumber || '').replace(/[^0-9]/g, '');
+
 			if (!postId || !recordToken) {
 				showWhatsappError(i18n.not_found || 'Session expired. Reload the page and try again.');
 				return;
@@ -272,8 +317,7 @@
 			formData.set('post_id', postId);
 			formData.set('record_token', recordToken);
 			formData.set('whatsapp_number', rawNumber);
-
-			waSubmitBtn.disabled = true;
+			setWhatsappBusy(true);
 
 			fetch(config.ajaxUrl, {
 				method: 'POST',
@@ -281,26 +325,22 @@
 				body: formData
 			})
 				.then(function (response) {
-					return response.json().then(function (json) {
-						return { ok: response.ok, json: json };
-					});
+					return response.json().then(function (json) { return { ok: response.ok, json: json }; });
 				})
 				.then(function (result) {
-					waSubmitBtn.disabled = false;
 					if (result.json && result.json.success) {
 						waStep.hidden = true;
 						if (waDoneEl) {
 							waDoneEl.hidden = false;
+							waDoneEl.focus();
 						}
 						return;
 					}
 					var errorCode = result.json && result.json.data && result.json.data.error;
 					showWhatsappError((errorCode && i18n[errorCode]) || i18n.generic_error || 'Something went wrong.');
 				})
-				.catch(function () {
-					waSubmitBtn.disabled = false;
-					showWhatsappError(i18n.generic_error || 'Something went wrong.');
-				});
+				.catch(function () { showWhatsappError(i18n.generic_error || 'Something went wrong.'); })
+				.finally(function () { setWhatsappBusy(false); });
 		});
 	});
 }());

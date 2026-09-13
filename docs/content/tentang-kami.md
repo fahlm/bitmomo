@@ -1,40 +1,69 @@
 # Konten: Tentang Kami
 
-Status: draft konten, siap ditinjau founder. Belum di-commit/push. Bukan perubahan kode.
-Slug yang dituju oleh footer (sudah dikodekan di PR frontend, belum di-merge): `tentang-kami`
+Status: **canonical brand/source-of-truth** untuk `/tentang-kami/`.
+
+Public runtime sengaja dirender dari `template-parts/about-authority.php` agar copy WordPress/Elementor lama tidak dapat mengembalikan positioning Bitmomo menjadi portal media.
 
 ---
 
 ## SEO METADATA
 
-- **SEO title**: Tentang Bitmomo | Riset AI & Crypto Independen
-- **Meta description**: Bitmomo adalah proyek riset dan media independen tentang AI dan crypto untuk pembaca Indonesia. Kenali siapa kami, apa yang kami liput, dan bagaimana kami bekerja.
+- **SEO title**: Tentang Bitmomo | Crypto Market & AI Systems Research
+- **Meta description**: Bitmomo adalah research & intelligence platform yang mempelajari crypto markets dan AI systems, lalu mengubah evidence menjadi intelligence yang dapat diuji.
 - **Suggested slug**: `tentang-kami`
 
 ---
 
-## ISI HALAMAN
-
 # Tentang Kami
 
-Bitmomo adalah proyek riset dan media independen yang berfokus pada perkembangan AI dan crypto, ditulis untuk pembaca Indonesia. Kami lahir dari ketertarikan pada dua bidang yang bergerak sangat cepat ini, dan keinginan untuk menyajikannya dengan bahasa yang jelas — tanpa jargon berlebihan, dan tanpa janji yang tidak bisa kami buktikan.
+Bitmomo adalah **research & intelligence platform** yang bekerja di persimpangan **crypto markets** dan **AI systems**.
 
-## Apa yang Kami Liput
+Kami meneliti bagaimana pasar berubah, lalu membangun sistem yang mengubah evidence tersebut menjadi intelligence yang dapat ditelusuri, diuji, dan diperbaiki. Bitmomo **bukan portal berita kripto** dan bukan sekadar lapisan AI yang menghasilkan narasi sebanyak mungkin.
 
-Bitmomo membahas tiga area utama: tren dan perkembangan AI (Tren AI), berita seputar industri AI dan crypto (Berita), riset yang lebih mendalam (Riset), serta analisis pasar crypto termasuk Bitcoin (Analisis Koin) — termasuk halaman Analisis Bitcoin Hari Ini yang diperbarui secara berkala.
+## Tiga Lapisan Kerja
 
-## Filosofi Editorial
+### Crypto Market Research
 
-Kami memilih topik berdasarkan relevansi dan substansi, bukan sekadar mengejar tren sesaat. Ketika kami membahas data atau angka pasar, kami berusaha menjelaskan konteks di baliknya, bukan hanya melaporkan angka. Kami juga tidak segan menyatakan ketika sesuatu masih bersifat eksperimental, belum teruji, atau memiliki keterbatasan — termasuk soal produk dan proses kami sendiri.
+Bitcoin, market structure, derivatives positioning, liquidity, volatility, macro, cycle behavior, dan fundamental drivers.
 
-## Informasi/Riset, Bukan Nasihat Finansial
+Tujuannya bukan menambah jumlah indikator. Tujuannya adalah membedakan perubahan yang material dari noise, membangun thesis yang dapat diuji, dan menjelaskan kondisi yang membuat thesis tersebut tidak lagi berlaku.
 
-Ini penting untuk digarisbawahi: seluruh konten Bitmomo, termasuk analisis Bitcoin, bersifat informasi dan riset untuk tujuan edukasi — bukan nasihat investasi, bukan ajakan membeli atau menjual aset tertentu, dan bukan jaminan hasil. Keputusan finansial apa pun sepenuhnya tanggung jawab pembaca. Detail lebih lengkap ada di halaman [Disclaimer](/disclaimer/).
+### AI Systems Research
 
-## Komitmen pada Metodologi yang Transparan
+Agent systems, evaluation, provenance, reliability, quality gates, decentralized AI, dan arsitektur yang mengurangi ketergantungan pada satu black box.
 
-Kami berusaha terbuka soal bagaimana analisis kami dibuat — termasuk kapan prosesnya masih manual, kapan melibatkan sistem otomatis, dan kapan ada perubahan pada cara kerja tersebut. Jika suatu metode berubah atau suatu analisis perlu dikoreksi, kami akan menyatakannya secara terbuka, bukan menghapusnya diam-diam.
+AI diperlakukan sebagai komponen sistem yang harus dapat dievaluasi — bukan sebagai sumber kebenaran yang otomatis dianggap benar.
+
+### Decision Intelligence Product
+
+Compression → context → thesis → monitoring → accountability.
+
+Research dibuat berguna dalam pengambilan keputusan tanpa menyamarkan uncertainty atau batas metodologinya.
+
+## Research Standard
+
+**Evidence before narrative.** Claim dibatasi oleh data yang benar-benar tersedia dan sumbernya harus dapat ditelusuri.
+
+**Context over noise.** Angka dibaca dalam struktur dan kondisi pasar, bukan sebagai sinyal yang berdiri sendiri.
+
+**Thesis + invalidation.** Analisis harus menjelaskan apa yang mendukung pandangan dan apa yang membuat pandangan tersebut berubah.
+
+**Accountability.** Insight yang dapat diuji dicatat sebelum outcome diketahui dan dievaluasi terhadap hasil aktual.
+
+## Dari Research ke Product
+
+Versi gratis menjelaskan **apa yang sedang terjadi sekarang**. Bitmomo Pro fokus pada **apa yang perlu dipantau berikutnya**: skenario, invalidation, monitoring, dan perubahan penting.
+
+Bitmomo menyediakan research dan decision support — bukan perintah transaksi, bukan sinyal beli/jual, dan bukan nasihat keuangan personal.
 
 ## Hubungi Kami
 
-Ada pertanyaan, masukan, atau koreksi terkait konten kami? Hubungi kami di **hi@bitmomo.id**.
+Untuk pertanyaan, feedback, koreksi research, atau support, hubungi **hi@bitmomo.id**.
+
+Baca [Disclaimer](/disclaimer/) untuk batas penggunaan informasi secara lengkap.
+
+---
+
+### Brand boundary
+
+Copy publik Bitmomo tidak boleh menggunakan positioning seperti "media independen", "portal berita", atau wording lain yang membuat product/research identity kembali menjadi publisher-first. Claim pengalaman, return, lineage, atau performance hanya boleh ditambahkan setelah diverifikasi dengan bukti yang sesuai.

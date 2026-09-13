@@ -4,9 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: Optional base URL (production by default; staging URL allowed)
+        description: Target URL (canonical staging by default; production may be entered explicitly)
+        required: true
+        default: "https://seagreen-snail-158456.hostingersite.com"
+      expected_social_json:
+        description: Optional JSON map of social channels that must render exactly; {} keeps fail-closed semantics
         required: false
-        default: "https://bitmomo.id"
+        default: "{}"
   schedule:
     - cron: "17 18 * * 1"
 
@@ -14,12 +18,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: ui-browser-safety
+  group: ui-browser-safety-${{ github.ref }}-${{ github.event.inputs.base_url || 'production' }}
   cancel-in-progress: true
 
 jobs:
   browser-contract:
-    name: Responsive and accessibility contract
+    name: Responsive, accessibility, and article-reading contract
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -35,6 +39,13 @@ jobs:
           echo "run_audit=true" >> "${GITHUB_OUTPUT}"
           echo "Browser audit enabled for ${{ github.event_name }}."
 
+      - name: Verify staging HTML/CDN asset coherence
+        if: steps.version_gate.outputs.run_audit == 'true' && github.event_name == 'workflow_dispatch' && contains(github.event.inputs.base_url, 'hostingersite.com')
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/check-staging-asset-coherence.py --base-url "${{ github.event.inputs.base_url }}"
+
       - name: Install browser audit dependencies
         if: steps.version_gate.outputs.run_audit == 'true'
         shell: bash
@@ -48,7 +59,15 @@ jobs:
         env:
           BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
           BITMOMO_UI_OUTPUT_DIR: ui-artifacts
+          BITMOMO_EXPECTED_SOCIAL_JSON: ${{ github.event.inputs.expected_social_json || '{}' }}
         run: node scripts/check-public-ui.mjs
+
+      - name: Audit article search promise and body cleanliness
+        if: steps.version_gate.outputs.run_audit == 'true'
+        env:
+          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
+          BITMOMO_UI_OUTPUT_DIR: ui-artifacts
+        run: node scripts/check-article-cleanliness.mjs
 
       - name: Upload screenshots and audit report
         if: always() && steps.version_gate.outputs.run_audit == 'true'

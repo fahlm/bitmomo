@@ -1,0 +1,235 @@
+/*
+ * Bitmomo public design foundation.
+ *
+ * Loaded after frozen legacy custom.css and before every public surface layer.
+ * This file is the single owner of cross-surface brand tokens, typography,
+ * geometry, interaction and accessibility primitives. Named surface styles may
+ * compose these tokens, but must not redefine the Bitmomo brand foundation.
+ */
+
+:root {
+  color-scheme: dark;
+
+  --bm-bg: #0c1c2a;
+  --bm-bg-elevated: #0f2434;
+  --bm-bg-soft: #10283a;
+  --bm-header-surface: rgba(7, 17, 29, .985);
+  --bm-footer-surface: #091824;
+  --bm-surface-terminal: #0a0f1a;
+  --bm-surface-terminal-elevated: #0f1622;
+
+  --bm-text: #edf4f6;
+  --bm-text-secondary: #c7d4db;
+  --bm-text-muted: #9eb0c2;
+  --bm-text-subtle: #8294ae;
+  --bm-text-subtle-readable: var(--bm-text-subtle);
+
+  --bm-teal: #26d0c6;
+  --bm-teal-hover: #5ce0d8;
+  --bm-link: #6de0d9;
+  --bm-link-hover: #a5f1ed;
+  --bm-action: #f4ad32;
+  --bm-action-hover: #ffc15a;
+  --bm-positive: #34d399;
+  --bm-negative: #f87171;
+  --bm-warning: #e7be72;
+  --bm-neutral: #9aacc5;
+  --bm-danger: #ff8b80;
+
+  --bm-border: rgba(255,255,255,.10);
+  --bm-border-strong: rgba(255,255,255,.14);
+  --bm-shadow-subtle: 0 18px 48px rgba(0,0,0,.18);
+
+  --bm-radius-sm: 6px;
+  --bm-radius-md: 10px;
+  --bm-radius-lg: 14px;
+  --bm-radius-xl: 18px;
+
+  --bm-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --bm-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --bm-type-display: clamp(44px, 5.2vw, 68px);
+  --bm-type-page-title: clamp(34px, 5vw, 58px);
+  --bm-type-article-title: clamp(34px, 4.6vw, 52px);
+  --bm-type-section-title: clamp(24px, 3vw, 32px);
+  --bm-type-subsection-title: 20px;
+  --bm-type-body-lg: 18px;
+  --bm-type-body: 16px;
+  --bm-type-body-sm: 14px;
+  --bm-type-meta: 12px;
+  --bm-type-micro: 10px;
+  --bm-leading-tight: 1.08;
+  --bm-leading-title: 1.16;
+  --bm-leading-body: 1.68;
+  --bm-leading-prose: 1.78;
+
+  --bm-shell-width: 1180px;
+  --bm-public-width: var(--bm-shell-width);
+  --bm-product-width: 1080px;
+  --bm-article-wide: 920px;
+  --bm-reading-width: 720px;
+  --bm-reading-wide: 780px;
+  --bm-shell-gutter: 24px;
+  --bm-shell-gutter-tablet: 20px;
+  --bm-shell-gutter-mobile: 16px;
+  --bm-header-height: 64px;
+  --bm-header-height-mobile: 60px;
+  --bm-touch-target: 40px;
+  --bm-touch-target-mobile: 44px;
+
+  --bm-space-1: 4px;
+  --bm-space-2: 8px;
+  --bm-space-3: 12px;
+  --bm-space-4: 16px;
+  --bm-space-5: 24px;
+  --bm-space-6: 32px;
+  --bm-space-7: 48px;
+  --bm-space-8: 64px;
+  --bm-space-9: 96px;
+
+  --bm-focus-ring: 2px solid #6de0d9;
+  --bm-focus-offset: 3px;
+
+  /* Transitional aliases keep frozen/older named layers aligned while they
+     migrate to direct --bm-* consumption. They are aliases, never new values. */
+  --bg: var(--bm-bg);
+  --bg-2: var(--bm-bg-elevated);
+  --ink: var(--bm-text);
+  --muted: var(--bm-text-muted);
+  --teal: var(--bm-teal);
+  --stroke: var(--bm-border);
+  --cta: var(--bm-action);
+  --cta-hover: var(--bm-action-hover);
+  --radius: var(--bm-radius-lg);
+  --shadow: var(--bm-shadow-subtle);
+  --bm-accent: var(--bm-teal);
+  --bm-muted: var(--bm-text-muted);
+  --bm-surface: var(--bm-bg-elevated);
+  --bm-surface-soft: var(--bm-bg-soft);
+  --bm-public-max: var(--bm-shell-width);
+  --bm-reading-max: var(--bm-reading-wide);
+  --bm-orange: var(--bm-action);
+  --bm-orange-hover: var(--bm-action-hover);
+}
+
+html {
+  scroll-padding-top: calc(var(--bm-header-height) + 20px);
+}
+
+body {
+  background: var(--bm-bg);
+  color: var(--bm-text);
+  font-family: var(--bm-font-sans);
+  font-size: var(--bm-type-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img:not([src]),
+img[src=""],
+img[src="#"] {
+  display: none !important;
+}
+
+.bm-skip-link {
+  position: fixed;
+  z-index: 10000;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-160%);
+  padding: 10px 14px;
+  border-radius: var(--bm-radius-sm);
+  background: var(--bm-text);
+  color: #07151f;
+  font-family: var(--bm-font-sans);
+  font-size: var(--bm-type-body-sm);
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform .15s ease;
+}
+
+.bm-skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid var(--bm-teal);
+  outline-offset: 2px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: var(--bm-focus-ring);
+  outline-offset: var(--bm-focus-offset);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+a[href] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled,
+[type="submit"]:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .62;
+}
+
+@media (max-width: 768px) {
+  html {
+    scroll-padding-top: calc(var(--bm-header-height-mobile) + 18px);
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .bm-header button.bm-hamburger {
+    min-width: var(--bm-touch-target-mobile) !important;
+    max-width: var(--bm-touch-target-mobile) !important;
+    width: var(--bm-touch-target-mobile) !important;
+    height: var(--bm-touch-target-mobile) !important;
+  }
+}
+
+.bm-brand-mark-fallback {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  flex: 0 0 38px;
+  border: 1px solid rgba(38,208,198,.34);
+  border-radius: var(--bm-radius-md);
+  background: var(--bm-bg-soft);
+  color: var(--bm-teal);
+  font-family: var(--bm-font-sans);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

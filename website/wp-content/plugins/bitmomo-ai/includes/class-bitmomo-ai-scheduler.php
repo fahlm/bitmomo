@@ -75,7 +75,7 @@ final class Bitmomo_AI_Scheduler {
         }
         $settled = Bitmomo_AI_Performance::settle($data);
         do_action('bitmomo_ai_settlement_snapshot', $data);
-        update_option('bitmomo_ai_last_settlement', ['status' => 'success', 'settled' => $settled, 'time' => gmdate('c')], false);
+        update_option('bitmomo_ai_last_settlement', ['status' => 'success', 'settled' => $settled, 'time' => gmdate('c'), 'trigger' => 'recovery_schedule'], false);
         return $settled;
     }
 
@@ -132,6 +132,24 @@ final class Bitmomo_AI_Scheduler {
             self::record('error', $data->get_error_message());
             return $data;
         }
+
+        // Settle the matching edition from the prior day against this session
+        // anchor before recording today's signal. Because PRE_OPEN and
+        // POST_CLOSE each run at the same New York-local anchor every day,
+        // this is the closest natural 24H endpoint available from the same
+        // canonical market snapshot. The fixed WIB settlement hook remains a
+        // recovery path if a session run is missed.
+        $session_settled = Bitmomo_AI_Performance::settle($data);
+        if ($session_settled > 0) {
+            update_option('bitmomo_ai_last_settlement', [
+                'status' => 'success',
+                'settled' => $session_settled,
+                'time' => gmdate('c'),
+                'trigger' => 'session_anchor',
+                'edition' => $edition,
+            ], false);
+        }
+
         $evaluation = Bitmomo_AI_Signal_Engine::evaluate($data);
         $gate = Bitmomo_AI_Quality_Gate::check($data, $evaluation);
         $gate_result = (array) get_option('bitmomo_ai_latest_quality_gate', []);
@@ -152,7 +170,19 @@ final class Bitmomo_AI_Scheduler {
             self::record('error', $post_id->get_error_message());
             return $post_id;
         }
-        update_post_meta($post_id, '_bm_model', 'binance-public-five-axis-v2');
+
+        // A non-draft record has already crossed the editorial/publication
+        // boundary. Re-running the engine for the same date/edition may create
+        // a new canonical session record, but it must never relabel or re-point
+        // the historical published signal to a different engine/source id.
+        if (get_post_status($post_id) !== 'draft') {
+            do_action('bitmomo_ai_edition_recorded', $edition, $record);
+            self::record('success', sprintf('Existing non-draft analysis %d was preserved byte-for-byte; new runtime intelligence was recorded separately.', $post_id), $post_id);
+            self::record_publication('preserved', 'Existing non-draft intelligence metadata was left immutable on rerun.', $post_id);
+            return $post_id;
+        }
+
+        update_post_meta($post_id, '_bm_model', Bitmomo_AI_Signal_Engine::MODEL_VERSION);
         update_post_meta($post_id, '_bm_edition', $edition);
         update_post_meta($post_id, '_bm_source_record_id', $source_record_id);
         update_post_meta($post_id, '_bm_comparison_source_record_id', $record['comparison_source_record_id']);
@@ -260,9 +290,9 @@ final class Bitmomo_AI_Scheduler {
         echo '<h2>' . esc_html__('Forward validation', 'bitmomo-ai') . '</h2>';
         if ($performance['total'] > 0) {
             $accuracy = $performance['accuracy_pct'] === null ? 'belum tersedia' : number_format_i18n($performance['accuracy_pct'], 1) . '%';
-            echo '<p>' . esc_html(sprintf('%d hasil 24 jam — %d benar — %d salah — %d belum meyakinkan — akurasi hasil yang sudah jelas: %s — level risiko tersentuh: %d', $performance['total'], $performance['correct'], $performance['incorrect'], $performance['inconclusive'], $accuracy, $performance['risk_triggered'])) . '</p>';
+            echo '<p>' . esc_html(sprintf('%d hasil sekitar 24 jam — %d benar — %d salah — %d belum meyakinkan — akurasi hasil yang sudah jelas: %s — level risiko tersentuh: %d', $performance['total'], $performance['correct'], $performance['incorrect'], $performance['inconclusive'], $accuracy, $performance['risk_triggered'])) . '</p>';
         } else {
-            echo '<p>' . esc_html__('Belum ada hasil 24 jam. Analisis pertama akan dievaluasi otomatis pada jadwal harian berikutnya, dalam rentang 22–27 jam.', 'bitmomo-ai') . '</p>';
+            echo '<p>' . esc_html__('Belum ada hasil sekitar 24 jam. Analisis dievaluasi terlebih dahulu pada session anchor yang sama di hari berikutnya; settlement terjadwal tetap menjadi jalur recovery.', 'bitmomo-ai') . '</p>';
         }
         if (!empty($preview['data']) && !empty($preview['evaluation'])) {
             $summary = Bitmomo_AI_Report::summary($preview['data'], $preview['evaluation']);
