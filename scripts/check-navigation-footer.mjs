@@ -95,8 +95,9 @@ check(
   /Research Standard/.test(footer) && /Help Center/.test(footer) && /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
 );
 check(
-  'Terms link is fail-closed until the canonical WordPress page exists',
-  /get_page_by_path\(\s*'syarat-layanan'/.test(footer) && /if \( \$bm_terms_url \)/.test(footer) && /Syarat Layanan/.test(footer)
+  'Terms link is fail-closed until a canonical published WordPress page exists',
+  /get_page_by_path\(\s*'syarat-layanan'/.test(footer) && /'publish' === \$bm_terms_page->post_status/.test(footer) &&
+  /if \( \$bm_terms_url \)/.test(footer) && /Syarat Layanan/.test(footer)
 );
 check(
   'Footer brand reuses the canonical renderer and canonical public identity',
