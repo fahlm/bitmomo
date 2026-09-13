@@ -71,6 +71,7 @@ jobs:
             website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php \
             website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php; do
             php -l "$file"
@@ -78,6 +79,7 @@ jobs:
           node --check scripts/check-public-ui.mjs
           node --check scripts/check-article-cleanliness.mjs
           node --check scripts/check-terminal-grade-contract.mjs
+          node --check website/wp-content/plugins/bitmomo-btc-intelligence/assets/js/market-context-explorer.js
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
       - name: Enforce one institutional classification boundary
@@ -137,10 +139,14 @@ jobs:
           manifest = json.load(open('config/production-runtime.json', encoding='utf-8'))
           components = {c['name']: c for c in manifest.get('components', [])}
           total = sum(int(c.get('expected_file_count', 0)) for c in components.values())
-          assert int(manifest.get('expected_file_count', -1)) == total == 113
+          assert int(manifest.get('expected_file_count', -1)) == total == 116
           assert int(components['bitmomo-child-v3']['expected_file_count']) == 45
-          assert int(components['bitmomo-btc-intelligence']['expected_file_count']) == 5
-          assert 'includes/class-bitmomo-btc-intelligence-accountability.php' in components['bitmomo-btc-intelligence']['required']
+          assert int(components['bitmomo-btc-intelligence']['expected_file_count']) == 8
+          required = components['bitmomo-btc-intelligence']['required']
+          assert 'includes/class-bitmomo-btc-intelligence-accountability.php' in required
+          assert 'includes/class-bitmomo-btc-intelligence-market-context.php' in required
+          assert 'assets/css/market-context-explorer.css' in required
+          assert 'assets/js/market-context-explorer.js' in required
           PY
           grep -q '"assets/css/design-system.css"' config/production-runtime.json
           grep -q '"assets/css/article-reading.css"' config/production-runtime.json
@@ -256,6 +262,7 @@ jobs:
           grep -q "remove_action( 'wp_head'" "${btc_main}"
           grep -q "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2'" "${btc_main}"
           grep -q "class-bitmomo-btc-intelligence-accountability.php" "${btc_main}"
+          grep -q "class-bitmomo-btc-intelligence-market-context.php" "${btc_main}"
 
       - name: Enforce terminal-grade public invariants
         run: node scripts/check-terminal-grade-contract.mjs
