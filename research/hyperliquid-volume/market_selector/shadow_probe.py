@@ -91,8 +91,9 @@ class ShadowProbeEngine:
                 threshold = attempt.entry_queue_ahead_usd + self.cfg.target_notional_usd
                 if attempt.entry_consumed_usd >= threshold:
                     attempt.entry_fill_ms = trade.timestamp_ms
-                    if self.latest_book is not None:
-                        self._place_exit_quote(self.latest_book)
+                    # Wait for the next L2 update before placing the hypothetical
+                    # exit. Reusing the pre-fill book could create an optimistic
+                    # stale exit quote immediately after the queue was consumed.
             return
 
         if attempt.exit_price is None and attempt.exit_quote is not None:
@@ -202,7 +203,7 @@ class ShadowProbeEngine:
         else:
             attempt.exit_quote = book.best_bid
             attempt.exit_queue_ahead_usd = book.bid_size * book.best_bid
-        attempt.exit_quote_ms = book.timestamp_ms
+        attempt.exit_quote_ms = max(book.timestamp_ms, attempt.entry_fill_ms)
 
     def _capture_markout(self, book: BookObservation) -> None:
         attempt = self.attempt
