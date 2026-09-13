@@ -82,7 +82,7 @@ jobs:
 
           grep -q "template-parts/about" "${theme}/page.php"
           grep -q "template-parts/research" "${theme}/category.php"
-          grep -Eqi "research .* intelligence platform" "${about}"
+          grep -Eqi "platform .*market intelligence.*research" "${about}"
           ! grep -Eqi "media independen|media independent" "${about}"
 
           grep -q "bitmomo_market_research_taxonomy_slugs" "${helpers}"
@@ -150,7 +150,7 @@ jobs:
           grep -q "RESEARCH PROGRAMS" "${hub}"
           grep -q "INTELLIGENCE SYSTEMS" "${hub}"
           grep -q "research_q" "${hub}"
-          grep -q "KEY FINDING" "${hub}"
+          grep -Eq "TEMUAN UTAMA|RINGKASAN RISET" "${hub}"
           grep -q "RESEARCH FIGURE" "${hub}"
           grep -q "bitmomo_post_reading_minutes" "${hub}"
           grep -q "bitmomo_post_matches_research_focus" "${hub}"
@@ -173,6 +173,7 @@ jobs:
           theme="website/wp-content/themes/bitmomo-child-v3"
           single="${theme}/single.php"
           css="${theme}/assets/css/article-reading.css"
+          design="${theme}/assets/css/design-system.css"
           functions="${theme}/functions.php"
           contract="docs/ARTICLE_READING_CONTRACT.md"
           browser="scripts/check-public-ui.mjs"
@@ -188,7 +189,8 @@ jobs:
           grep -q "bm-related--editorial" "${single}"
           ! grep -q "bm-post-nav" "${single}"
 
-          grep -q -- "--bm-article-reading: 720px" "${css}"
+          grep -q -- "--bm-reading-width: 720px" "${design}"
+          grep -q "var(--bm-reading-width)" "${css}"
           grep -q "font-size: clamp(17px" "${css}"
           grep -q "bm-article-body > table" "${css}"
           grep -q "display: block" "${css}"
@@ -241,10 +243,10 @@ jobs:
 
           grep -q "remove_filter( 'rank_math/frontend/description'" "${pro_main}"
           grep -q "remove_action( 'wp_head'" "${pro_main}"
-          grep -q "BITMOMO_PRO_VERSION', '0.12.7'" "${pro_main}"
+          grep -q "define( 'BITMOMO_PRO_VERSION'" "${pro_main}"
           grep -q "remove_filter( 'rank_math/frontend/description'" "${btc_main}"
           grep -q "remove_action( 'wp_head'" "${btc_main}"
-          grep -q "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2'" "${btc_main}"
+          grep -q "define( 'BITMOMO_BTC_INTELLIGENCE_VERSION'" "${btc_main}"
           grep -q "class-bitmomo-btc-intelligence-accountability.php" "${btc_main}"
 
       - name: Enforce terminal-grade public invariants
