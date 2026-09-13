@@ -172,7 +172,7 @@ check( 'LAYOUT: commercial CTA has at least 48px target height', false !== strpo
 check( 'LAYOUT: explicit 900/768/420 responsive contracts exist', false !== strpos( $css, '@media(max-width:900px)') && false !== strpos( $css, '@media(max-width:768px)') && false !== strpos( $css, '@media(max-width:420px)') );
 check( 'ACCESSIBILITY: focus-visible owner exists', false !== strpos( $css, ':focus-visible' ) );
 check( 'ACCESSIBILITY: reduced-motion safety exists', false !== strpos( $css, '@media(prefers-reduced-motion:reduce)' ) );
-check( 'PERFORMANCE: no third-party font/image/script dependency introduced by sales surface', false === preg_match( '/https?:\/\//', $css ) && false === preg_match( '/<script|<img\b/i', $source ) );
+check( 'PERFORMANCE: no third-party font/image/script dependency introduced by sales surface', 0 === preg_match( '/https?:\/\//', $css ) && 0 === preg_match( '/<script|<img\b/i', $source ) );
 check( 'PERFORMANCE: sales CSS uses dedicated asset version for deterministic cache busting', false !== strpos( $source, "SALES_ASSET_VERSION = '2026.09.13-pro-conversion-v1'" ) );
 
 // Trust layer must exist but must not fabricate Terms before a canonical page exists.
