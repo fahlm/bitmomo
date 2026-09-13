@@ -2,23 +2,7 @@ name: Authority surface safety
 
 on:
   pull_request:
-    paths:
-      - "website/wp-content/themes/bitmomo-child-v3/**"
-      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
-      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
-      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
-      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
-      - "scripts/check-public-ui.mjs"
-      - "scripts/check-article-cleanliness.mjs"
-      - "scripts/check-terminal-grade-contract.mjs"
-      - "docs/content/tentang-kami.md"
-      - "docs/RESEARCH_HUB_CONTRACT.md"
-      - "docs/ARTICLE_READING_CONTRACT.md"
-      - "config/production-runtime.json"
-      - ".github/workflows/authority-surface-safety.yml"
-      - ".github/workflows/ui-browser-safety.yml"
-  push:
-    branches: [main, "fix/**", "feature/**", "feat/**", "release/**"]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
@@ -45,6 +29,7 @@ concurrency:
 
 jobs:
   authority-contract:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
