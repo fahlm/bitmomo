@@ -82,6 +82,12 @@ check(
   /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
 check(
+  'Unavailable newsletter fails closed instead of advertising a broken capability',
+  /\$bm_newsletter_enabled\s*=\s*shortcode_exists\(\s*'mailpoet_form'\s*\)/.test(footer) &&
+  /\$bm_newsletter_enabled \? '' : ' hidden aria-hidden="true"'/.test(footer) &&
+  !/Subscribe email sementara tidak tersedia/.test(footer)
+);
+check(
   'Legacy newsletter modal is structurally disabled rather than page-by-page suppressed',
   /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontend) && !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontend + js)
 );
