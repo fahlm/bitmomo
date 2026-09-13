@@ -61,6 +61,17 @@ market_context_check(
 	false !== strpos( $js, 'series.cadence' )
 );
 market_context_check(
+	'Binance series excludes a still-open daily candle before calling data a close',
+	false !== strpos( $context, '$close_ms > $now_ms' ) &&
+	false !== strpos( $context, "'insufficient_closed_history'" )
+);
+market_context_check(
+	'Provider failures are cached to avoid outage amplification',
+	false !== strpos( $context, 'CACHE_FAILURE_CRYPTO' ) &&
+	false !== strpos( $context, 'CACHE_FAILURE_GOLD' ) &&
+	false !== strpos( $context, 'cache_unavailable' )
+);
+market_context_check(
 	'Explorer consumes canonical public thesis history and public Decision Ledger markers',
 	false !== strpos( $context, 'Bitmomo_Public_Intelligence_Adapter::history()' ) &&
 	false !== strpos( $context, 'Bitmomo_Btc_Intelligence_Accountability::decision_ledger( 20 )' ) &&
@@ -90,6 +101,23 @@ market_context_check(
 	false !== strpos( $js, "document.querySelector('.bm-bi')" ) &&
 	false !== strpos( $js, "snapshot.insertAdjacentElement('afterend', explorer.section)" ) &&
 	false !== strpos( $js, 'Decision View di atas tetap menggunakan data canonical Bitmomo' )
+);
+market_context_check(
+	'Enhanced section rail exposes Market Context without changing the server fallback rail',
+	false !== strpos( $js, "link.href = '#market-context'" ) &&
+	false !== strpos( $js, "link.textContent = 'Context'" )
+);
+market_context_check(
+	'Enhanced decision flow places the Pro next-step before methodology',
+	false !== strpos( $js, "root.querySelector('.bm-bi__methodology')" ) &&
+	false !== strpos( $js, "root.querySelector('.bm-bi__pro-cta')" ) &&
+	false !== strpos( $js, 'methodology.before(proNextStep)')
+);
+market_context_check(
+	'Pointer-only chart hover layer does not create a meaningless keyboard tab stop',
+	false === strpos( $js, "class: 'bm-mc__hit-area', tabindex: '0'" ) &&
+	false === strpos( $js, "hit.addEventListener('focus'") &&
+	false === strpos( $js, "hit.addEventListener('blur'")
 );
 market_context_check(
 	'Mobile controls retain at least 44px target geometry and chart overflow stays contained',
