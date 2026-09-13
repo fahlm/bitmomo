@@ -82,7 +82,7 @@ jobs:
 
           grep -q "template-parts/about" "${theme}/page.php"
           grep -q "template-parts/research" "${theme}/category.php"
-          grep -Eqi "research .* intelligence platform" "${about}"
+          grep -Eqi "platform .*market intelligence.*research" "${about}"
           ! grep -Eqi "media independen|media independent" "${about}"
 
           grep -q "bitmomo_market_research_taxonomy_slugs" "${helpers}"
