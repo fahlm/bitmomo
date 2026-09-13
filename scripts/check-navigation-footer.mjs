@@ -59,17 +59,19 @@ check(
   /event\.key !== 'Tab'/.test(js) && /menuFocusable\(\)/.test(js) && /window\.addEventListener\('resize'/.test(js)
 );
 check(
-  'Canonical header geometry uses the shared institutional shell',
-  /--bm-public-width:\s*1180px/.test(designCss) && /--bm-header-height:\s*64px/.test(designCss) &&
-  /width:\s*min\(100%, var\(--bm-public-width/.test(navCss) && /height:\s*var\(--bm-header-height/.test(navCss)
+  'Canonical shell owns header and footer geometry',
+  /--bm-shell-width:\s*1180px/.test(designCss) && /--bm-header-height:\s*64px/.test(designCss) &&
+  /--bm-header-height-mobile:\s*60px/.test(designCss) && /var\(--bm-shell-width/.test(navCss) &&
+  occurrences(navCss, /var\(--bm-shell-width/g) >= 3
 );
 check(
   'Mobile navigation is viewport-bounded instead of using a fragile fixed max-height',
-  /100dvh/.test(navCss) && /overflow-y:\s*auto/.test(navCss) && !/max-height:\s*390px/.test(navCss)
+  /100dvh/.test(navCss) && /overflow-y:\s*auto/.test(navCss) && !/max-height:\s*(?:320|390)px/.test(navCss)
 );
 check(
-  'Mobile navigation preserves comfortable touch targets',
-  /width:\s*44px/.test(navCss) && /min-height:\s*48px/.test(navCss)
+  'Shared touch tokens own navigation and footer controls',
+  /--bm-touch-target:\s*40px/.test(designCss) && /--bm-touch-target-mobile:\s*44px/.test(designCss) &&
+  /min-height:\s*48px/.test(navCss) && /var\(--bm-touch-target-mobile/.test(navCss)
 );
 check(
   'One shared commercial action token owns the Pro header action',
@@ -89,12 +91,17 @@ check(
 );
 check(
   'Footer uses institutional product, research and trust information architecture',
-  /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) && /Research Standard/.test(footer) &&
-  /Help Center/.test(footer) && /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
+  /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) && /Decision Ledger/.test(footer) &&
+  /Research Standard/.test(footer) && /Help Center/.test(footer) && /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
 );
 check(
-  'Footer brand reuses the canonical Bitmomo brand renderer',
-  /bitmomo_render_brand\(\)/.test(footer) && /Market intelligence untuk memahami kondisi BTC/.test(footer)
+  'Terms link is fail-closed until the canonical WordPress page exists',
+  /get_page_by_path\(\s*'syarat-layanan'/.test(footer) && /if \( \$bm_terms_url \)/.test(footer) && /Syarat Layanan/.test(footer)
+);
+check(
+  'Footer brand reuses the canonical renderer and canonical public identity',
+  /bitmomo_render_brand\(\)/.test(footer) && /rekam jejak keputusan/.test(footer) &&
+  /Bitmomo\.<\/p>/.test(footer) && !/bloginfo\(\s*'name'\s*\)/.test(footer)
 );
 check(
   'Footer newsletter is intentionally secondary to the primary Pro action',
@@ -102,12 +109,21 @@ check(
   /border:\s*1px solid rgba\(38,208,198/.test(navCss) && /background:\s*transparent !important/.test(navCss)
 );
 check(
-  'Footer social navigation is visually quiet rather than a wall of pills',
-  /\.bm-footer-social a,[\s\S]*?border:\s*0;/.test(navCss) && /background:\s*transparent;/.test(navCss)
+  'Footer controls meet desktop and mobile touch geometry',
+  /\.bm-footer-group a[\s\S]*?var\(--bm-touch-target/.test(navCss) &&
+  /\.bm-footer-social a[\s\S]*?var\(--bm-touch-target/.test(navCss) &&
+  /@media \(max-width: 640px\)[\s\S]*?var\(--bm-touch-target-mobile/.test(navCss)
 );
 check(
-  'Footer exposes canonical Telegram, YouTube and X destinations',
-  /https:\/\/t\.me\/bitmomodaily/.test(helpers) && /https:\/\/www\.youtube\.com\/@bitmomoid/.test(helpers) && /https:\/\/x\.com\/bitmomoid/.test(helpers) && /data-social=/.test(footer)
+  'Footer social navigation is visually quiet rather than a wall of pills',
+  /\.bm-footer-social a\s*\{[\s\S]*?border:\s*0;/.test(navCss) && /background:\s*transparent;/.test(navCss)
+);
+check(
+  'Public social destinations fail closed and never use hard-coded public fallbacks',
+  /BITMOMO_TELEGRAM_URL/.test(helpers) && /BITMOMO_YOUTUBE_URL/.test(helpers) && /BITMOMO_X_URL/.test(helpers) &&
+  /wp_http_validate_url/.test(helpers) && /array\('https'\)/.test(helpers) &&
+  !/https:\/\/t\.me\//.test(helpers) && !/https:\/\/www\.youtube\.com\//.test(helpers) && !/https:\/\/x\.com\//.test(helpers) &&
+  !/bm-footer-social__pending/.test(footer)
 );
 check(
   'Design foundation and navigation/footer layers have explicit dependency order',
