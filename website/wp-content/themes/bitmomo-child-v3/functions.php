@@ -1,12 +1,12 @@
 <?php
 /**
- * Bitmomo Child Theme — ULTRA v4.6
+ * Bitmomo Child Theme — ULTRA v4.7
  * Canonical public snapshot freshness + launch-surface contracts.
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BM_VERSION', '4.6');
+define('BM_VERSION', '4.7');
 define('BM_MAILPOET_FORM_ID', 2);
 define('BM_ARCHIVE_POSTS_PER_PAGE', 18);
 define('BM_CARD_IMAGE_WIDTH', 800);
@@ -81,9 +81,9 @@ add_filter('pre_get_document_title', 'bitmomo_public_seo_title', 20);
 add_filter('rank_math/frontend/title', 'bitmomo_public_seo_title', 20);
 
 function bitmomo_public_seo_description($description) {
-    if (is_front_page()) return 'Riset dan market intelligence Bitcoin berbasis evidence: kondisi pasar, konteks, skenario, dan evaluasi thesis dalam satu sistem yang dapat diuji.';
+    if (is_front_page()) return 'Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan riwayat evaluasi dalam satu sistem market intelligence berbasis evidence.';
     if (is_page('pro')) return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan pandangan pasar perlu berubah.';
-    if (is_page('btc-intelligence')) return 'Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record pembacaan Bitmomo.';
+    if (is_page('btc-intelligence')) return 'Lihat kondisi BTC saat ini, perubahan penting, konteks 30 hari, riwayat evaluasi, dan bukti historis Bitmomo Pro.';
     if (is_page('tentang-kami')) return 'Bitmomo adalah research & intelligence platform untuk digital-asset markets dan intelligence systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
     if (is_category('riset')) return 'Bitmomo Research menyajikan market research Bitcoin dan intelligence systems research dengan evidence, thesis, provenance, dan evaluation yang eksplisit.';
     if (bitmomo_is_pro_account_page()) return 'Masuk untuk melihat status dan akses akun Bitmomo Pro Anda.';

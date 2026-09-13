@@ -8,6 +8,18 @@
   text-underline-offset: 8px;
 }
 
+/* One commercial-action token across header and conversion surfaces. */
+.bm-nav-list .bm-nav-pro {
+  background: var(--bm-action, #f4ad32);
+  color: #0b1620;
+}
+
+.bm-nav-list .bm-nav-pro:hover,
+.bm-nav-list .bm-nav-pro:focus-visible {
+  background: #e69a18;
+  color: #0b1620;
+}
+
 .bm-nav-list .bm-nav-pro[aria-current="page"] {
   text-decoration: none;
   box-shadow: 0 0 0 2px rgba(244, 173, 50, .35);

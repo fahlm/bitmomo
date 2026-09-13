@@ -29,6 +29,7 @@ const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/desig
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
 const btcMain = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
+const btcAccountability = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php');
 const account = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php');
 const whitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
 const runtime = read('config/production-runtime.json');
@@ -49,6 +50,9 @@ const themePhp = walk(theme).filter((file) => file.endsWith('.php'));
 const inlineStyleOwners = themePhp.filter((file) => /<style\b/i.test(fs.readFileSync(file, 'utf8')));
 check('Theme templates contain no ad-hoc inline <style> ownership', inlineStyleOwners.length === 0);
 check('Homepage hero has no private breakpoint/style island', !/<style\b/i.test(hero) && !hero.includes('Decision View'));
+check('Homepage is product-first and exposes accountability proof before commitment',
+  hero.includes('Buka BTC Intelligence') && hero.includes('#founding-whitelist') && hero.includes('/btc-intelligence/#decision-ledger')
+);
 
 check('Every route has one keyboard skip target contract',
   /class="bm-skip-link"[^>]*href="#primary"/.test(header) && /<main id="primary"/.test(frontPage)
@@ -85,12 +89,20 @@ check('Pro runtime detaches its legacy duplicate SEO owner and busts public asse
   proMain.includes("remove_action( 'wp_head'") &&
   proMain.includes("BITMOMO_PRO_VERSION', '0.12.7'")
 );
-check('BTC Intelligence runtime detaches duplicate SEO owner and busts public asset cache',
+check('BTC Intelligence runtime owns accountability but not a second SEO layer',
+  btcMain.includes('class-bitmomo-btc-intelligence-accountability.php') &&
   btcMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   btcMain.includes("remove_action( 'wp_head'") &&
-  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.2.1'")
+  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2'")
 );
-check('Theme runtime version changed with public contract', functions.includes("define('BM_VERSION', '4.6')"));
+check('BTC public accountability boundary remains read-only',
+  btcAccountability.includes('recorded_live') && btcAccountability.includes('window_missed') &&
+  !/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/.test(btcAccountability)
+);
+check('Theme runtime version changed with reconciled public contract', functions.includes("define('BM_VERSION', '4.7')"));
+check('Runtime manifest includes reconciled accountability module and 113 managed files',
+  runtime.includes('"expected_file_count": 113') && runtime.includes('class-bitmomo-btc-intelligence-accountability.php')
+);
 
 check('Account flow has no pre-checkout dead end and renders human dates',
   account.includes("home_url( '/pro/#bm-pro-whitelist' )") &&
@@ -109,6 +121,10 @@ check('Whitelist exposes accessible async state and field-directed errors',
 check('Whitelist browser acquisition context strips query strings from ordinary flow',
   whitelistJs.includes('safeUrlWithoutQuery(document.referrer)') &&
   whitelistJs.includes('window.location.origin + window.location.pathname')
+);
+check('Homepage product analytics keeps PII out while preserving continuation',
+  frontendJs.includes('bitmomo:analytics') && frontendJs.includes('homepage_post_signup_ledger_click') &&
+  !/payload\.(?:email|first_name|whatsapp|phone|user_id|client_id|device_id)\s*=/.test(frontendJs)
 );
 
 check('No speculative third-party preconnect remains without an owned dependency',

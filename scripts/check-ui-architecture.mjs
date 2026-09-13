@@ -49,8 +49,8 @@ function requireContrast(label, foreground, background, minimum = WCAG_AA_NORMAL
 
 const requiredFiles = [
   'functions.php', 'custom.css', 'front-page.php', 'page.php', 'inc/template-functions.php',
-  'assets/css/design-system.css', 'assets/css/home-opportunity.css', 'assets/css/public-readability.css',
-  'assets/css/public-surfaces.css', 'assets/js/bitmomo-frontend.js',
+  'assets/css/design-system.css', 'assets/css/home-opportunity.css', 'assets/css/home-conversion.css',
+  'assets/css/public-readability.css', 'assets/css/public-surfaces.css', 'assets/js/bitmomo-frontend.js',
 ];
 for (const relative of requiredFiles) {
   if (!fs.existsSync(path.join(themeDir, relative))) fail(`required UI source is missing: ${relative}`);
@@ -72,6 +72,9 @@ if (!functionsPhp.includes("'schema' => 2") || functionsPhp.includes("'market_st
 }
 if (!functionsPhp.includes('bitmomo_should_noindex_public_view') || !functionsPhp.includes('is_search()') || !functionsPhp.includes("is_archive() && !is_category('riset')")) {
   fail('public indexability must be governed by one utility/archive noindex predicate');
+}
+if (!functionsPhp.includes('riwayat evaluasi') || !functionsPhp.includes('bukti historis Bitmomo Pro')) {
+  fail('launch SEO must describe accountability and historical proof in visitor language');
 }
 
 const frontendTrait = fs.readFileSync(path.join(themeDir, 'inc/trait-bitmomo-frontend.php'), 'utf8');
@@ -98,6 +101,15 @@ for (const retiredMarker of ['bmreg-trend', 'bmreg-price-line', 'bm-state-chart'
 if (!frontendJs.includes('menuFocusable()') || !frontendJs.includes("event.key !== 'Tab'")) {
   fail('mobile navigation must keep keyboard focus inside the open navigation surface');
 }
+for (const marker of ['data-bm-event', 'bitmomo:analytics', 'homepage_post_signup_btc_click', 'homepage_post_signup_ledger_click']) {
+  if (!frontendJs.includes(marker)) fail(`homepage product telemetry/continuation contract is missing marker: ${marker}`);
+}
+if (!frontendJs.includes("source.value === 'homepage'") || !frontendJs.includes('input[name="first_name"]')) {
+  fail('homepage whitelist must remove the optional first-name field before conversion');
+}
+if (/payload\.(?:email|first_name|whatsapp|phone|user_id|client_id|device_id)\s*=/.test(frontendJs)) {
+  fail('homepage product analytics must not include PII or persistent identity');
+}
 
 const pageTemplate = fs.readFileSync(path.join(themeDir, 'page.php'), 'utf8');
 const templateFunctions = fs.readFileSync(path.join(themeDir, 'inc/template-functions.php'), 'utf8');
@@ -112,6 +124,8 @@ if (!pageTemplate.includes('if ( $bm_is_product_surface )') || !pageTemplate.inc
 }
 
 const homeHero = fs.readFileSync(path.join(themeDir, 'template-parts/home-hero.php'), 'utf8');
+const homeWhitelist = fs.readFileSync(path.join(themeDir, 'template-parts/whitelist.php'), 'utf8');
+const homeConversionCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-conversion.css'), 'utf8');
 const opportunityCss = fs.readFileSync(path.join(themeDir, 'assets/css/home-opportunity.css'), 'utf8');
 for (const marker of ['.bm-hero-actions', '.bm-direction-summary', '.bm-direction-driver', '.bm-direction-footer']) {
   if (!opportunityCss.includes(marker)) fail(`homepage intelligence UI lost a required visitor-facing primitive: ${marker}`);
@@ -121,6 +135,18 @@ for (const marker of ['>ARAH<', '>KEYAKINAN<', '>ALASAN UTAMA<', '>DIPERBARUI<']
 }
 for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()', '<style', 'Decision View']) {
   if (homeHero.includes(forbidden)) fail(`homepage leaked retired/internal or privately-owned presentation detail: ${forbidden}`);
+}
+if (!/class="bm-hero-btn"[^>]+\/btc-intelligence\//.test(homeHero) || !homeHero.includes('Buka BTC Intelligence')) {
+  fail('homepage primary hero action must open the product before asking for commitment');
+}
+if (!homeHero.includes('href="#founding-whitelist"') || !homeHero.includes('/btc-intelligence/#decision-ledger')) {
+  fail('homepage must retain secondary whitelist access and a direct accountability proof path');
+}
+if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitelist.includes('Tidak ada pembayaran sekarang')) {
+  fail('homepage whitelist must expose proof and remove payment ambiguity');
+}
+if (!homeConversionCss.includes('input[name="first_name"]') || !homeConversionCss.includes('.bm-wl__continuation')) {
+  fail('homepage conversion CSS must support email-first acquisition and post-signup continuation');
 }
 if (opportunityCss.includes('color:#71839f')) fail('homepage intelligence reintroduced the known sub-AA #71839f micro-text color');
 
@@ -148,14 +174,15 @@ if (/\.bm-footer-(?:group strong|bottom)[^{]*\{[^}]*color:\s*#71839f/s.test(publ
 const btcPage = fs.readFileSync(path.join(btcPluginDir, 'includes/class-bitmomo-btc-intelligence-page.php'), 'utf8');
 const renderPageMatch = btcPage.match(/public function render_page[\s\S]*?return ob_get_clean\(\);/);
 const renderPage = renderPageMatch ? renderPageMatch[0] : '';
-for (const requiredCall of ['render_hero()', 'render_current_snapshot()', 'render_history()', 'render_track_record()', 'render_methodology()', 'render_pro_cta()']) {
+for (const requiredCall of ['render_hero()', 'render_current_snapshot()', 'render_history()', 'render_decision_ledger()', 'render_track_record()', 'render_delayed_proof()', 'render_methodology()', 'render_pro_cta()']) {
   if (!renderPage.includes(requiredCall)) fail(`BTC Intelligence visitor-first hierarchy lost ${requiredCall}`);
 }
 for (const removedCall of ['render_how_it_works()', 'render_five_axes()', 'render_how_to_read()', 'render_confidence_evaluation()', 'render_expected_range_performance()', 'render_regime_performance()', 'render_data_quality()', 'render_historical_regime()']) {
   if (renderPage.includes(removedCall)) fail(`BTC Intelligence explanation/dashboard wall returned via ${removedCall}`);
 }
-if (!btcPage.includes('<details class="bm-bi__details">') || !btcPage.includes("Bagaimana membaca angka ini?")) {
-  fail('methodology must remain behind progressive disclosure');
+const methodologyDetails = btcPage.match(/<details class="bm-bi__details"([^>]*)>[\s\S]*?<summary>[\s\S]*?Metodologi & aturan akuntabilitas[\s\S]*?<\/summary>/);
+if (!methodologyDetails || /\bopen\b/i.test(methodologyDetails[1] || '')) {
+  fail('methodology must remain behind closed progressive disclosure');
 }
 for (const forbidden of ['activity percentile', '60m range', 'OI 24H', '>FUNDING<', '>BASIS<', 'Market State', 'confidence_buckets', 'expected_range_evaluation', 'regime_performance', 'stale_rate_pct', 'settlement_completeness_pct']) {
   if (btcPage.includes(forbidden)) fail(`BTC Intelligence public renderer leaked engine/QA kitchen detail: ${forbidden}`);
@@ -164,6 +191,15 @@ for (const forbidden of ['activity percentile', '60m range', 'OI 24H', '>FUNDING
 const btcCss = fs.readFileSync(path.join(btcPluginDir, 'assets/css/bitmomo-btc-intelligence.css'), 'utf8');
 if (!btcCss.includes('--bmi-subtle:var(--bm-text-subtle-readable,#8294ae)')) {
   fail('BTC Intelligence must inherit the shared readable micro-text token');
+}
+if (!btcCss.includes('--bmi-sticky-header:64px') || !btcCss.includes('--bmi-sticky-rail:63px') || !btcCss.includes('--bmi-sticky-header:60px')) {
+  fail('BTC rail must share the canonical 64px desktop / 60px mobile header geometry and explicit rail clearance');
+}
+if (!btcCss.includes('scroll-margin-top:calc(var(--bmi-sticky-header) + var(--bmi-sticky-rail) + 12px)')) {
+  fail('BTC anchor targets must clear both sticky site header and sticky section rail');
+}
+for (const legacyOffset of ['--bmi-sticky-offset:72px', '--bmi-sticky-offset:68px']) {
+  if (btcCss.includes(legacyOffset)) fail(`BTC Intelligence retained stale sticky geometry: ${legacyOffset}`);
 }
 for (const legacyLowContrast of ['color:#667993', 'color:#71839f', 'color:#6f829c']) {
   if (btcCss.includes(legacyLowContrast)) fail(`BTC Intelligence reintroduced known sub-AA micro-text: ${legacyLowContrast}`);

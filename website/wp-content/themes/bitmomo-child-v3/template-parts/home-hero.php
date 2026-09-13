@@ -35,10 +35,10 @@ $bm_updated_label = $bm_updated_ts
     <div class="bm-hero-copy">
       <p class="bm-hero-eyebrow"><span aria-hidden="true"></span>BITMOMO · BTC INTELLIGENCE</p>
       <h1 class="bm-hero-title" id="bm-home-title">Baca kondisi BTC tanpa tenggelam dalam noise.</h1>
-      <p class="bm-hero-sub">Bitmomo merangkum arah pasar, tingkat keyakinan analisis, alasan utama, dan waktu pembaruan data — agar kondisi BTC dapat dipahami dalam sekali lihat.</p>
+      <p class="bm-hero-sub">Bitmomo merangkum arah pasar, tingkat keyakinan, alasan utama, dan apa yang berubah — lalu mencatat hasilnya agar bisa diuji.</p>
       <div class="bm-hero-actions">
-        <a class="bm-hero-btn" href="#founding-whitelist">Gabung Founding Whitelist</a>
-        <a class="bm-hero-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Pelajari Bitmomo Pro →</a>
+        <a class="bm-hero-btn" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_primary">Buka BTC Intelligence</a>
+        <a class="bm-hero-link" href="#founding-whitelist" data-bm-event="homepage_whitelist_jump" data-bm-placement="hero_secondary">Gabung Founding Whitelist →</a>
       </div>
       <p class="bm-hero-notes">BTC ONLY <span>·</span> EVIDENCE-DRIVEN <span>·</span> BUKAN SINYAL BELI/JUAL</p>
     </div>
@@ -69,7 +69,7 @@ $bm_updated_label = $bm_updated_ts
 
       <footer class="bm-direction-footer">
         <p><span>DIPERBARUI</span> <?php echo esc_html( $bm_updated_label ); ?></p>
-        <a class="bm-direction-deep-link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat riwayat &amp; track record →</a>
+        <a class="bm-direction-deep-link" href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>" data-bm-event="homepage_decision_ledger_click" data-bm-placement="hero_market_card">Lihat Decision Ledger →</a>
       </footer>
     </article>
   </div>

@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
@@ -17,9 +18,10 @@ on:
       - ".github/workflows/authority-surface-safety.yml"
       - ".github/workflows/ui-browser-safety.yml"
   push:
-    branches: [main, "fix/**", "feature/**"]
+    branches: [main, "fix/**", "feature/**", "feat/**"]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
@@ -66,6 +68,9 @@ jobs:
             website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
             website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php; do
             php -l "$file"
@@ -115,8 +120,6 @@ jobs:
           grep -q "Intelligence Systems Research Terkait" "${single}"
           ! grep -q "Riset Terkait" "${single}"
 
-          # Navigation and the legacy posts index must not re-certify content
-          # that the canonical classification boundary considers unqualified.
           grep -q "bitmomo_post_research_classification" "${header}"
           ! grep -q "is_single() && has_category" "${header}"
           grep -q "Arsip Publikasi" "${home}"
@@ -128,8 +131,17 @@ jobs:
           grep -q "about.css" "${assets}"
           ! grep -q "bm-disclaimer" "${content}"
           grep -q "must remain the authored publication itself" "${content}"
-          grep -q '"expected_file_count": 112' config/production-runtime.json
-          grep -q '"expected_file_count": 45' config/production-runtime.json
+
+          python3 - <<'PY'
+          import json
+          manifest = json.load(open('config/production-runtime.json', encoding='utf-8'))
+          components = {c['name']: c for c in manifest.get('components', [])}
+          total = sum(int(c.get('expected_file_count', 0)) for c in components.values())
+          assert int(manifest.get('expected_file_count', -1)) == total == 113
+          assert int(components['bitmomo-child-v3']['expected_file_count']) == 45
+          assert int(components['bitmomo-btc-intelligence']['expected_file_count']) == 5
+          assert 'includes/class-bitmomo-btc-intelligence-accountability.php' in components['bitmomo-btc-intelligence']['required']
+          PY
           grep -q '"assets/css/design-system.css"' config/production-runtime.json
           grep -q '"assets/css/article-reading.css"' config/production-runtime.json
 
@@ -199,8 +211,8 @@ jobs:
           grep -q "bitmomo_is_unclassified_legacy_research_post" "${functions}"
           grep -q "rank_math/frontend/robots" "${functions}"
           grep -q "get_post_field('post_excerpt'" "${functions}"
-          grep -q "define('BM_VERSION', '4.6')" "${functions}"
-          grep -q "Version: 4.6" "${theme}/style.css"
+          grep -q "define('BM_VERSION', '4.7')" "${functions}"
+          grep -q "Version: 4.7" "${theme}/style.css"
 
           grep -q "bm-research-lead__title a" "${browser}"
           grep -q "no qualified Research article discoverable" "${browser}"
@@ -223,6 +235,7 @@ jobs:
           functions="${theme}/functions.php"
           helpers="${theme}/inc/template-functions.php"
           pro_main="website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
+          btc_main="website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php"
 
           grep -q "Tentang Bitmomo — Market Research & Intelligence Systems" "${functions}"
           grep -q "Bitmomo Research — Bitcoin Markets & Intelligence Systems" "${functions}"
@@ -236,11 +249,13 @@ jobs:
           ! grep -q "rank_math/frontend/title" "${helpers}"
           ! grep -q "rank_math/frontend/description" "${helpers}"
 
-          # The legacy Pro Sales methods remain for compatibility but are
-          # explicitly detached at plugin boot so runtime has one SEO owner.
           grep -q "remove_filter( 'rank_math/frontend/description'" "${pro_main}"
           grep -q "remove_action( 'wp_head'" "${pro_main}"
           grep -q "BITMOMO_PRO_VERSION', '0.12.7'" "${pro_main}"
+          grep -q "remove_filter( 'rank_math/frontend/description'" "${btc_main}"
+          grep -q "remove_action( 'wp_head'" "${btc_main}"
+          grep -q "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2'" "${btc_main}"
+          grep -q "class-bitmomo-btc-intelligence-accountability.php" "${btc_main}"
 
       - name: Enforce terminal-grade public invariants
         run: node scripts/check-terminal-grade-contract.mjs

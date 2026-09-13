@@ -26,6 +26,7 @@ const publicAdapter = read('website/wp-content/plugins/bitmomo-ai/includes/class
 const btcIntelligencePlugin = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const btcIntelligencePage = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php');
 const btcPageOutput = withoutCommentLines(btcIntelligencePage);
+const btcAccountability = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php');
 const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
 const proSalesOutput = withoutCommentLines(proSales);
 const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
@@ -43,11 +44,14 @@ check(
 );
 check('Homepage does not let AI Lab compete with the launch funnel', !/template-parts\/ai[^\n]*lab/.test(frontPage));
 check(
-  'Homepage Pro conversion remains provider-neutral and reaches /pro/ when checkout is unavailable',
-  /home_url\(\s*'\/pro\/'\s*\)/.test(homeHero)
+  'Homepage journey is product-first while Pro conversion remains provider-neutral',
+  /home_url\(\s*'\/btc-intelligence\/'\s*\)/.test(homeHero)
+    && /href="#founding-whitelist"/.test(homeHero)
+    && /\/btc-intelligence\/#decision-ledger/.test(homeHero)
     && /bitmomo_pro_get_checkout_url\(\)/.test(homeWhitelist)
     && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(homeWhitelist)
     && /home_url\(\s*'\/pro\/'\s*\)/.test(homeWhitelist)
+    && /homepage_pro_interest/.test(homeWhitelist)
 );
 check(
   'Homepage whitelist is an integrated conversion surface instead of a nested standalone card',
@@ -77,8 +81,10 @@ check(
 );
 check(
   'Homepage explanation uses visitor language instead of engine vocabulary',
-  /Baca pasar/.test(howItWorks) && /Ringkas konteks/.test(howItWorks) && /Pahami langkah berikutnya/.test(howItWorks)
-    && !/quality gate|logic deterministik|classifier|axis|funding\/basis/i.test(howItWorks)
+  /Puluhan data pasar diringkas/.test(howItWorks)
+    && /BTC Intelligence menjelaskan kondisi sekarang/.test(howItWorks)
+    && /Setiap insight dicatat, diuji, dan dievaluasi terhadap hasil aktual/.test(howItWorks)
+    && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
 );
 check(
   'Synthetic HTML contract mirrors visible public facts only',
@@ -95,12 +101,20 @@ check(
 );
 
 check(
-  'BTC Intelligence reads only public adapters, never private stores or Pro internals',
+  'BTC Intelligence reads public-safe boundaries, never raw private stores from the renderer',
   /Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::history\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::evaluation_summary\(\)/.test(btcIntelligencePage)
+    && /Bitmomo_Btc_Intelligence_Accountability/.test(btcIntelligencePage)
     && !/Bitmomo_AI_Scorecard::|Bitmomo_Regime_State_Store::|Bitmomo_Pro_[A-Za-z]+::/.test(btcIntelligencePage)
     && !/do_shortcode_tag|Bitmomo_Btc_Opportunity_UI/.test(btcIntelligencePlugin)
+);
+check(
+  'BTC accountability boundary is read-only and result-neutral',
+  /recorded_live/.test(btcAccountability)
+    && /window_missed/.test(btcAccountability)
+    && /ORIGINAL_META/.test(btcAccountability)
+    && !/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/.test(btcAccountability)
 );
 check(
   'BTC Intelligence public UI excludes engine and QA kitchen metrics',
@@ -112,8 +126,9 @@ check(
   /Sumber data: %s/.test(btcIntelligencePage) && /bm-bi__provenance/.test(btcIntelligencePage)
     && !/Binance public market data|Bybit derivatives fallback/.test(btcIntelligencePage)
 );
-check('BTC Intelligence track record states the exact +24h evaluation rule', /tepat \+24 jam/.test(btcIntelligencePage));
+check('BTC Intelligence track record states the exact +24h evaluation rule', /\+24 jam/.test(btcIntelligencePage));
 check('BTC Intelligence keeps methodology secondary and one Pro action', /<details class="bm-bi__details"/.test(btcIntelligencePage) && /Lihat Bitmomo Pro/.test(btcIntelligencePage));
+check('BTC Intelligence exposes Decision Ledger and delayed Pro archive as proof surfaces', /Decision Ledger/.test(btcIntelligencePage) && /DELAY ≥ 48 JAM/.test(btcIntelligencePage));
 
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
 check('/pro sales page renders one whitelist/purchase CTA path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
@@ -165,10 +180,11 @@ check(
     && /BTC Intelligence — Bitmomo/.test(themeFunctions) && /rank_math\/frontend\/title/.test(themeFunctions) && /pre_get_document_title/.test(themeFunctions)
 );
 check(
-  'Launch-critical SEO descriptions use visitor language rather than engine terms',
-  /Riset dan market intelligence Bitcoin berbasis evidence/.test(themeFunctions)
+  'Launch-critical SEO descriptions use accountability-oriented visitor language rather than engine terms',
+  /Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan riwayat evaluasi/.test(themeFunctions)
     && /kapan pandangan pasar perlu berubah/.test(themeFunctions)
-    && /Lihat kondisi BTC saat ini, alasan utama, konteks 30 hari, dan track record/.test(themeFunctions)
+    && /Lihat kondisi BTC saat ini, perubahan penting, konteks 30 hari, riwayat evaluasi/.test(themeFunctions)
+    && /bukti historis Bitmomo Pro/.test(themeFunctions)
     && !/Opportunity, Directional Bias, Confidence, Market State/.test(themeFunctions)
 );
 check(
@@ -184,9 +200,11 @@ check(
 );
 check('BTC Intelligence loads repeat-use telemetry only on the product page', /bitmomo_enqueue_btc_retention_telemetry/.test(themeFunctions) && /is_page\('btc-intelligence'\)/.test(themeFunctions) && /bitmomo-retention\.js/.test(themeFunctions));
 check(
-  'BTC repeat-use telemetry measures only useful product signals',
+  'BTC repeat-use/proof telemetry measures only useful product signals',
   /btc_intelligence_view/.test(retentionJs) && /btc_intelligence_return_visit/.test(retentionJs)
     && /btc_methodology_expand/.test(retentionJs) && /btc_pro_interest/.test(retentionJs)
+    && /btc_decision_ledger_view/.test(retentionJs) && /btc_pro_archive_view/.test(retentionJs)
+    && /btc_pro_archive_expand/.test(retentionJs) && /btc_intelligence_section_nav/.test(retentionJs)
     && !/btc_history_interaction|market_state_30d|proof_section/.test(retentionJs)
     && /CustomEvent\('bitmomo:analytics'/.test(retentionJs) && /Array\.isArray\(window\.dataLayer\)/.test(retentionJs)
     && !/gtag\(|google-analytics|googletagmanager/.test(retentionJs)

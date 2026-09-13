@@ -30,9 +30,14 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
           </div>
         </dl>
 
-        <a class="bm-wl-unified__detail-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">
-          <?php esc_html_e( 'Lihat detail Bitmomo Pro →', 'bitmomo' ); ?>
-        </a>
+        <div class="bm-wl-unified__links">
+          <a class="bm-wl-unified__proof-link" href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>" data-bm-event="homepage_decision_ledger_click" data-bm-placement="whitelist_proof">
+            <?php esc_html_e( 'Lihat Decision Ledger publik →', 'bitmomo' ); ?>
+          </a>
+          <a class="bm-wl-unified__detail-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>" data-bm-event="homepage_pro_interest" data-bm-placement="whitelist_detail">
+            <?php esc_html_e( 'Lihat detail Bitmomo Pro →', 'bitmomo' ); ?>
+          </a>
+        </div>
       </div>
 
       <div class="bm-wl-unified__form">
@@ -42,7 +47,7 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Lanjutkan melalui checkout resmi Bitmomo.', 'bitmomo' ); ?></p>
           <?php elseif ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Masuk Founding Whitelist', 'bitmomo' ); ?></p>
-            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Tinggalkan email. Kami akan memberi tahu saat akses batch pertama dibuka.', 'bitmomo' ); ?></p>
+            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Tinggalkan email. Tidak ada pembayaran sekarang; kami akan memberi tahu saat akses batch pertama dibuka.', 'bitmomo' ); ?></p>
           <?php else : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo' ); ?></p>
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Pelajari Founding Membership dan apa yang akan Anda dapatkan.', 'bitmomo' ); ?></p>

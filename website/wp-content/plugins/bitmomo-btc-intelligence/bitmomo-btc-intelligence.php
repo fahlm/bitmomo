@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Bitmomo BTC Intelligence
  * Plugin URI: https://bitmomo.id
- * Description: Public /btc-intelligence/ product surface for current BTC context, history, and accountable evaluation. Presentation-only: consumes public-safe adapters and never recalculates engine logic or exposes protected Bitmomo Pro fields.
- * Version: 0.2.1
+ * Description: Public /btc-intelligence/ product surface for current BTC context, history, Decision Ledger, delayed Pro proof, and accountable evaluation. Presentation-only: consumes public-safe/read-only boundaries and never recalculates engine logic or exposes current protected Bitmomo Pro fields.
+ * Version: 0.3.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,17 +14,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.2.1' );
+define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2' );
 define( 'BITMOMO_BTC_INTELLIGENCE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_BTC_INTELLIGENCE_URL', plugin_dir_url( __FILE__ ) );
 
+require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-accountability.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-page.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-setup.php';
 
 /**
- * One renderer owns the public product surface. Public SEO metadata is owned
- * once by the Bitmomo public theme layer so product plugins cannot emit a
- * second description or duplicate fallback meta tag.
+ * One renderer owns the public product surface. Public SEO metadata remains
+ * owned once by the Bitmomo theme layer; the plugin owns product rendering,
+ * accountability proof and conversion only.
  */
 function bitmomo_btc_intelligence_init() {
 	$page = Bitmomo_Btc_Intelligence_Page::instance();

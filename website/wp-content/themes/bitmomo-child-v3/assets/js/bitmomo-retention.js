@@ -84,9 +84,33 @@
     }
   }
 
+  function proofState(section, evidenceSelector) {
+    return section && section.querySelector && section.querySelector(evidenceSelector) ? 'available' : 'empty';
+  }
+
+  function observeProofSection(selector, eventName, evidenceSelector) {
+    var section = document.querySelector(selector);
+    if (!section || typeof window.IntersectionObserver !== 'function') return;
+
+    var observer = new window.IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.35) return;
+        emit(eventName, { evidence_state: proofState(section, evidenceSelector) });
+        observer.disconnect();
+      });
+    }, { threshold: [0.35] });
+
+    observer.observe(section);
+  }
+
   document.addEventListener('click', function (event) {
     var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
     if (!link) return;
+
+    if (link.closest('.bm-bi__rail')) {
+      var hash = String(link.hash || '').replace(/^#/, '').slice(0, 48);
+      if (hash) emit('btc_intelligence_section_nav', { section: hash });
+    }
 
     try {
       var destination = new URL(link.getAttribute('href') || '', window.location.origin);
@@ -102,9 +126,19 @@
 
   document.addEventListener('toggle', function (event) {
     var details = event.target;
-    if (!details || !details.matches || !details.matches('.bm-bi__details') || !details.open) return;
-    emit('btc_methodology_expand');
+    if (!details || !details.matches || !details.open) return;
+
+    if (details.matches('.bm-bi__details')) {
+      emit('btc_methodology_expand');
+      return;
+    }
+
+    if (details.matches('.bm-bi__archive-details')) {
+      emit('btc_pro_archive_expand');
+    }
   }, true);
 
+  observeProofSection('#decision-ledger', 'btc_decision_ledger_view', '.bm-bi__ledger-table tbody tr');
+  observeProofSection('#pro-archive', 'btc_pro_archive_view', '.bm-bi__archive-card');
   trackVisit();
 }());
