@@ -139,7 +139,7 @@
 .bm-home-hero__notes span + span::before {
   content: "·";
   margin-right: 12px;
-  color: #54677f;
+  color: #8294ae;
 }
 
 .bm-home-reading {
@@ -239,7 +239,7 @@
 .bm-home-reading__metric small {
   display: block;
   margin-top: 6px;
-  color: #71849c;
+  color: #8294ae;
   font-size: 10px;
   line-height: 1.4;
 }
@@ -273,7 +273,7 @@
 
 .bm-home-reading__source {
   margin: 0;
-  color: #71849c;
+  color: #8294ae;
   font-size: 10px;
   line-height: 1.45;
 }
@@ -467,7 +467,7 @@
 }
 
 .bm-home-research__index {
-  color: #5f728a;
+  color: #8294ae;
   font-size: 10px;
   font-weight: 800;
 }
@@ -512,7 +512,7 @@
 }
 
 .bm-home-research__arrow {
-  color: #5f728a;
+  color: #8294ae;
   font-size: 18px;
   line-height: 1;
 }
