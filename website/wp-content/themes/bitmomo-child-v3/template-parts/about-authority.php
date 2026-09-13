@@ -8,11 +8,14 @@
  * @package Bitmomo
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
+
+$bm_about_support_email = sanitize_email( (string) apply_filters( 'bitmomo_pro_support_email', get_option( 'admin_email' ) ) );
+if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
 ?>
 <section class="bm-about-authority" aria-labelledby="bm-about-authority-title">
   <p class="bm-about-authority__eyebrow">RESEARCH &amp; INTELLIGENCE</p>
-  <h2 id="bm-about-authority-title">Research discipline behind a market-intelligence product.</h2>
-  <p class="bm-about-authority__lead">Bitmomo adalah <strong>research &amp; intelligence platform</strong> yang bekerja di persimpangan crypto markets dan AI systems. Kami meneliti bagaimana pasar berubah, lalu membangun sistem yang mengubah evidence tersebut menjadi intelligence yang dapat ditelusuri, diuji, dan diperbaiki.</p>
+  <h2 id="bm-about-authority-title">Disiplin riset di balik produk market intelligence.</h2>
+  <p class="bm-about-authority__lead">Bitmomo adalah <strong>platform Bitcoin market intelligence &amp; research</strong>. Produk kami berfokus membantu memahami kondisi BTC dan perubahan yang relevan; program research yang mendukungnya juga mempelajari digital-asset markets dan intelligence systems agar evidence dapat ditelusuri, diuji, dan diperbaiki.</p>
 
   <div class="bm-about-authority__grid" aria-label="Fokus Bitmomo">
     <article>
@@ -22,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     </article>
     <article>
       <span>02 · SYSTEMS</span>
-      <h3>AI Systems Research</h3>
+      <h3>Intelligence Systems Research</h3>
       <p>Agent systems, evaluation, provenance, reliability, quality gates, dan arsitektur yang mengurangi ketergantungan pada satu black box.</p>
     </article>
     <article>
@@ -51,7 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <section class="bm-about-product" aria-labelledby="bm-about-product-title">
   <div>
     <p class="bm-about-authority__eyebrow">FROM RESEARCH TO PRODUCT</p>
-    <h2 id="bm-about-product-title">Free explains what is happening now. Pro focuses on what to watch next.</h2>
+    <h2 id="bm-about-product-title">Gratis menjelaskan apa yang terjadi sekarang. Pro berfokus pada apa yang perlu dipantau berikutnya.</h2>
     <p>BTC Intelligence merangkum pembacaan BTC saat ini beserta konteks dan track record-nya. Bitmomo Pro menambahkan scenario thinking, invalidation, monitoring, dan perubahan penting yang perlu diperhatikan.</p>
     <p class="bm-about-product__boundary">Bitmomo menyediakan research dan decision support — bukan perintah transaksi, bukan sinyal beli/jual, dan bukan nasihat keuangan personal.</p>
   </div>
@@ -63,7 +66,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 </section>
 
 <section class="bm-about-contact" aria-labelledby="bm-about-contact-title">
-  <h2 id="bm-about-contact-title">Contact</h2>
-  <p>Untuk pertanyaan, feedback, koreksi research, atau support, hubungi <a href="mailto:hi@bitmomo.id">hi@bitmomo.id</a>.</p>
+  <h2 id="bm-about-contact-title">Kontak</h2>
+  <?php if ( $bm_about_support_email ) : ?>
+    <p>Untuk pertanyaan, feedback, koreksi research, atau support, hubungi <a href="mailto:<?php echo esc_attr( $bm_about_support_email ); ?>"><?php echo esc_html( $bm_about_support_email ); ?></a>.</p>
+  <?php else : ?>
+    <p>Untuk pertanyaan, feedback, koreksi research, atau support, gunakan kanal resmi yang tercantum di <a href="<?php echo esc_url( home_url( '/help/' ) ); ?>">Help Center</a>.</p>
+  <?php endif; ?>
   <p><a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>">Baca Disclaimer →</a></p>
 </section>
+<?php unset( $bm_about_support_email ); ?>
