@@ -1,0 +1,1 @@
+Session 2 uses resilient feed generation fencing and automatic reconnect introduced in selector v0.2.0-research. Session 1 is preserved as SEEN diagnostic data and must not be treated as an unseen holdout.
