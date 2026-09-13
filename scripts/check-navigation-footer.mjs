@@ -33,7 +33,7 @@ check(
 );
 check(
   'Primary navigation exposes non-color active-page semantics',
-  header.includes('aria-current') && header.includes('page') && navCss.includes('a[aria-current="page"]')
+  header.includes('aria-current') && header.includes('page') && navCss.includes('a:not(.bm-nav-pro)[aria-current="page"]::after')
 );
 check(
   'Research active state uses canonical classification instead of historical category membership',
@@ -59,6 +59,25 @@ check(
   /event\.key !== 'Tab'/.test(js) && /menuFocusable\(\)/.test(js) && /window\.addEventListener\('resize'/.test(js)
 );
 check(
+  'Canonical shell owns header and footer geometry',
+  /--bm-shell-width:\s*1180px/.test(designCss) && /--bm-header-height:\s*64px/.test(designCss) &&
+  /--bm-header-height-mobile:\s*60px/.test(designCss) && /var\(--bm-shell-width/.test(navCss) &&
+  occurrences(navCss, /var\(--bm-shell-width/g) >= 3
+);
+check(
+  'Mobile navigation is viewport-bounded instead of using a fragile fixed max-height',
+  /100dvh/.test(navCss) && /overflow-y:\s*auto/.test(navCss) && !/max-height:\s*(?:320|390)px/.test(navCss)
+);
+check(
+  'Shared touch tokens own navigation and footer controls',
+  /--bm-touch-target:\s*40px/.test(designCss) && /--bm-touch-target-mobile:\s*44px/.test(designCss) &&
+  /min-height:\s*48px/.test(navCss) && /var\(--bm-touch-target-mobile/.test(navCss)
+);
+check(
+  'One shared commercial action token owns the Pro header action',
+  /--bm-action:\s*#f4ad32/.test(designCss) && /background:\s*var\(--bm-action/.test(navCss) && /--bm-action-hover/.test(designCss)
+);
+check(
   'Newsletter has exactly one permanent footer surface and no standalone newsletter template',
   /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
@@ -71,12 +90,41 @@ check(
   content.includes("home_url('/#newsletter')") && /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) && /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
-  'Footer newsletter is intentionally compact and responsive',
-  /\.bm-footer-connect/.test(navCss) && /\.bm-footer-newsletter/.test(navCss) && /@media \(max-width: 640px\)/.test(navCss)
+  'Footer uses institutional product, research and trust information architecture',
+  /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) && /Decision Ledger/.test(footer) &&
+  /Research Standard/.test(footer) && /Help Center/.test(footer) && /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
 );
 check(
-  'Footer exposes canonical Telegram, YouTube and X destinations',
-  /https:\/\/t\.me\/bitmomodaily/.test(helpers) && /https:\/\/www\.youtube\.com\/@bitmomoid/.test(helpers) && /https:\/\/x\.com\/bitmomoid/.test(helpers) && /data-social=/.test(footer)
+  'Terms link is fail-closed until a canonical published WordPress page exists',
+  /get_page_by_path\(\s*'syarat-layanan'/.test(footer) && /'publish' === \$bm_terms_page->post_status/.test(footer) &&
+  /if \( \$bm_terms_url \)/.test(footer) && /Syarat Layanan/.test(footer)
+);
+check(
+  'Footer brand reuses the canonical renderer and canonical public identity',
+  /bitmomo_render_brand\(\)/.test(footer) && /rekam jejak keputusan/.test(footer) &&
+  /Bitmomo\.<\/p>/.test(footer) && !/bloginfo\(\s*'name'\s*\)/.test(footer)
+);
+check(
+  'Footer newsletter is intentionally secondary to the primary Pro action',
+  /\.bm-footer-connect/.test(navCss) && /\.bm-footer-newsletter/.test(navCss) &&
+  /border:\s*1px solid rgba\(38,208,198/.test(navCss) && /background:\s*transparent !important/.test(navCss)
+);
+check(
+  'Footer controls meet desktop and mobile touch geometry',
+  /\.bm-footer-group a[\s\S]*?var\(--bm-touch-target/.test(navCss) &&
+  /\.bm-footer-social a[\s\S]*?var\(--bm-touch-target/.test(navCss) &&
+  /@media \(max-width: 640px\)[\s\S]*?var\(--bm-touch-target-mobile/.test(navCss)
+);
+check(
+  'Footer social navigation is visually quiet rather than a wall of pills',
+  /\.bm-footer-social a\s*\{[\s\S]*?border:\s*0;/.test(navCss) && /background:\s*transparent;/.test(navCss)
+);
+check(
+  'Public social destinations fail closed and never use hard-coded public fallbacks',
+  /BITMOMO_TELEGRAM_URL/.test(helpers) && /BITMOMO_YOUTUBE_URL/.test(helpers) && /BITMOMO_X_URL/.test(helpers) &&
+  /wp_http_validate_url/.test(helpers) && /array\('https'\)/.test(helpers) &&
+  !/https:\/\/t\.me\//.test(helpers) && !/https:\/\/www\.youtube\.com\//.test(helpers) && !/https:\/\/x\.com\//.test(helpers) &&
+  !/bm-footer-social__pending/.test(footer)
 );
 check(
   'Design foundation and navigation/footer layers have explicit dependency order',
@@ -89,4 +137,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PASS navigation/footer contract.');
+console.log('PASS navigation/footer institutional contract.');
