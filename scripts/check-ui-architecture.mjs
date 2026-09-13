@@ -151,8 +151,8 @@ if (!homeConversionCss.includes('input[name="first_name"]') || !homeConversionCs
 if (opportunityCss.includes('color:#71839f')) fail('homepage intelligence reintroduced the known sub-AA #71839f micro-text color');
 
 const designCss = fs.readFileSync(path.join(themeDir, 'assets/css/design-system.css'), 'utf8');
-for (const marker of ['.bm-skip-link', 'prefers-reduced-motion: reduce', '--bm-focus-ring', '44px !important']) {
-  if (!designCss.includes(marker)) fail(`design foundation is missing accessibility primitive: ${marker}`);
+for (const marker of ['.bm-skip-link', 'prefers-reduced-motion: reduce', '--bm-focus-ring', '--bm-shell-width: 1180px', '--bm-touch-target-mobile: 44px']) {
+  if (!designCss.includes(marker)) fail(`design foundation is missing accessibility/geometry primitive: ${marker}`);
 }
 
 const readabilityCss = fs.readFileSync(path.join(themeDir, 'assets/css/public-readability.css'), 'utf8');

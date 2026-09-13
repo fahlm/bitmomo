@@ -32,30 +32,44 @@ if (!function_exists('bitmomo_public_social_links')) {
     /**
      * Canonical public social destinations.
      *
+     * Public finance surfaces fail closed: a channel is rendered only when an
+     * HTTPS destination is explicitly configured via wp-config constant or the
+     * matching filter. There are deliberately no hard-coded public fallbacks.
+     *
      * @return array<string,array{label:string,url:string}>
      */
     function bitmomo_public_social_links() {
-        $links = array(
+        $definitions = array(
             'telegram' => array(
-                'label' => 'Telegram',
-                'url'   => (string) apply_filters('bitmomo_telegram_url', 'https://t.me/bitmomodaily'),
+                'label'    => 'Telegram',
+                'constant' => 'BITMOMO_TELEGRAM_URL',
+                'filter'   => 'bitmomo_telegram_url',
             ),
             'youtube' => array(
-                'label' => 'YouTube',
-                'url'   => (string) apply_filters('bitmomo_youtube_url', 'https://www.youtube.com/@bitmomoid'),
+                'label'    => 'YouTube',
+                'constant' => 'BITMOMO_YOUTUBE_URL',
+                'filter'   => 'bitmomo_youtube_url',
             ),
             'x' => array(
-                'label' => 'X',
-                'url'   => (string) apply_filters('bitmomo_x_url', 'https://x.com/bitmomoid'),
+                'label'    => 'X',
+                'constant' => 'BITMOMO_X_URL',
+                'filter'   => 'bitmomo_x_url',
             ),
         );
+        $links = array();
 
-        foreach ($links as $key => $link) {
-            if ('' === trim((string) $link['url'])) {
-                $links[$key]['url'] = '';
-                continue;
-            }
-            $links[$key]['url'] = esc_url_raw($link['url']);
+        foreach ($definitions as $key => $definition) {
+            $configured = defined($definition['constant']) ? (string) constant($definition['constant']) : '';
+            $candidate = trim((string) apply_filters($definition['filter'], $configured));
+            if ('' === $candidate) continue;
+
+            $url = esc_url_raw($candidate, array('https'));
+            if ('' === $url || 0 !== stripos($url, 'https://') || !wp_http_validate_url($url)) continue;
+
+            $links[$key] = array(
+                'label' => $definition['label'],
+                'url'   => $url,
+            );
         }
 
         return $links;
