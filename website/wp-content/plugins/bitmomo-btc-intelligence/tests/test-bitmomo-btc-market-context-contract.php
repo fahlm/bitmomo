@@ -69,6 +69,20 @@ market_context_check(
 	0 === preg_match( '/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/', $context )
 );
 market_context_check(
+	'First available observation is never mislabeled as a thesis transition',
+	false !== strpos( $context, 'null !== $previous' ) &&
+	false === strpos( $context, '$changed = null === $previous ||' )
+);
+market_context_check(
+	'Failed range requests clear stale payload and comparison controls before fail-closed UI',
+	false !== strpos( $js, 'state.payload = null' ) &&
+	false !== strpos( $js, 'explorer.compareGroup.replaceChildren()' )
+);
+market_context_check(
+	'Late range responses cannot overwrite a newer selected range',
+	false !== strpos( $js, 'range !== state.range' )
+);
+market_context_check(
 	'Comparison is capped to three active series and actual source values remain visible',
 	false !== strpos( $js, 'MAX_ACTIVE_SERIES = 3' ) &&
 	false !== strpos( $js, 'formatActual(point.value, series.unit)' )
@@ -90,8 +104,10 @@ market_context_check(
 	false !== strpos( $page, 'render_current_snapshot()' )
 );
 market_context_check(
-	'Market Context uses the shared design foundation and reduced-motion safety',
+	'Market Context uses the shared design foundation, non-color line patterns, and reduced-motion safety',
 	false !== strpos( $css, 'var(--bm-shell-width,1180px)' ) &&
+	false !== strpos( $css, 'stroke-dasharray:8 3' ) &&
+	false !== strpos( $css, 'stroke-dasharray:3 3' ) &&
 	false !== strpos( $css, '@media (prefers-reduced-motion:reduce)' )
 );
 
