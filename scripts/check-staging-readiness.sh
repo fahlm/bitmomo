@@ -7,7 +7,7 @@ host="${BITMOMO_STAGING_HOST:-bitmomo-staging}"
 site="${BITMOMO_STAGING_SITE:-seagreen-snail-158456.hostingersite.com}"
 profile="${BITMOMO_RELEASE_PROFILE:-whitelist}"
 expected_site="seagreen-snail-158456.hostingersite.com"
-max_btc_age_hours="${BITMOMO_MAX_BTC_AGE_HOURS:-36}"
+max_btc_age_hours="${BITMOMO_MAX_BTC_AGE_HOURS:-30}"
 min_qualified_research="${BITMOMO_MIN_QUALIFIED_RESEARCH:-2}"
 
 if [[ "$profile" != "whitelist" && "$profile" != "paid" ]]; then
@@ -43,7 +43,7 @@ wp eval '
 require_once ABSPATH . "wp-admin/includes/plugin.php";
 
 $profile = getenv("BITMOMO_RELEASE_PROFILE") ?: "whitelist";
-$max_btc_age_hours = max( 1, (int) ( getenv("BITMOMO_MAX_BTC_AGE_HOURS") ?: 36 ) );
+$max_btc_age_hours = max( 1, (int) ( getenv("BITMOMO_MAX_BTC_AGE_HOURS") ?: 30 ) );
 $min_qualified_research = max( 1, (int) ( getenv("BITMOMO_MIN_QUALIFIED_RESEARCH") ?: 2 ) );
 
 $page = static function ( $slug ) {
@@ -115,10 +115,10 @@ if ( function_exists( "bitmomo_post_is_market_research" ) ) {
 
 $snapshot = function_exists( "bitmomo_public_snapshot_contract" )
     ? bitmomo_public_snapshot_contract()
-    : array( "available" => false, "status" => "unavailable" );
+    : array( "available" => false, "status" => "unavailable", "as_of" => "" );
 
 $btc_status = sanitize_key( (string) ( $snapshot["status"] ?? "unavailable" ) );
-$btc_timestamp_iso = trim( (string) ( $snapshot["freshness"]["timestamp_iso"] ?? $snapshot["provenance"]["as_of"] ?? "" ) );
+$btc_timestamp_iso = trim( (string) ( $snapshot["as_of"] ?? $snapshot["freshness"]["timestamp_iso"] ?? $snapshot["provenance"]["as_of"] ?? "" ) );
 $btc_timestamp = $btc_timestamp_iso !== "" ? strtotime( $btc_timestamp_iso ) : false;
 $btc_clock_skew_seconds = $btc_timestamp ? ( $btc_timestamp - time() ) : null;
 $btc_age_seconds = $btc_timestamp ? max( 0, time() - $btc_timestamp ) : null;
