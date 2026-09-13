@@ -26,6 +26,7 @@ const helpers = read('website/wp-content/themes/bitmomo-child-v3/inc/template-fu
 const assets = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php');
 const hero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/design-system.css');
+const navCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/navigation-footer.css');
 const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
@@ -75,8 +76,12 @@ check('Homepage current reading exposes finance-grade context without engine int
 check('Every route has one keyboard skip target contract',
   /class="bm-skip-link"[^>]*href="#primary"/.test(header) && /<main id="primary"/.test(frontPage)
 );
-check('Foundation owns reduced-motion and mobile touch comfort',
-  design.includes('prefers-reduced-motion: reduce') && design.includes('44px !important') && design.includes('.bm-skip-link')
+check('Foundation owns reduced-motion and tokenized mobile touch comfort',
+  design.includes('prefers-reduced-motion: reduce') &&
+  design.includes('--bm-touch-target-mobile: 44px') &&
+  design.includes('var(--bm-touch-target-mobile)') &&
+  navCss.includes('var(--bm-touch-target-mobile') &&
+  design.includes('.bm-skip-link')
 );
 check('Mobile nav traps keyboard focus while open and still closes on Escape',
   frontendJs.includes("event.key !== 'Tab'") && frontendJs.includes('menuFocusable()') && frontendJs.includes("event.key === 'Escape'")
@@ -99,7 +104,7 @@ check('One public noindex predicate owns all utility/archive side doors',
   functions.includes('bitmomo_is_pro_account_page() || is_search()') &&
   functions.includes("is_home() && !is_front_page()") &&
   functions.includes("is_archive() && !is_category('riset')") &&
-  functions.includes("rank_math/frontend/robots")
+  functions.includes('rank_math/frontend/robots')
 );
 
 check('Pro runtime detaches its legacy duplicate SEO owner and busts public asset cache',
