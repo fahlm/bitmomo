@@ -18,7 +18,10 @@ on:
       - "scripts/audit-css-debt.mjs"
       - "scripts/check-staging-artifact.py"
       - "scripts/check-staging-asset-coherence.py"
+      - "scripts/check-staging-safety.sh"
+      - "scripts/check-staging-readiness.sh"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
+      - "docs/RELEASE_GOVERNANCE.md"
       - ".github/workflows/release-safety.yml"
   push:
     branches: [main, "release/**", "fix/**", "feature/p02a-*"]
@@ -66,16 +69,36 @@ jobs:
             done < <(find "${plugin_dir}/tests" -maxdepth 1 -type f -name 'test-*.php' | sort)
           done
 
-      - name: Syntax-check every first-party JavaScript file
+      - name: Syntax-check first-party runtime and release tooling
         shell: bash
         run: |
           set -euo pipefail
           find website/wp-content/themes/bitmomo-child-v3 website/wp-content/plugins/bitmomo-ai website/wp-content/plugins/bitmomo-btc-intelligence website/wp-content/plugins/bitmomo-pro website/wp-content/plugins/bitmomo-regime \
             -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
-          python3 -m py_compile scripts/build-production-artifact.py scripts/check-staging-artifact.py
-          if [[ -f scripts/check-staging-asset-coherence.py ]]; then
-            python3 -m py_compile scripts/check-staging-asset-coherence.py
-          fi
+
+          for script in \
+            scripts/check-m2-launch-surfaces.mjs \
+            scripts/check-navigation-footer.mjs \
+            scripts/check-ui-architecture.mjs \
+            scripts/check-terminal-grade-contract.mjs \
+            scripts/check-home-research-boundary.mjs \
+            scripts/audit-css-debt.mjs; do
+            node --check "$script"
+          done
+
+          python3 - <<'PY'
+          from pathlib import Path
+          for name in (
+              'scripts/build-production-artifact.py',
+              'scripts/check-staging-artifact.py',
+              'scripts/check-staging-asset-coherence.py',
+          ):
+              source = Path(name).read_text(encoding='utf-8')
+              compile(source, name, 'exec')
+              print(f'PASS python syntax {name}')
+          PY
+
+          bash -n scripts/check-staging-safety.sh scripts/check-staging-readiness.sh
 
       - name: Check M2 launch contract
         run: node scripts/check-m2-launch-surfaces.mjs
