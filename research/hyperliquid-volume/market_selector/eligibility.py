@@ -17,6 +17,12 @@ def evaluate_market(metrics: RollingMetrics, cfg: SelectorConfig) -> Eligibility
 
     QUALIFIED requires both structural market prerequisites and empirical execution
     economics. Missing empirical metrics never receive a substituted value.
+
+    Transport health is primarily represented by the L2/book heartbeat. A stale
+    trade timestamp alone is *not* a websocket failure: a healthy market can simply
+    have no trades for a period. Trade inactivity is reflected by trade-rate and
+    therefore still affects market eligibility without masquerading as transport
+    failure.
     """
 
     reasons: list[str] = []
@@ -59,19 +65,6 @@ def evaluate_market(metrics: RollingMetrics, cfg: SelectorConfig) -> Eligibility
             verdict=Verdict.WARMUP,
             score=0.0,
             reasons=["insufficient_market_observations"],
-            metrics=metrics,
-        )
-
-    # Once a market has warmed up and demonstrated sufficient trade observations,
-    # losing the trade stream is a hard data-health fault. The selector relies on
-    # aggressor flow and shadow fill evidence, so a live book alone is insufficient.
-    if metrics.trade_age_seconds > cfg.max_trade_age_seconds:
-        return EligibilityResult(
-            coin=metrics.coin,
-            verdict=Verdict.REJECT,
-            score=0.0,
-            reasons=["stale_trade_feed"],
-            hard_fail=True,
             metrics=metrics,
         )
 
@@ -122,7 +115,6 @@ def evaluate_market(metrics: RollingMetrics, cfg: SelectorConfig) -> Eligibility
         name for name, ok in structural_checks.items() if not ok
     ]
 
-    # Structural quality score intentionally remains interpretable rather than fitted.
     score = 0.0
     score += _score_component(structural_checks["day_volume"], 10.0)
     score += _score_component(structural_checks["spread_floor"], 12.0)
