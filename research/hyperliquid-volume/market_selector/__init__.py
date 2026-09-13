@@ -1,4 +1,3 @@
-"""Hyperliquid market selector research package.
+"""Bitmomo Hyperliquid market selector research package."""
 
-Read-only research code. No order submission, wallet access, or production authorization.
-"""
+__all__ = []
