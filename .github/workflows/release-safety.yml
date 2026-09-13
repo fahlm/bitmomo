@@ -12,6 +12,7 @@ on:
       - "scripts/build-production-artifact.py"
       - "scripts/check-m2-launch-surfaces.mjs"
       - "scripts/check-navigation-footer.mjs"
+      - "scripts/check-home-research-boundary.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/release-safety.yml"
   push:
@@ -72,6 +73,9 @@ jobs:
 
       - name: Check navigation and footer contract
         run: node scripts/check-navigation-footer.mjs
+
+      - name: Check homepage research qualification boundary
+        run: node scripts/check-home-research-boundary.mjs
 
       - name: Build deterministic production artifact twice
         shell: bash
