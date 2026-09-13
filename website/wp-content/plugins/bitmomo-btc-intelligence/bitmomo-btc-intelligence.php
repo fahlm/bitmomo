@@ -21,16 +21,18 @@ define( 'BITMOMO_BTC_INTELLIGENCE_URL', plugin_dir_url( __FILE__ ) );
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-accountability.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-page.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-setup.php';
+require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-market-context.php';
 
 /**
  * One renderer owns the public product surface. Public SEO metadata remains
  * owned once by the Bitmomo theme layer; the plugin owns product rendering,
- * accountability proof and conversion only.
+ * accountability proof, market context and conversion only.
  */
 function bitmomo_btc_intelligence_init() {
 	$page = Bitmomo_Btc_Intelligence_Page::instance();
 	remove_filter( 'rank_math/frontend/description', array( $page, 'filter_meta_description' ), 10 );
 	remove_action( 'wp_head', array( $page, 'render_meta_description' ), 10 );
 	Bitmomo_Btc_Intelligence_Setup::instance();
+	Bitmomo_Btc_Intelligence_Market_Context::init();
 }
 add_action( 'plugins_loaded', 'bitmomo_btc_intelligence_init' );
