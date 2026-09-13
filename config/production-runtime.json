@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "artifact_name": "bitmomo-runtime.tar",
-  "expected_file_count": 114,
+  "expected_file_count": 117,
   "include": [
     "*.php",
     "**/*.php",
@@ -92,12 +92,15 @@
       "name": "bitmomo-btc-intelligence",
       "source": "website/wp-content/plugins/bitmomo-btc-intelligence",
       "destination": "wp-content/plugins/bitmomo-btc-intelligence",
-      "expected_file_count": 5,
+      "expected_file_count": 8,
       "required": [
         "bitmomo-btc-intelligence.php",
         "includes/class-bitmomo-btc-intelligence-page.php",
         "includes/class-bitmomo-btc-intelligence-setup.php",
-        "includes/class-bitmomo-btc-intelligence-accountability.php"
+        "includes/class-bitmomo-btc-intelligence-accountability.php",
+        "includes/class-bitmomo-btc-intelligence-market-context.php",
+        "assets/css/market-context-explorer.css",
+        "assets/js/market-context-explorer.js"
       ]
     },
     {
