@@ -1,6 +1,8 @@
 /* Bitmomo Market Context Explorer — progressive enhancement over BTC Intelligence. */
+/* The base BTC surface owns the same shell with or without JavaScript. */
+.bm-bi{max-width:var(--bm-shell-width,1180px)}
 .bm-bi--market-context{
- --bmc-btc:#e7edf5;
+ --bmc-btc:var(--bm-text,#e7edf5);
  --bmc-gold:#e6b85f;
  --bmc-eth:#7e9cff;
  --bmc-sol:#4fd7b3;
@@ -18,7 +20,7 @@
 .bm-bi--market-context .bm-bi__market-state strong{color:#dbe5ef;font:800 10px/1 var(--bmi-mono);letter-spacing:.04em;text-transform:uppercase}
 .bm-bi--market-context .bm-bi__market-state.is-expansion{border-left-color:var(--bmi-bull)}
 .bm-bi--market-context .bm-bi__market-state.is-capitulation{border-left-color:var(--bmi-bear)}
-.bm-bi--market-context .bm-bi__market-state.is-transition{border-left-color:#d4a85b}
+.bm-bi--market-context .bm-bi__market-state.is-transition{border-left-color:var(--bm-warning,#d4a85b)}
 
 .bm-bi--market-context .bm-bi__snapshot-grid{margin-top:20px}
 .bm-bi--market-context .bm-bi__snapshot-grid>div:first-child strong{font-size:clamp(23px,3vw,30px);letter-spacing:-.02em}
@@ -53,10 +55,10 @@
 .bm-mc__svg{display:block;width:100%;height:auto;min-height:340px;touch-action:pan-y}
 .bm-mc__gridline,.bm-mc__baseline{stroke:var(--bmc-grid);stroke-width:1;vector-effect:non-scaling-stroke}.bm-mc__baseline{stroke:rgba(203,214,226,.25);stroke-dasharray:4 5}
 .bm-mc__axis-label{fill:#6f829b;font:700 9px/1 var(--bmi-mono)}
-.bm-mc__line{stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}.bm-mc__line.is-btc{stroke:var(--bmc-btc);stroke-width:2.8}.bm-mc__line.is-gold{stroke:var(--bmc-gold)}.bm-mc__line.is-eth{stroke:var(--bmc-eth)}.bm-mc__line.is-sol{stroke:var(--bmc-sol)}
+.bm-mc__line{stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}.bm-mc__line.is-btc{stroke:var(--bmc-btc);stroke-width:2.8}.bm-mc__line.is-gold{stroke:var(--bmc-gold);stroke-dasharray:8 3}.bm-mc__line.is-eth{stroke:var(--bmc-eth);stroke-dasharray:3 3}.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:10 3 2 3}
 .bm-mc__crosshair{stroke:#70849c;stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke;pointer-events:none}
 .bm-mc__hit-area{fill:transparent;cursor:crosshair}
-.bm-mc__marker{color:var(--bmi-teal);pointer-events:none}.bm-mc__marker circle,.bm-mc__marker path{fill:#0d1622;stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}.bm-mc__marker.is-decision{color:#f4ad32}
+.bm-mc__marker{color:var(--bmi-teal);pointer-events:none}.bm-mc__marker circle,.bm-mc__marker path{fill:#0d1622;stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}.bm-mc__marker.is-decision{color:var(--bmi-orange)}
 
 .bm-mc__tooltip{position:absolute;top:16px;z-index:4;min-width:210px;padding:11px 12px;border:1px solid #304158;border-radius:7px;background:rgba(8,14,23,.96);box-shadow:0 12px 30px rgba(0,0,0,.3);transform:translateX(-50%);pointer-events:none}
 .bm-mc__tooltip time{display:block;padding-bottom:7px;border-bottom:1px solid #1d2a3c;color:#91a3ba;font:750 9px/1.3 var(--bmi-mono)}
