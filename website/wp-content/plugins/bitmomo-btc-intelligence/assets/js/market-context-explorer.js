@@ -7,12 +7,6 @@
   if (!root || !snapshot || !config.endpoint) return;
 
   const SERIES_ORDER = ['btc', 'gold', 'eth', 'sol'];
-  const SERIES_COLORS = {
-    btc: 'var(--bmc-btc)',
-    gold: 'var(--bmc-gold)',
-    eth: 'var(--bmc-eth)',
-    sol: 'var(--bmc-sol)'
-  };
   const RANGE_ORDER = ['7d', '30d', '90d', 'ytd', '1y'];
   const MAX_ACTIVE_SERIES = 3;
   const state = {
@@ -26,6 +20,7 @@
   promoteCurrentDecision();
   const explorer = buildExplorer();
   snapshot.insertAdjacentElement('afterend', explorer.section);
+  enhanceSectionFlow();
   loadRange(state.range);
 
   function promoteCurrentDecision() {
@@ -36,6 +31,22 @@
     badge.hidden = true;
     badge.innerHTML = '<span>MARKET STATE</span><strong>—</strong>';
     title.insertAdjacentElement('afterend', badge);
+  }
+
+  function enhanceSectionFlow() {
+    const rail = root.querySelector('.bm-bi__rail');
+    if (rail && !rail.querySelector('a[href="#market-context"]')) {
+      const link = document.createElement('a');
+      link.href = '#market-context';
+      link.textContent = 'Context';
+      const firstLink = rail.querySelector('a');
+      if (firstLink) firstLink.insertAdjacentElement('afterend', link);
+      else rail.appendChild(link);
+    }
+
+    const methodology = root.querySelector('.bm-bi__methodology');
+    const proNextStep = root.querySelector('.bm-bi__pro-cta');
+    if (methodology && proNextStep) methodology.before(proNextStep);
   }
 
   function buildExplorer() {
@@ -274,7 +285,7 @@
     crosshair.hidden = true;
     svg.appendChild(crosshair);
 
-    const hit = svgEl('rect', { x: dims.left, y: dims.top, width: plotWidth, height: plotHeight, class: 'bm-mc__hit-area', tabindex: '0' });
+    const hit = svgEl('rect', { x: dims.left, y: dims.top, width: plotWidth, height: plotHeight, class: 'bm-mc__hit-area' });
     svg.appendChild(hit);
 
     const tooltip = document.createElement('div');
@@ -366,14 +377,6 @@
       crosshair.hidden = true;
       tooltip.hidden = true;
     });
-    hit.addEventListener('focus', () => {
-      const rect = svg.getBoundingClientRect();
-      update(rect.left + rect.width * 0.7);
-    });
-    hit.addEventListener('blur', () => {
-      crosshair.hidden = true;
-      tooltip.hidden = true;
-    });
   }
 
   function tooltipHtml(targetT, normalized) {
@@ -421,7 +424,7 @@
 
   function unavailableLabel(reason) {
     if (reason === 'provider_not_configured') return 'belum dikonfigurasi';
-    if (reason === 'insufficient_history') return 'history belum cukup';
+    if (reason === 'insufficient_history' || reason === 'insufficient_closed_history') return 'history belum cukup';
     return 'sementara tidak tersedia';
   }
 
