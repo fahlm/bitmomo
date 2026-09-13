@@ -392,7 +392,10 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 				}
 				$bias = sanitize_key( (string) ( $day['directional_bias'] ?? '' ) );
 				$state = sanitize_key( (string) ( $day['market_state'] ?? '' ) );
-				$changed = null === $previous || $bias !== sanitize_key( (string) ( $previous['directional_bias'] ?? '' ) ) || $state !== sanitize_key( (string) ( $previous['market_state'] ?? '' ) );
+				$changed = null !== $previous && (
+					$bias !== sanitize_key( (string) ( $previous['directional_bias'] ?? '' ) ) ||
+					$state !== sanitize_key( (string) ( $previous['market_state'] ?? '' ) )
+				);
 				if ( $changed ) {
 					$markers[] = array(
 						'type'         => 'state',
