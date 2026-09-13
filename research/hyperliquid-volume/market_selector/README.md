@@ -19,9 +19,10 @@ Read-only deterministic selector for ranking Hyperliquid markets and deciding wh
 - `eligibility.py` — fail-closed qualification gates
 - `ranker.py` — stable leaderboard ordering
 - `supervisor.py` — hysteresis, degrade/drain/switch logic
-- `live_dry_run.py` — public-data live monitor with optional shadow feedback/probe
+- `transport.py` — generation-fenced websocket health/reconnect state
+- `live_dry_run.py` — resilient public-data live monitor with optional shadow feedback/probe
 
-## Running the dry-run
+## Running the resilient dry-run
 
 From this directory's parent (`research/hyperliquid-volume`) with the Hyperliquid SDK installed:
 
@@ -34,6 +35,8 @@ Or watch explicit markets:
 ```bash
 PYTHONPATH=. python -m market_selector.live_dry_run --coins VVV,PONS,ETHFI,PUMP,BTC --interval 30
 ```
+
+The live adapter treats L2/book updates as the primary transport heartbeat. If all watched book feeds are stale for 60 seconds, it safely recreates the websocket session, re-subscribes all markets, fences callbacks from obsolete generations, and keeps the supervisor fail-closed until fresh book data returns. Trade inactivity by itself is not treated as transport failure; it still affects market quality through rolling trade rate.
 
 Without execution feedback, markets can reach WATCH but cannot meaningfully become QUALIFIED because fill rate, maker ratio, markout, P10K and T10K remain UNKNOWN.
 
@@ -109,7 +112,8 @@ Unfilled attempts must also be emitted with `filled=False`; they are required fo
 PYTHONPATH=. pytest -q \
   tests/test_market_selector.py \
   tests/test_execution_feedback.py \
-  tests/test_shadow_probe.py
+  tests/test_shadow_probe.py \
+  tests/test_transport.py
 ```
 
 Thresholds in `config.py` are provisional research hypotheses, not production-frozen values. VVV is not hard-coded as qualified: the previous unseen VVV holdout failed the economics and drawdown gates, and the SEEN state-aware exit diagnostic still failed the economics gate.
