@@ -32,6 +32,8 @@ const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bi
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
 const btcMain = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const btcAccountability = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php');
+const btcMarketContext = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php');
+const btcMarketCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/market-context-explorer.css');
 const account = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php');
 const whitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
 const runtime = read('config/production-runtime.json');
@@ -107,27 +109,45 @@ check('One public noindex predicate owns all utility/archive side doors',
   functions.includes('rank_math/frontend/robots')
 );
 
-check('Pro runtime detaches its legacy duplicate SEO owner and busts public asset cache',
+check('Pro runtime detaches its legacy duplicate SEO owner and bumps public asset cache',
   proMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   proMain.includes("remove_action( 'wp_head'") &&
-  proMain.includes("BITMOMO_PRO_VERSION', '0.12.7'")
+  proMain.includes("BITMOMO_PRO_VERSION', '0.12.8'")
 );
-check('BTC Intelligence runtime owns accountability but not a second SEO layer',
+check('BTC Intelligence runtime owns accountability and market context but not a second SEO layer',
   btcMain.includes('class-bitmomo-btc-intelligence-accountability.php') &&
+  btcMain.includes('class-bitmomo-btc-intelligence-market-context.php') &&
+  btcMain.includes('Bitmomo_Btc_Intelligence_Market_Context::init()') &&
   btcMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   btcMain.includes("remove_action( 'wp_head'") &&
-  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.2'")
+  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.3'")
 );
 check('BTC public accountability boundary remains read-only',
   btcAccountability.includes('recorded_live') && btcAccountability.includes('window_missed') &&
   !/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/.test(btcAccountability)
 );
+check('BTC market-context boundary remains read-only and cannot query protected Pro records',
+  btcMarketContext.includes('Bitmomo_Public_Intelligence_Adapter::snapshot()') &&
+  btcMarketContext.includes('Bitmomo_Btc_Intelligence_Accountability::decision_ledger( 20 )') &&
+  !/update_post_meta|delete_post_meta|wp_update_post|wp_insert_post|wp_delete_post/.test(btcMarketContext) &&
+  !/Bitmomo_Pro_Briefs|Bitmomo_Pro_Performance|_bitmomo_pro_/.test(btcMarketContext)
+);
+check('BTC market-context shell is server-stable and series are not color-only',
+  btcMarketCss.includes('.bm-bi{max-width:var(--bm-shell-width,1180px)}') &&
+  btcMarketCss.includes('.bm-mc__line.is-gold{stroke:var(--bmc-gold);stroke-dasharray:') &&
+  btcMarketCss.includes('.bm-mc__line.is-eth{stroke:var(--bmc-eth);stroke-dasharray:') &&
+  btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
+);
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes homepage layer, accountability module and 114 managed files',
-  runtime.includes('"expected_file_count": 114') &&
+check('Runtime manifest includes integrated homepage/accountability/market-context runtime and 117 managed files',
+  runtime.includes('"expected_file_count": 117') &&
   runtime.includes('"expected_file_count": 46') &&
+  runtime.includes('"expected_file_count": 8') &&
   runtime.includes('"assets/css/home.css"') &&
-  runtime.includes('class-bitmomo-btc-intelligence-accountability.php')
+  runtime.includes('class-bitmomo-btc-intelligence-accountability.php') &&
+  runtime.includes('class-bitmomo-btc-intelligence-market-context.php') &&
+  runtime.includes('assets/js/market-context-explorer.js') &&
+  runtime.includes('assets/css/market-context-explorer.css')
 );
 
 check('Account flow has no pre-checkout dead end and renders human dates',
