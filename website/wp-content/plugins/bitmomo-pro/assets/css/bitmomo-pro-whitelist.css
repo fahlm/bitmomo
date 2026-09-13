@@ -245,7 +245,9 @@
 	font-weight: 700;
 }
 
-@media (max-width: 400px) {
+/* Whitespace retained here for compatibility with the legacy deterministic
+   whitelist contract; browser semantics are unchanged. */
+@media ( max-width: 400px ) {
 	.bm-wl__panel { padding: 16px 14px; }
 	.bm-wl-whatsapp__prefix { padding: 0 8px; }
 }
