@@ -173,6 +173,7 @@ jobs:
           theme="website/wp-content/themes/bitmomo-child-v3"
           single="${theme}/single.php"
           css="${theme}/assets/css/article-reading.css"
+          design="${theme}/assets/css/design-system.css"
           functions="${theme}/functions.php"
           contract="docs/ARTICLE_READING_CONTRACT.md"
           browser="scripts/check-public-ui.mjs"
@@ -188,7 +189,8 @@ jobs:
           grep -q "bm-related--editorial" "${single}"
           ! grep -q "bm-post-nav" "${single}"
 
-          grep -q -- "--bm-article-reading: 720px" "${css}"
+          grep -q -- "--bm-reading-width: 720px" "${design}"
+          grep -q "var(--bm-reading-width)" "${css}"
           grep -q "font-size: clamp(17px" "${css}"
           grep -q "bm-article-body > table" "${css}"
           grep -q "display: block" "${css}"
