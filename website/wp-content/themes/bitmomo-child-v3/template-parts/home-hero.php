@@ -22,7 +22,7 @@ $bm_confidence_label = isset( $bm_confidence_labels[ $bm_confidence_key ] ) ? $b
 $bm_price = $bm_available && isset( $bm_snapshot['btc_reference_price'] ) && is_numeric( $bm_snapshot['btc_reference_price'] )
     ? (float) $bm_snapshot['btc_reference_price']
     : 0.0;
-$bm_price_label = $bm_price > 0 ? '$' . number_format_i18n( $bm_price, 0 ) : 'Belum tersedia';
+$bm_price_label = $bm_price > 0 ? '$' . number_format( $bm_price, 0, '.', ',' ) : 'Belum tersedia';
 
 $bm_drivers = $bm_available && is_array( $bm_snapshot['key_drivers'] ?? null )
     ? array_values( array_filter( array_map( 'strval', $bm_snapshot['key_drivers'] ) ) )
@@ -103,14 +103,14 @@ $bm_status_label = 'delayed' === $bm_status ? 'DATA TERTUNDA' : ( $bm_available 
     <div class="bm-home-proof" aria-label="Prinsip akuntabilitas Bitmomo">
       <div class="bm-home-proof__item">
         <span class="bm-home-proof__kicker">TIMESTAMPED</span>
-        <p>Pembacaan dicatat sebelum outcome diketahui, bukan ditulis ulang setelah pasar bergerak.</p>
+        <p>Pembacaan dicatat sebelum hasil pasar diketahui, bukan ditulis ulang setelah pasar bergerak.</p>
       </div>
       <div class="bm-home-proof__item">
         <span class="bm-home-proof__kicker">PUBLIC LEDGER</span>
         <p>Hasil yang selaras, meleset, dan tidak konklusif tetap dapat ditinjau secara publik.</p>
       </div>
       <div class="bm-home-proof__item">
-        <span class="bm-home-proof__kicker">FAIL CLOSED</span>
+        <span class="bm-home-proof__kicker">DATA DISCIPLINE</span>
         <p>Data yang terlambat atau tidak valid ditandai atau ditahan, bukan dipaksakan menjadi insight.</p>
       </div>
     </div>
