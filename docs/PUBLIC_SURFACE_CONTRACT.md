@@ -6,11 +6,13 @@ No public Bitmomo route may silently inherit an unreviewed Hello Elementor layou
 
 Public pages are product surfaces, not engine observability dashboards. A fact belongs on a public page only when it is useful to a visitor, understandable without knowing Bitmomo's internal architecture, and appropriate to expose outside the engine/research layer.
 
+The homepage has an additional institutional rule: **clarity before breadth**. It must behave like the front door of one coherent intelligence product, not a catalogue of every Bitmomo project, future capability, content vertical, or monetization experiment.
+
 ## Route ownership
 
 | Route class | Owner |
 |---|---|
-| `/` | `front-page.php` |
+| `/` | `front-page.php` + `assets/css/home.css` |
 | ordinary pages (`/tentang-kami/`, `/kebijakan-privasi/`, `/disclaimer/`) | `page.php` + `.bm-public-page` |
 | product shortcode pages (`/btc-intelligence/`, `/pro/`, `/help/`, Pro account/dashboard) | `page.php` pass-through + product renderer |
 | posts index | `home.php` -> `template-parts/archive-index.php` |
@@ -25,27 +27,43 @@ Public pages are product surfaces, not engine observability dashboards. A fact b
 
 ### Homepage
 
-The homepage answers one question quickly: **what is Bitmomo's current BTC reading?**
+The homepage must answer five questions in order:
 
-Its public intelligence card is deliberately limited to:
+1. **What is Bitmomo?** — a BTC market-intelligence product, not a general crypto-news portal.
+2. **What is the current reading?** — one concise, timestamped public reading.
+3. **Why should I trust it?** — the reading is recorded before outcomes and remains reviewable through the public accountability layer.
+4. **How does the product work?** — compression -> decision support -> accountability, in visitor language.
+5. **What should I do next?** — use BTC Intelligence, inspect proof, then consider Founding/Pro access.
+
+Its current-reading surface is deliberately compact but finance-grade. It may expose only:
 
 - **Arah** — Bullish / Netral / Bearish;
 - **Keyakinan** — the exact confidence score plus a plain-language label, explicitly not a price probability;
-- **Alasan utama** — one concise public-safe driver;
-- **Diperbarui** — the canonical observation/update time;
-- one link to deeper BTC Intelligence context.
+- **Referensi BTC** — the public-safe BTC reference price tied to that observation;
+- **Alasan utama** — exactly one concise public-safe driver;
+- **Diperbarui** — the canonical observation/update time in WIB;
+- **Sumber** — one concise public-safe source label from the allowlisted public adapter;
+- one link to the complete BTC Intelligence reading;
+- one direct link to the Decision Ledger.
 
-The homepage must **not** grow back into a mini-dashboard. Do not expose Opportunity internals, activity percentiles, raw 60-minute ranges, Market State taxonomy/certainty, raw derivative fields, engine/classifier identifiers, QA diagnostics, or a duplicate 30-day chart on the homepage.
+The homepage must **not** grow back into a mini-dashboard. Do not expose Opportunity internals, activity percentiles, raw 60-minute ranges, Market State taxonomy/certainty, raw derivative fields, engine/classifier identifiers, QA diagnostics, private provenance/diagnostics, source record IDs, Pro scenarios/ranges/invalidation details, or a duplicate 30-day chart on the homepage.
 
-The homepage launch hierarchy is intentionally narrow:
+The reading must fail closed. A delayed state is visibly delayed. An unavailable state must never inherit a visual treatment that implies fresh/current data. No placeholder price, direction, driver, source, or timestamp may be fabricated.
 
-1. current BTC reading;
-2. Bitmomo Pro / Founding conversion;
-3. short explanation of how Bitmomo turns market data into a reading;
-4. concise market research;
-5. footer.
+The canonical launch hierarchy is:
 
-AI Lab belongs on a dedicated research surface, not in the homepage launch funnel. Direct referral cards also do not belong in the launch hierarchy. Referral/platform content may return only as clearly editorial articles with transparent disclosure rather than a promotional card that links directly to an affiliate destination.
+1. product positioning + current BTC reading;
+2. accountability principles / public proof path;
+3. short explanation of how Bitmomo works;
+4. one Bitmomo Pro / Founding conversion surface;
+5. concise qualified market research;
+6. footer utilities.
+
+This order is intentional: **value -> proof -> mechanism -> commitment -> authority**. A commitment CTA must not outrank or precede the direct accountability proof path.
+
+AI Lab belongs on a dedicated research surface, not in the homepage launch funnel. Direct referral cards also do not belong in the launch hierarchy. Future capability walls (11 AI analysts, Watchtower, Telegram automation, etc.) may not return as homepage sections while they are not the current product value. Referral/platform content may return only as clearly editorial articles with transparent disclosure rather than a promotional card that links directly to an affiliate destination.
+
+Homepage market research is a **research desk**, not a generic blog grid. It surfaces at most three currently qualified market-research items with topic, publication date, reading time, title and a concise excerpt. Generic `Riset` membership alone is insufficient; the same institutional research-classification boundary used by the Research Hub applies.
 
 ### BTC Intelligence
 
@@ -108,12 +126,22 @@ A clean public UI is not permission to weaken the engine. Inputs that affect the
 - One intentional H1 per route.
 - No parent-theme page header on owned routes.
 - Generic reading width: approximately 780px; archive/product surfaces may be wider.
+- Homepage/public shell uses the shared institutional width; its grid must align with the header/footer shell rather than introducing a private page width.
 - Major vertical gaps must be intentional. Do not stack two generic section paddings simply to create separation.
 - Conversion surfaces must not repeat the same offer as adjacent standalone sections.
 - Redundant conversion/content blocks must be removed from the renderer/template, not merely hidden with CSS.
-- Upcoming capabilities are clearly marked as not live.
+- Homepage section hierarchy must be readable from spacing/borders/typography without relying on decorative cards for every concept.
+- Upcoming capabilities are clearly marked as not live and should not occupy homepage space unless they are necessary to understand the current product.
 - Public product/data claims must describe capabilities and inputs that actually exist in the current live system. Do not imply unsupported continuous order-book/on-chain ingestion, real-time monitoring, 24/7 delivery, or other future capability as live.
-- Navigation, CTA and disclosure semantics remain usable without color alone.
+- Navigation, CTA, freshness and disclosure semantics remain usable without color alone.
+- Small text and metadata meet WCAG AA contrast against their actual background; decorative low-contrast styling must never be used for required information.
+- Homepage responsive contract is 360 / 390 / 768 / 1024 / 1440 with no horizontal overflow or card clipping.
+
+### CSS ownership
+
+`custom.css` is frozen legacy debt. New homepage presentation rules belong to `assets/css/home.css`. The embedded Founding/whitelist form remains owned by `assets/css/home-conversion.css` and the Pro plugin styles it intentionally consumes.
+
+Do not solve homepage polish by appending another override generation to `custom.css`. A new first-party homepage primitive must either belong in `home.css` or in an already-established shared design-system layer.
 
 ## Navigation and retention contract
 
@@ -122,7 +150,7 @@ The public header is intentionally small. Its primary information architecture i
 - BTC Intelligence
 - Riset
 - Tentang
-- Masuk
+- Masuk/Akun
 - one commercial `BITMOMO PRO` CTA
 
 `Bitmomo Pro` must not appear a second time as an equal-weight content-navigation link. The active route is expressed with `aria-current="page"` and a non-color visual treatment.
@@ -131,13 +159,7 @@ On mobile, a visually collapsed navigation is also removed from keyboard/accessi
 
 Newsletter is a retention utility, not a launch conversion hero. There is exactly one permanent public subscribe surface: a compact MailPoet form in the global footer. The former newsletter modal is structurally disabled on every route, and `/subscribe`, `#subscribe`, or legacy newsletter links resolve to the footer anchor rather than opening an overlay.
 
-The footer groups product, research and trust/legal links, then exposes the compact email subscribe form beside canonical social destinations:
-
-- Telegram: `https://t.me/bitmomodaily`
-- YouTube: `https://www.youtube.com/@bitmomoid`
-- X: `https://x.com/bitmomoid`
-
-These destinations may be changed through the narrow public-link filters, but footer markup must not hard-code divergent copies of the URLs.
+The footer groups product, research and trust/legal links, then exposes the compact email subscribe form beside canonical social destinations. Public social destinations must come through the canonical public-link helper/filter and must not diverge between templates.
 
 ## WordPress content ownership boundary
 
@@ -173,34 +195,42 @@ Acceptance:
 - no PHP fatal or material browser-console error;
 - zero serious/critical accessibility violations at acceptance viewports;
 - touch targets remain usable on mobile;
-- homepage reading remains limited to Arah / Keyakinan / Alasan Utama / update time;
+- homepage reading remains limited to Arah / Keyakinan / Referensi BTC / Alasan Utama / update time / concise public source;
+- homepage delayed/unavailable state cannot visually imply current/fresh data;
+- homepage direct Decision Ledger proof appears before Founding commitment;
+- homepage does not render Opportunity, Market State, AI Lab, referral cards, future-capability walls, or a duplicate newsletter surface;
+- homepage Research renders qualified market research only and hides cleanly when no qualifying items exist;
 - BTC Intelligence does not expose the engine/QA kitchen-detail list above;
 - track-record headline proof uses only the current compatible methodology;
 - product fail-closed/data semantics remain unchanged;
 - `/pro/` has one canonical conversion path and contains no unsupported live-data claim;
 - `/help/` interactive FAQ/accordion behavior remains functional;
 - header contains one and only one public Pro destination/CTA;
-- desktop nav exposes the intended five destinations and an active-route state;
+- desktop nav exposes the intended destinations and an active-route state;
 - mobile menu opens/closes correctly and hidden links are not keyboard-focusable while closed;
 - footer email form is compact, usable and does not create a second modal/overlay;
-- Telegram, YouTube and X footer destinations resolve to the canonical URLs above.
+- public social links resolve only to their configured canonical destinations.
 
 ## CI prevention
 
-Theme/UI architecture checks protect the **information hierarchy**, not a frozen implementation primitive. CI must fail if:
+Theme/UI architecture checks protect the **information hierarchy and public boundary**, not a frozen implementation primitive. CI must fail if:
 
 - an owned public template disappears;
 - the old media-style posts-index copy returns;
 - archive routes diverge from the shared archive surface;
-- homepage restores a duplicate BTC card, 30-day engine dashboard, AI Lab block, direct referral block, separate Pro teaser + whitelist, or newsletter hero;
-- homepage loses Arah / Keyakinan / Alasan Utama / update time;
+- homepage restores a duplicate BTC card, 30-day engine dashboard, AI Lab block, direct referral block, separate Pro teaser + whitelist, newsletter hero, or future-capability wall;
+- homepage loses Arah / Keyakinan / Referensi BTC / Alasan Utama / update time / concise source;
+- homepage commitment precedes its direct accountability proof path;
+- homepage starts reading raw/private stores instead of the public-safe adapter;
+- `assets/css/home.css` stops being the canonical homepage presentation owner;
+- `custom.css` grows because new homepage rules were appended there;
 - BTC Intelligence re-exposes engine/QA kitchen details;
 - methodology stops being progressively disclosed;
 - the canonical public-surface styles are no longer loaded;
 - ordinary-page body content stops passing through the H1 normalizer;
 - the unified homepage whitelist loses its grid shrink/width containment and can overflow narrow viewports.
 
-`check-navigation-footer.mjs` additionally protects one canonical Pro header CTA, `aria-current`, accessible mobile navigation, footer-only newsletter ownership, and canonical social destinations.
+`check-navigation-footer.mjs` additionally protects one canonical Pro header CTA, `aria-current`, accessible mobile navigation, footer-only newsletter ownership, and canonical social-destination ownership.
 
 The M2 launch-surface contract additionally protects the visitor-first information boundary, provider-neutral conversion, supported-data claims, fail-closed intelligence/provenance behavior, and privacy-safe acquisition/repeat-use telemetry.
 
@@ -208,14 +238,6 @@ The M2 launch-surface contract additionally protects the visitor-first informati
 
 The production monitor checks launch-critical routes for HTTP/content availability, runtime/PHP leakage, environment leakage and accidental `noindex`.
 
-Beginning with theme **v4.4 / public snapshot schema 2**, the machine-readable consistency contract is intentionally narrow and mirrors visible public facts only:
-
-- schema;
-- availability/status;
-- canonical as-of time;
-- directional bias;
-- confidence label.
-
-It must not serialize Market State, direction-strength detail, Opportunity state or other engine internals simply for monitoring convenience. BTC Intelligence separately exposes concise human trust metadata (`Sumber data` + exact WIB timestamp); provider diagnostics remain internal.
+Beginning with public snapshot schema 2, the machine-readable consistency contract is intentionally narrow and contains only public-safe monitoring facts needed for freshness/cross-surface consistency. It must not serialize Market State, direction-strength detail, Opportunity state or other engine internals simply for monitoring convenience. Human-facing public surfaces may separately render concise source/timestamp context from the allowlisted adapter; provider diagnostics remain internal.
 
 This contract is deliberately structural. CI and synthetic monitoring cannot prove rendered visual quality, WordPress database-body cleanliness, or browser interaction quality; staging browser QA remains mandatory before a whole-site UI candidate is merged or promoted.
