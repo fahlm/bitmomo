@@ -46,14 +46,24 @@ def test_stale_feed_hard_rejects():
     assert result.hard_fail is True
 
 
-def test_stale_trade_feed_hard_rejects_after_warmup():
+def test_stale_trade_timestamp_alone_is_not_transport_failure():
     cfg = SelectorConfig()
     m = good_metrics()
     m.trade_age_seconds = 99
     result = evaluate_market(m, cfg)
+    assert result.hard_fail is False
+    assert result.verdict == Verdict.QUALIFIED
+
+
+def test_low_trade_activity_still_rejects_market_quality():
+    cfg = SelectorConfig()
+    m = good_metrics()
+    m.trade_age_seconds = 99
+    m.trade_rate_per_minute = 0.5
+    result = evaluate_market(m, cfg)
+    assert result.hard_fail is False
     assert result.verdict == Verdict.REJECT
-    assert result.hard_fail is True
-    assert result.reasons == ["stale_trade_feed"]
+    assert result.reasons == ["structural_fail:trade_activity"]
 
 
 def test_unknown_execution_metrics_never_qualify():
