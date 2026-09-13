@@ -128,7 +128,12 @@ check(
 );
 check('BTC Intelligence track record states the exact +24h evaluation rule', /\+24 jam/.test(btcIntelligencePage));
 check('BTC Intelligence keeps methodology secondary and one Pro action', /<details class="bm-bi__details"/.test(btcIntelligencePage) && /Lihat Bitmomo Pro/.test(btcIntelligencePage));
-check('BTC Intelligence exposes Decision Ledger and delayed Pro archive as proof surfaces', /Decision Ledger/.test(btcIntelligencePage) && /DELAY ≥ 48 JAM/.test(btcIntelligencePage));
+check(
+  'BTC Intelligence exposes Decision Ledger and a policy-bound 48h delayed Pro archive',
+  /Decision Ledger/.test(btcIntelligencePage)
+    && /DELAY ≥ %d JAM/.test(btcIntelligencePage)
+    && /const PROOF_DELAY_HOURS\s*=\s*48/.test(btcAccountability)
+);
 
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
 check('/pro sales page renders one whitelist/purchase CTA path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
