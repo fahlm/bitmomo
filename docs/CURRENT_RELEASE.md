@@ -15,8 +15,12 @@ This file is the fast entry point for engineers. It records release topology and
 - One and only active whitelist release line: `release/whitelist-v1` / PR #135.
 - Initial semantic convergence commit: `cdc07a7a02ae35883b43b7987f143d1bc63513f2`.
 - Canonical convergence record: `docs/RELEASE_CONVERGENCE_WHITELIST_V1.md`.
-- #136 (`fix: harden whitelist launch runtime readiness`) completed final source review and was **squash-absorbed** into the canonical release branch as `aeaa1270cb20aa4bd7dcac88a4c665fac658e733`.
-- There is no longer an active component release branch in the release decision path. #135 is again the sole release authority.
+- #136 (`fix: harden whitelist launch runtime readiness`) was squash-absorbed as `aeaa1270cb20aa4bd7dcac88a4c665fac658e733`.
+- Deterministic validation then exposed and repaired three release-line defects before artifact generation:
+  - #137 restored the missing Pro email-service closing brace; merged as `2a6d88c6a9dc907bf1939de09532a4bfcbdad3aa` after targeted lint + full managed PHP lint 124/124 PASS on Hostinger PHP 8.1.34.
+  - #138 corrected the Pro sales performance test to treat `preg_match() === 0` as the valid no-match result; merged as `1d20dcb9ce1468b8694887248e61f4a97eee89f7` after targeted 104/104 PASS.
+  - #139 removed stale duplicated runtime-count ownership from `authority-surface-safety.yml`; merged as `1aa75f9d0ac490b855767923aa8c2b6546332b2d` after YAML + manifest semantic validation.
+- There is no active component release branch in the release decision path. #135 is the sole release authority.
 
 ## Release topology
 
@@ -56,9 +60,10 @@ PR #135 semantically reconciles the launch work into one source line:
 - **#126:** institutional Pro conversion surface;
 - **#129:** release provenance, staging parity, asset coherence, browser/readiness and CI-efficiency hardening, excluding the redundant standalone Homepage Research workflow;
 - **current `main` governance:** PR template, engineering operating model and release handoff contract;
-- **#136:** email-only Whitelist V1 default, dormant WhatsApp fail-closed capability, canonical Privacy consent and channel-aware confirmation copy, BTC ≤30h launch freshness gate, semantic Privacy/Disclaimer readiness, ≥2 qualified Market Research requirement, real whitelist persistence/dedupe/mail-generation staging probe with transport short-circuit, newsletter fail-closed behavior, product-copy truthfulness, configured support identity, Research/About IA cleanup, expanded browser acceptance, and restored non-WhatsApp whitelist regression coverage.
+- **#136:** email-only Whitelist V1 default, dormant WhatsApp fail-closed capability, canonical Privacy consent and channel-aware confirmation copy, BTC ≤30h launch freshness gate, semantic Privacy/Disclaimer readiness, ≥2 qualified Market Research requirement, real whitelist persistence/dedupe/mail-generation staging probe with transport short-circuit, newsletter fail-closed behavior, product-copy truthfulness, configured support identity, Research/About IA cleanup, expanded browser acceptance, and restored non-WhatsApp whitelist regression coverage;
+- **#137/#138/#139:** validation-discovered syntax, test-harness, and CI-contract repairs described above.
 
-The canonical runtime contract remains **117 managed files** unless intentionally changed by a later reviewed release decision. Tests/docs are not runtime payload.
+The canonical runtime contract remains **117 managed files** unless intentionally changed by a later reviewed release decision: theme 46 / AI 24 / BTC Intelligence 8 / Pro 27 / regime 12. Tests, docs, and workflows are not runtime payload.
 
 ## Active release PR queue
 
@@ -66,17 +71,17 @@ Exactly **one** release PR is actionable:
 
 - **#135 — `release: canonical whitelist v1 convergence` — DRAFT.**
 
-#136 is absorbed/merged and is no longer independently actionable. Former release inputs #123, #126 and #129 also remain historical evidence only.
+#136, #137, #138 and #139 are absorbed/merged historical evidence and are no longer independently actionable. Former release inputs #123, #126 and #129 also remain historical evidence only.
 
 ## Current release state
 
 | Gate | State | Meaning |
 |---|---|---|
-| SOURCE | **FROZEN FOR DETERMINISTIC VALIDATION** | #136 is absorbed; final source-level review found no remaining blocker. The exact current #135 head after this status commit is the source candidate to validate. |
-| CI | **BLOCKED / NOT RUN** | GitHub-hosted workflows on the absorbed candidate are skipped/blocked and provide no executable evidence. Earlier #125 evidence showed `runner_id=0` / no steps when forced Ready. Do not call this PASS or source FAIL. |
-| ALTERNATE DETERMINISTIC CHECKS | **NOT YET EXECUTED** | Required on the exact frozen #135 head before any staging deployment while #125 remains active. |
-| ARTIFACT | **NOT GENERATED** | No artifact from the post-#136 exact canonical head is accepted. The old #123 artifact/checksum is historical baseline only. |
-| STAGING | **NOT DEPLOYED** | Canonical staging has not received the post-#136 artifact. |
+| SOURCE | **FROZEN FOR FULL DETERMINISTIC VALIDATION** | Remediations #137/#138/#139 are absorbed. The exact #135 head after this status commit is the only candidate eligible for the next full validation run. Any source change invalidates the freeze. |
+| CI | **BLOCKED / NOT RUN** | Latest workflows on the Draft release candidate are guard-skipped and provide no executable evidence. Earlier #125 forced-run evidence showed `runner_id=0` / no steps. A skipped job is not PASS. |
+| ALTERNATE DETERMINISTIC CHECKS | **RESTART REQUIRED ON FINAL FROZEN HEAD** | Earlier partial runs found and repaired the defects above. Full authoritative source validation must now restart from zero on the exact final head; partial results must not be promoted to final PASS. |
+| ARTIFACT | **NOT GENERATED** | No artifact from the post-remediation final candidate is accepted. The old #123 artifact/checksum is historical baseline only. |
+| STAGING | **NOT DEPLOYED** | Canonical staging has not received the post-remediation artifact. |
 | RUNTIME | **NOT VERIFIED** | Commit/tree/hash/filesystem/cache/data parity awaits deployment. |
 | BROWSER | **NOT VERIFIED** | Responsive, keyboard, zoom, console, Axe and failure-state acceptance awaits the new staging candidate. |
 | PRODUCT READY | **NOT VERIFIED** | Privacy/Disclaimer semantic sync, ≥2 qualified Research, BTC ≤30h, whitelist persistence/dedupe/mail-generation, checkout OFF and WhatsApp OFF must pass on staging. |
@@ -108,8 +113,8 @@ A staging exception is never recorded as `CI PASS`; CI remains `BLOCKED / NOT RU
 ## Next executable gate
 
 1. record the exact current #135 commit + tree after this status update;
-2. execute the authoritative deterministic source suites outside GitHub-hosted Actions on that exact head;
-3. if any suite fails, stop and fix source before artifact generation;
+2. execute the full authoritative deterministic source suites from zero outside GitHub-hosted Actions on that exact head;
+3. if any suite fails, stop and fix source before artifact generation, then establish a new freeze;
 4. if all pass, build the runtime artifact twice and require byte-identical output;
 5. record commit/tree/runtime file count/artifact SHA-256 and create one staging handoff;
 6. back up canonical staging, then deploy only that artifact;
@@ -123,5 +128,6 @@ Before touching launch/release surfaces:
 1. read this file;
 2. read #131;
 3. inspect Draft PR #135;
-4. do not deploy historical artifacts or infer authority from branch age/PR number;
-5. do not create another release candidate while #135 is active.
+4. verify the exact frozen commit/tree recorded in PR #135 and #131 before running tests;
+5. do not deploy historical artifacts or infer authority from branch age/PR number;
+6. do not create another release candidate while #135 is active unless a failing gate requires a focused remediation PR.
