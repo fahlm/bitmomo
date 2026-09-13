@@ -62,6 +62,19 @@ def evaluate_market(metrics: RollingMetrics, cfg: SelectorConfig) -> Eligibility
             metrics=metrics,
         )
 
+    # Once a market has warmed up and demonstrated sufficient trade observations,
+    # losing the trade stream is a hard data-health fault. The selector relies on
+    # aggressor flow and shadow fill evidence, so a live book alone is insufficient.
+    if metrics.trade_age_seconds > cfg.max_trade_age_seconds:
+        return EligibilityResult(
+            coin=metrics.coin,
+            verdict=Verdict.REJECT,
+            score=0.0,
+            reasons=["stale_trade_feed"],
+            hard_fail=True,
+            metrics=metrics,
+        )
+
     structural_checks = {
         "day_volume": (
             _known(metrics.day_volume_usd)
