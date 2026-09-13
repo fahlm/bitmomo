@@ -89,8 +89,8 @@
   --bm-focus-ring: 2px solid #6de0d9;
   --bm-focus-offset: 3px;
 
-  /* Transitional aliases keep the frozen legacy layer aligned while modern
-     named surfaces migrate to --bm-* ownership. */
+  /* Transitional aliases keep frozen/older named layers aligned while they
+     migrate to direct --bm-* consumption. They are aliases, never new values. */
   --bg: var(--bm-bg);
   --bg-2: var(--bm-bg-elevated);
   --ink: var(--bm-text);
@@ -101,6 +101,12 @@
   --cta-hover: var(--bm-action-hover);
   --radius: var(--bm-radius-lg);
   --shadow: var(--bm-shadow-subtle);
+  --bm-accent: var(--bm-teal);
+  --bm-muted: var(--bm-text-muted);
+  --bm-surface: var(--bm-bg-elevated);
+  --bm-surface-soft: var(--bm-bg-soft);
+  --bm-public-max: var(--bm-shell-width);
+  --bm-reading-max: var(--bm-reading-wide);
   --bm-orange: var(--bm-action);
   --bm-orange-hover: var(--bm-action-hover);
 }
