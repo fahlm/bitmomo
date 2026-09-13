@@ -11,9 +11,9 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
   <div class="bm-container">
     <div class="bm-wl-unified">
       <div class="bm-wl-unified__intro">
-        <span class="bm-wl-unified__eyebrow"><?php esc_html_e( 'BITMOMO PRO · FOUNDING', 'bitmomo' ); ?></span>
-        <h2 class="bm-wl-unified__title" id="bm-wl-home-title"><?php esc_html_e( 'Ketahui apa yang perlu dipantau berikutnya.', 'bitmomo' ); ?></h2>
-        <p class="bm-wl-unified__copy"><?php esc_html_e( 'Pro merangkum skenario utama, rentang yang dipantau, level yang mengubah pandangan, dan perubahan penting — tanpa harus memantau semuanya sendiri.', 'bitmomo' ); ?></p>
+        <span class="bm-wl-unified__eyebrow"><?php esc_html_e( 'BITMOMO PRO · FOUNDING ACCESS', 'bitmomo' ); ?></span>
+        <h2 class="bm-wl-unified__title" id="bm-wl-home-title"><?php esc_html_e( 'Kondisi pasar berubah. Pro menunjukkan apa yang perlu diperhatikan selanjutnya.', 'bitmomo' ); ?></h2>
+        <p class="bm-wl-unified__copy"><?php esc_html_e( 'BTC Intelligence menjawab apa yang terjadi sekarang. Pro menambahkan rentang yang dipantau, skenario utama, invalidation, dan apa yang berubah — tanpa harus memantau semuanya sendiri.', 'bitmomo' ); ?></p>
 
         <dl class="bm-wl-unified__facts" aria-label="<?php esc_attr_e( 'Founding Membership', 'bitmomo' ); ?>">
           <div class="bm-wl-unified__fact">
@@ -32,7 +32,7 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
 
         <div class="bm-wl-unified__links">
           <a class="bm-wl-unified__proof-link" href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>" data-bm-event="homepage_decision_ledger_click" data-bm-placement="whitelist_proof">
-            <?php esc_html_e( 'Lihat Decision Ledger publik →', 'bitmomo' ); ?>
+            <?php esc_html_e( 'Tinjau Decision Ledger publik →', 'bitmomo' ); ?>
           </a>
           <a class="bm-wl-unified__detail-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>" data-bm-event="homepage_pro_interest" data-bm-placement="whitelist_detail">
             <?php esc_html_e( 'Lihat detail Bitmomo Pro →', 'bitmomo' ); ?>
@@ -46,8 +46,8 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Founding Membership tersedia', 'bitmomo' ); ?></p>
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Lanjutkan melalui checkout resmi Bitmomo.', 'bitmomo' ); ?></p>
           <?php elseif ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) : ?>
-            <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Masuk Founding Whitelist', 'bitmomo' ); ?></p>
-            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Tinggalkan email. Tidak ada pembayaran sekarang; kami akan memberi tahu saat akses batch pertama dibuka.', 'bitmomo' ); ?></p>
+            <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Daftar untuk Founding Access', 'bitmomo' ); ?></p>
+            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Masukkan email untuk mendapat pemberitahuan saat batch pertama dibuka. Tidak ada pembayaran sekarang.', 'bitmomo' ); ?></p>
           <?php else : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo' ); ?></p>
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Pelajari Founding Membership dan apa yang akan Anda dapatkan.', 'bitmomo' ); ?></p>
