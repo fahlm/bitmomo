@@ -23,6 +23,7 @@ const surfaces = [
 
 const viewports = [
   { width: 360, height: 800 },
+  { width: 390, height: 568 },
   { width: 390, height: 844 },
   { width: 768, height: 1024 },
   { width: 1024, height: 900 },
@@ -30,11 +31,17 @@ const viewports = [
 ];
 
 const expectedNavLabels = ['BTC Intelligence', 'Riset', 'Tentang', 'Masuk', 'BITMOMO PRO'];
-const expectedSocial = {
-  telegram: 'https://t.me/bitmomodaily',
-  youtube: 'https://www.youtube.com/@bitmomoid',
-  x: 'https://x.com/bitmomoid',
-};
+const expectedSocial = (() => {
+  const raw = String(process.env.BITMOMO_EXPECTED_SOCIAL_JSON || '').trim();
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch (error) {
+    console.error(`::error title=UI browser contract::Invalid BITMOMO_EXPECTED_SOCIAL_JSON: ${error.message}`);
+    process.exit(2);
+  }
+})();
 
 const failures = [];
 const report = [];
@@ -133,6 +140,42 @@ async function auditAxe(page, surface, viewport) {
   }
 }
 
+async function auditClosedMobileNavFocus(page, surface, viewport, phase) {
+  const closed = await page.evaluate(() => {
+    const nav = document.getElementById('bm-nav');
+    const button = document.getElementById('bm-hamburger');
+    return {
+      expanded: button?.getAttribute('aria-expanded'),
+      hidden: nav?.getAttribute('aria-hidden'),
+      inert: nav?.hasAttribute('inert'),
+      openClass: nav?.classList.contains('open'),
+    };
+  });
+  if (closed.expanded !== 'false' || closed.hidden !== 'true' || !closed.inert || closed.openClass) {
+    addFailure(surface, viewport, `${phase}: mobile menu is not accessibly closed: ${JSON.stringify(closed)}`);
+    return;
+  }
+
+  const hamburger = page.locator('#bm-hamburger');
+  await hamburger.focus();
+  for (let index = 0; index < 12; index += 1) {
+    await page.keyboard.press('Tab');
+    const focus = await page.evaluate(() => {
+      const nav = document.getElementById('bm-nav');
+      const active = document.activeElement;
+      return {
+        inNav: Boolean(nav && active && nav.contains(active)),
+        activeTag: active?.tagName || '',
+        activeText: (active?.textContent || '').trim().slice(0, 80),
+      };
+    });
+    if (focus.inNav) {
+      addFailure(surface, viewport, `${phase}: closed mobile nav received keyboard focus on ${focus.activeTag} ${focus.activeText}`);
+      break;
+    }
+  }
+}
+
 try {
   for (const surface of surfaces) {
     for (const viewport of viewports) {
@@ -184,10 +227,30 @@ try {
       }
 
       if (surface.name === 'home') {
-        const socialMap = Object.fromEntries(metrics.footerSocial.map((item) => [item.key, item.href.replace(/\/$/, '')]));
-        for (const [key, expected] of Object.entries(expectedSocial)) {
-          if ((socialMap[key] || '') !== expected.replace(/\/$/, '')) addFailure(surface, viewport, `${key} footer destination mismatch: ${socialMap[key] || 'missing'}`);
+        const socialKeys = new Set();
+        const socialMap = {};
+        for (const item of metrics.footerSocial) {
+          if (!item.key) addFailure(surface, viewport, `rendered social link has no data-social key: ${item.href}`);
+          if (socialKeys.has(item.key)) addFailure(surface, viewport, `duplicate rendered social channel: ${item.key}`);
+          socialKeys.add(item.key);
+          try {
+            const parsed = new URL(item.href);
+            if (parsed.protocol !== 'https:') addFailure(surface, viewport, `${item.key || 'social'} must use HTTPS: ${item.href}`);
+          } catch {
+            addFailure(surface, viewport, `${item.key || 'social'} has invalid destination: ${item.href}`);
+          }
+          if (item.key) socialMap[item.key] = item.href.replace(/\/$/, '');
         }
+
+        // Social is deliberately fail-closed. Missing unconfigured channels are
+        // valid. CI enforces exact destinations only when the environment
+        // explicitly supplies BITMOMO_EXPECTED_SOCIAL_JSON.
+        for (const [key, expected] of Object.entries(expectedSocial)) {
+          const observed = socialMap[key] || '';
+          const normalizedExpected = String(expected || '').replace(/\/$/, '');
+          if (observed !== normalizedExpected) addFailure(surface, viewport, `${key} footer destination mismatch: ${observed || 'missing'} expected=${normalizedExpected}`);
+        }
+
         if (metrics.homeResearchItems > 3) addFailure(surface, viewport, `homepage research renders ${metrics.homeResearchItems} items; max is 3`);
         if (metrics.homeResearchLabels.some((label) => label !== 'Market Research')) addFailure(surface, viewport, `homepage research contains non-market label(s): ${metrics.homeResearchLabels.join(', ')}`);
       }
@@ -195,27 +258,46 @@ try {
       if (viewport.width === 390) {
         const hamburger = page.locator('#bm-hamburger');
         if (await hamburger.count()) {
+          await auditClosedMobileNavFocus(page, surface, viewport, 'initial state');
           await hamburger.click();
           const opened = await page.evaluate(() => {
             const nav = document.getElementById('bm-nav');
             const button = document.getElementById('bm-hamburger');
-            return { expanded: button?.getAttribute('aria-expanded'), hidden: nav?.getAttribute('aria-hidden'), inert: nav?.hasAttribute('inert'), openClass: nav?.classList.contains('open') };
+            const rect = nav?.getBoundingClientRect();
+            return {
+              expanded: button?.getAttribute('aria-expanded'),
+              hidden: nav?.getAttribute('aria-hidden'),
+              inert: nav?.hasAttribute('inert'),
+              openClass: nav?.classList.contains('open'),
+              navTop: rect?.top ?? null,
+              navBottom: rect?.bottom ?? null,
+              navClientHeight: nav?.clientHeight ?? null,
+              navScrollHeight: nav?.scrollHeight ?? null,
+              viewportHeight: window.innerHeight,
+            };
           });
-          if (opened.expanded !== 'true' || opened.hidden === 'true' || opened.inert || !opened.openClass) addFailure(surface, viewport, `mobile menu did not become accessible/open: ${JSON.stringify(opened)}`);
+          if (opened.expanded !== 'true' || opened.hidden === 'true' || opened.inert || !opened.openClass) {
+            addFailure(surface, viewport, `mobile menu did not become accessible/open: ${JSON.stringify(opened)}`);
+          }
+          if (opened.navBottom !== null && opened.navBottom > opened.viewportHeight + 1) {
+            addFailure(surface, viewport, `mobile nav extends below viewport: bottom=${opened.navBottom}px viewport=${opened.viewportHeight}px`);
+          }
+          if (opened.navScrollHeight !== null && opened.navClientHeight !== null && opened.navScrollHeight > opened.navClientHeight + 1) {
+            const overflowY = await page.locator('#bm-nav').evaluate((nav) => getComputedStyle(nav).overflowY);
+            if (!['auto', 'scroll'].includes(overflowY)) addFailure(surface, viewport, `short-height mobile nav cannot scroll; overflow-y=${overflowY}`);
+          }
+
           await page.keyboard.press('Escape');
-          const closed = await page.evaluate(() => {
-            const nav = document.getElementById('bm-nav');
-            const button = document.getElementById('bm-hamburger');
-            return { expanded: button?.getAttribute('aria-expanded'), hidden: nav?.getAttribute('aria-hidden'), inert: nav?.hasAttribute('inert'), openClass: nav?.classList.contains('open') };
-          });
-          if (closed.expanded !== 'false' || closed.hidden !== 'true' || !closed.inert || closed.openClass) addFailure(surface, viewport, `mobile menu did not close accessibly on Escape: ${JSON.stringify(closed)}`);
+          const focusReturned = await page.evaluate(() => document.activeElement?.id === 'bm-hamburger');
+          if (!focusReturned) addFailure(surface, viewport, 'Escape did not return focus to the hamburger control');
+          await auditClosedMobileNavFocus(page, surface, viewport, 'after Escape');
         } else addFailure(surface, viewport, 'mobile hamburger control missing');
       }
 
       for (const error of consoleErrors) addFailure(surface, viewport, `console error: ${error}`);
       for (const error of pageErrors) addFailure(surface, viewport, `uncaught page error: ${error}`);
 
-      const screenshotPath = path.join(outputDir, `${surface.name}-${viewport.width}.png`);
+      const screenshotPath = path.join(outputDir, `${surface.name}-${viewport.width}x${viewport.height}.png`);
       await page.screenshot({ path: screenshotPath, fullPage: true });
       const axeViolations = await auditAxe(page, surface, viewport);
 
@@ -276,7 +358,7 @@ try {
       for (const error of consoleErrors) addFailure(surface, viewport, `console error: ${error}`);
       for (const error of pageErrors) addFailure(surface, viewport, `uncaught page error: ${error}`);
       const axeViolations = await auditAxe(page, surface, viewport);
-      await page.screenshot({ path: path.join(outputDir, `qualified-article-${viewport.width}.png`), fullPage: true });
+      await page.screenshot({ path: path.join(outputDir, `qualified-article-${viewport.width}x${viewport.height}.png`), fullPage: true });
       report.push({ surface: surface.name, url: articleUrl, viewport, status, metrics, consoleErrors, pageErrors, axeViolations: axeViolations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodeCount: v.nodes.length })) });
       await context.close();
     }
