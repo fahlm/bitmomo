@@ -31,10 +31,18 @@
   --bm-radius-lg: 14px;
   --bm-focus-ring: 2px solid #6de0d9;
   --bm-focus-offset: 3px;
+
+  /* Canonical public geometry. Keep aliases until legacy surface CSS migrates. */
+  --bm-shell-width: 1180px;
+  --bm-public-width: 1180px;
+  --bm-shell-gutter: 24px;
+  --bm-shell-gutter-tablet: 20px;
+  --bm-shell-gutter-mobile: 16px;
   --bm-header-height: 64px;
   --bm-header-height-mobile: 60px;
+  --bm-touch-target: 40px;
+  --bm-touch-target-mobile: 44px;
   --bm-reading-width: 720px;
-  --bm-public-width: 1180px;
 }
 
 html {
@@ -125,10 +133,10 @@ button:disabled,
   }
 
   .bm-header button.bm-hamburger {
-    min-width: 44px !important;
-    max-width: 44px !important;
-    width: 44px !important;
-    height: 44px !important;
+    min-width: var(--bm-touch-target-mobile) !important;
+    max-width: var(--bm-touch-target-mobile) !important;
+    width: var(--bm-touch-target-mobile) !important;
+    height: var(--bm-touch-target-mobile) !important;
   }
 }
 
