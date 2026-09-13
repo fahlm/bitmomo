@@ -428,10 +428,8 @@ class Bitmomo_Pro_Email_Service {
 	 * so this remains the plugin's only wp_mail() call site (see class
 	 * docblock). Never promises a launch date, never requires account
 	 * creation, and never contains a payment/checkout link — registration
-	 * and payment happen ONLY on bitmomo.id. Body/subject/opening line and
-	 * the anti-phishing block all follow the brief's locked template
-	 * verbatim. Always ends with a plain anti-phishing/security reminder —
-	 * professional, non-alarming tone, no scare language.
+	 * and payment happen ONLY on bitmomo.id. Optional channel copy is emitted
+	 * only when that channel is explicitly enabled in the whitelist runtime.
 	 */
 	public function send_whitelist_confirmation_email( $post_id ) {
 		if ( ! $post_id || ! class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
@@ -444,18 +442,12 @@ class Bitmomo_Pro_Email_Service {
 		}
 
 		$first_name = get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_FIRST_NAME, true );
+		$whatsapp_enabled = method_exists( 'Bitmomo_Pro_Whitelist', 'whatsapp_opt_in_enabled' )
+			&& Bitmomo_Pro_Whitelist::whatsapp_opt_in_enabled();
 
 		$cap   = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_SEAT_CAP : 149;
 		$batch = class_exists( 'Bitmomo_Pro_Entitlement_Service' ) ? Bitmomo_Pro_Entitlement_Service::FOUNDING_OPERATIONAL_BATCH : 25;
 
-		// Body follows the locked template verbatim: opening (same headline
-		// as the widget's success state) -> FOUNDING MEMBERSHIP recap ->
-		// one notification line covering BOTH channels (no has_whatsapp
-		// branching needed — the line itself already reads correctly
-		// whether or not a WhatsApp number is ever added) -> the same
-		// locked disclaimer -> anti-phishing/security block. No payment
-		// link anywhere — registration/payment happens ONLY on bitmomo.id,
-		// and that page is never linked from this email.
 		$lines   = array();
 		$lines[] = $first_name ? sprintf( __( 'Halo %s,', 'bitmomo-pro' ), $first_name ) : __( 'Halo,', 'bitmomo-pro' );
 		$lines[] = '';
@@ -471,22 +463,30 @@ class Bitmomo_Pro_Email_Service {
 		/* translators: %d: batch 1 size */
 		$lines[] = sprintf( __( 'Batch pertama: %d anggota', 'bitmomo-pro' ), $batch );
 		$lines[] = '';
-		$lines[] = __( 'Kami akan mengirim pemberitahuan melalui email ini dan, jika kamu menambahkan nomor WhatsApp, melalui WhatsApp saat akses dibuka.', 'bitmomo-pro' );
-		if ( ! get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_WHATSAPP_NUMBER, true ) && method_exists( 'Bitmomo_Pro_Whitelist', 'whatsapp_record_action' ) ) {
-			$whatsapp_url = add_query_arg(
-				array(
-					'bm_wl_post'  => (int) $post_id,
-					'bm_wl_token' => wp_create_nonce( Bitmomo_Pro_Whitelist::whatsapp_record_action( $post_id ) ),
-				),
-				home_url( '/pro/' )
-			);
-			$lines[] = __( 'Tambahkan nomor WhatsApp (opsional):', 'bitmomo-pro' );
-			$lines[] = esc_url_raw( $whatsapp_url );
+
+		if ( $whatsapp_enabled ) {
+			$lines[] = __( 'Kami akan mengirim pemberitahuan melalui email ini dan, jika kamu memilih menambahkan nomor WhatsApp, melalui WhatsApp saat akses dibuka.', 'bitmomo-pro' );
+			if ( ! get_post_meta( $post_id, Bitmomo_Pro_Whitelist::META_WHATSAPP_NUMBER, true ) ) {
+				$whatsapp_url = add_query_arg(
+					array(
+						'bm_wl_post'  => (int) $post_id,
+						'bm_wl_token' => wp_create_nonce( Bitmomo_Pro_Whitelist::whatsapp_record_action( $post_id ) ),
+					),
+					home_url( '/pro/' )
+				);
+				$lines[] = __( 'Tambahkan nomor WhatsApp (opsional):', 'bitmomo-pro' );
+				$lines[] = esc_url_raw( $whatsapp_url );
+			}
+		} else {
+			$lines[] = __( 'Kami akan mengirim pemberitahuan melalui email ini saat akses dibuka.', 'bitmomo-pro' );
 		}
+
 		$lines[] = '';
 		$lines[] = __( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' );
 		$lines[] = '';
-		$lines[] = __( 'Email dan WhatsApp hanya digunakan untuk pemberitahuan. Pendaftaran dan pembayaran hanya dilakukan melalui:', 'bitmomo-pro' );
+		$lines[] = $whatsapp_enabled
+			? __( 'Email dan WhatsApp yang kamu berikan hanya digunakan untuk pemberitahuan terkait akses Bitmomo Pro. Pendaftaran dan pembayaran hanya dilakukan melalui:', 'bitmomo-pro' )
+			: __( 'Email ini hanya digunakan untuk pemberitahuan terkait akses Bitmomo Pro. Pendaftaran dan pembayaran hanya dilakukan melalui:', 'bitmomo-pro' );
 		$lines[] = __( 'bitmomo.id', 'bitmomo-pro' );
 		$lines[] = '';
 		$lines[] = __( 'Bitmomo tidak akan pernah meminta:', 'bitmomo-pro' );
@@ -546,7 +546,6 @@ class Bitmomo_Pro_Email_Service {
 					);
 				} else {
 					echo '<div class="notice notice-error"><p>' . esc_html__( 'Gagal mengirim email harian.', 'bitmomo-pro' ) . '</p></div>';
-				}
 			}
 		}
 	}

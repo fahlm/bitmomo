@@ -36,9 +36,11 @@ Data tersebut digunakan untuk mengelola akses awal Bitmomo Pro, mengirim pembaru
 
 Mendaftar whitelist tidak otomatis membuat membership berbayar dan tidak menjamin tempat. Akses berbayar hanya aktif melalui proses aktivasi/pembayaran yang secara eksplisit diberitahukan kepada pengguna.
 
-## WhatsApp Opsional
+## WhatsApp Jika Diaktifkan
 
-Setelah pendaftaran email berhasil, Anda dapat memilih untuk menambahkan nomor WhatsApp. Langkah ini opsional dan merupakan persetujuan terpisah dari persetujuan email. Jika digunakan, Bitmomo menyimpan nomor WhatsApp yang dinormalisasi dan waktu persetujuan WhatsApp. Nomor tersebut digunakan untuk pemberitahuan penting terkait akses atau operasional Bitmomo Pro sesuai pilihan Anda.
+Untuk Whitelist V1, form publik Bitmomo tidak meminta nomor WhatsApp secara default. Pendaftaran whitelist cukup menggunakan email, dan Bitmomo tidak mengumpulkan nomor WhatsApp baru melalui alur tersebut selama opsi WhatsApp tidak diaktifkan.
+
+Bitmomo dapat mengaktifkan opsi WhatsApp di kemudian hari setelah kanal notifikasi terkait siap digunakan dan diuji. Jika opsi tersebut ditampilkan dan Anda memilih menggunakannya, persetujuan WhatsApp bersifat terpisah dari persetujuan email. Dalam kondisi tersebut, Bitmomo dapat menyimpan nomor WhatsApp yang dinormalisasi dan waktu persetujuan WhatsApp untuk pemberitahuan penting terkait akses atau operasional Bitmomo Pro sesuai pilihan Anda.
 
 ## Newsletter dan Email
 
@@ -84,4 +86,4 @@ Tidak ada sistem internet yang dapat dijamin sepenuhnya bebas risiko. Bitmomo me
 
 Kebijakan ini dapat diperbarui jika produk, penyedia, atau praktik pemrosesan data berubah. Versi yang berlaku harus dipublikasikan di halaman ini dan tanggal pembaruan dicantumkan pada saat publikasi.
 
-**Terakhir diperbarui: 13 September 2026**
+**Terakhir diperbarui: 14 September 2026**

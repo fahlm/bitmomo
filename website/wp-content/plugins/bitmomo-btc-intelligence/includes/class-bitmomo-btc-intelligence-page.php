@@ -335,7 +335,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section id="btc-now" class="bm-bi__snapshot" aria-labelledby="bm-bi-current-title">
 			<div class="bm-bi__section-head bm-bi__section-head--terminal">
 				<div>
-					<p class="bm-bi__eyebrow"><?php esc_html_e( 'LIVE MARKET BRIEF', 'bitmomo-btc-intelligence' ); ?></p>
+					<p class="bm-bi__eyebrow"><?php esc_html_e( 'CURRENT MARKET BRIEF', 'bitmomo-btc-intelligence' ); ?></p>
 					<h2 id="bm-bi-current-title"><?php esc_html_e( 'BTC sekarang', 'bitmomo-btc-intelligence' ); ?></h2>
 				</div>
 				<div class="bm-bi__headline-meta">
@@ -596,7 +596,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<div>
 				<p class="bm-bi__eyebrow">BITMOMO PRO</p>
 				<h2><?php esc_html_e( 'Gratis menunjukkan apa yang terjadi. Pro menunjukkan apa yang perlu dipantau berikutnya.', 'bitmomo-btc-intelligence' ); ?></h2>
-				<p><?php esc_html_e( 'Founding whitelist dibuka sebelum akses berbayar. Saat Pro siap, anggota whitelist menerima undangan lebih dulu.', 'bitmomo-btc-intelligence' ); ?></p>
+				<p><?php esc_html_e( 'Founding whitelist membuka akses secara bertahap. Anggota whitelist menerima pemberitahuan saat batch berikutnya dibuka.', 'bitmomo-btc-intelligence' ); ?></p>
 			</div>
 			<a class="bm-bi__cta-primary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Lihat Bitmomo Pro', 'bitmomo-btc-intelligence' ); ?></a>
 		</section>

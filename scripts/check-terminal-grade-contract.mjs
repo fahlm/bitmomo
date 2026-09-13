@@ -30,12 +30,18 @@ const navCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/navig
 const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
+const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
+const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
+const whitelistPhp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php');
+const whitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
+const emailService = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-email-service.php');
+const launchReadiness = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-launch-readiness.php');
+const privacyDoc = read('docs/content/kebijakan-privasi.md');
 const btcMain = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const btcAccountability = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php');
 const btcMarketContext = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php');
 const btcMarketCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/market-context-explorer.css');
 const account = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php');
-const whitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
 const runtime = read('config/production-runtime.json');
 
 check('Canonical design-system layer exists and is runtime-required',
@@ -168,6 +174,56 @@ check('Whitelist browser acquisition context strips query strings from ordinary 
   whitelistJs.includes('safeUrlWithoutQuery(document.referrer)') &&
   whitelistJs.includes('window.location.origin + window.location.pathname')
 );
+check('Whitelist V1 fails WhatsApp acquisition closed until explicitly enabled',
+  whitelistPhp.includes('BITMOMO_PRO_WHATSAPP_OPT_IN_ENABLED') &&
+  whitelistPhp.includes('bitmomo_pro_whatsapp_opt_in_enabled') &&
+  whitelistPhp.includes('if ( self::whatsapp_opt_in_enabled() )') &&
+  whitelistPhp.includes("'whatsappEnabled'  => $whatsapp_enabled") &&
+  whitelistPhp.includes("$whatsapp_enabled ? $result['post_id'] : 0") &&
+  whitelistPhp.includes("home_url( '/kebijakan-privasi/' )")
+);
+check('Whitelist confirmation copy follows enabled channels instead of promising WhatsApp by default',
+  emailService.includes("$whatsapp_enabled = method_exists( 'Bitmomo_Pro_Whitelist', 'whatsapp_opt_in_enabled' )") &&
+  emailService.includes('Kami akan mengirim pemberitahuan melalui email ini saat akses dibuka.') &&
+  emailService.includes('if ( $whatsapp_enabled )') &&
+  emailService.includes('Tambahkan nomor WhatsApp (opsional):')
+);
+check('Canonical Privacy copy matches Whitelist V1 channel behavior',
+  privacyDoc.includes('## WhatsApp Jika Diaktifkan') &&
+  privacyDoc.includes('form publik Bitmomo tidak meminta nomor WhatsApp secara default') &&
+  privacyDoc.includes('Terakhir diperbarui: 14 September 2026')
+);
+check('Pro public claims cannot contradict a fail-closed current intelligence state',
+  proSales.includes('Decision View · produk inti Pro') &&
+  proSales.includes('Intelligence hanya ditampilkan ketika data memenuhi quality gate yang berlaku.') &&
+  !proSales.includes('Decision View aktif hari ini') &&
+  !proSales.includes('Decision View BTC, aktif setiap hari.')
+);
+check('Pro founding copy avoids lifetime and guaranteed-future-price overclaims',
+  proSales.includes('Harga untuk member baru dapat berubah') &&
+  proSales.includes('selama membership tersebut tetap aktif') &&
+  !proSales.includes('Founding Price selamanya') &&
+  !proSales.includes('Harga membership baru akan berubah')
+);
+check('Help Center uses one BTC product identity and no legacy Tren AI escape hatch',
+  proHelp.includes("'title' => 'BTC Intelligence'") &&
+  !proHelp.includes("'title' => 'BTC Daily Intelligence'") &&
+  !proHelp.includes('/category/tren-ai/') &&
+  proHelp.includes("add_query_arg( 'focus', 'systems'")
+);
+check('Public support links use the canonical configured support email',
+  proSales.includes('bitmomo_pro_support_email') &&
+  proHelp.includes('bitmomo_pro_support_email') &&
+  !proSales.includes('mailto:hi@bitmomo.id') &&
+  !proHelp.includes('mailto:hi@bitmomo.id')
+);
+check('Admin readiness cannot impersonate canonical staging/production authorization',
+  launchReadiness.includes('PLUGIN-INTERNAL STAGING CANDIDATE') &&
+  launchReadiness.includes('This screen can never authorize staging or production on its own.') &&
+  launchReadiness.includes('Founding Whitelist is the public conversion path') &&
+  launchReadiness.includes('Disabled/fail-closed — expected for Whitelist V1.')
+);
+
 check('Homepage product analytics keeps PII out while preserving continuation',
   frontendJs.includes('bitmomo:analytics') && frontendJs.includes('homepage_post_signup_ledger_click') &&
   !/payload\.(?:email|first_name|whatsapp|phone|user_id|client_id|device_id)\s*=/.test(frontendJs)

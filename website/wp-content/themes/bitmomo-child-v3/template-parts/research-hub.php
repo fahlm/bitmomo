@@ -114,12 +114,12 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       <div class="bm-research-head__grid">
         <div>
           <h1 id="bm-research-hub-title">Riset pasar yang dapat diuji. Sistem intelligence yang dapat dipercaya.</h1>
-          <p class="bm-research-head__lead">Research desk untuk Bitcoin dan digital-asset markets, dengan fokus pada market structure, derivatives, liquidity, macro, capital flows, serta sistem intelligence yang menjaga provenance, reliability, dan evaluation.</p>
+          <p class="bm-research-head__lead">Research desk untuk Bitcoin dan pasar aset digital, dengan fokus pada market structure, derivatives, liquidity, macro, capital flows, serta sistem intelligence yang menjaga provenance, reliability, dan evaluation.</p>
         </div>
         <div class="bm-research-head__utility">
-          <p><strong>Coverage</strong><span>Markets · Intelligence Systems</span></p>
-          <p><strong>Standard</strong><span>Evidence before narrative.</span></p>
-          <a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Open BTC Intelligence →</a>
+          <p><strong>Cakupan</strong><span>Markets · Intelligence Systems</span></p>
+          <p><strong>Standar</strong><span>Evidence before narrative.</span></p>
+          <a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Buka BTC Intelligence →</a>
         </div>
       </div>
       <div class="bm-research-standard-line" aria-label="Standar Research Bitmomo">
@@ -135,10 +135,10 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       </nav>
       <form class="bm-research-search" method="get" action="<?php echo esc_url( $bm_research_url ); ?>" role="search">
         <?php if ( 'all' !== $bm_focus ) : ?><input type="hidden" name="focus" value="<?php echo esc_attr( $bm_focus ); ?>"><?php endif; ?>
-        <label for="bm-research-search-input">Cari research</label>
+        <label for="bm-research-search-input">Cari riset</label>
         <div>
-          <input id="bm-research-search-input" type="search" name="research_q" value="<?php echo esc_attr( $bm_research_q ); ?>" placeholder="Search title, thesis, topic…">
-          <button type="submit">Search</button>
+          <input id="bm-research-search-input" type="search" name="research_q" value="<?php echo esc_attr( $bm_research_q ); ?>" placeholder="Judul, thesis, topik…">
+          <button type="submit">Cari</button>
         </div>
       </form>
     </section>
@@ -149,14 +149,14 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       $bm_lead_topic = bitmomo_post_research_topic_label( $bm_lead_id );
       $bm_lead_minutes = bitmomo_post_reading_minutes( $bm_lead_id );
       $bm_lead_excerpt = wp_trim_words( get_the_excerpt( $bm_lead ), 38, '…' );
-      $bm_lead_summary_label = has_excerpt( $bm_lead_id ) ? 'KEY FINDING' : 'RESEARCH SUMMARY';
+      $bm_lead_summary_label = has_excerpt( $bm_lead_id ) ? 'TEMUAN UTAMA' : 'RINGKASAN RISET';
       $bm_has_figure = has_post_thumbnail( $bm_lead_id );
     ?>
       <section class="bm-research-lead" id="latest-research" aria-labelledby="bm-lead-research-title">
         <div class="bm-research-section-label"><span>LEAD RESEARCH</span><span><?php echo esc_html( $bm_focus_filters[ $bm_focus ]['label'] ); ?></span></div>
         <article class="bm-research-lead__paper<?php echo $bm_has_figure ? '' : ' bm-research-lead__paper--text'; ?>">
           <div class="bm-research-lead__body">
-            <p class="bm-research-meta"><?php echo esc_html( $bm_lead_domain . ' · ' . strtoupper( $bm_lead_topic ) . ' · ' . get_the_date( 'd M Y', $bm_lead ) . ' · ' . $bm_lead_minutes . ' MIN READ' ); ?></p>
+            <p class="bm-research-meta"><?php echo esc_html( $bm_lead_domain . ' · ' . strtoupper( $bm_lead_topic ) . ' · ' . get_the_date( 'd M Y', $bm_lead ) . ' · ' . $bm_lead_minutes . ' MENIT BACA' ); ?></p>
             <h2 id="bm-lead-research-title"><a href="<?php echo esc_url( get_permalink( $bm_lead ) ); ?>"><?php echo esc_html( get_the_title( $bm_lead ) ); ?></a></h2>
             <?php if ( $bm_lead_excerpt ) : ?>
               <div class="bm-research-lead__finding">
@@ -164,7 +164,7 @@ $bm_domain_systems = array_slice( array_values( array_filter(
                 <p><?php echo esc_html( $bm_lead_excerpt ); ?></p>
               </div>
             <?php endif; ?>
-            <a class="bm-research-text-link" href="<?php echo esc_url( get_permalink( $bm_lead ) ); ?>">Read full research →</a>
+            <a class="bm-research-text-link" href="<?php echo esc_url( get_permalink( $bm_lead ) ); ?>">Baca riset lengkap →</a>
           </div>
           <?php if ( $bm_has_figure ) : ?>
             <a class="bm-research-lead__figure" href="<?php echo esc_url( get_permalink( $bm_lead ) ); ?>" aria-label="Buka <?php echo esc_attr( get_the_title( $bm_lead ) ); ?>">
@@ -182,7 +182,7 @@ $bm_domain_systems = array_slice( array_values( array_filter(
           <p class="bm-research-kicker">RESEARCH LIBRARY</p>
           <h2 id="bm-research-library-title"><?php echo esc_html( $bm_focus_filters[ $bm_focus ]['label'] ); ?></h2>
         </div>
-        <p><?php echo $bm_research_q ? esc_html( 'Search: “' . $bm_research_q . '”' ) : 'Latest qualified publications, ordered by publication date.'; ?></p>
+        <p><?php echo $bm_research_q ? esc_html( 'Pencarian: “' . $bm_research_q . '”' ) : 'Publikasi terklasifikasi terbaru, diurutkan berdasarkan tanggal publikasi.'; ?></p>
       </header>
 
       <?php if ( $bm_library_posts ) : ?>
@@ -199,7 +199,7 @@ $bm_domain_systems = array_slice( array_values( array_filter(
                 <span><?php echo esc_html( $bm_domain_label ); ?></span>
                 <strong><?php echo esc_html( $bm_topic_label ); ?></strong>
                 <time datetime="<?php echo esc_attr( get_the_date( 'c', $bm_post ) ); ?>"><?php echo esc_html( get_the_date( 'd M Y', $bm_post ) ); ?></time>
-                <small><?php echo esc_html( $bm_minutes . ' min read' ); ?></small>
+                <small><?php echo esc_html( $bm_minutes . ' menit baca' ); ?></small>
               </div>
               <div class="bm-research-library__copy">
                 <h3><a href="<?php echo esc_url( get_permalink( $bm_post ) ); ?>"><?php echo esc_html( get_the_title( $bm_post ) ); ?></a></h3>
@@ -211,12 +211,12 @@ $bm_domain_systems = array_slice( array_values( array_filter(
         </ol>
       <?php elseif ( ! $bm_lead ) : ?>
         <div class="bm-research-empty">
-          <strong>No qualified research found.</strong>
-          <p>Ubah filter atau kata pencarian. Artikel legacy yang belum memiliki classification research eksplisit tetap tidak akan dipromosikan di sini.</p>
-          <a href="<?php echo esc_url( $bm_research_url ); ?>">Reset research view →</a>
+          <strong>Tidak ada publikasi riset yang memenuhi klasifikasi ini.</strong>
+          <p>Ubah filter atau kata pencarian. Artikel lama yang belum memiliki klasifikasi research eksplisit tetap tidak akan dipromosikan sebagai institutional research.</p>
+          <a href="<?php echo esc_url( $bm_research_url ); ?>">Reset tampilan riset →</a>
         </div>
       <?php else : ?>
-        <p class="bm-research-library__single">Hanya satu publikasi qualified tersedia untuk view ini; publikasi tersebut ditampilkan sebagai Lead Research di atas.</p>
+        <p class="bm-research-library__single">Hanya satu publikasi terklasifikasi tersedia untuk tampilan ini; publikasi tersebut ditampilkan sebagai Lead Research di atas.</p>
       <?php endif; ?>
     </section>
 
@@ -224,7 +224,7 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       <header class="bm-research-library__head">
         <div>
           <p class="bm-research-kicker">RESEARCH DOMAINS</p>
-          <h2 id="bm-research-domains-title">Two disciplines. One intelligence standard.</h2>
+          <h2 id="bm-research-domains-title">Dua disiplin. Satu standar intelligence.</h2>
         </div>
         <p>Markets menjelaskan apa yang berubah. Intelligence Systems menjelaskan bagaimana evidence diproses, diuji, dan dibuat dapat dipercaya.</p>
       </header>
@@ -234,7 +234,7 @@ $bm_domain_systems = array_slice( array_values( array_filter(
             <span>01 · MARKETS</span>
             <h3>Market Research</h3>
             <p>Bitcoin, macro, market structure, derivatives, liquidity, capital flows, volatility, dan fundamental drivers.</p>
-            <a href="<?php echo esc_url( $bm_filter_url( 'bitcoin' ) ); ?>">Browse market research →</a>
+            <a href="<?php echo esc_url( $bm_filter_url( 'bitcoin' ) ); ?>">Buka market research →</a>
           </div>
           <?php if ( $bm_domain_market ) : ?><ol><?php foreach ( $bm_domain_market as $bm_post ) : ?><li><time datetime="<?php echo esc_attr( get_the_date( 'c', $bm_post ) ); ?>"><?php echo esc_html( get_the_date( 'd M', $bm_post ) ); ?></time><a href="<?php echo esc_url( get_permalink( $bm_post ) ); ?>"><?php echo esc_html( get_the_title( $bm_post ) ); ?></a></li><?php endforeach; ?></ol><?php endif; ?>
         </article>
@@ -242,8 +242,8 @@ $bm_domain_systems = array_slice( array_values( array_filter(
           <div class="bm-research-domain__head">
             <span>02 · SYSTEMS</span>
             <h3>Intelligence Systems</h3>
-            <p>Agent architecture, evaluation, provenance, reliability, model boundaries, and decision-intelligence systems.</p>
-            <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>">Browse intelligence systems →</a>
+            <p>Agent architecture, evaluation, provenance, reliability, model boundaries, dan decision-intelligence systems.</p>
+            <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>">Buka intelligence systems research →</a>
           </div>
           <?php if ( $bm_domain_systems ) : ?><ol><?php foreach ( $bm_domain_systems as $bm_post ) : ?><li><time datetime="<?php echo esc_attr( get_the_date( 'c', $bm_post ) ); ?>"><?php echo esc_html( get_the_date( 'd M', $bm_post ) ); ?></time><a href="<?php echo esc_url( get_permalink( $bm_post ) ); ?>"><?php echo esc_html( get_the_title( $bm_post ) ); ?></a></li><?php endforeach; ?></ol><?php endif; ?>
         </article>
@@ -254,15 +254,15 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       <header class="bm-research-library__head">
         <div>
           <p class="bm-research-kicker">RESEARCH PROGRAMS</p>
-          <h2 id="bm-research-programs-title">Recurring lenses for complex markets.</h2>
+          <h2 id="bm-research-programs-title">Kerangka berulang untuk pasar yang kompleks.</h2>
         </div>
         <p>Program research mengelompokkan pertanyaan yang terus diuji, bukan sekadar topik yang sedang ramai.</p>
       </header>
       <div class="bm-research-programs__list">
-        <a href="<?php echo esc_url( $bm_filter_url( 'market-structure' ) ); ?>"><span>01</span><strong>Market Structure Notes</strong><em>Trend, structure breaks, regime context, and price behavior.</em><b>→</b></a>
-        <a href="<?php echo esc_url( $bm_filter_url( 'derivatives' ) ); ?>"><span>02</span><strong>Derivatives Monitor</strong><em>Funding, positioning, leverage, and futures-market structure.</em><b>→</b></a>
-        <a href="<?php echo esc_url( $bm_filter_url( 'flows' ) ); ?>"><span>03</span><strong>ETF &amp; Capital Flows</strong><em>Demand absorption, institutional flows, and market transmission.</em><b>→</b></a>
-        <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>"><span>04</span><strong>Intelligence Systems</strong><em>Provenance, evaluation, agent reliability, and decision-system design.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'market-structure' ) ); ?>"><span>01</span><strong>Market Structure Notes</strong><em>Trend, structure breaks, regime context, dan perilaku harga.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'derivatives' ) ); ?>"><span>02</span><strong>Derivatives Monitor</strong><em>Funding, positioning, leverage, dan struktur pasar futures.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'flows' ) ); ?>"><span>03</span><strong>ETF &amp; Capital Flows</strong><em>Demand absorption, institutional flows, dan transmisi ke pasar.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>"><span>04</span><strong>Intelligence Systems</strong><em>Provenance, evaluation, agent reliability, dan desain decision system.</em><b>→</b></a>
       </div>
     </section>
 
@@ -281,8 +281,8 @@ $bm_domain_systems = array_slice( array_values( array_filter(
     </section>
 
     <footer class="bm-research-boundary">
-      <strong>Classification boundary</strong>
-      <p>Hanya publikasi dengan classification research eksplisit yang muncul di Research Hub. Artikel legacy/general tetap tersedia di URL aslinya tetapi tidak otomatis memperoleh label institutional research.</p>
+      <strong>Batas klasifikasi</strong>
+      <p>Hanya publikasi dengan klasifikasi research eksplisit yang muncul di Research Hub. Artikel lama/general tetap tersedia di URL aslinya tetapi tidak otomatis memperoleh label institutional research.</p>
     </footer>
   </div>
 </section>

@@ -1,8 +1,10 @@
 <?php
 /** Shared site footer for Bitmomo. @package Bitmomo */
-$bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_public_social_links() : array();
-$bm_terms_page   = get_page_by_path( 'syarat-layanan', OBJECT, 'page' );
-$bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status ) ? get_permalink( $bm_terms_page ) : '';
+$bm_social_links       = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_public_social_links() : array();
+$bm_terms_page         = get_page_by_path( 'syarat-layanan', OBJECT, 'page' );
+$bm_terms_url          = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status ) ? get_permalink( $bm_terms_page ) : '';
+$bm_newsletter_enabled = shortcode_exists( 'mailpoet_form' );
+$bm_show_connect       = $bm_newsletter_enabled || ! empty( $bm_social_links );
 ?>
 <footer class="bm-footer">
   <div class="bm-container">
@@ -38,20 +40,18 @@ $bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status
       </nav>
     </div>
 
-    <section class="bm-footer-connect" id="newsletter" aria-label="<?php esc_attr_e( 'Email brief dan media sosial', 'bitmomo' ); ?>">
+    <section class="bm-footer-connect" id="newsletter" aria-label="<?php esc_attr_e( 'Email brief dan media sosial', 'bitmomo' ); ?>"<?php echo $bm_show_connect ? '' : ' hidden aria-hidden="true"'; ?>>
       <span id="subscribe" class="bm-footer-anchor" aria-hidden="true"></span>
-      <div class="bm-footer-newsletter">
-        <div class="bm-footer-connect__copy">
-          <strong><?php esc_html_e( 'EMAIL BRIEF', 'bitmomo' ); ?></strong>
-          <span><?php esc_html_e( 'Brief BTC dan publikasi research terbaru.', 'bitmomo' ); ?></span>
-        </div>
-        <div class="bm-footer-newsletter__form">
-          <?php if ( shortcode_exists( 'mailpoet_form' ) ) : ?>
+      <div class="bm-footer-newsletter"<?php echo $bm_newsletter_enabled ? '' : ' hidden aria-hidden="true"'; ?>>
+        <?php if ( $bm_newsletter_enabled ) : ?>
+          <div class="bm-footer-connect__copy">
+            <strong><?php esc_html_e( 'EMAIL BRIEF', 'bitmomo' ); ?></strong>
+            <span><?php esc_html_e( 'Brief BTC dan publikasi research terbaru.', 'bitmomo' ); ?></span>
+          </div>
+          <div class="bm-footer-newsletter__form">
             <?php echo do_shortcode( '[mailpoet_form id="' . absint( BM_MAILPOET_FORM_ID ) . '"]' ); ?>
-          <?php else : ?>
-            <span class="bm-footer-newsletter__unavailable"><?php esc_html_e( 'Subscribe email sementara tidak tersedia.', 'bitmomo' ); ?></span>
-          <?php endif; ?>
-        </div>
+          </div>
+        <?php endif; ?>
       </div>
 
       <?php if ( $bm_social_links ) : ?>
@@ -70,7 +70,7 @@ $bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status
   </div>
 </footer>
 
-<?php unset( $bm_social_links, $bm_social_key, $bm_social, $bm_terms_page, $bm_terms_url ); ?>
+<?php unset( $bm_social_links, $bm_social_key, $bm_social, $bm_terms_page, $bm_terms_url, $bm_newsletter_enabled, $bm_show_connect ); ?>
 <?php wp_footer(); ?>
 </body>
 </html>

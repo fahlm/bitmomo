@@ -4,7 +4,7 @@ This is the canonical release gate for the public launch candidate that reconcil
 
 ## 0. Source of truth
 
-- Candidate must contain the #121 site-wide design-system/homepage/chrome state **and** the reviewed Market Context runtime.
+- Candidate must contain the current `release/whitelist-v1` product/site/BTC convergence state plus every reviewed launch-readiness patch deliberately reconciled into it.
 - One final artifact only. Record branch head SHA, PR merge-ref SHA, artifact ID/name, artifact SHA-256 and runtime file count in the release report.
 - Current integrated runtime contract: **117 managed files** before any additional runtime file is intentionally added; theme 46, bitmomo-ai 24, BTC Intelligence 8, Bitmomo Pro 27, regime 12.
 - `custom.css` remains frozen. Do not add emergency visual overrides there.
@@ -18,7 +18,7 @@ Required:
 - Authority Surface Safety = PASS.
 - Theme Safety / UI architecture = PASS.
 - Homepage Research Boundary = PASS.
-- All deterministic PHP suites = PASS.
+- All deterministic PHP suites = PASS, including the default email-only whitelist contract and the separately enabled dormant WhatsApp capability contract.
 - All first-party JavaScript syntax checks = PASS.
 - Artifact builds twice byte-identically and file count matches the manifest.
 - BTC Intelligence asset version is newer than the previous public CSS/JS release; Bitmomo Pro version is newer than the previous Pro CSS release. Production must not depend on a manual browser cache purge.
@@ -28,6 +28,7 @@ Required:
 - Only closed Binance daily candles may be labeled daily close.
 - Gold stays fail-closed when its provider/key is unavailable; never substitute PAXG or another proxy and call it Gold.
 - Current Pro Expected Range / Scenario Map / Invalidation remain unavailable in the public Market Context contract.
+- Pro/Help/whitelist source contracts do not promise a capability merely because dormant code exists.
 
 ## 2. P0 — staging environment identity
 
@@ -44,7 +45,7 @@ If artifact/runtime identity cannot be proven, stop. Do not visually approve an 
 
 ## 3. P0 — responsive public-surface matrix
 
-Run at **360 / 390 / 768 / 1024 / 1440** for:
+Run at **360 / 390 / 768 / 1024 / 1440**, including short-height **390x568**, for:
 
 - `/`
 - `/btc-intelligence/`
@@ -70,14 +71,16 @@ For every surface:
 - internal fragment links resolve;
 - no empty links;
 - no legacy newsletter modal;
-- footer newsletter appears exactly once;
+- footer newsletter appears exactly once in the deterministic DOM and is visually fail-closed when unavailable;
+- no public `Subscribe email sementara tidak tersedia.` broken-capability message;
+- no legacy `/category/tren-ai/` trust-path link;
 - keyboard focus order is logical;
 - mobile targets are at least 44px where touch interaction is expected;
 - 200% text zoom remains usable with no clipped critical content;
 - browser console/page errors = 0;
 - Axe serious/critical = 0 at minimum 390 and 1440.
 
-Also test short-height mobile navigation (roughly 390x600): menu must scroll internally and remain dismissible by Escape.
+Also test short-height mobile navigation: menu must scroll internally, hidden links must not receive focus while closed, and Escape must close the menu and return focus to the hamburger control.
 
 ## 4. P0 — BTC Intelligence / Market Context
 
@@ -85,6 +88,8 @@ Also test short-height mobile navigation (roughly 390x600): menu must scroll int
 
 - Direction, Market State, Confidence, reference price and freshness agree with the public-safe canonical adapter.
 - stale/delayed/unavailable states are visually explicit and never fabricated.
+- public snapshot has a valid `as_of` timestamp and is within the whitelist launch age budget (default **30 hours**); older intelligence is launch-blocking rather than accepted as arbitrarily old `delayed` data.
+- Pro/Help copy does not statically claim `Decision View aktif hari ini` or `aktif setiap hari` independently of runtime state.
 - What Changed is visually prior to supporting Why in enhanced experience.
 - server-rendered Decision View remains complete if Market Context JS or provider calls fail.
 - BTC shell width does not visibly jump when JavaScript initializes.
@@ -131,25 +136,36 @@ Test deliberately:
 - JavaScript disabled;
 - slow network / aborted range switch.
 
-In all cases core BTC Intelligence remains usable.
+In all cases core BTC Intelligence remains usable or fails closed honestly.
 
 ## 5. P0 — conversion and trust
 
-### Whitelist
+### Whitelist V1
 
-Test real staging flow, not only stubs:
+Whitelist V1 is **email-only by default**. Dormant WhatsApp code does not make WhatsApp a launch capability.
+
+Test the real staging flow, not only stubs:
 
 - valid email;
 - invalid email;
 - consent absent;
-- duplicate email;
+- consent links directly to canonical Privacy;
+- duplicate normalized email;
 - success state and focus movement;
-- optional WhatsApp second step if enabled;
-- narrow viewport overflow;
+- exactly one canonical private record for a new email;
+- duplicate resolves to the same record and does not resend confirmation;
+- checkout is disabled;
+- WhatsApp opt-in is disabled/fail-closed: no phone field/button, no record token exposure, no WhatsApp notification promise;
+- confirmation email is generated exactly once for a new signup through the canonical `wp_mail` boundary;
+- staging readiness short-circuits the mail transport so the probe cannot send externally;
+- temporary readiness record is removed after the probe;
+- narrow viewport overflow = 0;
 - no fake seat reservation/urgency;
 - no payment implication while checkout is unavailable.
 
-Verify staging records land in the staging database only and staging mail behavior is intentional.
+Before real audience traffic, run a bounded production mail-transport preflight to an internal recipient. A successful staging generation probe is not proof of inbox delivery.
+
+A future release that enables WhatsApp must explicitly update the release expectation and pass separate runtime/browser/transport/privacy acceptance; it must not become live accidentally through dormant code.
 
 ### Pro / Account / Help
 
@@ -158,6 +174,10 @@ Verify staging records land in the staging database only and staging mail behavi
 - lost-password path works;
 - protected content remains protected;
 - Help deep links/FAQ controls work by keyboard;
+- Help consistently calls the public product **BTC Intelligence**, not the retired `BTC Daily Intelligence` label;
+- Help does not route users back into legacy `/category/tren-ai/` publisher IA;
+- support links use the canonical configured support email;
+- founding pricing copy does not promise lifetime pricing after lapse or guarantee a future new-member price change;
 - checkout URL remains fail-closed until explicitly configured.
 
 ### Footer / social / legal
@@ -165,17 +185,22 @@ Verify staging records land in the staging database only and staging mail behavi
 - social destinations are fail-closed: only configured validated HTTPS URLs may render;
 - if release expects Telegram/YouTube/X, record expected URLs and verify exact destinations;
 - Terms link appears only when the canonical published Terms page exists;
-- Privacy and Disclaimer copy accurately reflects current data collection (email/optional WhatsApp), research nature and non-advisory positioning.
+- Privacy is published and semantically current with the Whitelist V1 email-only default plus conditional future WhatsApp language;
+- Disclaimer is published and semantically current with current product/data/accountability boundaries;
+- a merely published stale legal page is a release failure.
 
 ## 6. P0 — Research / Google entry path
 
-- Research Hub shows only qualified institutional research under the canonical classification boundary.
-- no AI Lab / generic legacy Riset leakage into the market Research promise.
-- article title/deck/meta/body typography is clean and deterministic across devices.
-- reading column remains approximately 720px desktop; wide research figures remain bounded.
-- article tables scroll horizontally rather than breaking the viewport.
-- no injected duplicate disclaimer/newsletter/body H1.
-- related research classification is correct.
+- at least **2 qualified Market Research publications** exist in the staging database before whitelist launch;
+- Research Hub shows only qualified institutional research under the canonical classification boundary;
+- no AI Lab / generic legacy Riset leakage into the market Research promise;
+- homepage Research can render genuine qualified BTC/market work instead of disappearing or being padded with unrelated content;
+- Research Hub navigation/search/empty-state copy is coherent for the Indonesian audience while retaining intentional technical vocabulary;
+- article title/deck/meta/body typography is clean and deterministic across devices;
+- reading column remains approximately 720px desktop; wide research figures remain bounded;
+- article tables scroll horizontally rather than breaking the viewport;
+- no injected duplicate disclaimer/newsletter/body H1;
+- related research classification is correct;
 - search/legacy utility/archive side doors remain noindex where contracted.
 
 ## 7. P1 — quality improvements after P0 is green
@@ -202,6 +227,7 @@ Only after staging PASS:
 6. verify canonical/robots/title/description on key indexable pages;
 7. verify HTTP security/cache headers appropriate to the actual Hostinger/Cloudflare runtime;
 8. verify no staging banner/config leaks and no production outbound integration is unexpectedly disabled;
-9. monitor console/runtime errors and conversion events after release.
+9. run bounded internal-recipient mail transport preflight before opening whitelist traffic;
+10. monitor console/runtime errors and conversion events after release.
 
 If production differs from accepted staging in source, database contract or runtime configuration, the staging approval does not transfer: stop and reconcile.
