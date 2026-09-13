@@ -34,7 +34,9 @@ const proWhitelist = read('website/wp-content/plugins/bitmomo-pro/includes/class
 const proWhitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
 
 const heroIndex = frontPage.indexOf("template-parts/home', 'hero'");
+const howIndex = frontPage.indexOf("template-parts/how-it-works");
 const proConversionIndex = frontPage.indexOf("template-parts/whitelist");
+const researchIndex = frontPage.indexOf("template-parts/research");
 check(
   'Homepage has one current-intelligence surface before one unified Pro conversion surface',
   heroIndex > -1 && proConversionIndex > -1 && heroIndex < proConversionIndex
@@ -44,10 +46,12 @@ check(
 );
 check('Homepage does not let AI Lab compete with the launch funnel', !/template-parts\/ai[^\n]*lab/.test(frontPage));
 check(
-  'Homepage journey is product-first while Pro conversion remains provider-neutral',
-  /home_url\(\s*'\/btc-intelligence\/'\s*\)/.test(homeHero)
+  'Homepage journey is value/proof -> mechanism -> conversion -> research while Pro conversion remains provider-neutral',
+  heroIndex > -1 && howIndex > heroIndex && proConversionIndex > howIndex && researchIndex > proConversionIndex
+    && /home_url\(\s*'\/btc-intelligence\/'\s*\)/.test(homeHero)
     && /href="#founding-whitelist"/.test(homeHero)
     && /\/btc-intelligence\/#decision-ledger/.test(homeHero)
+    && homeHero.indexOf('/btc-intelligence/#decision-ledger') < homeHero.indexOf('href="#founding-whitelist"')
     && /bitmomo_pro_get_checkout_url\(\)/.test(homeWhitelist)
     && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(homeWhitelist)
     && /home_url\(\s*'\/pro\/'\s*\)/.test(homeWhitelist)
@@ -73,11 +77,12 @@ check(
     && !/Bitmomo_Regime_State_Store|Bitmomo_Pro_/.test(homeHero)
 );
 check(
-  'Homepage exposes only direction, confidence, one reason and update time',
-  />ARAH</.test(homeHero) && />KEYAKINAN</.test(homeHero) && />ALASAN UTAMA</.test(homeHero) && />DIPERBARUI</.test(homeHero)
+  'Homepage reading is concise but finance-grade: direction, confidence, reference, reason, time and safe source only',
+  />ARAH</.test(homeHero) && />KEYAKINAN</.test(homeHero) && />REFERENSI BTC</.test(homeHero)
+    && />ALASAN UTAMA</.test(homeHero) && />DIPERBARUI</.test(homeHero) && /<strong>SUMBER<\/strong>/.test(homeHero)
+    && /\$bm_drivers\[0\]/.test(homeHero) && /\['provenance'\]\['source'\]/.test(homeHero)
     && !/>OPPORTUNITY</.test(homeHero) && !/>STATE</.test(homeHero)
-    && !/market_state|certainty|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
-    && !/provenance|Sumber data/.test(homeHero)
+    && !/market_state|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
 );
 check(
   'Homepage explanation uses visitor language instead of engine vocabulary',
@@ -87,7 +92,7 @@ check(
     && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
 );
 check(
-  'Synthetic HTML contract mirrors visible public facts only',
+  'Synthetic HTML contract mirrors public facts only',
   /'schema'\s*=>\s*2/.test(themeFunctions)
     && /'directional_bias'/.test(themeFunctions) && /'confidence'/.test(themeFunctions)
     && !/'market_state'\s*=>/.test(themeFunctions) && !/'direction_strength'\s*=>/.test(themeFunctions)
