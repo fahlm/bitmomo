@@ -99,9 +99,9 @@ class Bitmomo_Pro_Sales {
 		<section id="pro-overview" class="bm-pro-sales__hero" aria-labelledby="bm-pro-hero-title">
 			<p class="bm-pro-sales__hero-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP — BITMOMO PRO', 'bitmomo-pro' ); ?></p>
 			<h1 id="bm-pro-hero-title" class="bm-pro-sales__hero-title"><?php esc_html_e( 'Pahami BTC dalam konteks, bukan sekadar dari potongan data.', 'bitmomo-pro' ); ?></h1>
-			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Decision View harian untuk memahami rentang, skenario, invalidation, dan perubahan penting BTC — tanpa harus menganalisis semuanya sendiri.', 'bitmomo-pro' ); ?></p>
-			<div class="bm-pro-sales__hero-status" aria-label="Status produk">
-				<span><?php esc_html_e( 'Decision View aktif hari ini', 'bitmomo-pro' ); ?></span>
+			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Decision View BTC untuk memahami rentang, skenario, invalidation, dan perubahan penting — tanpa harus menganalisis semuanya sendiri.', 'bitmomo-pro' ); ?></p>
+			<div class="bm-pro-sales__hero-status" aria-label="Karakter produk">
+				<span><?php esc_html_e( 'Decision View · produk inti Pro', 'bitmomo-pro' ); ?></span>
 				<span><?php esc_html_e( 'Bukan sinyal buy / sell', 'bitmomo-pro' ); ?></span>
 				<span><?php esc_html_e( 'Evidence before narrative', 'bitmomo-pro' ); ?></span>
 			</div>
@@ -150,8 +150,8 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section id="pro-product" class="bm-pro-sales__section--editorial bm-pro-sales__today" aria-labelledby="bm-pro-today-title">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'YANG SUDAH TERSEDIA SEKARANG', 'bitmomo-pro' ); ?></p>
-			<h2 id="bm-pro-today-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Decision View BTC, aktif setiap hari.', 'bitmomo-pro' ); ?></h2>
-			<p class="bm-pro-sales__lead"><?php esc_html_e( 'Gratis membantu memahami apa yang sedang terjadi. Pro membantu memetakan apa yang perlu diperhatikan berikutnya.', 'bitmomo-pro' ); ?></p>
+			<h2 id="bm-pro-today-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Decision View BTC adalah produk inti Bitmomo Pro.', 'bitmomo-pro' ); ?></h2>
+			<p class="bm-pro-sales__lead"><?php esc_html_e( 'Gratis membantu memahami apa yang sedang terjadi. Pro membantu memetakan apa yang perlu diperhatikan berikutnya. Intelligence hanya ditampilkan ketika data memenuhi quality gate yang berlaku.', 'bitmomo-pro' ); ?></p>
 			<div class="bm-pro-sales__deliverables">
 				<div><span>01</span><strong><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Rentang harga yang realistis berdasarkan kondisi saat intelligence dibuat.', 'bitmomo-pro' ); ?></p></div>
 				<div><span>02</span><strong><?php esc_html_e( 'Scenario Map', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Base, Bull, dan Bear beserta kondisi yang mendukung masing-masing jalur.', 'bitmomo-pro' ); ?></p></div>
@@ -290,14 +290,14 @@ class Bitmomo_Pro_Sales {
 		?>
 		<div class="bm-pro-sales__climax-block bm-pro-sales__economics">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo-pro' ); ?></p>
-			<h2 id="bm-pro-pricing-title" class="bm-pro-sales__section-title bm-pro-sales__section-title--climax"><?php esc_html_e( 'Bergabung sebelum Bitmomo Pro mencapai bentuk penuhnya.', 'bitmomo-pro' ); ?></h2>
+			<h2 id="bm-pro-pricing-title" class="bm-pro-sales__section-title bm-pro-sales__section-title--climax"><?php esc_html_e( 'Ikuti tahap Founding Bitmomo Pro dengan terms yang jelas sejak awal.', 'bitmomo-pro' ); ?></h2>
 			<div class="bm-pro-sales__progression">
-				<div class="bm-pro-sales__progression-step"><span class="bm-pro-sales__progression-label"><?php esc_html_e( 'HARI INI', 'bitmomo-pro' ); ?></span><p><?php esc_html_e( 'Decision View BTC harian.', 'bitmomo-pro' ); ?></p></div>
+				<div class="bm-pro-sales__progression-step"><span class="bm-pro-sales__progression-label"><?php esc_html_e( 'PRODUK INTI', 'bitmomo-pro' ); ?></span><p><?php esc_html_e( 'Decision View BTC: expected range, scenarios, invalidation, dan what changed.', 'bitmomo-pro' ); ?></p></div>
 				<div class="bm-pro-sales__progression-step"><span class="bm-pro-sales__progression-label"><?php esc_html_e( 'SEGERA HADIR', 'bitmomo-pro' ); ?></span><p><?php esc_html_e( 'Altcoin Intelligence, Daily Alpha Discovery, Watchtower, dan 11 AI Analysts.', 'bitmomo-pro' ); ?></p></div>
 				<div class="bm-pro-sales__progression-step"><span class="bm-pro-sales__progression-label"><?php esc_html_e( 'KE DEPAN', 'bitmomo-pro' ); ?></span><p><?php esc_html_e( 'Capability baru yang terus ditambahkan ke Bitmomo Pro.', 'bitmomo-pro' ); ?></p></div>
 			</div>
 			<p class="bm-pro-sales__economics-anchor"><?php esc_html_e( 'FOUNDING PRICE Rp149.000/bulan', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Rp149.000/bulan adalah Founding Price. Harga membership baru akan berubah seiring pengembangan fitur dan teknologi Bitmomo Pro. Founding Members yang menjaga membership tetap aktif dapat mempertahankan Founding Price selamanya.', 'bitmomo-pro' ); ?></p>
+			<p><?php esc_html_e( 'Rp149.000/bulan adalah Founding Price. Harga untuk member baru dapat berubah seiring pengembangan Bitmomo Pro. Founding Members yang menjaga membership tetap aktif mempertahankan Founding Price selama membership tersebut tetap aktif.', 'bitmomo-pro' ); ?></p>
 			<p class="bm-pro-sales__economics-boundary"><?php esc_html_e( 'Founding benefit berlaku untuk fitur baru yang ditambahkan ke Bitmomo Pro. Produk standalone Bitmomo di masa depan dapat memiliki pricing tersendiri.', 'bitmomo-pro' ); ?></p>
 		</div>
 		<?php
@@ -374,16 +374,23 @@ class Bitmomo_Pro_Sales {
 		<?php
 	}
 
+	private function support_email() {
+		$email = sanitize_email( (string) apply_filters( 'bitmomo_pro_support_email', get_option( 'admin_email' ) ) );
+		return is_email( $email ) ? $email : '';
+	}
+
 	private function render_trust_links() {
+		$support_email = $this->support_email();
 		?>
 		<nav class="bm-pro-sales__trust-links" aria-label="<?php esc_attr_e( 'Trust dan kebijakan Bitmomo Pro', 'bitmomo-pro' ); ?>">
 			<a href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>"><?php esc_html_e( 'Decision Ledger', 'bitmomo-pro' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/help/' ) ); ?>"><?php esc_html_e( 'Help Center', 'bitmomo-pro' ); ?></a>
-			<a href="mailto:hi@bitmomo.id"><?php esc_html_e( 'Support', 'bitmomo-pro' ); ?></a>
+			<?php if ( $support_email ) : ?><a href="mailto:<?php echo esc_attr( $support_email ); ?>"><?php esc_html_e( 'Support', 'bitmomo-pro' ); ?></a><?php endif; ?>
 			<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>"><?php esc_html_e( 'Kebijakan Privasi', 'bitmomo-pro' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>"><?php esc_html_e( 'Disclaimer', 'bitmomo-pro' ); ?></a>
 		</nav>
 		<?php
+		unset( $support_email );
 	}
 
 	private function render_disclaimer() {
