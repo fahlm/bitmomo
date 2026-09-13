@@ -6,37 +6,38 @@ $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_pu
   <div class="bm-container">
     <div class="bm-footer-grid">
       <div class="bm-footer-brand">
-        <strong>bitmomo</strong>
-        <p><?php esc_html_e( 'BTC market intelligence yang mengubah data menjadi konteks, decision support, dan accountability.', 'bitmomo' ); ?></p>
+        <?php bitmomo_render_brand(); ?>
+        <p><?php esc_html_e( 'Market intelligence untuk memahami kondisi BTC, skenario berikutnya, dan perubahan thesis pasar.', 'bitmomo' ); ?></p>
       </div>
 
       <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Produk', 'bitmomo' ); ?>">
         <strong><?php esc_html_e( 'PRODUK', 'bitmomo' ); ?></strong>
         <a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>"><?php esc_html_e( 'BTC Intelligence', 'bitmomo' ); ?></a>
         <a href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( home_url( '/help/' ) ); ?>"><?php esc_html_e( 'Help Center', 'bitmomo' ); ?></a>
       </nav>
 
-      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Riset', 'bitmomo' ); ?>">
-        <strong><?php esc_html_e( 'RISET', 'bitmomo' ); ?></strong>
+      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Research', 'bitmomo' ); ?>">
+        <strong><?php esc_html_e( 'RESEARCH', 'bitmomo' ); ?></strong>
         <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Market Research', 'bitmomo' ); ?></a>
         <a href="<?php echo esc_url( add_query_arg( 'focus', 'systems', home_url( '/category/riset/' ) ) ); ?>"><?php esc_html_e( 'Intelligence Systems', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/category/riset/#research-standard' ) ); ?>"><?php esc_html_e( 'Research Standard', 'bitmomo' ); ?></a>
       </nav>
 
-      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Tentang dan legal', 'bitmomo' ); ?>">
+      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Bitmomo dan legal', 'bitmomo' ); ?>">
         <strong><?php esc_html_e( 'BITMOMO', 'bitmomo' ); ?></strong>
-        <a href="<?php echo esc_url( home_url( '/tentang-kami/' ) ); ?>"><?php esc_html_e( 'Tentang Kami', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/tentang-kami/' ) ); ?>"><?php esc_html_e( 'Tentang Bitmomo', 'bitmomo' ); ?></a>
+        <a href="<?php echo esc_url( home_url( '/help/' ) ); ?>"><?php esc_html_e( 'Help Center', 'bitmomo' ); ?></a>
         <a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>"><?php esc_html_e( 'Kebijakan Privasi', 'bitmomo' ); ?></a>
         <a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>"><?php esc_html_e( 'Disclaimer', 'bitmomo' ); ?></a>
       </nav>
     </div>
 
-    <section class="bm-footer-connect" id="newsletter" aria-label="<?php esc_attr_e( 'Newsletter dan media sosial', 'bitmomo' ); ?>">
+    <section class="bm-footer-connect" id="newsletter" aria-label="<?php esc_attr_e( 'Email brief dan media sosial', 'bitmomo' ); ?>">
       <span id="subscribe" class="bm-footer-anchor" aria-hidden="true"></span>
       <div class="bm-footer-newsletter">
         <div class="bm-footer-connect__copy">
           <strong><?php esc_html_e( 'EMAIL BRIEF', 'bitmomo' ); ?></strong>
-          <span><?php esc_html_e( 'Ringkasan BTC dan riset terbaru.', 'bitmomo' ); ?></span>
+          <span><?php esc_html_e( 'Brief BTC dan publikasi research terbaru.', 'bitmomo' ); ?></span>
         </div>
         <div class="bm-footer-newsletter__form">
           <?php if ( shortcode_exists( 'mailpoet_form' ) ) : ?>
