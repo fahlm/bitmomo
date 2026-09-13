@@ -12,6 +12,12 @@ on:
       - "scripts/build-production-artifact.py"
       - "scripts/check-m2-launch-surfaces.mjs"
       - "scripts/check-navigation-footer.mjs"
+      - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
+      - "scripts/check-home-research-boundary.mjs"
+      - "scripts/audit-css-debt.mjs"
+      - "scripts/check-staging-artifact.py"
+      - "scripts/check-staging-asset-coherence.py"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/release-safety.yml"
   push:
@@ -27,12 +33,12 @@ concurrency:
 
 jobs:
   release:
-    name: Runtime, contracts, and artifact
+    name: Runtime, authoritative contracts, and artifact
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Lint every managed PHP file
         shell: bash
@@ -66,12 +72,28 @@ jobs:
           set -euo pipefail
           find website/wp-content/themes/bitmomo-child-v3 website/wp-content/plugins/bitmomo-ai website/wp-content/plugins/bitmomo-btc-intelligence website/wp-content/plugins/bitmomo-pro website/wp-content/plugins/bitmomo-regime \
             -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
+          python3 -m py_compile scripts/build-production-artifact.py scripts/check-staging-artifact.py
+          if [[ -f scripts/check-staging-asset-coherence.py ]]; then
+            python3 -m py_compile scripts/check-staging-asset-coherence.py
+          fi
 
       - name: Check M2 launch contract
         run: node scripts/check-m2-launch-surfaces.mjs
 
       - name: Check navigation and footer contract
         run: node scripts/check-navigation-footer.mjs
+
+      - name: Check UI architecture and WCAG source contract
+        run: node scripts/check-ui-architecture.mjs
+
+      - name: Check terminal-grade public contract
+        run: node scripts/check-terminal-grade-contract.mjs
+
+      - name: Check homepage research qualification boundary
+        run: node scripts/check-home-research-boundary.mjs
+
+      - name: Check CSS debt baseline
+        run: node scripts/audit-css-debt.mjs
 
       - name: Build deterministic production artifact twice
         shell: bash
@@ -84,6 +106,34 @@ jobs:
           actual_count="$(tar -tf dist/first/bitmomo-runtime.tar | wc -l | tr -d ' ')"
           test "${actual_count}" -eq "${expected_count}"
           ! tar -tf dist/first/bitmomo-runtime.tar | grep -Eq '(^|/)tests/|\.md$|\.env($|\.)|\.(key|pem|tmp|temp)$'
+
+      - name: Verify exact candidate provenance in artifact manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          expected_commit = os.environ['GITHUB_SHA']
+          expected_tree = subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip()
+          manifests = []
+          for path in ('dist/first/bitmomo-runtime-manifest.json', 'dist/second/bitmomo-runtime-manifest.json'):
+              with open(path, encoding='utf-8') as handle:
+                  value = json.load(handle)
+              assert value.get('source_commit') == expected_commit, (path, value.get('source_commit'), expected_commit)
+              assert value.get('source_tree') == expected_tree, (path, value.get('source_tree'), expected_tree)
+              manifests.append(value)
+
+          first, second = manifests
+          assert first['artifact_sha256'] == second['artifact_sha256']
+          assert first['file_count'] == second['file_count']
+          assert first['files'] == second['files']
+          assert first['packaging_definition_sha256'] == second['packaging_definition_sha256']
+          print(f"PASS exact candidate provenance commit={expected_commit} tree={expected_tree}")
+          print(f"PASS deterministic artifact sha256={first['artifact_sha256']}")
+          PY
 
       - name: Upload reviewed runtime artifact
         uses: actions/upload-artifact@v4
