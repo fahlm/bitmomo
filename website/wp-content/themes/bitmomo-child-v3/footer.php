@@ -2,7 +2,7 @@
 /** Shared site footer for Bitmomo. @package Bitmomo */
 $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_public_social_links() : array();
 $bm_terms_page   = get_page_by_path( 'syarat-layanan', OBJECT, 'page' );
-$bm_terms_url    = $bm_terms_page ? get_permalink( $bm_terms_page ) : '';
+$bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status ) ? get_permalink( $bm_terms_page ) : '';
 ?>
 <footer class="bm-footer">
   <div class="bm-container">
