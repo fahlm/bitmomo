@@ -2,9 +2,10 @@ name: Production synthetic monitor
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17 */6 * * *"
   workflow_dispatch:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - ".github/workflows/production-synthetic-monitor.yml"
 
@@ -17,6 +18,7 @@ concurrency:
 
 jobs:
   production-health:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: Public production health
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -120,8 +122,6 @@ jobs:
           PY
           )"
 
-          # The contract was introduced in theme v4.3. Do not create a false
-          # alarm during the merge-to-deploy window while production is older.
           if [[ "$(printf '%s\n' '4.3' "${deployed_version}" | sort -V | head -n1)" != '4.3' ]]; then
             echo "SKIP snapshot consistency contract: production theme ${deployed_version} < 4.3"
             exit 0
