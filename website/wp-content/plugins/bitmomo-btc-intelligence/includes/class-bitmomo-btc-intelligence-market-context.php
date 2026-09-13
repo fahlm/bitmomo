@@ -11,12 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * when an optional provider is unavailable.
  */
 final class Bitmomo_Btc_Intelligence_Market_Context {
-	const REST_NAMESPACE = 'bitmomo-btc/v1';
-	const REST_ROUTE     = '/market-context';
-	const BINANCE_BASE   = 'https://data-api.binance.vision';
-	const ALPHA_BASE     = 'https://www.alphavantage.co/query';
-	const CACHE_CRYPTO   = 10 * MINUTE_IN_SECONDS;
-	const CACHE_GOLD     = 6 * HOUR_IN_SECONDS;
+	const REST_NAMESPACE       = 'bitmomo-btc/v1';
+	const REST_ROUTE           = '/market-context';
+	const BINANCE_BASE         = 'https://data-api.binance.vision';
+	const ALPHA_BASE           = 'https://www.alphavantage.co/query';
+	const CACHE_CRYPTO         = 10 * MINUTE_IN_SECONDS;
+	const CACHE_GOLD           = 6 * HOUR_IN_SECONDS;
+	const CACHE_FAILURE_CRYPTO = 2 * MINUTE_IN_SECONDS;
+	const CACHE_FAILURE_GOLD   = 15 * MINUTE_IN_SECONDS;
 
 	private static $initialized = false;
 
@@ -87,17 +89,19 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 	}
 
 	public static function rest_response( $request ) {
+		$ranges = self::allowed_ranges();
 		$range = is_object( $request ) && method_exists( $request, 'get_param' )
 			? sanitize_key( (string) $request->get_param( 'range' ) )
 			: '30d';
-		if ( ! isset( self::allowed_ranges()[ $range ] ) ) {
+		if ( ! isset( $ranges[ $range ] ) ) {
 			$range = '30d';
 		}
 		return rest_ensure_response( self::build_contract( $range ) );
 	}
 
 	public static function build_contract( $range = '30d' ) {
-		$range = isset( self::allowed_ranges()[ $range ] ) ? $range : '30d';
+		$ranges = self::allowed_ranges();
+		$range = isset( $ranges[ $range ] ) ? $range : '30d';
 		$start_ts = self::range_start_timestamp( $range );
 		$series = array();
 		foreach ( self::series_catalog() as $id => $definition ) {
@@ -199,27 +203,29 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 		);
 		$response = wp_remote_get( $url, array( 'timeout' => 8, 'redirection' => 2 ) );
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return self::unavailable_series( $definition, 'provider_unavailable' );
+			return self::cache_unavailable( $cache_key, $definition, 'provider_unavailable', self::CACHE_FAILURE_CRYPTO );
 		}
 		$rows = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $rows ) ) {
-			return self::unavailable_series( $definition, 'invalid_provider_response' );
+			return self::cache_unavailable( $cache_key, $definition, 'invalid_provider_response', self::CACHE_FAILURE_CRYPTO );
 		}
 
 		$points = array();
+		$now_ms = time() * 1000;
 		foreach ( $rows as $row ) {
-			if ( ! is_array( $row ) || ! isset( $row[0], $row[4] ) || ! is_numeric( $row[0] ) || ! is_numeric( $row[4] ) ) {
+			if ( ! is_array( $row ) || ! isset( $row[0], $row[4], $row[6] ) || ! is_numeric( $row[0] ) || ! is_numeric( $row[4] ) || ! is_numeric( $row[6] ) ) {
 				continue;
 			}
 			$ts = (int) floor( (int) $row[0] / 1000 );
+			$close_ms = (int) $row[6];
 			$value = (float) $row[4];
-			if ( $ts < $start_ts || $value <= 0 ) {
+			if ( $ts < $start_ts || $close_ms > $now_ms || $value <= 0 ) {
 				continue;
 			}
 			$points[] = array( 't' => $ts, 'date' => gmdate( 'Y-m-d', $ts ), 'value' => $value );
 		}
 		if ( count( $points ) < 2 ) {
-			return self::unavailable_series( $definition, 'insufficient_history' );
+			return self::cache_unavailable( $cache_key, $definition, 'insufficient_closed_history', self::CACHE_FAILURE_CRYPTO );
 		}
 
 		$result = self::available_series( $definition, $points );
@@ -249,11 +255,11 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 		);
 		$response = wp_remote_get( $url, array( 'timeout' => 10, 'redirection' => 2 ) );
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return self::unavailable_series( $definition, 'provider_unavailable' );
+			return self::cache_unavailable( $cache_key, $definition, 'provider_unavailable', self::CACHE_FAILURE_GOLD );
 		}
 		$payload = json_decode( (string) wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $payload ) || ! empty( $payload['Information'] ) || ! empty( $payload['Note'] ) || ! empty( $payload['Error Message'] ) ) {
-			return self::unavailable_series( $definition, 'provider_unavailable' );
+			return self::cache_unavailable( $cache_key, $definition, 'provider_unavailable', self::CACHE_FAILURE_GOLD );
 		}
 		$rows = is_array( $payload['data'] ?? null ) ? $payload['data'] : array();
 		$points = array();
@@ -271,7 +277,7 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 		}
 		usort( $points, static function( $a, $b ) { return $a['t'] <=> $b['t']; } );
 		if ( count( $points ) < 2 ) {
-			return self::unavailable_series( $definition, 'insufficient_history' );
+			return self::cache_unavailable( $cache_key, $definition, 'insufficient_history', self::CACHE_FAILURE_GOLD );
 		}
 
 		$result = self::available_series( $definition, $points );
@@ -300,6 +306,12 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 		);
 	}
 
+	private static function cache_unavailable( $cache_key, $definition, $reason, $ttl ) {
+		$result = self::unavailable_series( $definition, $reason );
+		set_transient( $cache_key, $result, max( 30, (int) $ttl ) );
+		return $result;
+	}
+
 	private static function unavailable_series( $definition, $reason ) {
 		return array(
 			'id'          => $definition['id'],
@@ -325,16 +337,16 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 		}
 		$session = is_array( $snapshot['session_intelligence'] ?? null ) ? $snapshot['session_intelligence'] : array();
 		return array(
-			'status'              => 'available',
-			'price'               => is_numeric( $snapshot['btc_reference_price'] ?? null ) ? (float) $snapshot['btc_reference_price'] : null,
-			'market_state'        => sanitize_key( (string) ( $snapshot['market_state'] ?? '' ) ),
+			'status'                 => 'available',
+			'price'                  => is_numeric( $snapshot['btc_reference_price'] ?? null ) ? (float) $snapshot['btc_reference_price'] : null,
+			'market_state'           => sanitize_key( (string) ( $snapshot['market_state'] ?? '' ) ),
 			'market_state_certainty' => isset( $snapshot['market_state_certainty'] ) ? (int) $snapshot['market_state_certainty'] : null,
-			'directional_bias'    => sanitize_key( (string) ( $snapshot['directional_bias'] ?? '' ) ),
-			'direction_strength'  => sanitize_key( (string) ( $snapshot['direction_strength'] ?? '' ) ),
-			'confidence'          => isset( $snapshot['confidence']['value'] ) ? (int) $snapshot['confidence']['value'] : null,
-			'key_drivers'         => array_slice( array_values( (array) ( $snapshot['key_drivers'] ?? array() ) ), 0, 2 ),
-			'what_changed'        => self::public_changes( $session ),
-			'freshness'           => is_array( $snapshot['freshness'] ?? null ) ? $snapshot['freshness'] : array(),
+			'directional_bias'       => sanitize_key( (string) ( $snapshot['directional_bias'] ?? '' ) ),
+			'direction_strength'     => sanitize_key( (string) ( $snapshot['direction_strength'] ?? '' ) ),
+			'confidence'             => isset( $snapshot['confidence']['value'] ) ? (int) $snapshot['confidence']['value'] : null,
+			'key_drivers'            => array_slice( array_values( (array) ( $snapshot['key_drivers'] ?? array() ) ), 0, 2 ),
+			'what_changed'           => self::public_changes( $session ),
+			'freshness'              => is_array( $snapshot['freshness'] ?? null ) ? $snapshot['freshness'] : array(),
 		);
 	}
 
