@@ -13,14 +13,16 @@
   --bm-bg: #0c1c2a;
   --bm-bg-elevated: #0f2434;
   --bm-bg-soft: #10283a;
+  --bm-header-surface: rgba(7, 17, 29, .985);
+  --bm-footer-surface: #091824;
   --bm-text: #edf4f6;
   --bm-text-secondary: #c7d4db;
   --bm-text-muted: #9eb0c2;
   --bm-text-subtle: #8294ae;
   --bm-teal: #26d0c6;
   --bm-teal-hover: #5ce0d8;
-  --bm-orange: #f4ad32;
-  --bm-orange-hover: #ffc15a;
+  --bm-action: #f4ad32;
+  --bm-action-hover: #ffc15a;
   --bm-danger: #ff8b80;
   --bm-border: rgba(255,255,255,.10);
 
@@ -30,6 +32,7 @@
   --bm-focus-ring: 2px solid #6de0d9;
   --bm-focus-offset: 3px;
   --bm-header-height: 64px;
+  --bm-header-height-mobile: 60px;
   --bm-reading-width: 720px;
   --bm-public-width: 1180px;
 }
@@ -111,6 +114,10 @@ button:disabled,
 
 /* Prevent iOS zoom and keep form controls comfortably readable. */
 @media (max-width: 768px) {
+  html {
+    scroll-padding-top: calc(var(--bm-header-height-mobile) + 18px);
+  }
+
   input,
   select,
   textarea {
