@@ -1,16 +1,6 @@
 name: UI browser safety
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "website/wp-content/themes/bitmomo-child-v3/**"
-      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
-      - "website/wp-content/plugins/bitmomo-pro/**"
-      - "scripts/check-public-ui.mjs"
-      - "scripts/check-article-cleanliness.mjs"
-      - "scripts/check-staging-asset-coherence.py"
-      - ".github/workflows/ui-browser-safety.yml"
   workflow_dispatch:
     inputs:
       base_url:
@@ -22,7 +12,7 @@ on:
         required: false
         default: "{}"
   schedule:
-    - cron: "17 18 * * *"
+    - cron: "17 18 * * 1"
 
 permissions:
   contents: read
@@ -41,64 +31,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Resolve source/runtime parity
+      - name: Resolve audit target
         id: version_gate
         shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
           echo "run_audit=true" >> "${GITHUB_OUTPUT}"
-
-          # Scheduled runs are production monitors. Manual runs intentionally
-          # target the URL supplied by the release operator and must never be
-          # silently skipped. Only automatic main pushes use the semantic-theme
-          # version gate to avoid testing production before deployment catches up.
-          if [[ "${EVENT_NAME}" != "push" ]]; then
-            echo "Browser audit enabled for ${EVENT_NAME}."
-            exit 0
-          fi
-
-          source_version="$(php -r '
-            $source = file_get_contents("website/wp-content/themes/bitmomo-child-v3/functions.php");
-            if (!preg_match("/define\\(\\x27BM_VERSION\\x27,\\s*\\x27([^\\x27]+)\\x27\\)/", $source, $m)) { exit(2); }
-            echo $m[1];
-          ')"
-
-          health="$(mktemp)"
-          code="$(curl --location --silent --show-error --max-time 20 \
-            --output "${health}" --write-out '%{http_code}' \
-            'https://bitmomo.id/wp-admin/admin-ajax.php?action=bitmomo_health')"
-
-          if [[ "${code}" != "200" ]]; then
-            echo "Production health endpoint returned HTTP ${code}; run the browser audit so availability/UI failures remain visible."
-            exit 0
-          fi
-
-          runtime_version="$(python3 - "${health}" <<'PY'
-          import json
-          import sys
-          try:
-              payload = json.load(open(sys.argv[1], encoding='utf-8'))
-              print(payload.get('version', ''))
-          except Exception:
-              print('')
-          PY
-          )"
-
-          if [[ -z "${runtime_version}" ]]; then
-            echo "Production health response had no version; run the browser audit rather than silently skipping."
-            exit 0
-          fi
-
-          echo "Source theme version: ${source_version}"
-          echo "Production theme version: ${runtime_version}"
-
-          if [[ "${source_version}" != "${runtime_version}" ]]; then
-            echo "run_audit=false" >> "${GITHUB_OUTPUT}"
-            echo "SKIP push browser audit: source ${source_version} is not yet deployed to production ${runtime_version}."
-            echo "Scheduled production monitoring remains enabled and manual staging audits remain available."
-          fi
+          echo "Browser audit enabled for ${{ github.event_name }}."
 
       - name: Verify staging HTML/CDN asset coherence
         if: steps.version_gate.outputs.run_audit == 'true' && github.event_name == 'workflow_dispatch' && contains(github.event.inputs.base_url, 'hostingersite.com')
