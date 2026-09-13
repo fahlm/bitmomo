@@ -16,7 +16,7 @@ on:
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
   push:
-    branches: [main, "chore/**", "feature/**", "fix/**"]
+    branches: [main]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
