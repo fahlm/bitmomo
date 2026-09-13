@@ -15,10 +15,11 @@ Read-only deterministic selector for ranking Hyperliquid markets and deciding wh
 
 - `observer.py` — rolling L2/trade/execution observations
 - `feedback.py` — JSONL execution-feedback contract, tailer, dedupe, router
+- `shadow_probe.py` — conservative queue-ahead shadow execution probe
 - `eligibility.py` — fail-closed qualification gates
 - `ranker.py` — stable leaderboard ordering
 - `supervisor.py` — hysteresis, degrade/drain/switch logic
-- `live_dry_run.py` — public-data live monitor with optional shadow feedback
+- `live_dry_run.py` — public-data live monitor with optional shadow feedback/probe
 
 ## Running the dry-run
 
@@ -36,9 +37,37 @@ PYTHONPATH=. python -m market_selector.live_dry_run --coins VVV,PONS,ETHFI,PUMP,
 
 Without execution feedback, markets can reach WATCH but cannot meaningfully become QUALIFIED because fill rate, maker ratio, markout, P10K and T10K remain UNKNOWN.
 
-### With shadow/paper execution feedback
+## Built-in standardized shadow probe
 
-A dry-run simulator may append one finalized JSON object per hypothetical entry attempt to a JSONL file. Then run:
+To let the selector collect its own comparable dry-run execution samples across markets without a wallet:
+
+```bash
+PYTHONPATH=. python -m market_selector.live_dry_run \
+  --coins VVV,PONS,ETHFI,PUMP,BTC \
+  --interval 30 \
+  --shadow-probe \
+  --shadow-output-jsonl data/hl_shadow_probe.jsonl
+```
+
+The probe is deliberately conservative:
+
+- entry only when book imbalance, microprice edge and aggressor flow align 3/3;
+- JOIN maker entry at current BBO;
+- full displayed queue ahead + own $100 notional must be consumed by observed opposite-aggressor flow;
+- no cancellation credit;
+- waits for the first post-fill L2 update before placing the hypothetical exit;
+- JOIN maker exit, 30-second lifetime;
+- if maker exit is not observed, taker fallback crosses the then-current BBO;
+- 1.5 bp maker and 4.5 bp taker fee assumptions in V0;
+- every unfilled attempt is retained for the fill-rate denominator.
+
+Policy id: `shadow-probe-join-3of3-e10-x30-v0`.
+
+This is a **standardized execution probe**, not validated alpha. Its purpose is to compare whether a market currently supports our execution requirements under one fixed policy. A market still needs independent holdout validation before mainnet consideration.
+
+### With external shadow/paper execution feedback
+
+A separate dry-run simulator may append one finalized JSON object per hypothetical entry attempt to a JSONL file. Then run:
 
 ```bash
 PYTHONPATH=. python -m market_selector.live_dry_run \
@@ -77,7 +106,10 @@ Unfilled attempts must also be emitted with `filled=False`; they are required fo
 ## Tests
 
 ```bash
-PYTHONPATH=. pytest -q tests/test_market_selector.py tests/test_execution_feedback.py
+PYTHONPATH=. pytest -q \
+  tests/test_market_selector.py \
+  tests/test_execution_feedback.py \
+  tests/test_shadow_probe.py
 ```
 
 Thresholds in `config.py` are provisional research hypotheses, not production-frozen values. VVV is not hard-coded as qualified: the previous unseen VVV holdout failed the economics and drawdown gates, and the SEEN state-aware exit diagnostic still failed the economics gate.
