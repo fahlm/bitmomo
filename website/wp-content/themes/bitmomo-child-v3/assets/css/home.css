@@ -103,15 +103,17 @@
   text-decoration: none;
 }
 
+/* Free product exploration uses the product accent. Commercial amber is
+   reserved for Founding/paid actions elsewhere on the homepage. */
 .bm-home-hero__primary {
   padding: 11px 20px;
-  background: var(--bm-action, #f4ad32);
+  background: var(--bm-accent, #6c8ebf);
   color: #111827;
 }
 
 .bm-home-hero__primary:hover,
 .bm-home-hero__primary:focus-visible {
-  background: var(--bm-action-hover, #ffc15a);
+  background: var(--bm-accent-hover, #88a6cf);
   color: #111827;
 }
 
