@@ -5,6 +5,8 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php"
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php"
@@ -78,6 +80,7 @@ jobs:
             website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php \
             website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php \
             website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
