@@ -66,21 +66,33 @@ check('Market Context avoids literal translation artifacts',
   !/sendirian|\bthesis\b/i.test(marketContextJs)
 );
 
-check('Research Hub uses natural explanatory Indonesian',
-  researchHub.includes('Judul, tesis, topik…') &&
-  researchHub.includes('Riset Bitmomo harus menjelaskan bukti, konteks, batas tesis') &&
-  researchHub.includes('Dua disiplin. Satu standar riset.') &&
-  !/institutional research|Research Bitmomo harus menjelaskan evidence|batas thesis/i.test(researchHub)
+check('Research Hub is publication-first and communicates a testable-thesis value proposition',
+  researchHub.includes('Tesis pasar yang dapat diuji.') &&
+  researchHub.includes('data, tesis, kondisi invalidasi, dan evaluasi hasil') &&
+  researchHub.includes('LATEST RESEARCH') &&
+  researchHub.includes('Setiap tesis harus dapat diuji.') &&
+  researchHub.includes('Bukti dapat ditelusuri') &&
+  !/RESEARCH DOMAINS|RESEARCH PROGRAMS|Kerangka berulang untuk pasar yang kompleks|Dua disiplin\. Satu standar riset\./i.test(researchHub)
+);
+check('Research Hub does not advertise empty programs as navigation',
+  researchHub.includes('$bm_visible_filters') && researchHub.includes('bitmomo_post_matches_research_focus') &&
+  researchHub.includes('Do not advertise empty research programs')
 );
 check('Article research standard uses the same evidence/tesis vocabulary',
   article.includes('Bukti, konteks, batas tesis, dan metode evaluasi') &&
   article.includes('Riset Pasar Terkait') &&
   !/Evidence, konteks, batas thesis|Market Research Terkait/i.test(article)
 );
-check('About page removes mixed-language internal product jargon from explanatory prose',
-  about.includes('platform market intelligence dan riset Bitcoin') &&
-  about.includes('masukan, koreksi riset, atau bantuan') &&
-  !/feedback|support,|outcome|uncertainty|black box|\bClaim\b/i.test(about)
+check('About explains the research advantage instead of defensive category positioning',
+  about.includes('Dari data pasar menjadi tesis yang dapat diuji.') &&
+  about.includes('data pasar, konteks, tesis, kondisi invalidasi, dan evaluasi hasil') &&
+  about.includes('Setiap tesis harus dapat diuji.') &&
+  about.includes('Decision Ledger memperlihatkan apa yang Bitmomo katakan sebelumnya') &&
+  !/Bitmomo bukan portal berita|Data compression|compression →|memproduksi narasi sebanyak mungkin/i.test(about)
+);
+check('About reserves the commercial primary action for Founding access',
+  /bm-about-button bm-about-button--primary[^>]*founding-whitelist/.test(about) &&
+  !/bm-about-button bm-about-button--primary[^>]*btc-intelligence/.test(about)
 );
 
 check('SEO descriptions use canonical public terminology',
