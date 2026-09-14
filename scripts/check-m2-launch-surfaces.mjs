@@ -114,11 +114,27 @@ check(
     && /Bitmomo_Public_Intelligence_Adapter::evaluation_summary\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Btc_Intelligence_Accountability/.test(btcIntelligencePage)
     && !/Bitmomo_AI_Scorecard::|Bitmomo_Regime_State_Store::|Bitmomo_Pro_[A-Za-z]+::/.test(btcIntelligencePage)
-    && />FAKTOR UTAMA</.test(btcIntelligencePage)
     && /TIDAK SESUAI/.test(btcIntelligencePage)
     && /BELUM DINILAI/.test(btcIntelligencePage)
     && !/do_shortcode_tag|bitmomo_btc_intelligence_public_copy|strtr\s*\(/.test(btcIntelligencePlugin)
     && !/Bitmomo_Btc_Opportunity_UI/.test(btcIntelligencePlugin)
+);
+check(
+  'BTC Free Major Brief preserves Now + Change + Meaning + One Watch without exposing arbitrary monitoring text',
+  /MAJOR BRIEF/.test(btcIntelligencePage)
+    && /APA YANG BERUBAH\?/.test(btcIntelligencePage)
+    && /MENGAPA PENTING/.test(btcIntelligencePage)
+    && /PANTAU BERIKUTNYA/.test(btcIntelligencePage)
+    && /directional_consistency/.test(btcIntelligencePage)
+    && /structure_continuity/.test(btcIntelligencePage)
+    && /count\( \$lines \) >= 2/.test(btcIntelligencePage)
+    && /array_slice\([\s\S]*?key_drivers[\s\S]*?0, 2/.test(btcIntelligencePage)
+    && !/monitoring_conditions\s*\]|scenario_contract\s*\]|expected_range\s*\]|invalidation\s*\]/.test(btcPageOutput)
+);
+check(
+  'BTC fast layer states the truthful cadence rather than claiming five-minute canonical evaluations',
+  /evaluasi 15 menit dari candle 5 menit/.test(btcIntelligencePage)
+    && !/evaluasi(?: canonical)? (?:setiap )?5 menit/i.test(btcPageOutput)
 );
 check(
   'BTC accountability boundary is read-only and result-neutral',
