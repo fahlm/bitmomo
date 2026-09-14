@@ -146,6 +146,7 @@ final class Bitmomo_AI_Opportunity_Store {
         if ($state === null) return ['status' => 'unavailable', 'methodology_version' => Bitmomo_AI_Opportunity::METHODOLOGY_VERSION];
         return [
             'status' => 'available',
+            'record_id' => sanitize_text_field((string) ($record['record_id'] ?? '')),
             'state' => $state,
             'methodology_version' => Bitmomo_AI_Opportunity::METHODOLOGY_VERSION,
             'evaluated_at' => sanitize_text_field((string) ($record['evaluated_at'] ?? '')),
@@ -155,6 +156,7 @@ final class Bitmomo_AI_Opportunity_Store {
             'reference_window_days' => Bitmomo_AI_Opportunity::REFERENCE_WINDOW_DAYS,
             'reference_observation_count' => (int) ($record['reference_observation_count'] ?? 0),
             'source' => Bitmomo_AI_Opportunity::SOURCE,
+            'source_last_close_time' => sanitize_text_field((string) ($record['source_last_close_time'] ?? '')),
             'previous_state' => self::state_or_null($record['previous_state'] ?? null),
             'changed' => !empty($record['changed']),
         ];
@@ -172,6 +174,14 @@ final class Bitmomo_AI_Opportunity_Store {
         if (!is_array($record['session_intelligence']['current_setup'] ?? null)) $record['session_intelligence']['current_setup'] = [];
         $record['session_intelligence']['opportunity'] = $public;
         $record['session_intelligence']['current_setup']['opportunity_state'] = $public['state'];
+        if (!is_array($record['valid_snapshot_lineage'] ?? null)) $record['valid_snapshot_lineage'] = [];
+        $record['valid_snapshot_lineage']['opportunity'] = [
+            'record_id' => sanitize_text_field((string) ($public['record_id'] ?? '')),
+            'methodology_version' => Bitmomo_AI_Opportunity::METHODOLOGY_VERSION,
+            'source' => Bitmomo_AI_Opportunity::SOURCE,
+            'knowledge_time' => sanitize_text_field((string) ($public['knowledge_time'] ?? '')),
+            'source_last_close_time' => sanitize_text_field((string) ($public['source_last_close_time'] ?? '')),
+        ];
 
         $comparison_id = (string) ($record['comparison_source_record_id'] ?? '');
         $prior_state = null;
@@ -196,9 +206,12 @@ final class Bitmomo_AI_Opportunity_Store {
             && ($record['source'] ?? '') === Bitmomo_AI_Opportunity::SOURCE
             && $state !== null
             && isset($record['range_60m_pct'], $record['activity_percentile'], $record['reference_observation_count'])
+            && is_numeric($record['range_60m_pct'])
+            && is_numeric($record['activity_percentile'])
             && (int) $record['reference_observation_count'] === Bitmomo_AI_Opportunity::REFERENCE_OBSERVATIONS
             && strtotime((string) ($record['knowledge_time'] ?? ''))
-            && strtotime((string) ($record['evaluated_at'] ?? ''));
+            && strtotime((string) ($record['evaluated_at'] ?? ''))
+            && strtotime((string) ($record['source_last_close_time'] ?? ''));
     }
 
     private static function state_or_null($value) {

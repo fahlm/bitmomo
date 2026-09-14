@@ -46,9 +46,8 @@ final class Bitmomo_Public_Intelligence_Adapter {
 
         $session_intelligence = is_array($projection['session_intelligence'] ?? null) ? $projection['session_intelligence'] : [];
         if (is_array($session_intelligence['current_setup'] ?? null)) $session_intelligence['current_setup']['market_state'] = $market_state;
-        $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
-            ? Bitmomo_AI_Opportunity_Store::public_latest()
-            : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
+        $opportunity = self::canonical_opportunity($session_intelligence['opportunity'] ?? null);
+        $session_intelligence['opportunity'] = $opportunity;
 
         return [
             'status' => (string) $projection['status'],
@@ -93,9 +92,10 @@ final class Bitmomo_Public_Intelligence_Adapter {
     }
 
     public static function surface_context() {
-        $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
+        $latest_opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
             ? Bitmomo_AI_Opportunity_Store::public_latest()
             : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
+        $opportunity = self::surface_opportunity($latest_opportunity);
         $projection = class_exists('Bitmomo_AI_Intelligence') ? Bitmomo_AI_Intelligence::free_projection() : [];
         $source = is_array($projection) ? sanitize_text_field((string) ($projection['source'] ?? '')) : '';
         $as_of = is_array($projection) ? sanitize_text_field((string) ($projection['timestamp_iso'] ?? '')) : '';
@@ -205,6 +205,42 @@ final class Bitmomo_Public_Intelligence_Adapter {
     private static function version_or_unknown($value) { $value = sanitize_text_field((string) $value); return trim($value) === '' ? 'unknown' : $value; }
     private static function confidence_label($value) { $value = min(100, max(0, (int) $value)); return $value >= 70 ? 'high' : ($value >= 40 ? 'medium' : 'low'); }
     private static function public_drivers($drivers) { return array_slice(array_values(array_filter(array_map('sanitize_text_field', is_array($drivers) ? $drivers : []))), 0, 5); }
+
+    private static function canonical_opportunity($opportunity) {
+        $methodology = class_exists('Bitmomo_AI_Opportunity') ? Bitmomo_AI_Opportunity::METHODOLOGY_VERSION : 'opportunity-v1';
+        if (!is_array($opportunity) || ($opportunity['status'] ?? '') !== 'available') {
+            return ['status' => 'unavailable', 'methodology_version' => $methodology];
+        }
+        $state = strtoupper(sanitize_key((string) ($opportunity['state'] ?? '')));
+        $knowledge_time = sanitize_text_field((string) ($opportunity['knowledge_time'] ?? ''));
+        if (!in_array($state, ['HIGH', 'NORMAL', 'LOW'], true) || !strtotime($knowledge_time)) {
+            return ['status' => 'unavailable', 'methodology_version' => $methodology];
+        }
+        return [
+            'status' => 'available',
+            'state' => $state,
+            'methodology_version' => sanitize_text_field((string) ($opportunity['methodology_version'] ?? $methodology)),
+            'knowledge_time' => $knowledge_time,
+            'changed' => !empty($opportunity['changed']),
+        ];
+    }
+
+    private static function surface_opportunity($opportunity) {
+        $methodology = class_exists('Bitmomo_AI_Opportunity') ? Bitmomo_AI_Opportunity::METHODOLOGY_VERSION : 'opportunity-v1';
+        if (!is_array($opportunity) || ($opportunity['status'] ?? '') !== 'available') {
+            return ['status' => 'unavailable', 'methodology_version' => $methodology];
+        }
+        $state = strtoupper(sanitize_key((string) ($opportunity['state'] ?? '')));
+        if (!in_array($state, ['HIGH', 'NORMAL', 'LOW'], true)) {
+            return ['status' => 'unavailable', 'methodology_version' => $methodology];
+        }
+        return [
+            'status' => 'available',
+            'state' => $state,
+            'methodology_version' => sanitize_text_field((string) ($opportunity['methodology_version'] ?? $methodology)),
+            'changed' => !empty($opportunity['changed']),
+        ];
+    }
 
     private static function metric($row) {
         if (!is_array($row)) return ['n' => 0, 'sample_status' => 'INSUFFICIENT SAMPLE'];

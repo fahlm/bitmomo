@@ -71,6 +71,16 @@ $canonical_id = 'bitmomo-ai:2026-09-12T201000-0400:us_post_close:bbbb222222';
 $GLOBALS['adapter_options']['bitmomo_ai_latest_preview'] = [
     'time' => gmdate('c'), 'data' => $input, 'evaluation' => $evaluation,
     'edition' => 'us_post_close', 'edition_id' => $canonical_id, 'source_record_id' => $canonical_id,
+    'session_intelligence' => [
+        'opportunity' => [
+            'status' => 'available',
+            'record_id' => 'opportunity-v1:20260912T201500Z',
+            'state' => 'HIGH',
+            'methodology_version' => 'opportunity-v1',
+            'knowledge_time' => '2026-09-12T20:15:00+00:00',
+            'changed' => true,
+        ],
+    ],
 ];
 $GLOBALS['adapter_options']['bitmomo_ai_latest_quality_gate'] = ['status' => 'passed'];
 Bitmomo_Regime_State_Store::$records = [
@@ -91,6 +101,7 @@ $current_version = 'engine-v1 | classifier-v1 | observed-close-24h-v2';
 adapter_check('snapshot binds Market State to exact canonical edition', $snapshot['market_state'] === 'expansion' && ($snapshot['market_state_certainty'] ?? null) === 80 && $snapshot['direction_strength'] === $evaluation['direction_strength']);
 adapter_check('snapshot exposes public-safe source/as-of/timezone', ($snapshot['provenance']['source'] ?? '') === 'Binance public market data' && ($snapshot['provenance']['as_of'] ?? '') !== '' && ($snapshot['provenance']['timezone'] ?? '') === 'Asia/Jakarta');
 adapter_check('snapshot explicit allowlist hides internal data', !isset($snapshot['source_record_id'], $snapshot['axes'], $snapshot['score'], $snapshot['risk'], $snapshot['edition']));
+adapter_check('snapshot uses immutable canonical Opportunity from the session record', ($snapshot['opportunity']['status'] ?? '') === 'available' && ($snapshot['opportunity']['state'] ?? '') === 'HIGH' && !isset($snapshot['opportunity']['record_id']));
 adapter_check('UTC-crossing morning/post-close editions collapse to one official market day', $history['available_days'] === 3 && count($history['days']) === 3 && $history['days'][2]['date'] === '2026-09-12');
 adapter_check('history prefers post-close record for duplicated US market date', $history['days'][2]['market_state'] === 'expansion');
 adapter_check('history exposes bounded Market State certainty', ($history['days'][2]['market_state_certainty'] ?? null) === 80 && ($history['days'][1]['market_state_certainty'] ?? null) === 0);
@@ -104,7 +115,7 @@ adapter_check('settlement proof exposes matured/evaluated/missed/pending counts'
 adapter_check('Expected Range proof requires frozen versioned originals', $summary['expected_range_evaluation']['policy'] === 'FROZEN_VERSIONED_ORIGINAL_ONLY' && isset($summary['expected_range_evaluation']['versions']['engine-v1 | range-model-v1']) && !isset($summary['expected_range_evaluation']['current_range']));
 
 $encoded = json_encode([$snapshot, $history, $summary]);
-foreach (['axes', 'risk', 'source_record_id', 'source_diagnostics', 'evidence', 'private_note', 'baselines'] as $forbidden) adapter_check("no {$forbidden} leak", strpos($encoded, '"' . $forbidden . '"') === false);
+foreach (['axes', 'risk', 'source_record_id', 'record_id', 'source_diagnostics', 'evidence', 'private_note', 'baselines'] as $forbidden) adapter_check("no {$forbidden} leak", strpos($encoded, '"' . $forbidden . '"') === false);
 
 $matching = Bitmomo_Regime_State_Store::$records[0];
 Bitmomo_Regime_State_Store::$records = [Bitmomo_Regime_State_Store::$records[2]];
@@ -128,6 +139,10 @@ $GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['data']['quality']['sou
 
 $GLOBALS['adapter_options']['bitmomo_ai_latest_quality_gate'] = ['status' => 'blocked'];
 adapter_check('new blocked attempt does not hide previous valid snapshot', Bitmomo_Public_Intelligence_Adapter::snapshot() !== null);
+
+$GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['session_intelligence']['opportunity']['state'] = 'BROKEN';
+$broken_opportunity_snapshot = Bitmomo_Public_Intelligence_Adapter::snapshot();
+adapter_check('malformed canonical Opportunity fails closed independently', is_array($broken_opportunity_snapshot) && ($broken_opportunity_snapshot['opportunity']['status'] ?? '') === 'unavailable');
 
 $failed = array_filter($checks, function ($row) { return !$row[1]; });
 foreach ($checks as $row) echo ($row[1] ? 'PASS' : 'FAIL') . ': ' . $row[0] . PHP_EOL;

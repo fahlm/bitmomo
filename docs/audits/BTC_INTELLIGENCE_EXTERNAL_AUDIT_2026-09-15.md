@@ -101,6 +101,22 @@ Tests now lock the intended behavior:
 - insufficient-sample accuracy is withheld.
 - unsupported scheduler sessions are blocked before market data access.
 - canonical source code validates session/bias/numeric fields before public projection.
+- public snapshot Opportunity is read from the immutable canonical session record, not from a later latest-option read.
+- observability exposes independent health rows for Market Pulse, US Pre-Open, US Post-Close, settlement and source freshness.
+
+### P0-7 — Market Pulse / Opportunity canonical wiring hardened
+
+**Finding:** the branch had an append-only Opportunity store and a canonical attach hook, but the public directional snapshot could still read the latest Opportunity independently. That allowed a visitor-facing snapshot to combine one Major Brief record with a newer intraday Opportunity record that was not part of that immutable session snapshot.
+
+**Risk:** canonical history and public presentation could drift. That is especially dangerous for a product claiming Decision Ledger/accountability semantics because a later intraday state can look as if it belonged to an earlier Major Brief.
+
+**Fix:** public directional snapshots now consume Opportunity from `session_intelligence` inside the canonical session record. The latest Opportunity option remains available only for non-directional surface context. The session attach path records Opportunity record id, methodology, source, knowledge time and source last-close time in `valid_snapshot_lineage`.
+
+### P0-8 — Lightweight operations health matrix added
+
+**Finding:** automation health was effectively Post-Close-centric.
+
+**Fix:** diagnostics now expose a five-row matrix for Market Pulse, US Pre-Open, US Post-Close, settlement and source freshness. Each row carries current state, reason, last run, next schedule and freshness budget. This is intentionally lightweight and reuses existing scheduler/runtime/source-diagnostic state.
 
 ## P0 remaining before any production approval
 
@@ -119,17 +135,17 @@ Required:
 
 Do not merge/deploy based only on code review.
 
-### P0-B — Independent health matrix for every clock
+### P0-B — Prove the health matrix on staging
 
-Current automation health is still primarily Post-Close-oriented. Build a health state for:
+The audit branch now includes a lightweight matrix for:
 
 1. Market Pulse scheduler/feed/freshness.
 2. US Pre-Open Major Brief.
 3. US Post-Close Major Brief.
 4. settlement/outcome evaluator.
-5. each external source family.
+5. source freshness diagnostics.
 
-Each needs last-success, next-due, freshness budget, current state, failure reason and alert threshold.
+Before production approval, verify on staging that these rows reflect real cron state, source failures and recovery behavior. Alert thresholds/SLO routing can remain a follow-up; do not block this PR on a separate monitoring stack.
 
 ### P0-C — Decide and document the meaning of “US Post-Close” at 20:10 ET
 
@@ -253,6 +269,8 @@ Changed areas:
 - canonical intelligence validation;
 - scheduler session validation;
 - public adapter validation;
+- immutable Market Pulse / Opportunity wiring into canonical session snapshots;
+- lightweight operations health matrix;
 - BTC Intelligence two-clock presentation semantics;
 - small-sample Track Record presentation;
 - regression contracts.

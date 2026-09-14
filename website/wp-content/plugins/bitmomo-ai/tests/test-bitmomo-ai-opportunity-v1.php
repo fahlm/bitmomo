@@ -82,6 +82,24 @@ $public = Bitmomo_AI_Opportunity_Store::public_latest($cutoff + 60);
 opportunity_check('fresh latest record is exposed through the public contract', ($public['status'] ?? '') === 'available' && ($public['state'] ?? '') === 'HIGH');
 opportunity_check('latest record older than 30 minutes fails closed', Bitmomo_AI_Opportunity_Store::public_latest($cutoff + 31 * MINUTE_IN_SECONDS)['status'] === 'unavailable');
 
+$canonical_opportunity = $high;
+$canonical_opportunity['record_id'] = 'opportunity-v1:20260912T060000Z';
+$GLOBALS['opportunity_options'][Bitmomo_AI_Opportunity_Store::LATEST_OPTION] = $canonical_opportunity;
+$session_record = [
+    'edition_id' => 'bitmomo-ai:test-session',
+    'generated_at' => gmdate('c', $cutoff + 60),
+    'session_intelligence' => ['current_setup' => []],
+    'valid_snapshot_lineage' => ['source_timestamp' => gmdate('c', $cutoff)],
+];
+$attached = Bitmomo_AI_Opportunity_Store::attach_to_session_record($session_record);
+opportunity_check('Opportunity joins canonical session record without recalculation', ($attached['session_intelligence']['opportunity']['state'] ?? '') === 'HIGH' && ($attached['session_intelligence']['current_setup']['opportunity_state'] ?? '') === 'HIGH');
+opportunity_check('Opportunity lineage is persisted on the immutable session snapshot', ($attached['valid_snapshot_lineage']['opportunity']['record_id'] ?? '') === 'opportunity-v1:20260912T060000Z' && ($attached['valid_snapshot_lineage']['opportunity']['source'] ?? '') === Bitmomo_AI_Opportunity::SOURCE);
+
+$newer_low = $low;
+$newer_low['record_id'] = 'opportunity-v1:20260912T061500Z';
+$GLOBALS['opportunity_options'][Bitmomo_AI_Opportunity_Store::LATEST_OPTION] = $newer_low;
+opportunity_check('attached session Opportunity remains immutable after latest option changes', ($attached['session_intelligence']['opportunity']['state'] ?? '') === 'HIGH');
+
 $normal_boundary = function ($percentile) { return $percentile >= 75 ? 'HIGH' : ($percentile <= 25 ? 'LOW' : 'NORMAL'); };
 opportunity_check('customer state boundaries preserve NORMAL between quartiles', $normal_boundary(50) === 'NORMAL' && $normal_boundary(75) === 'HIGH' && $normal_boundary(25) === 'LOW');
 
