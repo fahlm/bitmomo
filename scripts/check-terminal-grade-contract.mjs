@@ -45,6 +45,7 @@ const emailService = read('website/wp-content/plugins/bitmomo-pro/includes/class
 const launchReadiness = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-launch-readiness.php');
 const privacyDoc = read('docs/content/kebijakan-privasi.md');
 const btcMain = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
+const btcPage = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php');
 const btcAccountability = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php');
 const btcMarketContext = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php');
 const btcMarketCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/market-context-explorer.css');
@@ -175,7 +176,16 @@ check('BTC Intelligence runtime owns accountability and market context but not a
   btcMain.includes('Bitmomo_Btc_Intelligence_Market_Context::init()') &&
   btcMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   btcMain.includes("remove_action( 'wp_head'") &&
-  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.4'")
+  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.6'")
+);
+check('BTC Intelligence locks the valuable Free session brief and truthful fast-layer cadence',
+  btcPage.includes('MAJOR BRIEF') &&
+  btcPage.includes('APA YANG BERUBAH?') &&
+  btcPage.includes('MENGAPA PENTING') &&
+  btcPage.includes('PANTAU BERIKUTNYA') &&
+  btcPage.includes('directional_consistency') &&
+  btcPage.includes('structure_continuity') &&
+  btcPage.includes('evaluasi 15 menit dari candle 5 menit')
 );
 check('BTC public accountability boundary remains read-only',
   btcAccountability.includes('recorded_live') && btcAccountability.includes('window_missed') &&
