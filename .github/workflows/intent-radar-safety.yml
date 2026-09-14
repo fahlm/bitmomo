@@ -1,0 +1,45 @@
+name: Intent radar safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "research/intent-radar/**"
+      - "docs/research-distribution/INTENT_RADAR_V1.md"
+      - ".github/workflows/intent-radar-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/intent-radar/**"
+      - "docs/research-distribution/INTENT_RADAR_V1.md"
+      - ".github/workflows/intent-radar-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: intent-radar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    name: Lint and deterministic intent contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint Intent Radar V1 implementation and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l research/intent-radar/includes/class-bitmomo-intent-radar-v1.php
+          php -l research/intent-radar/tests/test-bitmomo-intent-radar-v1.php
+
+      - name: Run Intent Radar V1 deterministic suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          php research/intent-radar/tests/test-bitmomo-intent-radar-v1.php
