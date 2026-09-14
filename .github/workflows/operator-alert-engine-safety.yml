@@ -1,0 +1,47 @@
+name: Operator alert engine safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "research/operator-alert/**"
+      - "docs/research-distribution/OPERATOR_ALERT_ENGINE_V1.md"
+      - ".github/workflows/operator-alert-engine-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/operator-alert/**"
+      - "docs/research-distribution/OPERATOR_ALERT_ENGINE_V1.md"
+      - ".github/workflows/operator-alert-engine-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: operator-alert-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    name: Indonesia-first operator alert contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint P7 implementation, runner, and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l research/operator-alert/includes/class-bitmomo-indonesia-discovery-v1.php
+          php -l research/operator-alert/includes/class-bitmomo-operator-alert-engine-v1.php
+          php -l research/operator-alert/bin/run-once.php
+          php -l research/operator-alert/tests/test-bitmomo-operator-alert-engine-v1.php
+
+      - name: Run P7 deterministic integration suite with fake HTTP/notifier only
+        shell: bash
+        run: |
+          set -euo pipefail
+          php research/operator-alert/tests/test-bitmomo-operator-alert-engine-v1.php
