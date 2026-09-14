@@ -1,0 +1,45 @@
+name: Content compiler safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "research/content-compiler/**"
+      - "docs/research-distribution/CONTENT_COMPILER_V1.md"
+      - ".github/workflows/content-compiler-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/content-compiler/**"
+      - "docs/research-distribution/CONTENT_COMPILER_V1.md"
+      - ".github/workflows/content-compiler-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-compiler-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    name: Lint and deterministic content contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint Content Compiler V1 implementation and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l research/content-compiler/includes/class-bitmomo-content-compiler-v1.php
+          php -l research/content-compiler/tests/test-bitmomo-content-compiler-v1.php
+
+      - name: Run Content Compiler V1 deterministic suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          php research/content-compiler/tests/test-bitmomo-content-compiler-v1.php
