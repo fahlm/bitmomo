@@ -126,7 +126,7 @@ check('BTC Intelligence runtime owns accountability and market context but not a
   btcMain.includes('Bitmomo_Btc_Intelligence_Market_Context::init()') &&
   btcMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   btcMain.includes("remove_action( 'wp_head'") &&
-  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.3'")
+  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.4'")
 );
 check('BTC public accountability boundary remains read-only',
   btcAccountability.includes('recorded_live') && btcAccountability.includes('window_missed') &&
