@@ -2,133 +2,100 @@
 
 **Last updated:** 2026-09-14  
 **Production authorization:** **HOLD / NO-GO**  
+**Staging promotion authorization:** **AUDIT HOLD / NO-GO**  
 **Canonical coordination issue:** #131  
 **Canonical release PR:** #135  
 **Canonical release branch:** `release/whitelist-v1`
 
-This file is the fast entry point for engineers. It records release topology and current acceptance state, not the broader product roadmap.
+> **AUDIT HOLD — DO NOT DEPLOY THE CURRENT ARTIFACT**
+>
+> A whole-product engineering audit found a release-contract contradiction after the latest source candidate was built: the documented public-surface and browser contracts require exactly one compact newsletter subscription surface in the global footer, while the latest footer implementation and source-level navigation/footer check removed and prohibited that surface. The current source/CI evidence remains useful, but the artifact is **not an accepted product candidate** and must not be promoted to staging or production until the audit is reconciled in one reviewed remediation pass.
+
+This file is the fast entry point for engineers. It records the actual release topology and current acceptance state, not the broader product roadmap.
 
 ## Canonical source topology
 
 - Default branch / ordinary engineering source of truth: `main`.
-- `main` at the start of convergence: `eb58057012484db6fe2382582e392f2fa0300f28`.
 - One and only active whitelist release line: `release/whitelist-v1` / PR #135.
-- Initial semantic convergence commit: `cdc07a7a02ae35883b43b7987f143d1bc63513f2`.
-- Canonical convergence record: `docs/RELEASE_CONVERGENCE_WHITELIST_V1.md`.
-- #136 (`fix: harden whitelist launch runtime readiness`) was squash-absorbed as `aeaa1270cb20aa4bd7dcac88a4c665fac658e733`.
-- Deterministic validation then exposed and repaired four release-line defects before artifact generation:
-  - #137 restored the missing Pro email-service closing brace; merged as `2a6d88c6a9dc907bf1939de09532a4bfcbdad3aa` after targeted lint + full managed PHP lint 124/124 PASS on Hostinger PHP 8.1.34.
-  - #138 corrected the Pro sales performance test to treat `preg_match() === 0` as the valid no-match result; merged as `1d20dcb9ce1468b8694887248e61f4a97eee89f7` after targeted 104/104 PASS.
-  - #139 removed stale duplicated runtime-count ownership from `authority-surface-safety.yml`; merged as `1aa75f9d0ac490b855767923aa8c2b6546332b2d` after YAML + manifest semantic validation.
-  - #140 repaired common Pro test-support stubs so `wp_kses_post()` and `add_query_arg()` behave sufficiently like WordPress for the dormant WhatsApp opt-in contract; merged as `728747ada5596f15dd67120d857b222a2b8e5e39` after WhatsApp 30/30, sales 104/104, whitelist 46/46 and whitelist regressions 21/21 PASS on Hostinger PHP 8.1.34.
-- There is no active component release branch in the release decision path. #135 is the sole release authority.
+- Canonical release head at audit hold: `82430e288a85ce0a11be01e3fa0d3cabf2d6f100`.
+- Canonical source tree: `2bd796be1b7fa7139b8e945944d15e5de69138c2`.
+- PR #135 synthetic merge at audit hold: `eaf5bea77dccd9eeabc2960db08f3f4c7ea9151c`.
+- Synthetic merge tree: `2bd796be1b7fa7139b8e945944d15e5de69138c2`.
+- Current runtime contract in source: **118 managed files** — theme 46 / AI 24 / BTC Intelligence 8 / Pro 28 / regime 12.
+- PR #135 remains the sole release authority. Do not create another release line for this audit.
 
-## Release topology
+## Latest source / CI evidence
 
-```text
-main
-  └─ release/whitelist-v1  ← PR #135, sole release authority
-       ↓
-     SOURCE (frozen candidate)
-       ↓
-     DETERMINISTIC CHECKS
-       ↓
-     ARTIFACT
-       ↓
-     STAGING
-       ↓
-     RUNTIME
-       ↓
-     BROWSER
-       ↓
-     PRODUCT READY
-       ↓
-     PRODUCTION AUTHORIZED
-       ↓
-     PRODUCTION VERIFIED
-       ↓
-     merge accepted state back to main
-```
+The current audit-hold head passed all five release-authoritative workflows:
 
-No engineer should create another whitelist integration/release branch unless #131 explicitly changes this topology.
+- Full Release Safety `34851208287` — PASS
+- Authority Surface Safety `34851208223` — PASS
+- Theme Safety Checks `34851208319` — PASS
+- Regime Safety Checks `34851208291` — PASS
+- Production Synthetic Monitor `34851208249` — PASS
 
-## What the canonical line contains
+Full Release also passed managed PHP lint, deterministic plugin suites, JS/Python/Bash syntax, M2 39/39, navigation/footer source contract, UI/WCAG source contract, terminal-grade public contract, institutional copy contract, homepage Research 8/8, CSS-debt baseline, deterministic build A/B and provenance verification.
 
-PR #135 semantically reconciles the launch work into one source line:
+**Important:** green CI proves that source satisfies the assertions currently encoded in CI. The audit found that at least one of those assertions is itself wrong: `check-navigation-footer.mjs` prohibits the newsletter surface even though `docs/PUBLIC_SURFACE_CONTRACT.md`, `docs/RELEASE_ACCEPTANCE_MATRIX.md`, `scripts/check-public-ui.mjs`, and the retained frontend architecture explicitly require one compact footer newsletter. Therefore green CI does not authorize promotion of this candidate.
 
-- **#123:** institutional public/site convergence + BTC Market Context and integrity fixes;
-- **historical staging integration `8bb9402e...`:** audited as evidence, not merged wholesale because required shared-chrome behavior is already present or superseded;
-- **#126:** institutional Pro conversion surface;
-- **#129:** release provenance, staging parity, asset coherence, browser/readiness and CI-efficiency hardening, excluding the redundant standalone Homepage Research workflow;
-- **current `main` governance:** PR template, engineering operating model and release handoff contract;
-- **#136:** email-only Whitelist V1 default, dormant WhatsApp fail-closed capability, canonical Privacy consent and channel-aware confirmation copy, BTC ≤30h launch freshness gate, semantic Privacy/Disclaimer readiness, ≥2 qualified Market Research requirement, real whitelist persistence/dedupe/mail-generation staging probe with transport short-circuit, newsletter fail-closed behavior, product-copy truthfulness, configured support identity, Research/About IA cleanup, expanded browser acceptance, and restored non-WhatsApp whitelist regression coverage;
-- **#137/#138/#139/#140:** validation-discovered syntax, test-harness, and CI-contract repairs described above.
+## Current artifact evidence — VALID BINARY, REVOKED PRODUCT CANDIDATE
 
-The canonical runtime contract remains **117 managed files** unless intentionally changed by a later reviewed release decision: theme 46 / AI 24 / BTC Intelligence 8 / Pro 27 / regime 12. Tests, docs, and workflows are not runtime payload.
+- Full Release run: `34851208287`
+- Artifact ID: `10350132727`
+- Artifact name: `bitmomo-runtime-eaf5bea77dccd9eeabc2960db08f3f4c7ea9151c`
+- ZIP SHA-256: `8183db532b19ff74371bde8ee651a1786c2f8274cecbb1955e5a3cbfa7521456`
+- Runtime TAR SHA-256: `e2beacbe76eb5f0a398fdebc6c9f907dddfe4514b382061c8f938ca07817ceff`
+- Runtime files: 118
 
-## Active release PR queue
+This artifact is reproducible and source-identical to the recorded candidate, but it is now **REVOKED FOR STAGING/PRODUCTION PROMOTION** because the product contract is under audit. Do not deploy it.
 
-Exactly **one** release PR is actionable:
+All earlier artifacts remain superseded as well.
 
-- **#135 — `release: canonical whitelist v1 convergence` — DRAFT.**
+## Audit-triggering contradiction
 
-#136, #137, #138, #139 and #140 are absorbed/merged historical evidence and are no longer independently actionable. Former release inputs #123, #126 and #129 also remain historical evidence only.
+The intended retention architecture is:
+
+- Founding Whitelist = commercial acquisition path for Bitmomo Pro;
+- Newsletter = free audience retention/distribution utility;
+- exactly one compact newsletter form in the global footer;
+- no legacy newsletter popup/modal;
+- newsletter presentation remains visually secondary to the commercial Pro/whitelist action;
+- legacy `/subscribe`, `#subscribe`, and `#newsletter` destinations resolve to the footer subscribe surface, not to Founding Whitelist.
+
+Current implementation incorrectly removed the footer newsletter and redirected legacy newsletter destinations to Founding Whitelist. This must be corrected together with any other P0 findings from the whole-product audit before a new artifact is built.
 
 ## Current release state
 
 | Gate | State | Meaning |
 |---|---|---|
-| SOURCE | **FROZEN FOR FULL DETERMINISTIC VALIDATION** | Remediations #137/#138/#139/#140 are absorbed. The exact #135 head after this status commit is the only candidate eligible for the next full validation run. Any source change invalidates the freeze. |
-| CI | **BLOCKED / NOT RUN** | Latest workflows on the Draft release candidate are guard-skipped and provide no executable evidence. Earlier #125 forced-run evidence showed `runner_id=0` / no steps. A skipped job is not PASS. |
-| ALTERNATE DETERMINISTIC CHECKS | **RESTART REQUIRED ON FINAL FROZEN HEAD** | Earlier partial runs found and repaired the defects above, including the WhatsApp opt-in test-support failures. Full authoritative source validation must now restart from zero on the exact final head; partial or targeted results must not be promoted to final PASS. |
-| ARTIFACT | **NOT GENERATED** | No artifact from the post-remediation final candidate is accepted. The old #123 artifact/checksum is historical baseline only. |
-| STAGING | **NOT DEPLOYED** | Canonical staging has not received the post-remediation artifact. |
-| RUNTIME | **NOT VERIFIED** | Commit/tree/hash/filesystem/cache/data parity awaits deployment. |
-| BROWSER | **NOT VERIFIED** | Responsive, keyboard, zoom, console, Axe and failure-state acceptance awaits the new staging candidate. |
-| PRODUCT READY | **NOT VERIFIED** | Privacy/Disclaimer semantic sync, ≥2 qualified Research, BTC ≤30h, whitelist persistence/dedupe/mail-generation, checkout OFF and WhatsApp OFF must pass on staging. |
-| PRODUCTION AUTHORIZED | **NO** | The CI-blocked staging exception never authorizes production. |
-| PRODUCTION VERIFIED | **NO** | Production remains untouched. |
+| SOURCE | **AUDIT HOLD** | Current source is reproducible but not yet accepted as the final product contract. |
+| CI | **PASS, CONTRACT REVIEW REQUIRED** | 5/5 authoritative workflows passed, but at least one source assertion is known to encode the wrong product requirement. |
+| ARTIFACT | **REVOKED FOR PROMOTION** | Artifact `10350132727` is valid evidence but must not be deployed. |
+| STAGING | **DO NOT DEPLOY CURRENT ARTIFACT** | Wait for consolidated audit remediation + fresh artifact. |
+| RUNTIME | **AWAITING FINAL AUDIT CANDIDATE** | 118-file source contract is current but may change intentionally. |
+| BROWSER | **AWAITING FINAL AUDIT CANDIDATE** | Full rendered acceptance must run only after final remediation deploy. |
+| PRODUCT READY | **NO** | Whole-product audit and final staging acceptance remain open. |
+| CHECKOUT | **OFF** | Must remain off. |
+| WHATSAPP | **OFF** | Must remain off. |
+| PRODUCTION AUTHORIZED | **NO** | Production remains untouched. |
+| PRODUCTION VERIFIED | **NO** | No production promotion has occurred. |
 
-## Release-critical issues
+## Engineering audit rule
 
-- **#131** — canonical whitelist release coordination and acceptance state.
-- **#125** — GitHub Actions capacity/infrastructure blocker.
-- **#134** — repository-admin enforcement: protect `main` and enable automatic merged-branch cleanup.
-- **#127** — paid-checkout trust gate; does not block whitelist-only staging/launch while checkout remains disabled.
+Until the audit closes:
 
-## CI-blocked staging exception
-
-GitHub Actions unavailability must not create a circular dependency where staging cannot be used to validate runtime behavior. Therefore **staging-only** deployment is allowed while #125 remains active, but only when all of the following are true:
-
-1. exact current #135 head is frozen;
-2. authoritative deterministic source checks execute outside GitHub-hosted Actions on that exact head and PASS without weakening assertions;
-3. PHP runtime lint/tests, all `test-*.php` suites (including email-only whitelist, dormant WhatsApp enabled-mode, and regression-preservation suite), first-party JS syntax/contracts, navigation/footer, terminal-grade/public-surface contracts and artifact contract all pass as applicable;
-4. the production artifact builder is run twice from that exact head and produces byte-identical artifacts;
-5. source commit, source tree, runtime manifest/file count and artifact SHA-256 are recorded;
-6. only that exact artifact is deployed to canonical staging;
-7. staging then passes filesystem/source/tree/hash parity, cache/CDN coherence, runtime/data readiness, browser/accessibility and whitelist product-readiness gates;
-8. production remains **NO-GO** until GitHub-hosted authoritative CI returns and executes successfully on the exact accepted candidate or a proven source-identical candidate.
-
-A staging exception is never recorded as `CI PASS`; CI remains `BLOCKED / NOT RUN`.
+1. do not patch individual visual symptoms directly on staging;
+2. do not add WordPress Custom CSS;
+3. do not deploy artifact `10350132727`;
+4. do not create another release branch;
+5. collect contradictions and P0 defects across product value, IA, copy, visual system, retention, conversion, trust, responsive behavior, accessibility, performance, SEO/social preview, analytics, security/privacy, content/data state and release governance;
+6. reconcile them in one reviewed remediation pass on the canonical release line;
+7. rerun the entire authoritative suite from zero;
+8. build one new deterministic artifact;
+9. deploy only that exact artifact to canonical staging;
+10. run full browser/product acceptance and produce a screenshot/evidence dossier;
+11. production remains NO-GO until explicit owner authorization after staging acceptance.
 
 ## Next executable gate
 
-1. record the exact current #135 commit + tree after this status update;
-2. execute the full authoritative deterministic source suites from zero outside GitHub-hosted Actions on that exact head;
-3. if any suite fails, stop and fix source before artifact generation, then establish a new freeze;
-4. if all pass, build the runtime artifact twice and require byte-identical output;
-5. record commit/tree/runtime file count/artifact SHA-256 and create one staging handoff;
-6. back up canonical staging, then deploy only that artifact;
-7. run staging artifact parity + asset coherence + runtime/readiness + browser/accessibility acceptance;
-8. keep production on HOLD until authoritative GitHub CI is executable/green and explicit production authorization is granted.
-
-## Engineer start-here
-
-Before touching launch/release surfaces:
-
-1. read this file;
-2. read #131;
-3. inspect Draft PR #135;
-4. verify the exact frozen commit/tree recorded in PR #135 and #131 before running tests;
-5. do not deploy historical artifacts or infer authority from branch age/PR number;
-6. do not create another release candidate while #135 is active unless a failing gate requires a focused remediation PR.
+Complete the **Bitmomo Launch Integrity Audit** and publish one prioritized remediation matrix. Source changes should begin only after P0 boundaries and intended product behavior are explicit enough to avoid another local fix that damages another part of the product system.
