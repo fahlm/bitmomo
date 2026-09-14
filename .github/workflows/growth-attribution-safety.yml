@@ -24,6 +24,7 @@ concurrency:
 
 jobs:
   deterministic-contract:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: Lint and deterministic attribution contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
