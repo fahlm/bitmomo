@@ -1,17 +1,14 @@
 name: Full release safety
 
 on:
-  # Full convergence is intentionally explicit. Scoped PR workflows provide
-  # iterative feedback; run this artifact/provenance gate only after the
-  # release candidate is frozen, then again automatically after main changes.
+  # Full Release is an explicit frozen-candidate gate. Normal PRs use scoped
+  # feedback workflows; ordinary main merges must not build release artifacts.
   workflow_dispatch:
     inputs:
       candidate_sha:
         description: Exact frozen release-candidate commit SHA to validate
         required: true
         type: string
-  push:
-    branches: [main]
 
 permissions:
   contents: read
@@ -30,7 +27,6 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Verify explicit frozen candidate identity
-        if: github.event_name == 'workflow_dispatch'
         shell: bash
         env:
           EXPECTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
@@ -107,10 +103,20 @@ jobs:
               print(f'PASS python syntax {name}')
           PY
 
-          bash -n scripts/check-staging-safety.sh scripts/check-staging-readiness.sh
+          bash -n \
+            scripts/check-theme-source-contract.sh \
+            scripts/check-authority-source-contract.sh \
+            scripts/check-staging-safety.sh \
+            scripts/check-staging-readiness.sh
 
       - name: Check M2 launch contract
         run: node scripts/check-m2-launch-surfaces.mjs
+
+      - name: Check canonical theme source contract
+        run: bash scripts/check-theme-source-contract.sh
+
+      - name: Check canonical authority source contract
+        run: bash scripts/check-authority-source-contract.sh
 
       - name: Check navigation and footer contract
         run: node scripts/check-navigation-footer.mjs

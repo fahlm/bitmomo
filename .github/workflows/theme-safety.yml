@@ -9,6 +9,7 @@ on:
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
+      - "scripts/check-theme-source-contract.sh"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
       - "scripts/check-navigation-footer.mjs"
@@ -39,61 +40,8 @@ jobs:
       - name: Show PHP version
         run: php --version
 
-      - name: Verify public template ownership
-        shell: bash
-        run: |
-          set -euo pipefail
-          theme_dir="website/wp-content/themes/bitmomo-child-v3"
-          expected=(
-            "functions.php" "custom.css" "front-page.php" "page.php" "single.php" "home.php"
-            "archive.php" "category.php" "tag.php" "search.php" "404.php" "index.php"
-            "header.php" "footer.php" "style.css" "assets/css/design-system.css"
-            "assets/css/home-opportunity.css" "assets/css/public-surfaces.css"
-            "assets/css/navigation-footer.css" "assets/css/public-readability.css"
-            "assets/css/article-reading.css" "template-parts/archive-index.php"
-          )
-          for file in "${expected[@]}"; do
-            test -f "${theme_dir}/${file}" || { echo "::error file=${theme_dir}/${file}::Required public-surface file is missing"; exit 1; }
-          done
-          test -f "docs/PUBLIC_SURFACE_CONTRACT.md" || { echo "::error::Public surface contract is missing"; exit 1; }
-
-      - name: Prevent legacy UI and semantic regressions
-        shell: bash
-        run: |
-          set -euo pipefail
-          theme_dir="website/wp-content/themes/bitmomo-child-v3"
-          asset_trait="${theme_dir}/inc/trait-bitmomo-assets.php"
-          account="website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
-
-          ! grep -q "Informasi AI &" "${theme_dir}/home.php"
-          ! grep -q "BITMOMO RESEARCH" "${theme_dir}/home.php"
-          ! grep -q "big-stories" "${theme_dir}/tag.php"
-
-          for file in home.php archive.php category.php tag.php search.php index.php; do
-            grep -q "template-parts/archive" "${theme_dir}/${file}" || { echo "::error file=${theme_dir}/${file}::Archive route must consume the shared archive surface"; exit 1; }
-          done
-
-          grep -q "template-parts/whitelist" "${theme_dir}/front-page.php"
-          grep -q 'id="primary"' "${theme_dir}/front-page.php"
-          ! grep -q "template-parts/pro.*teaser" "${theme_dir}/front-page.php"
-          ! grep -q "bm-howworks-future" "${theme_dir}/template-parts/how-it-works.php"
-          ! grep -q "public-surfaces.css" "${theme_dir}/header.php"
-          grep -q "design-system.css" "${asset_trait}"
-          grep -q "public-surfaces.css" "${asset_trait}"
-          grep -q "navigation-footer.css" "${asset_trait}"
-          grep -q "home-conversion.css" "${asset_trait}"
-
-          test ! -f "${theme_dir}/template-parts/pro-teaser.php"
-          test ! -f "${theme_dir}/template-parts/why-bitmomo.php"
-          test ! -f "${theme_dir}/assets/images/bitmomo-logo.png"
-
-          grep -q "<h1 class=\"bm-pro-account__title\"" "${account}" || {
-            echo "::error file=${account}::Pro account product surface must render its own H1"
-            exit 1
-          }
-
-          grep -q "bitmomo_post_research_classification" "${theme_dir}/single.php"
-          ! grep -q "Riset Terkait" "${theme_dir}/single.php"
+      - name: Enforce canonical theme source contract
+        run: bash scripts/check-theme-source-contract.sh
 
       - name: Lint changed public PHP
         shell: bash
@@ -110,6 +58,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          bash -n scripts/check-theme-source-contract.sh
           node --check scripts/check-public-ui.mjs
           node --check scripts/check-terminal-grade-contract.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
