@@ -24,9 +24,10 @@ return [
     'telegram_bot_token' => 'REPLACE_ME',
     'telegram_chat_id' => 'REPLACE_ME',
 
-    // Cost guard. Polling stops for the UTC day once cumulative estimated X
-    // Post-read cost reaches this amount. The value is deliberately conservative.
-    'daily_x_read_budget_usd' => 1.00,
+    // Cost guard for the initial MVP. At the current $0.005/Post read price,
+    // $0.10/day caps the engine at roughly 20 newly billed Post reads/day and
+    // about $3/month maximum theoretical spend. Increase only from measured ROI.
+    'daily_x_read_budget_usd' => 0.10,
 
     // Optional manually curated/original Research Feed source records.
     // The file must contain either an array of manual research source records or
