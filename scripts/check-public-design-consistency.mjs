@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const theme = path.join(root, 'website/wp-content/themes/bitmomo-child-v3');
 const pro = path.join(root, 'website/wp-content/plugins/bitmomo-pro');
+const btc = path.join(root, 'website/wp-content/plugins/bitmomo-btc-intelligence');
 const failures = [];
 
 function read(base, relative) {
@@ -27,6 +28,7 @@ const assets = read(theme, 'inc/trait-bitmomo-assets.php');
 const account = read(pro, 'assets/css/bitmomo-pro-account.css');
 const whitelist = read(pro, 'assets/css/bitmomo-pro-whitelist.css');
 const help = read(pro, 'assets/css/bitmomo-pro-help.css');
+const btcCss = read(btc, 'assets/css/bitmomo-btc-intelligence.css');
 
 check(
   'One canonical design foundation defines graphite, steel-blue, commercial amber and shared geometry',
@@ -127,6 +129,19 @@ check(
   /--bms-teal:\s*var\(--bm-accent\)/.test(readability) &&
   /--bms-orange:\s*var\(--bm-action\)/.test(readability) &&
   /--bms-orange-dark:\s*var\(--bm-action-hover\)/.test(readability)
+);
+
+check(
+  'BTC Intelligence owner consumes the institutional palette and cannot reintroduce neon crypto-dashboard literals',
+  /--bmi-accent:var\(--bm-accent,#6c8ebf\)/.test(btcCss) &&
+  /--bmi-accent-rgb:var\(--bm-accent-rgb,108,142,191\)/.test(btcCss) &&
+  /--bmi-action:var\(--bm-action,#f4ad32\)/.test(btcCss) &&
+  /--bmi-action-hover:var\(--bm-action-hover,#ffc15a\)/.test(btcCss) &&
+  /--bmi-bull:var\(--bm-positive,#63a98a\)/.test(btcCss) &&
+  /--bmi-bear:var\(--bm-negative,#c97b77\)/.test(btcCss) &&
+  /max-width:var\(--bm-product-width,1080px\)/.test(btcCss) &&
+  /var\(--bm-touch-target-mobile,44px\)/.test(btcCss) &&
+  !/#2dd4bf|45\s*,\s*212\s*,\s*191|--bmi-teal|#34d399|#f87171|#e69a18/i.test(btcCss)
 );
 
 check(
