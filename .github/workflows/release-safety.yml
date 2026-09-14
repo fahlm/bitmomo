@@ -91,6 +91,8 @@ jobs:
             scripts/check-terminal-grade-contract.mjs \
             scripts/check-institutional-copy.mjs \
             scripts/check-home-research-boundary.mjs \
+            scripts/check-public-design-consistency.mjs \
+            scripts/check-social-preview.mjs \
             scripts/audit-css-debt.mjs; do
             node --check "$script"
           done
@@ -136,6 +138,9 @@ jobs:
 
       - name: Check homepage research qualification boundary
         run: node scripts/check-home-research-boundary.mjs
+
+      - name: Check sitewide institutional design consistency
+        run: node scripts/check-public-design-consistency.mjs
 
       - name: Check CSS debt baseline
         run: node scripts/audit-css-debt.mjs

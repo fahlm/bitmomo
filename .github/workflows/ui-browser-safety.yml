@@ -1,6 +1,9 @@
 name: UI browser safety
 
 on:
+  # Browser acceptance is deliberately manual while Whitelist V1 is under
+  # release hardening. Run it only against an exact deployed candidate rather
+  # than paying for weekly browser/dependency installation on unchanged code.
   workflow_dispatch:
     inputs:
       base_url:
@@ -11,8 +14,6 @@ on:
         description: Optional JSON map of social channels that must render exactly; {} keeps fail-closed semantics
         required: false
         default: "{}"
-  schedule:
-    - cron: "17 18 * * 1"
 
 permissions:
   contents: read
@@ -31,23 +32,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Resolve audit target
-        id: version_gate
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "run_audit=true" >> "${GITHUB_OUTPUT}"
-          echo "Browser audit enabled for ${{ github.event_name }}."
-
       - name: Verify staging HTML/CDN asset coherence
-        if: steps.version_gate.outputs.run_audit == 'true' && github.event_name == 'workflow_dispatch' && contains(github.event.inputs.base_url, 'hostingersite.com')
+        if: contains(github.event.inputs.base_url, 'hostingersite.com')
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/check-staging-asset-coherence.py --base-url "${{ github.event.inputs.base_url }}"
 
       - name: Install browser audit dependencies
-        if: steps.version_gate.outputs.run_audit == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -55,22 +47,25 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Audit public UI across breakpoints
-        if: steps.version_gate.outputs.run_audit == 'true'
         env:
-          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
+          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url }}
           BITMOMO_UI_OUTPUT_DIR: ui-artifacts
           BITMOMO_EXPECTED_SOCIAL_JSON: ${{ github.event.inputs.expected_social_json || '{}' }}
         run: node scripts/check-public-ui.mjs
 
       - name: Audit article search promise and body cleanliness
-        if: steps.version_gate.outputs.run_audit == 'true'
         env:
-          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
+          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url }}
           BITMOMO_UI_OUTPUT_DIR: ui-artifacts
         run: node scripts/check-article-cleanliness.mjs
 
+      - name: Audit Open Graph and X preview metadata
+        env:
+          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url }}
+        run: node scripts/check-social-preview.mjs
+
       - name: Upload screenshots and audit report
-        if: always() && steps.version_gate.outputs.run_audit == 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bitmomo-ui-browser-audit-${{ github.run_id }}
