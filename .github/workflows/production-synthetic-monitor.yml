@@ -2,8 +2,10 @@ name: Production synthetic monitor
 
 on:
   # Production health is operational monitoring, not source-PR validation.
+  # One daily run is enough for regression detection without consuming a
+  # disproportionate share of the tiny Actions budget.
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 23 * * *"
   workflow_dispatch:
 
 permissions:

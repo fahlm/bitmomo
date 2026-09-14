@@ -89,6 +89,10 @@ check('Production monitor cannot be triggered by PR or push',
   !hasTopLevelTrigger(production, 'pull_request') &&
   !hasTopLevelTrigger(production, 'push')
 );
+check('Production monitor schedule is capped at one daily run',
+  /cron:\s*["']17 23 \* \* \*["']/.test(production) &&
+  !/cron:\s*["'][^"']*\/\d+/.test(production)
+);
 check('Production monitor cancels duplicate work and is capped at 5m',
   hasCancelInProgress(production) && maxTimeout(production) <= 5
 );
@@ -111,6 +115,9 @@ check('Browser audit is operational/manual, never PR-triggered',
   hasTopLevelTrigger(browser, 'schedule') &&
   !hasTopLevelTrigger(browser, 'pull_request') &&
   !hasTopLevelTrigger(browser, 'push')
+);
+check('Browser audit stays at weekly cadence',
+  /cron:\s*["']17 18 \* \* 1["']/.test(browser)
 );
 check('Browser audit cancels superseded runs and is capped at 20m',
   hasCancelInProgress(browser) && maxTimeout(browser) <= 20
@@ -150,4 +157,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PASS CI governance contract: workflow inventory, triggers, budgets, concurrency, and release identity are fail-closed.');
+console.log('PASS CI governance contract: workflow inventory, triggers, schedules, budgets, concurrency, and release identity are fail-closed.');
