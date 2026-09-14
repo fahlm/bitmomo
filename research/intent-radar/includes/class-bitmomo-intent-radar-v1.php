@@ -11,17 +11,17 @@ final class Bitmomo_Intent_Radar_V1 {
     const RADAR_VERSION = 'intent-radar-v1';
     const CONFIDENCE_SEMANTICS = 'classification_confidence_not_conversion_probability';
     const MAX_FUTURE_SECONDS = 300;
-    const MAX_AGE_SECONDS = 172800; // 48h; older demand is rejected as stale.
+    const MAX_AGE_SECONDS = 172800; // 48h.
     const DEFAULT_COOLDOWN_SECONDS = 21600; // 6h.
 
     private static $intent_weights = [
         'explicit_signal' => 44,
         'long_short' => 42,
         'entry_exit' => 40,
+        'ai_research' => 38,
         'breakout_support_resistance' => 34,
         'analysis_prediction' => 32,
         'why_move' => 30,
-        'ai_research' => 28,
         'event_reaction' => 26,
     ];
 
@@ -110,10 +110,10 @@ final class Bitmomo_Intent_Radar_V1 {
             'spam_penalty' => -1 * $spam['penalty'],
         ];
 
-        $base_score = array_sum($score_parts);
-        $base_score = max(0, min(100, $base_score));
+        $score = max(0, min(100, array_sum($score_parts)));
         $confidence = self::classification_confidence($primary_intent, $matches, $text);
-        $policy = self::action_policy($base_score, $primary_intent, $spam['hard_block']);
+        $outbound_candidate = self::is_outbound_candidate($obs, $score_parts);
+        $policy = self::action_policy($score, $primary_intent, $spam['hard_block'], $outbound_candidate);
 
         $opportunity = [
             'contract_version' => self::CONTRACT_VERSION,
@@ -125,14 +125,12 @@ final class Bitmomo_Intent_Radar_V1 {
             'source_url' => $obs['source_url'],
             'surface' => $obs['surface'],
             'text' => $obs['text'],
-            'author' => [
-                'ref' => $obs['author_ref'],
-            ],
+            'author' => ['ref' => $obs['author_ref']],
             'intent' => [
                 'primary' => $primary_intent,
                 'matches' => $matches,
             ],
-            'score' => $base_score,
+            'score' => $score,
             'score_components' => $score_parts,
             'confidence' => [
                 'value' => $confidence,
@@ -152,11 +150,21 @@ final class Bitmomo_Intent_Radar_V1 {
             'created_at' => gmdate('c', $now),
         ];
 
-        $opportunity = self::enrich_with_research($opportunity, $research_items);
-        if ($opportunity['research_links']) {
+        // Research can strengthen an already-recognized demand opportunity, but
+        // must never transform generic BTC chatter into demand.
+        if ($primary_intent !== null) {
+            $opportunity = self::enrich_with_research($opportunity, $research_items);
+        }
+
+        if ($primary_intent !== null && $opportunity['research_links']) {
             $opportunity['score_components']['research_fit'] = 5;
             $opportunity['score'] = min(100, $opportunity['score'] + 5);
-            $policy = self::action_policy($opportunity['score'], $primary_intent, $spam['hard_block']);
+            $policy = self::action_policy(
+                $opportunity['score'],
+                $primary_intent,
+                $spam['hard_block'],
+                $outbound_candidate
+            );
             $opportunity['suggested_action'] = $policy['suggested_action'];
             $opportunity['priority'] = $policy['priority'];
             $opportunity['approval_required'] = $policy['approval_required'];
@@ -168,12 +176,9 @@ final class Bitmomo_Intent_Radar_V1 {
         return ['valid' => true, 'errors' => [], 'opportunity' => $opportunity];
     }
 
-    /**
-     * Normalize fixture/mock observations from supported source adapters.
-     * No network calls are performed here.
-     */
+    /** Normalize fixture/mock observations only; no platform request is made. */
     public static function from_x_fixture(array $raw, array $research_items = [], $now = null) {
-        $observation = [
+        return self::analyze([
             'source' => 'x',
             'source_ref' => $raw['id'] ?? '',
             'source_url' => $raw['url'] ?? null,
@@ -181,16 +186,13 @@ final class Bitmomo_Intent_Radar_V1 {
             'text' => $raw['text'] ?? '',
             'author_ref' => $raw['author_ref'] ?? '',
             'observed_at' => $raw['created_at'] ?? '',
-        ];
-        return self::analyze($observation, $research_items, $now);
+        ], $research_items, $now);
     }
 
     public static function from_youtube_fixture(array $raw, array $research_items = [], $now = null) {
         $text = trim((string) ($raw['text'] ?? ''));
-        if ($text === '') {
-            $text = trim((string) ($raw['title'] ?? '') . ' ' . (string) ($raw['description'] ?? ''));
-        }
-        $observation = [
+        if ($text === '') $text = trim((string) ($raw['title'] ?? '') . ' ' . (string) ($raw['description'] ?? ''));
+        return self::analyze([
             'source' => 'youtube',
             'source_ref' => $raw['id'] ?? '',
             'source_url' => $raw['url'] ?? null,
@@ -198,8 +200,7 @@ final class Bitmomo_Intent_Radar_V1 {
             'text' => $text,
             'author_ref' => $raw['author_ref'] ?? '',
             'observed_at' => $raw['published_at'] ?? '',
-        ];
-        return self::analyze($observation, $research_items, $now);
+        ], $research_items, $now);
     }
 
     public static function deduplicate(array $opportunities) {
@@ -231,10 +232,7 @@ final class Bitmomo_Intent_Radar_V1 {
         return ['items' => $items, 'duplicates' => $duplicates];
     }
 
-    /**
-     * Cooldown state shape: [cooldown_key => last_action_iso8601].
-     * Returns true only while the key remains within the configured window.
-     */
+    /** Cooldown state shape: [cooldown_key => last_action_iso8601]. */
     public static function in_cooldown(array $opportunity, array $cooldown_state, $now = null, $seconds = null) {
         $now = self::now($now);
         $seconds = $seconds === null ? self::DEFAULT_COOLDOWN_SECONDS : max(0, (int) $seconds);
@@ -247,8 +245,12 @@ final class Bitmomo_Intent_Radar_V1 {
 
     public static function enrich_with_research(array $opportunity, array $research_items) {
         $intent = self::text($opportunity['intent']['primary'] ?? '');
-        $text = strtolower(self::text($opportunity['text'] ?? ''));
-        $query_terms = self::tokens($text);
+        if ($intent === '') {
+            $opportunity['research_links'] = [];
+            return $opportunity;
+        }
+
+        $query_terms = self::tokens(strtolower(self::text($opportunity['text'] ?? '')));
         foreach ((array) (self::$intent_research_terms[$intent] ?? []) as $term) $query_terms[] = strtolower($term);
         $query_terms = array_values(array_unique($query_terms));
 
@@ -259,26 +261,23 @@ final class Bitmomo_Intent_Radar_V1 {
             $fingerprint = self::text($item['fingerprint'] ?? '');
             if ($research_id === '' || $fingerprint === '') continue;
 
-            $haystack_parts = [
-                $item['title'] ?? '',
-                $item['summary'] ?? '',
-            ];
-            foreach ((array) ($item['topics'] ?? []) as $value) $haystack_parts[] = $value;
-            foreach ((array) ($item['tags'] ?? []) as $value) $haystack_parts[] = $value;
-            $haystack = strtolower(self::text(implode(' ', array_map('strval', $haystack_parts))));
-            $haystack_tokens = self::tokens($haystack);
-
-            $matched = array_values(array_intersect($query_terms, $haystack_tokens));
-            $matched = array_values(array_unique($matched));
+            $parts = [$item['title'] ?? '', $item['summary'] ?? ''];
+            foreach ((array) ($item['topics'] ?? []) as $value) $parts[] = $value;
+            foreach ((array) ($item['tags'] ?? []) as $value) $parts[] = $value;
+            $haystack = strtolower(self::text(implode(' ', array_map('strval', $parts))));
+            $matched = array_values(array_unique(array_intersect($query_terms, self::tokens($haystack))));
             if (!$matched) continue;
 
-            $score = min(100, count($matched) * 15);
-            if (strpos($haystack, 'bitcoin') !== false || strpos($haystack, 'btc') !== false) $score = min(100, $score + 10);
+            $match_score = min(100, count($matched) * 15);
+            if (strpos($haystack, 'bitcoin') !== false || strpos($haystack, 'btc') !== false) {
+                $match_score = min(100, $match_score + 10);
+            }
+
             $candidates[] = [
                 'research_id' => $research_id,
                 'fingerprint' => $fingerprint,
                 'title' => self::text($item['title'] ?? ''),
-                'match_score' => $score,
+                'match_score' => $match_score,
                 'matched_terms' => $matched,
             ];
         }
@@ -287,7 +286,6 @@ final class Bitmomo_Intent_Radar_V1 {
             if ($a['match_score'] === $b['match_score']) return strcmp($a['research_id'], $b['research_id']);
             return $b['match_score'] <=> $a['match_score'];
         });
-
         $opportunity['research_links'] = array_slice($candidates, 0, 3);
         return $opportunity;
     }
@@ -340,9 +338,7 @@ final class Bitmomo_Intent_Radar_V1 {
         $matches = [];
         foreach (self::$intent_patterns as $intent => $patterns) {
             $matched = [];
-            foreach ($patterns as $pattern) {
-                if (strpos($text, $pattern) !== false) $matched[] = $pattern;
-            }
+            foreach ($patterns as $pattern) if (strpos($text, $pattern) !== false) $matched[] = $pattern;
             if ($matched) {
                 sort($matched, SORT_STRING);
                 $matches[$intent] = $matched;
@@ -373,7 +369,12 @@ final class Bitmomo_Intent_Radar_V1 {
 
     private static function request_score($text) {
         if (strpos($text, '?') !== false) return 10;
-        $terms = ['anyone know', 'what do you think', 'should i', 'where should', 'when should', 'ada yang tahu', 'menurut kalian', 'menurut kamu', 'sebaiknya', 'gimana btc', 'bagaimana btc'];
+        $terms = [
+            'anyone know', 'anyone have', 'looking for', 'need a ', 'need an ',
+            'what do you think', 'should i', 'where should', 'when should',
+            'ada yang tahu', 'ada yang punya', 'lagi cari', 'butuh ', 'menurut kalian',
+            'menurut kamu', 'sebaiknya', 'gimana btc', 'bagaimana btc',
+        ];
         foreach ($terms as $term) if (strpos($text, $term) !== false) return 8;
         return 0;
     }
@@ -385,8 +386,7 @@ final class Bitmomo_Intent_Radar_V1 {
     }
 
     private static function engagement_score($text) {
-        $score = 0;
-        if (strpos($text, '?') !== false) $score += 3;
+        $score = strpos($text, '?') !== false ? 3 : 0;
         foreach (['signal', 'analysis', 'analisa', 'analisis', 'long', 'short', 'entry', 'support', 'resistance', 'prediksi', 'prediction'] as $term) {
             if (strpos($text, $term) !== false) { $score += 2; break; }
         }
@@ -394,8 +394,7 @@ final class Bitmomo_Intent_Radar_V1 {
     }
 
     private static function freshness($observed_at, $now) {
-        $timestamp = strtotime((string) $observed_at);
-        $age = max(0, $now - $timestamp);
+        $age = max(0, $now - strtotime((string) $observed_at));
         if ($age <= 900) $band = 'live';
         elseif ($age <= 3600) $band = 'recent';
         elseif ($age <= 21600) $band = 'current';
@@ -423,7 +422,6 @@ final class Bitmomo_Intent_Radar_V1 {
     private static function spam_signals($text) {
         $penalty = 0;
         $reasons = [];
-        $hard_block = false;
         $patterns = [
             'guaranteed profit' => 30,
             'guaranteed profits' => 30,
@@ -444,8 +442,7 @@ final class Bitmomo_Intent_Radar_V1 {
                 $reasons[] = $pattern;
             }
         }
-        $url_count = preg_match_all('/https?:\/\//', $text);
-        if ($url_count >= 2) {
+        if (preg_match_all('/https?:\/\//', $text) >= 2) {
             $penalty += 20;
             $reasons[] = 'multiple_urls';
         }
@@ -453,18 +450,33 @@ final class Bitmomo_Intent_Radar_V1 {
             $penalty += 15;
             $reasons[] = 'repeated_characters';
         }
-        if ($penalty >= 40) $hard_block = true;
         return [
             'penalty' => min(100, $penalty),
             'reasons' => array_values(array_unique($reasons)),
-            'hard_block' => $hard_block,
+            'hard_block' => $penalty >= 40,
         ];
     }
 
-    private static function action_policy($score, $intent, $hard_block) {
+    private static function is_outbound_candidate(array $obs, array $score_parts) {
+        if (($score_parts['question_or_request'] ?? 0) <= 0) return false;
+        if ($obs['source'] === 'x') return in_array($obs['surface'], ['post', 'comment', 'reply', 'unknown'], true);
+        if ($obs['source'] === 'youtube') return $obs['surface'] === 'comment';
+        return false;
+    }
+
+    private static function action_policy($score, $intent, $hard_block, $outbound_candidate) {
         if ($hard_block || $intent === null || $score < 35) {
             return ['priority' => 'ignore', 'suggested_action' => 'ignore', 'approval_required' => false];
         }
+
+        if (!$outbound_candidate) {
+            return [
+                'priority' => $score >= 55 ? 'p1' : 'p2',
+                'suggested_action' => 'monitor',
+                'approval_required' => false,
+            ];
+        }
+
         if ($score >= 75) {
             return ['priority' => 'p0', 'suggested_action' => 'review_for_reply', 'approval_required' => true];
         }
@@ -516,9 +528,7 @@ final class Bitmomo_Intent_Radar_V1 {
     }
 
     private static function normalize_text($value) {
-        $value = strtolower(self::text($value));
-        $value = preg_replace('/\s+/', ' ', $value);
-        return trim($value);
+        return strtolower(self::text($value));
     }
 
     private static function failure(array $errors) {
