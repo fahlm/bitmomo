@@ -25,13 +25,18 @@
   color: var(--bm-text-subtle);
 }
 
-/* BTC Intelligence keeps its denser terminal surfaces, but not a second brand
-   palette or a device-dependent font stack. */
+/* BTC Intelligence keeps its denser terminal composition, while its palette
+   resolves to the canonical graphite + steel-blue system. Legacy local token
+   names are retained only for compatibility with the plugin stylesheet. */
 .bm-bi {
+  --bmi-bg: var(--bm-surface-terminal);
+  --bmi-surface: var(--bm-surface-terminal-elevated);
+  --bmi-surface-2: var(--bm-bg-elevated);
   --bmi-text: var(--bm-text);
   --bmi-text-muted: var(--bm-text-muted);
+  --bmi-muted: var(--bm-text-muted);
   --bmi-subtle: var(--bm-text-subtle);
-  --bmi-teal: var(--bm-teal);
+  --bmi-teal: var(--bm-accent);
   --bmi-orange: var(--bm-action);
   --bmi-bull: var(--bm-positive);
   --bmi-bear: var(--bm-negative);
@@ -44,7 +49,7 @@
 .bm-pro-sales {
   --bms-text: var(--bm-text);
   --bms-text-muted: var(--bm-text-muted);
-  --bms-teal: var(--bm-teal);
+  --bms-teal: var(--bm-accent);
   --bms-orange: var(--bm-action);
   --bms-orange-dark: var(--bm-action-hover);
   --bms-bull: var(--bm-positive);
@@ -68,7 +73,7 @@
 .bm-pro {
   --bm-pro-text: var(--bm-text);
   --bm-pro-text-muted: var(--bm-text-muted);
-  --bm-pro-teal: var(--bm-teal);
+  --bm-pro-teal: var(--bm-accent);
   --bm-pro-bull: var(--bm-positive);
   --bm-pro-bear: var(--bm-negative);
   --bm-pro-neutral: var(--bm-neutral);
@@ -81,6 +86,6 @@
   --bmh-text: var(--bm-text);
   --bmh-muted: var(--bm-text-muted);
   --bmh-border: var(--bm-border-strong);
-  --bmh-accent: var(--bm-teal);
+  --bmh-accent: var(--bm-accent);
   font-family: var(--bm-font-sans);
 }
