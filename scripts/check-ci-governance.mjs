@@ -128,8 +128,9 @@ check('CI governance runs only for CI-policy changes or manual audit',
   !hasTopLevelTrigger(governance, 'push') &&
   !hasTopLevelTrigger(governance, 'schedule')
 );
-check('CI governance also skips draft PRs, is cancelable, and is capped at 2m',
+check('CI governance also skips draft PRs, cancels in-flight work on draft conversion, and is capped at 2m',
   hasDraftGuard(governance) &&
+  /converted_to_draft/.test(governance) &&
   hasCancelInProgress(governance) &&
   maxTimeout(governance) <= 2
 );
