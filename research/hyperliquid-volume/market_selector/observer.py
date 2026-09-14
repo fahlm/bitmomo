@@ -219,10 +219,18 @@ class MarketObserver:
                 volume = sum(x.round_trip_volume_usd or 0.0 for x in completed)
                 pnl_values = [x.pnl_usd for x in completed if x.pnl_usd is not None]
 
-                evidence_start_ms = max(
+                # Restart-safe throughput accounting: when historical execution
+                # events are rehydrated into a fresh observer, their evidence
+                # horizon must not be clipped to the new process start time.
+                # For an uninterrupted process, started_ms still counts any
+                # pre-attempt observation/warm-up time as before.
+                observed_execution_start_ms = min(
                     self.started_ms,
-                    now_ms - self.execution_window_ms,
                     self.executions[0].timestamp_ms,
+                )
+                evidence_start_ms = max(
+                    now_ms - self.execution_window_ms,
+                    observed_execution_start_ms,
                 )
                 elapsed_hours = max(
                     (now_ms - evidence_start_ms) / 3_600_000,
