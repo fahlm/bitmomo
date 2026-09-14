@@ -120,7 +120,7 @@ $bm_filter_url = static function ( $focus ) use ( $bm_research_url, $bm_research
       <div class="bm-research-head__grid">
         <div>
           <h1 id="bm-research-hub-title">Tesis pasar yang dapat diuji.</h1>
-          <p class="bm-research-head__lead">Riset Bitmomo menghubungkan data, tesis, kondisi invalidasi, dan evaluasi hasil untuk memahami perubahan pasar tanpa bergantung pada narasi harian.</p>
+          <p class="bm-research-head__lead">Riset Bitmomo menghubungkan bukti, konteks, batas tesis, dan evaluasi hasil untuk memahami perubahan pasar tanpa bergantung pada narasi harian.</p>
         </div>
         <div class="bm-research-head__utility">
           <p><strong>Fokus</strong><span>Markets · Intelligence Systems</span></p>
