@@ -13,11 +13,11 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
       <div class="bm-wl-unified__intro">
         <span class="bm-wl-unified__eyebrow"><?php esc_html_e( 'BITMOMO PRO · FOUNDING ACCESS', 'bitmomo' ); ?></span>
         <h2 class="bm-wl-unified__title" id="bm-wl-home-title"><?php esc_html_e( 'Kondisi pasar berubah. Pro menunjukkan apa yang perlu diperhatikan selanjutnya.', 'bitmomo' ); ?></h2>
-        <p class="bm-wl-unified__copy"><?php esc_html_e( 'BTC Intelligence menjawab apa yang terjadi sekarang. Pro menambahkan rentang yang dipantau, skenario utama, invalidation, dan apa yang berubah — tanpa harus memantau semuanya sendiri.', 'bitmomo' ); ?></p>
+        <p class="bm-wl-unified__copy"><?php esc_html_e( 'BTC Intelligence merangkum kondisi saat ini. Pro menambahkan rentang harga, skenario utama, kondisi yang membatalkan tesis, dan perubahan penting sejak analisis sebelumnya.', 'bitmomo' ); ?></p>
 
         <dl class="bm-wl-unified__facts" aria-label="<?php esc_attr_e( 'Founding Membership', 'bitmomo' ); ?>">
           <div class="bm-wl-unified__fact">
-            <dt><?php esc_html_e( 'Harga Founding', 'bitmomo' ); ?></dt>
+            <dt><?php esc_html_e( 'Founding Price', 'bitmomo' ); ?></dt>
             <dd><?php echo esc_html( $bm_wl_price_label ); ?></dd>
           </div>
           <div class="bm-wl-unified__fact">
@@ -47,10 +47,10 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Lanjutkan melalui checkout resmi Bitmomo.', 'bitmomo' ); ?></p>
           <?php elseif ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Daftar untuk Founding Access', 'bitmomo' ); ?></p>
-            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Masukkan email untuk mendapat pemberitahuan saat batch pertama dibuka. Tidak ada pembayaran sekarang.', 'bitmomo' ); ?></p>
+            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Masukkan email untuk menerima pemberitahuan ketika batch pertama dibuka. Tidak ada pembayaran pada tahap whitelist.', 'bitmomo' ); ?></p>
           <?php else : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo' ); ?></p>
-            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Pelajari Founding Membership dan apa yang akan Anda dapatkan.', 'bitmomo' ); ?></p>
+            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Pelajari struktur akses dan manfaat Founding Membership.', 'bitmomo' ); ?></p>
           <?php endif; ?>
         </div>
 
@@ -59,7 +59,7 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
             <p class="bm-wl-teaser-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo' ); ?></p>
             <p class="bm-wl-teaser-price"><?php echo esc_html( $bm_wl_price_label ); ?></p>
             <p class="bm-wl-teaser-cap"><?php echo esc_html( sprintf( __( '%d Founding Members · Batch pertama %d', 'bitmomo' ), $bm_wl_cap, $bm_wl_batch ) ); ?></p>
-            <a class="bm-wl-teaser-cta" href="<?php echo esc_url( $bm_wl_checkout_url ); ?>"><?php esc_html_e( 'KUNCI HARGA FOUNDING', 'bitmomo' ); ?></a>
+            <a class="bm-wl-teaser-cta" href="<?php echo esc_url( $bm_wl_checkout_url ); ?>"><?php esc_html_e( 'AKTIFKAN FOUNDING MEMBERSHIP', 'bitmomo' ); ?></a>
           </div>
         <?php elseif ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) : ?>
           <?php Bitmomo_Pro_Whitelist::instance()->render_widget( array( 'source' => 'homepage' ) ); ?>
