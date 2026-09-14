@@ -145,8 +145,8 @@ const homeWhitelist = read(themeDir, 'template-parts/whitelist.php');
 for (const marker of ['.bm-home-hero', '.bm-home-reading', '.bm-home-proof', '.bm-howworks', '.bm-home-research']) {
   if (!homeCss.includes(marker)) fail(`homepage stylesheet lost institutional primitive: ${marker}`);
 }
-for (const marker of ['>ARAH<', '>KEYAKINAN<', '>REFERENSI BTC<', '>DIPERBARUI<', '>ALASAN UTAMA<', '<strong>SUMBER</strong>']) {
-  if (!homeHero.includes(marker)) fail(`homepage reading lost visitor-facing information: ${marker}`);
+for (const marker of ['>BTC MARKET VIEW<', '>BIAS<', '>CONFIDENCE<', '>REFERENSI BTC<', '>DIPERBARUI<', '>FAKTOR UTAMA<', '<strong>SUMBER DATA</strong>']) {
+  if (!homeHero.includes(marker)) fail(`homepage market view lost visitor-facing information: ${marker}`);
 }
 for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()', '<style', 'Decision View']) {
   if (homeHero.includes(forbidden)) fail(`homepage leaked retired/internal detail: ${forbidden}`);
@@ -157,7 +157,7 @@ if (!/class="bm-home-hero__primary"[^>]+\/btc-intelligence\//.test(homeHero) || 
 if (!homeHero.includes('/btc-intelligence/#decision-ledger') || !homeHero.includes('href="#founding-whitelist"') || homeHero.indexOf('/btc-intelligence/#decision-ledger') > homeHero.indexOf('href="#founding-whitelist"')) {
   fail('homepage proof path must precede Founding commitment');
 }
-if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitelist.includes('Tidak ada pembayaran sekarang')) {
+if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitelist.includes('Tidak ada pembayaran pada tahap whitelist')) {
   fail('homepage whitelist must expose proof and remove payment ambiguity');
 }
 if (!homeConversionCss.includes('input[name="first_name"]') || !homeConversionCss.includes('.bm-wl__continuation')) {
