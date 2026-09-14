@@ -107,10 +107,20 @@ jobs:
               print(f'PASS python syntax {name}')
           PY
 
-          bash -n scripts/check-staging-safety.sh scripts/check-staging-readiness.sh
+          bash -n \
+            scripts/check-theme-source-contract.sh \
+            scripts/check-authority-source-contract.sh \
+            scripts/check-staging-safety.sh \
+            scripts/check-staging-readiness.sh
 
       - name: Check M2 launch contract
         run: node scripts/check-m2-launch-surfaces.mjs
+
+      - name: Check canonical theme source contract
+        run: bash scripts/check-theme-source-contract.sh
+
+      - name: Check canonical authority source contract
+        run: bash scripts/check-authority-source-contract.sh
 
       - name: Check navigation and footer contract
         run: node scripts/check-navigation-footer.mjs
