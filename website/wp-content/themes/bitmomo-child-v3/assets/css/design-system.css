@@ -10,31 +10,36 @@
 :root {
   color-scheme: dark;
 
-  --bm-bg: #0c1c2a;
-  --bm-bg-elevated: #0f2434;
-  --bm-bg-soft: #10283a;
-  --bm-header-surface: rgba(7, 17, 29, .985);
-  --bm-footer-surface: #091824;
-  --bm-surface-terminal: #0a0f1a;
-  --bm-surface-terminal-elevated: #0f1622;
+  /* Institutional neutral foundation: graphite first, color only when useful. */
+  --bm-bg: #0b1118;
+  --bm-bg-elevated: #111923;
+  --bm-bg-soft: #16202b;
+  --bm-header-surface: rgba(8, 13, 19, .985);
+  --bm-footer-surface: #080e14;
+  --bm-surface-terminal: #090f16;
+  --bm-surface-terminal-elevated: #0e1620;
 
-  --bm-text: #edf4f6;
-  --bm-text-secondary: #c7d4db;
-  --bm-text-muted: #9eb0c2;
-  --bm-text-subtle: #8294ae;
+  --bm-text: #f1f4f6;
+  --bm-text-secondary: #b7c0ca;
+  --bm-text-muted: #98a4b1;
+  --bm-text-subtle: #7f8b98;
   --bm-text-subtle-readable: var(--bm-text-subtle);
 
-  --bm-teal: #26d0c6;
-  --bm-teal-hover: #5ce0d8;
-  --bm-link: #6de0d9;
-  --bm-link-hover: #a5f1ed;
+  /* Product/data accent. Keep it restrained; amber remains commercial action. */
+  --bm-accent: #6c8ebf;
+  --bm-accent-hover: #88a6cf;
+  --bm-accent-rgb: 108, 142, 191;
+  --bm-link: #8fb1de;
+  --bm-link-hover: #b7cdee;
   --bm-action: #f4ad32;
   --bm-action-hover: #ffc15a;
-  --bm-positive: #34d399;
-  --bm-negative: #f87171;
-  --bm-warning: #e7be72;
-  --bm-neutral: #9aacc5;
-  --bm-danger: #ff8b80;
+
+  /* Semantic state colors are deliberately softer than the product accent. */
+  --bm-positive: #63a98a;
+  --bm-negative: #c97b77;
+  --bm-warning: #c6a46a;
+  --bm-neutral: #8996a6;
+  --bm-danger: #d58a84;
 
   --bm-border: rgba(255,255,255,.10);
   --bm-border-strong: rgba(255,255,255,.14);
@@ -86,22 +91,24 @@
   --bm-space-8: 64px;
   --bm-space-9: 96px;
 
-  --bm-focus-ring: 2px solid #6de0d9;
+  --bm-focus-ring: 2px solid var(--bm-accent);
   --bm-focus-offset: 3px;
 
   /* Transitional aliases keep frozen/older named layers aligned while they
-     migrate to direct --bm-* consumption. They are aliases, never new values. */
+     migrate to direct --bm-* consumption. Teal-named aliases are legacy names
+     only; they intentionally resolve to the canonical steel-blue accent. */
   --bg: var(--bm-bg);
   --bg-2: var(--bm-bg-elevated);
   --ink: var(--bm-text);
   --muted: var(--bm-text-muted);
-  --teal: var(--bm-teal);
+  --teal: var(--bm-accent);
   --stroke: var(--bm-border);
   --cta: var(--bm-action);
   --cta-hover: var(--bm-action-hover);
   --radius: var(--bm-radius-lg);
   --shadow: var(--bm-shadow-subtle);
-  --bm-accent: var(--bm-teal);
+  --bm-teal: var(--bm-accent);
+  --bm-teal-hover: var(--bm-accent-hover);
   --bm-muted: var(--bm-text-muted);
   --bm-surface: var(--bm-bg-elevated);
   --bm-surface-soft: var(--bm-bg-soft);
@@ -149,7 +156,7 @@ img[src="#"] {
 
 .bm-skip-link:focus {
   transform: translateY(0);
-  outline: 3px solid var(--bm-teal);
+  outline: 3px solid var(--bm-accent);
   outline-offset: 2px;
 }
 
@@ -211,10 +218,10 @@ button:disabled,
   height: 38px;
   place-items: center;
   flex: 0 0 38px;
-  border: 1px solid rgba(38,208,198,.34);
+  border: 1px solid rgba(108,142,191,.34);
   border-radius: var(--bm-radius-md);
   background: var(--bm-bg-soft);
-  color: var(--bm-teal);
+  color: var(--bm-accent);
   font-family: var(--bm-font-sans);
   font-size: 15px;
   font-weight: 900;
