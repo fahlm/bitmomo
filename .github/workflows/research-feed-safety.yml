@@ -5,19 +5,13 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "docs/research-distribution/**"
-      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php"
-      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-provider-v1.php"
-      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php"
-      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php"
+      - "research/distribution-core/**"
       - ".github/workflows/research-feed-safety.yml"
   push:
     branches: [main]
     paths:
       - "docs/research-distribution/**"
-      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php"
-      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-provider-v1.php"
-      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php"
-      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php"
+      - "research/distribution-core/**"
       - ".github/workflows/research-feed-safety.yml"
   workflow_dispatch:
 
@@ -41,14 +35,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          php -l website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php
-          php -l website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-provider-v1.php
-          php -l website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php
-          php -l website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php
+          php -l research/distribution-core/includes/class-bitmomo-research-feed-v1.php
+          php -l research/distribution-core/includes/class-bitmomo-research-feed-provider-v1.php
+          php -l research/distribution-core/tests/test-bitmomo-research-feed-v1.php
+          php -l research/distribution-core/tests/test-bitmomo-research-feed-provider-v1.php
 
       - name: Run Research Feed V1 deterministic suites
         shell: bash
         run: |
           set -euo pipefail
-          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php
-          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php
+          php research/distribution-core/tests/test-bitmomo-research-feed-v1.php
+          php research/distribution-core/tests/test-bitmomo-research-feed-provider-v1.php
