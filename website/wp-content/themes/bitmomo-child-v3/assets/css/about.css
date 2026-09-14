@@ -225,6 +225,10 @@
 }
 
 .bm-about-contact p { margin: 9px 0 0; color: var(--bm-text-muted); }
+.bm-about-contact a {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
 
 @media (max-width: 860px) {
   .bm-about-authority__grid,

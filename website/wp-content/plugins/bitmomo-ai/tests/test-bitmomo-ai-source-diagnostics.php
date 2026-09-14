@@ -40,6 +40,13 @@ diagnostics_check('fallback preserves the primary safe error category', $fallbac
 diagnostics_check('fallback preserves the safe provider status', $fallback_row['primary_error']['provider_status'] === 451);
 diagnostics_check('successful source retains observed_at and age', $fallback_row['observed_at'] !== '' && is_int($fallback_row['age_minutes']));
 
+$response_time = time() * 1000;
+$ticker_rows = invoke_diagnostic('attach_response_time', [[['markPrice' => '77000', 'indexPrice' => '76950']], $response_time]);
+diagnostics_check('fallback rows retain Bybit response time', $ticker_rows[0]['_response_time'] === $response_time);
+$premium = [['markPrice' => 77000.0, 'indexPrice' => 76950.0, 'time' => $ticker_rows[0]['_response_time']]];
+$premium_row = invoke_diagnostic('input_diagnostic', ['premium_index', $premium, true, $primary_error, true, null, 'time']);
+diagnostics_check('Bybit premium fallback has trusted freshness', $premium_row['observed_at'] !== '' && $premium_row['freshness'] === 'fresh');
+
 $failed_row = invoke_diagnostic('input_diagnostic', ['open_interest', $primary_error, false, $primary_error, true, $primary_error, 'timestamp']);
 diagnostics_check('failed source is explicitly unavailable', !$failed_row['success'] && $failed_row['freshness'] === 'unavailable');
 diagnostics_check('failed source retains normalized reason', $failed_row['error_category'] === 'http' && $failed_row['provider_status'] === 451);
@@ -52,4 +59,3 @@ $failed = array_filter($checks, function ($row) { return !$row[1]; });
 foreach ($checks as $row) echo ($row[1] ? 'PASS' : 'FAIL') . ': ' . $row[0] . PHP_EOL;
 if ($failed) exit(1);
 echo 'All ' . count($checks) . " source-diagnostic checks passed.\n";
-

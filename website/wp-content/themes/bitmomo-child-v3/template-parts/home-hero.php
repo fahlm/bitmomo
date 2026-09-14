@@ -66,28 +66,28 @@ $bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
           <strong class="bm-home-reading__status<?php echo esc_attr( $bm_status_class ); ?>"><?php echo esc_html( $bm_status_label ); ?></strong>
         </header>
 
-        <dl class="bm-home-reading__metrics">
-          <div class="bm-home-reading__metric">
-            <dt>ARAH</dt>
-            <dd class="is-<?php echo esc_attr( in_array( $bm_bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? $bm_bias : 'unknown' ); ?>"><?php echo esc_html( $bm_bias_label ); ?></dd>
+        <div class="bm-home-reading__metrics" role="list">
+          <div class="bm-home-reading__metric" role="listitem">
+            <span class="bm-home-reading__metric-label">ARAH</span>
+            <strong class="bm-home-reading__metric-value is-<?php echo esc_attr( in_array( $bm_bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? $bm_bias : 'unknown' ); ?>"><?php echo esc_html( $bm_bias_label ); ?></strong>
             <small>Arah evidence pasar saat ini.</small>
           </div>
-          <div class="bm-home-reading__metric">
-            <dt>KEYAKINAN</dt>
-            <dd><?php echo null !== $bm_confidence ? esc_html( ( $bm_confidence_label ? $bm_confidence_label . ' · ' : '' ) . $bm_confidence . '/100' ) : esc_html__( 'Belum tersedia', 'bitmomo' ); ?></dd>
+          <div class="bm-home-reading__metric" role="listitem">
+            <span class="bm-home-reading__metric-label">KEYAKINAN</span>
+            <strong class="bm-home-reading__metric-value"><?php echo null !== $bm_confidence ? esc_html( ( $bm_confidence_label ? $bm_confidence_label . ' · ' : '' ) . $bm_confidence . '/100' ) : esc_html__( 'Belum tersedia', 'bitmomo' ); ?></strong>
             <small>Konsistensi evidence, bukan peluang harga.</small>
           </div>
-          <div class="bm-home-reading__metric">
-            <dt>REFERENSI BTC</dt>
-            <dd><?php echo esc_html( $bm_price_label ); ?></dd>
+          <div class="bm-home-reading__metric" role="listitem">
+            <span class="bm-home-reading__metric-label">REFERENSI BTC</span>
+            <strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_price_label ); ?></strong>
             <small>Harga referensi pada waktu pembacaan.</small>
           </div>
-          <div class="bm-home-reading__metric">
-            <dt>DIPERBARUI</dt>
-            <dd><?php echo esc_html( $bm_updated_label ); ?></dd>
+          <div class="bm-home-reading__metric" role="listitem">
+            <span class="bm-home-reading__metric-label">DIPERBARUI</span>
+            <strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_updated_label ); ?></strong>
             <small>Timestamp pembacaan publik.</small>
           </div>
-        </dl>
+        </div>
 
         <div class="bm-home-reading__driver">
           <span>ALASAN UTAMA</span>

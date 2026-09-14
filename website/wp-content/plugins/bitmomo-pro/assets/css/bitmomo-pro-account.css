@@ -50,6 +50,62 @@
 }
 
 .bm-pro-account__login-form { margin-bottom: 16px; }
+.bm-pro-account__login-form form {
+	display: grid;
+	gap: 14px;
+}
+
+.bm-pro-account__login-form form p { margin: 0; }
+
+.bm-pro-account__login-form label {
+	display: block;
+	margin-bottom: 6px;
+	color: var(--bm-text-muted);
+	font-weight: 700;
+}
+
+.bm-pro-account__login-form input[type="text"],
+.bm-pro-account__login-form input[type="password"] {
+	width: 100%;
+	min-height: 44px;
+	padding: 10px 12px;
+	border: 1px solid var(--bm-border);
+	border-radius: var(--bm-radius-md);
+	background: #0b1620;
+	color: var(--bm-text);
+}
+
+.bm-pro-account__login-form .login-remember label {
+	display: inline-flex;
+	min-height: 44px;
+	align-items: center;
+	gap: 9px;
+	margin: 0;
+}
+
+.bm-pro-account__login-form input[type="checkbox"] {
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	accent-color: var(--bm-teal);
+}
+
+.bm-pro-account__login-form #wp-submit {
+	min-height: 44px;
+	padding: 10px 18px;
+	border: 0;
+	border-radius: var(--bm-radius-md);
+	background: var(--bm-action);
+	color: #0b1620;
+	font-weight: 800;
+	cursor: pointer;
+}
+
+.bm-pro-account__login-form #wp-submit:hover,
+.bm-pro-account__login-form #wp-submit:focus-visible {
+	background: var(--bm-action-hover);
+	color: #0b1620;
+}
 .bm-pro-account__status-line { margin: 0 0 12px; }
 
 .bm-pro-account__badge {
