@@ -2,7 +2,7 @@ name: CI governance safety
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - ".github/workflows/**"
       - "scripts/check-ci-governance.mjs"
@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   governance:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: Prevent runaway CI configuration
     runs-on: ubuntu-latest
     timeout-minutes: 2
