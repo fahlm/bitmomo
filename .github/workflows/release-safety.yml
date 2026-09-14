@@ -5,6 +5,11 @@ on:
   # iterative feedback; run this artifact/provenance gate only after the
   # release candidate is frozen, then again automatically after main changes.
   workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact frozen release-candidate commit SHA to validate
+        required: true
+        type: string
   push:
     branches: [main]
 
@@ -23,6 +28,28 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+
+      - name: Verify explicit frozen candidate identity
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          EXPECTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          if [[ "${actual_sha}" != "${EXPECTED_CANDIDATE_SHA}" ]]; then
+            echo "::error title=Candidate SHA mismatch::Selected ref resolved to ${actual_sha}, expected ${EXPECTED_CANDIDATE_SHA}."
+            exit 1
+          fi
+          case "${GITHUB_REF}" in
+            refs/heads/release/*|refs/heads/main)
+              ;;
+            *)
+              echo "::error title=Invalid release ref::Full Release Safety may only run manually from release/* or main; got ${GITHUB_REF}."
+              exit 1
+              ;;
+          esac
+          echo "PASS explicit candidate ${actual_sha} on ${GITHUB_REF}"
 
       - name: Lint every managed PHP file
         shell: bash
