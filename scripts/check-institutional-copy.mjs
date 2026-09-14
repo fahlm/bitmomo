@@ -39,11 +39,24 @@ check('Canonical editorial contract exists and defines the four information leve
   editorial.includes('ACCOUNTABILITY — actual results')
 );
 
-check('Homepage states the Free versus Pro boundary before secondary explanation',
+check('Homepage states the restored Free versus Pro boundary before secondary explanation',
   hero.includes('Pahami kondisi BTC sekarang.') &&
-  hero.includes('Gratis menjelaskan kondisi sekarang. Pro memetakan apa yang perlu dipantau berikutnya.') &&
+  hero.includes('Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.') &&
+  hero.includes('BTC Intelligence merangkum kondisi, perubahan material, mengapa perubahan itu penting, dan satu konteks yang layak dipantau.') &&
+  hero.includes('Bitmomo Pro memperluasnya dengan monitoring lengkap, Expected Range, skenario, dan kondisi invalidasi.') &&
   hero.includes('BTC MARKET VIEW') && hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') &&
   hero.includes('>FAKTOR UTAMA<') && hero.includes('<strong>SUMBER DATA</strong>')
+);
+check('Homepage delayed intelligence fails closed instead of rendering stale current market values',
+  hero.includes("$bm_current_available = $bm_snapshot_available && 'fresh' === $bm_status;") &&
+  hero.includes("$bm_delayed = $bm_snapshot_available && 'delayed' === $bm_status;") &&
+  hero.includes("$bm_bias = $bm_current_available") &&
+  hero.includes("$bm_confidence = $bm_current_available") &&
+  hero.includes("$bm_price = $bm_current_available") &&
+  hero.includes("$bm_drivers = $bm_current_available") &&
+  hero.includes("$bm_delayed ? 'Ditahan'") &&
+  hero.includes('Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.') &&
+  hero.includes('Observasi terverifikasi terakhir.')
 );
 check('Homepage avoids casual or translation-artifact market copy',
   !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b|Buka pembacaan lengkap/i.test(hero)
@@ -90,9 +103,12 @@ check('Article trust chrome remains compact and evidence-led',
   article.includes('Riset Pasar Terkait') &&
   !/Evidence, konteks, batas thesis|Market Research Terkait/i.test(article)
 );
-check('About explains the research advantage instead of defensive category positioning',
+check('About explains the research advantage and the same Free versus Pro depth boundary',
   about.includes('Dari data pasar menjadi tesis yang dapat diuji.') &&
   about.includes('Setiap tesis harus dapat diuji.') &&
+  about.includes('Ringkasan kondisi BTC saat ini, perubahan material, maknanya, dan satu konteks yang layak dipantau') &&
+  about.includes('Monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis') &&
+  about.includes('Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.') &&
   about.includes('Decision Ledger memperlihatkan apa yang Bitmomo katakan sebelumnya') &&
   !/Bitmomo bukan portal berita|Data compression|compression →|memproduksi narasi sebanyak mungkin/i.test(about)
 );
