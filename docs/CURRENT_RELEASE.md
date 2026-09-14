@@ -1,101 +1,117 @@
 # Current Bitmomo Release Status
 
-**Last updated:** 2026-09-14  
+**Last updated:** 2026-09-15 WIB  
 **Production authorization:** **HOLD / NO-GO**  
-**Staging promotion authorization:** **AUDIT HOLD / NO-GO**  
+**Staging promotion authorization:** **PENDING FRESH RELEASE ARTIFACT / NO-GO**  
 **Canonical coordination issue:** #131  
 **Canonical release PR:** #135  
 **Canonical release branch:** `release/whitelist-v1`
 
-> **AUDIT HOLD — DO NOT DEPLOY THE CURRENT ARTIFACT**
+> **FINAL CANDIDATE FREEZE — DO NOT DEPLOY YET**
 >
-> A whole-product engineering audit found a release-contract contradiction after the latest source candidate was built: the documented public-surface and browser contracts require exactly one compact newsletter subscription surface in the global footer, while the latest footer implementation and source-level navigation/footer check removed and prohibited that surface. The current source/CI evidence remains useful, but the artifact is **not an accepted product candidate** and must not be promoted to staging or production until the audit is reconciled in one reviewed remediation pass.
+> The Launch Integrity remediation has been consolidated and its scoped Theme + Authority source gates pass on the reviewed remediation head. No historical artifact is authorized. The release line must now be frozen, validated once as an exact candidate, and used to build one fresh deterministic artifact before staging promotion can be considered.
 
-This file is the fast entry point for engineers. It records the actual release topology and current acceptance state, not the broader product roadmap.
+This file is the fast entry point for engineers. It records the actual release topology and acceptance state; it is not a roadmap and it must not be treated as deployment authorization.
 
 ## Canonical source topology
 
 - Default branch / ordinary engineering source of truth: `main`.
-- One and only active whitelist release line: `release/whitelist-v1` / PR #135.
-- Canonical release head at audit hold: `82430e288a85ce0a11be01e3fa0d3cabf2d6f100`.
-- Canonical source tree: `2bd796be1b7fa7139b8e945944d15e5de69138c2`.
-- PR #135 synthetic merge at audit hold: `eaf5bea77dccd9eeabc2960db08f3f4c7ea9151c`.
-- Synthetic merge tree: `2bd796be1b7fa7139b8e945944d15e5de69138c2`.
-- Current runtime contract in source: **118 managed files** — theme 46 / AI 24 / BTC Intelligence 8 / Pro 28 / regime 12.
-- PR #135 remains the sole release authority. Do not create another release line for this audit.
+- One and only active Whitelist V1 release line: `release/whitelist-v1` / PR #135.
+- Final reviewed runtime/product remediation basis: `becdee740b5979da4795d9b13ec870d2282a86c7` (squash merge of PR #161).
+- PR #135 remains the sole release authority. Do not create another Whitelist V1 release branch.
+- There are no remaining open focused PRs targeting `release/whitelist-v1` at freeze preparation time.
+- Runtime contract in source remains **118 managed files** unless Full Release proves otherwise.
+- The immutable frozen candidate SHA is the release-branch head **after this ledger update** and must be recorded in PR #135 before any candidate workflow or artifact build is accepted.
 
-## Latest source / CI evidence
+The ledger intentionally does not try to store its own commit SHA. The immutable candidate identity belongs in the PR #135 freeze record and Full Release provenance, where recording it does not mutate the source being identified.
 
-The current audit-hold head passed all five release-authoritative workflows:
+## Remediation status
 
-- Full Release Safety `34851208287` — PASS
-- Authority Surface Safety `34851208223` — PASS
-- Theme Safety Checks `34851208319` — PASS
-- Regime Safety Checks `34851208291` — PASS
-- Production Synthetic Monitor `34851208249` — PASS
+The whole-product Launch Integrity remediation is integrated into the canonical release line.
 
-Full Release also passed managed PHP lint, deterministic plugin suites, JS/Python/Bash syntax, M2 39/39, navigation/footer source contract, UI/WCAG source contract, terminal-grade public contract, institutional copy contract, homepage Research 8/8, CSS-debt baseline, deterministic build A/B and provenance verification.
+Key reconciliations include:
 
-**Important:** green CI proves that source satisfies the assertions currently encoded in CI. The audit found that at least one of those assertions is itself wrong: `check-navigation-footer.mjs` prohibits the newsletter surface even though `docs/PUBLIC_SURFACE_CONTRACT.md`, `docs/RELEASE_ACCEPTANCE_MATRIX.md`, `scripts/check-public-ui.mjs`, and the retained frontend architecture explicitly require one compact footer newsletter. Therefore green CI does not authorize promotion of this candidate.
+- exactly one compact global-footer newsletter retained as free audience retention, separate from Founding Whitelist commercial acquisition;
+- newsletter backend identity is environment-owned and fails closed;
+- dormant affiliate CTAs default off;
+- About and Research are publication/evidence-first rather than media-style surfaces;
+- Research Hub navigation is corpus-backed and no longer advertises empty Research Programs/Domains;
+- public copy ownership is source-owned rather than post-render mutation;
+- Free BTC Intelligence follows **Now + Change + Meaning + One Watch** with Decision Ledger accountability;
+- Pro remains the deeper monitoring/scenario/invalidation layer;
+- delayed/stale intelligence fails closed;
+- checkout remains OFF;
+- WhatsApp remains OFF.
 
-## Current artifact evidence — VALID BINARY, REVOKED PRODUCT CANDIDATE
+## CI architecture after remediation
 
-- Full Release run: `34851208287`
-- Artifact ID: `10350132727`
-- Artifact name: `bitmomo-runtime-eaf5bea77dccd9eeabc2960db08f3f4c7ea9151c`
-- ZIP SHA-256: `8183db532b19ff74371bde8ee651a1786c2f8274cecbb1955e5a3cbfa7521456`
-- Runtime TAR SHA-256: `e2beacbe76eb5f0a398fdebc6c9f907dddfe4514b382061c8f938ca07817ceff`
-- Runtime files: 118
+The CI cost incident has been addressed structurally, not by increasing budget alone.
 
-This artifact is reproducible and source-identical to the recorded candidate, but it is now **REVOKED FOR STAGING/PRODUCTION PROMOTION** because the product contract is under audit. Do not deploy it.
+- Full Release is manual-only and requires an explicit exact `candidate_sha`.
+- Full Release rejects a selected ref whose resolved SHA differs from `candidate_sha`.
+- Full Release is restricted to `main` or `release/*` and self-audits CI governance before expensive work.
+- Theme / Authority / Regime are path-scoped PR feedback, draft-safe, auto-canceling and hard-time-limited.
+- CI Governance is fail-closed for workflow inventory and prevents unclassified workflows from appearing silently.
+- Production Synthetic Monitor is operational monitoring only, not PR validation, and runs once daily plus manual dispatch.
+- UI Browser Safety is manual/weekly and is not triggered by ordinary source PR churn.
 
-All earlier artifacts remain superseded as well.
+## Latest reviewed scoped evidence
 
-## Audit-triggering contradiction
+Final PR #161 head: `b53a86aee513c15563fec81cb72f7ac4d03159b2`.
 
-The intended retention architecture is:
+- Theme Safety run `34878672062` — **PASS**
+  - canonical theme source contract
+  - PHP lint
+  - JS / contract syntax
+  - UI architecture + WCAG source contract
+  - terminal-grade public contract
+  - navigation/footer contract
+  - CSS debt baseline
+- Authority Surface Safety run `34878671941` — **PASS**
+  - authority PHP / browser-contract lint
+  - canonical authority source contract
+  - terminal-grade public invariants
+  - institutional public copy
 
-- Founding Whitelist = commercial acquisition path for Bitmomo Pro;
-- Newsletter = free audience retention/distribution utility;
-- exactly one compact newsletter form in the global footer;
-- no legacy newsletter popup/modal;
-- newsletter presentation remains visually secondary to the commercial Pro/whitelist action;
-- legacy `/subscribe`, `#subscribe`, and `#newsletter` destinations resolve to the footer subscribe surface, not to Founding Whitelist.
+These runs validate the focused remediation input. They do **not** replace release-wide candidate validation after the final release SHA is frozen.
 
-Current implementation incorrectly removed the footer newsletter and redirected legacy newsletter destinations to Founding Whitelist. This must be corrected together with any other P0 findings from the whole-product audit before a new artifact is built.
+## Artifact state
 
-## Current release state
+- Historical artifact `10350132727` remains **REVOKED / SUPERSEDED FOR PROMOTION**.
+- No current artifact is authorized.
+- No staging deployment is authorized from historical evidence.
+- The next accepted artifact must be generated by Full Release from the exact frozen candidate SHA recorded in PR #135.
+- Artifact provenance must match exact source commit + source tree and deterministic build A/B must agree.
+
+## Current release gates
 
 | Gate | State | Meaning |
 |---|---|---|
-| SOURCE | **AUDIT HOLD** | Current source is reproducible but not yet accepted as the final product contract. |
-| CI | **PASS, CONTRACT REVIEW REQUIRED** | 5/5 authoritative workflows passed, but at least one source assertion is known to encode the wrong product requirement. |
-| ARTIFACT | **REVOKED FOR PROMOTION** | Artifact `10350132727` is valid evidence but must not be deployed. |
-| STAGING | **DO NOT DEPLOY CURRENT ARTIFACT** | Wait for consolidated audit remediation + fresh artifact. |
-| RUNTIME | **AWAITING FINAL AUDIT CANDIDATE** | 118-file source contract is current but may change intentionally. |
-| BROWSER | **AWAITING FINAL AUDIT CANDIDATE** | Full rendered acceptance must run only after final remediation deploy. |
-| PRODUCT READY | **NO** | Whole-product audit and final staging acceptance remain open. |
+| SOURCE | **FREEZE PREPARED** | Consolidated remediation is integrated; exact branch head must now be frozen and recorded. |
+| SCOPED CI | **PASS** | Final Theme + Authority remediation gates are green. |
+| RELEASE-WIDE CI | **PENDING** | Run once on the exact frozen #135 candidate. |
+| ARTIFACT | **NONE AUTHORIZED** | Historical artifacts are revoked. |
+| STAGING | **NO-GO** | Wait for the fresh exact-candidate artifact. |
+| RUNTIME | **PENDING EXACT-CANDIDATE VALIDATION** | Full Release must validate all managed runtime suites and provenance. |
+| BROWSER | **PENDING STAGING** | Full browser acceptance runs only after exact artifact is on canonical staging. |
+| PRODUCT READY | **NO** | Staging/runtime/browser/data/conversion/newsletter/SEO/social/analytics acceptance remains. |
 | CHECKOUT | **OFF** | Must remain off. |
 | WHATSAPP | **OFF** | Must remain off. |
-| PRODUCTION AUTHORIZED | **NO** | Production remains untouched. |
+| PRODUCTION AUTHORIZED | **NO** | No production promotion authorization exists. |
 | PRODUCTION VERIFIED | **NO** | No production promotion has occurred. |
 
-## Engineering audit rule
+## Exact next executable sequence
 
-Until the audit closes:
+1. Record the immutable current `release/whitelist-v1` head SHA in PR #135 as the frozen candidate.
+2. Mark PR #135 Ready **once** so release-wide scoped candidate checks execute once against the cumulative release diff.
+3. If any candidate check fails, return #135 to Draft, revoke that candidate SHA, fix through a focused PR, and freeze a new SHA. Do not rerun blindly.
+4. When candidate checks are green, run Full Release **once** from `release/whitelist-v1` with `candidate_sha` equal to the recorded frozen SHA.
+5. Accept only an artifact whose manifest proves that exact source commit/tree and deterministic artifact hash.
+6. Take/verify the staging rollback point, then deploy only that exact artifact to canonical staging.
+7. Verify runtime parity, asset coherence, BTC/data readiness, Research qualification, whitelist, newsletter lifecycle, real mail, checkout OFF and WhatsApp OFF.
+8. Run browser QA at 360x800, 390x568, 390x844, 768x1024, 1024x900 and 1440x1000 plus 200% text zoom.
+9. Require Axe serious/critical = 0, keyboard/focus/reduced-motion acceptance, no clipping, no first-party console errors, correct SEO/social metadata, analytics receipt and screenshot evidence.
+10. Only after all staging gates pass may production authorization be considered.
+11. After the exact production artifact is verified, converge the accepted source tree back to `main` and retire PR #135 / `release/whitelist-v1`.
 
-1. do not patch individual visual symptoms directly on staging;
-2. do not add WordPress Custom CSS;
-3. do not deploy artifact `10350132727`;
-4. do not create another release branch;
-5. collect contradictions and P0 defects across product value, IA, copy, visual system, retention, conversion, trust, responsive behavior, accessibility, performance, SEO/social preview, analytics, security/privacy, content/data state and release governance;
-6. reconcile them in one reviewed remediation pass on the canonical release line;
-7. rerun the entire authoritative suite from zero;
-8. build one new deterministic artifact;
-9. deploy only that exact artifact to canonical staging;
-10. run full browser/product acceptance and produce a screenshot/evidence dossier;
-11. production remains NO-GO until explicit owner authorization after staging acceptance.
-
-## Next executable gate
-
-Complete the **Bitmomo Launch Integrity Audit** and publish one prioritized remediation matrix. Source changes should begin only after P0 boundaries and intended product behavior are explicit enough to avoid another local fix that damages another part of the product system.
+**PRODUCTION REMAINS NO-GO.**
