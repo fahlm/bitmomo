@@ -20,6 +20,7 @@ def good_metrics(coin="VVV", score_bias=0.0):
         bbo_queue_multiple=3.0,
         trade_rate_per_minute=10.0,
         execution_samples=60,
+        execution_age_seconds=5.0,
         fill_rate=0.15,
         maker_ratio=0.80,
         markout_5s_bps=0.25,
@@ -73,6 +74,15 @@ def test_unknown_execution_metrics_never_qualify():
     m.maker_ratio = None
     result = evaluate_market(m, cfg)
     assert result.verdict == Verdict.WATCH
+
+
+def test_stale_execution_evidence_does_not_qualify():
+    cfg = SelectorConfig(max_execution_age_seconds=1800)
+    m = good_metrics()
+    m.execution_age_seconds = 1801
+    result = evaluate_market(m, cfg)
+    assert result.verdict == Verdict.WATCH
+    assert result.reasons == ["stale_execution_evidence"]
 
 
 def test_no_qualified_market_means_idle():
