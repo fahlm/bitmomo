@@ -4,48 +4,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Canonical visitor-facing language layer for Bitmomo Pro and Help Center.
+ * Transitional visitor-language compatibility for the Help Center only.
  *
- * This is deliberately scoped to the bitmomo-pro text domain and the two
- * public shortcodes. It changes presentation copy only; product logic,
- * entitlement, pricing, data, and legal behavior remain untouched.
+ * Canonical Pro sales copy now lives directly in Bitmomo_Pro_Sales. This
+ * compatibility layer remains temporarily for legacy Help strings while that
+ * renderer is migrated; it must not mutate sales, whitelist, account, pricing,
+ * entitlement, data, or legal behavior after render.
  */
 final class Bitmomo_Pro_Public_Copy {
 
 	public static function init() {
-		add_filter( 'gettext', array( __CLASS__, 'filter_gettext' ), 20, 3 );
 		add_filter( 'do_shortcode_tag', array( __CLASS__, 'filter_shortcode_output' ), 20, 4 );
 	}
 
-	private static function translated_map() {
+	private static function help_output_map() {
 		return array(
-			'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario yang relevan, dan apa yang dapat mengubah thesis pasar.'
-				=> 'Bitmomo Pro membantu memahami kondisi BTC, skenario yang relevan, dan kondisi yang dapat mengubah tesis pasar.',
-			'Decision View BTC untuk memahami rentang, skenario, invalidation, dan perubahan penting — tanpa harus menganalisis semuanya sendiri.'
-				=> 'Decision View BTC merangkum rentang harga, skenario, kondisi invalidasi tesis, dan perubahan penting sejak analisis sebelumnya.',
-			'Bukan sinyal buy / sell'
-				=> 'Bukan sinyal beli/jual',
-			'Founding price terkunci selama membership tetap aktif.'
-				=> 'Founding Price berlaku selama membership tetap aktif.',
-			'Kunci Harga Founding'
-				=> 'Aktifkan Founding Membership',
-			'Gratis membantu memahami apa yang sedang terjadi. Pro membantu memetakan apa yang perlu diperhatikan berikutnya. Intelligence hanya ditampilkan ketika data memenuhi quality gate yang berlaku.'
-				=> 'BTC Intelligence merangkum kondisi saat ini. Pro memetakan rentang harga, skenario, dan perubahan yang perlu dipantau. Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.',
-			'Rentang harga yang realistis berdasarkan kondisi saat intelligence dibuat.'
-				=> 'Rentang harga acuan berdasarkan kondisi pasar ketika analisis dibuat.',
-			'Kondisi yang membuat thesis utama tidak lagi layak dipertahankan.'
-				=> 'Kondisi yang membuat tesis utama tidak lagi berlaku.',
-			'Seberapa konsisten bukti mendukung thesis; bukan probabilitas profit.'
-				=> 'Mengukur konsistensi bukti yang mendukung tesis; bukan probabilitas arah harga atau hasil investasi.',
-			'Contoh di bawah hanya memakai brief Pro historis yang sudah melewati delay publik dan settlement gate. Guidance aktif tidak pernah dibocorkan ke landing page.'
-				=> 'Contoh di bawah hanya menggunakan analisis Pro historis yang telah melewati periode publikasi tertunda dan evaluasi hasil. Analisis Pro aktif tidak ditampilkan pada halaman publik.',
-		);
-	}
-
-	private static function output_map() {
-		return array(
-			'OUTCOME +24H' => 'HASIL +24H',
-			'Range hit:' => 'Rentang tercapai:',
 			'Apakah Bitmomo memberikan sinyal buy atau sell?' => 'Apakah Bitmomo memberikan sinyal beli atau jual?',
 			'Tidak dalam bentuk perintah transaksi. Bitmomo menyediakan decision support melalui Market State, Bias, Confidence, Expected Range, skenario, Thesis Invalidation, serta perubahan yang dinilai relevan.' => 'Tidak dalam bentuk perintah transaksi. Bitmomo menyediakan decision support melalui Market State, Bias, Confidence, Expected Range, Scenario Map, kondisi invalidasi tesis, dan perubahan yang relevan.',
 			'Bitmomo adalah platform BTC intelligence yang dirancang untuk mengubah banyak data dan sinyal pasar menjadi kondisi pasar, skenario, dan perubahan yang lebih mudah dipahami.' => 'Bitmomo adalah platform market intelligence untuk BTC yang merangkum data pasar menjadi kondisi, skenario, dan perubahan yang relevan.',
@@ -72,18 +45,10 @@ final class Bitmomo_Pro_Public_Copy {
 		);
 	}
 
-	public static function filter_gettext( $translation, $text, $domain ) {
-		if ( 'bitmomo-pro' !== $domain ) {
-			return $translation;
-		}
-		$map = self::translated_map();
-		return isset( $map[ $text ] ) ? $map[ $text ] : $translation;
-	}
-
 	public static function filter_shortcode_output( $output, $tag, $attr, $m ) {
-		if ( ! in_array( $tag, array( 'bitmomo_help_center', 'bitmomo_pro_sales' ), true ) ) {
+		if ( 'bitmomo_help_center' !== $tag ) {
 			return $output;
 		}
-		return strtr( $output, self::output_map() );
+		return strtr( $output, self::help_output_map() );
 	}
 }
