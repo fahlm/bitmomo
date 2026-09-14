@@ -72,11 +72,13 @@ Freshness policy remains stricter than the API lookback:
 - >60 minutes: suppressed.
 
 ## Cost guard
-Default `daily_x_read_budget_usd` is USD 1.00.
+Initial `daily_x_read_budget_usd` is **USD 0.10**.
+
+At the current X Post-read price of USD 0.005 per returned Post resource, this caps the first MVP at roughly 20 newly billed Post reads per UTC day, or about USD 3 per 30-day month at the absolute ceiling. This is a hard safety ceiling, not a target spend.
 
 The worker tracks estimated X Post-read spend in the private state file by UTC date. Before each poll it reserves against the P7 theoretical maximum of USD 0.05 for one X query. If the next poll could exceed the configured daily budget, X discovery is skipped automatically for the rest of that UTC day.
 
-This is a safety ceiling, not a forecast of actual spend. Actual usage is based on returned billable Post reads.
+X billing is based on billable resources returned, not simply the number of cron invocations. The runtime also keeps `since_id` so already-seen Posts are not intentionally fetched as new opportunities. Increase the USD 0.10/day ceiling only after measured operator-alert quality and conversion justify it.
 
 ## Cron
 Hostinger supports PHP cron jobs. Schedule the worker every 5 minutes for the initial live trial.
