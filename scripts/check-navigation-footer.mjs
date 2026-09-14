@@ -78,27 +78,24 @@ check(
   /--bm-action:\s*#f4ad32/.test(designCss) && /background:\s*var\(--bm-action/.test(navCss) && /--bm-action-hover/.test(designCss)
 );
 check(
-  'Newsletter has exactly one permanent footer surface and no standalone newsletter template',
-  /id="newsletter"/.test(footer) && /mailpoet_form/.test(footer) && !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
-);
-check(
-  'Unavailable newsletter fails closed instead of advertising a broken capability',
-  /\$bm_newsletter_enabled\s*=\s*shortcode_exists\(\s*'mailpoet_form'\s*\)/.test(footer) &&
-  /\$bm_newsletter_enabled \? '' : ' hidden aria-hidden="true"'/.test(footer) &&
-  !/Subscribe email sementara tidak tersedia/.test(footer)
+  'Launch footer contains no competing newsletter or MailPoet conversion surface',
+  !/id="newsletter"|mailpoet_form|EMAIL BRIEF|bm-footer-newsletter|bm-footer-connect/.test(footer + navCss) &&
+  !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
 check(
   'Legacy newsletter modal is structurally disabled rather than page-by-page suppressed',
   /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontend) && !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontend + js)
 );
 check(
-  'Legacy subscribe routes and menu links resolve to the footer newsletter anchor',
-  content.includes("home_url('/#newsletter')") && /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) && /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
+  'Legacy subscribe routes and menu links resolve to the canonical Founding whitelist',
+  content.includes("home_url('/#founding-whitelist')") && /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) &&
+  /#subscribe/.test(content) && /#newsletter/.test(content) && /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
-  'Footer uses institutional product, research and trust information architecture',
+  'Footer keeps product, research and company IA separate from legal utility links',
   /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) && /Decision Ledger/.test(footer) &&
-  /Research Standard/.test(footer) && /Help Center/.test(footer) && /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
+  /Research Standard/.test(footer) && /Help Center/.test(footer) && /class="bm-footer-legal"/.test(footer) &&
+  /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
 );
 check(
   'Terms link is fail-closed until a canonical published WordPress page exists',
@@ -106,24 +103,29 @@ check(
   /if \( \$bm_terms_url \)/.test(footer) && /Syarat Layanan/.test(footer)
 );
 check(
-  'Footer brand reuses the canonical renderer and canonical public identity',
+  'Footer brand reuses the canonical renderer and restrained public identity',
   /bitmomo_render_brand\(\)/.test(footer) && /rekam jejak keputusan/.test(footer) &&
-  /Bitmomo\.<\/p>/.test(footer) && !/bloginfo\(\s*'name'\s*\)/.test(footer)
+  /Bitmomo\.<\/p>/.test(footer) && /bukan rekomendasi beli\/jual atau nasihat keuangan/.test(footer) &&
+  !/bloginfo\(\s*'name'\s*\)/.test(footer)
 );
 check(
-  'Footer newsletter is intentionally secondary to the primary Pro action',
-  /\.bm-footer-connect/.test(navCss) && /\.bm-footer-newsletter/.test(navCss) &&
-  /border:\s*1px solid rgba\(38,208,198/.test(navCss) && /background:\s*transparent !important/.test(navCss)
+  'Footer grid collapses deterministically from desktop to tablet, mobile and narrow mobile',
+  /grid-template-columns:\s*minmax\(260px, 1\.35fr\) repeat\(3/.test(navCss) &&
+  /@media \(max-width: 900px\)[\s\S]*?grid-template-columns:\s*repeat\(3/.test(navCss) &&
+  /@media \(max-width: 640px\)[\s\S]*?grid-template-columns:\s*repeat\(2/.test(navCss) &&
+  /@media \(max-width: 430px\)[\s\S]*?grid-template-columns:\s*1fr/.test(navCss)
 );
 check(
   'Footer controls meet desktop and mobile touch geometry',
   /\.bm-footer-group a[\s\S]*?var\(--bm-touch-target/.test(navCss) &&
   /\.bm-footer-social a[\s\S]*?var\(--bm-touch-target/.test(navCss) &&
+  /\.bm-footer-legal a[\s\S]*?var\(--bm-touch-target/.test(navCss) &&
   /@media \(max-width: 640px\)[\s\S]*?var\(--bm-touch-target-mobile/.test(navCss)
 );
 check(
-  'Footer social navigation is visually quiet rather than a wall of pills',
-  /\.bm-footer-social a\s*\{[\s\S]*?border:\s*0;/.test(navCss) && /background:\s*transparent;/.test(navCss)
+  'Footer social and legal navigation stay visually quiet rather than becoming pill walls',
+  /\.bm-footer-social a,[\s\S]*?\.bm-footer-legal a[\s\S]*?border:\s*0;/.test(navCss) &&
+  /background:\s*transparent;/.test(navCss)
 );
 check(
   'Public social destinations fail closed and never use hard-coded public fallbacks',
