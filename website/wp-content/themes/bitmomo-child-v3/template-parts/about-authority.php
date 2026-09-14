@@ -14,24 +14,24 @@ if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
 ?>
 <section class="bm-about-authority" aria-labelledby="bm-about-authority-title">
   <p class="bm-about-authority__eyebrow">RESEARCH &amp; INTELLIGENCE</p>
-  <h2 id="bm-about-authority-title">Disiplin riset di balik produk market intelligence.</h2>
-  <p class="bm-about-authority__lead">Bitmomo adalah <strong>platform market intelligence dan riset Bitcoin</strong>. Produk kami membantu memahami kondisi BTC dan perubahan yang relevan. Program riset yang mendukungnya juga mempelajari pasar aset digital dan sistem intelligence agar sumber data, metode, dan hasil evaluasi tetap dapat ditelusuri.</p>
+  <h2 id="bm-about-authority-title">Dari data pasar menjadi tesis yang dapat diuji.</h2>
+  <p class="bm-about-authority__lead">Bitmomo adalah <strong>platform market intelligence dan riset Bitcoin</strong>. Kami menghubungkan data pasar, konteks, tesis, kondisi invalidasi, dan evaluasi hasil agar perubahan BTC dapat dipahami tanpa harus merangkai puluhan sumber secara manual.</p>
 
   <div class="bm-about-authority__grid" aria-label="Fokus Bitmomo">
     <article>
       <span>01 · MARKETS</span>
       <h3>Market Research</h3>
-      <p>Bitcoin, market structure, derivatives positioning, likuiditas, volatilitas, makro, siklus pasar, dan faktor fundamental.</p>
+      <p>Menguji perubahan struktur pasar, derivatives, likuiditas, volatilitas, makro, capital flows, dan faktor fundamental yang relevan bagi BTC.</p>
     </article>
     <article>
       <span>02 · SYSTEMS</span>
-      <h3>Intelligence Systems Research</h3>
-      <p>Arsitektur agen, evaluasi, sumber data, keandalan, kontrol kualitas, dan sistem yang mengurangi ketergantungan pada satu model yang tidak dapat diaudit.</p>
+      <h3>Intelligence Systems</h3>
+      <p>Menguji sumber data, metode evaluasi, keandalan model, dan kontrol kualitas agar intelligence tidak bergantung pada satu black box.</p>
     </article>
     <article>
       <span>03 · PRODUCT</span>
       <h3>Decision Intelligence</h3>
-      <p>Data compression → konteks → tesis → monitoring → accountability. Hasil riset diterjemahkan menjadi decision support tanpa menyamarkan ketidakpastian atau batas metodologi.</p>
+      <p>Menerjemahkan riset menjadi kondisi pasar, skenario, invalidasi tesis, perubahan penting, dan rekam evaluasi yang dapat digunakan untuk decision support.</p>
     </article>
   </div>
 </section>
@@ -39,28 +39,28 @@ if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
 <section class="bm-about-principles" aria-labelledby="bm-about-principles-title">
   <header>
     <p class="bm-about-authority__eyebrow">RESEARCH STANDARD</p>
-    <h2 id="bm-about-principles-title">Evidence first. Claims have boundaries.</h2>
-    <p>Bitmomo bukan portal berita kripto dan bukan sistem AI yang memproduksi narasi sebanyak mungkin. Setiap analisis harus tetap dapat ditelusuri dan dievaluasi ketika data, model, atau kondisi pasar berubah.</p>
+    <h2 id="bm-about-principles-title">Setiap tesis harus dapat diuji.</h2>
+    <p>Riset Bitmomo menghubungkan bukti, tesis, kondisi invalidasi, dan evaluasi hasil dalam satu proses yang dapat ditelusuri. Kesimpulan tidak berhenti pada narasi; setiap klaim harus memiliki dasar dan batas yang jelas.</p>
   </header>
 
   <div class="bm-about-principles__grid">
-    <article><strong>Evidence before narrative</strong><span>Kesimpulan dibatasi oleh data yang benar-benar tersedia dan sumbernya harus dapat ditelusuri.</span></article>
-    <article><strong>Context over noise</strong><span>Data dibaca dalam struktur dan kondisi pasar, bukan diperlakukan sebagai sinyal yang berdiri sendiri.</span></article>
-    <article><strong>Thesis + invalidation</strong><span>Analisis harus menjelaskan bukti yang mendukung tesis dan kondisi yang membuat tesis tersebut tidak lagi berlaku.</span></article>
-    <article><strong>Accountability</strong><span>Analisis yang dapat diuji dicatat sebelum hasil diketahui dan dievaluasi terhadap hasil aktual.</span></article>
+    <article><strong>Bukti sebelum narasi</strong><span>Kesimpulan dibatasi oleh data yang tersedia dan sumbernya harus dapat ditelusuri.</span></article>
+    <article><strong>Konteks, bukan noise</strong><span>Data dibaca dalam struktur dan kondisi pasar, bukan sebagai sinyal yang berdiri sendiri.</span></article>
+    <article><strong>Tesis + invalidasi</strong><span>Analisis menjelaskan apa yang mendukung tesis dan kondisi yang membuatnya perlu dievaluasi ulang.</span></article>
+    <article><strong>Evaluasi hasil</strong><span>Analisis yang dapat diuji dicatat sebelum hasil diketahui lalu dibandingkan dengan outcome aktual.</span></article>
   </div>
 </section>
 
 <section class="bm-about-product" aria-labelledby="bm-about-product-title">
   <div>
     <p class="bm-about-authority__eyebrow">FROM RESEARCH TO PRODUCT</p>
-    <h2 id="bm-about-product-title">Gratis menjelaskan kondisi saat ini. Pro berfokus pada apa yang perlu dipantau berikutnya.</h2>
-    <p>BTC Intelligence merangkum kondisi BTC saat ini beserta konteks dan rekam evaluasinya. Bitmomo Pro menambahkan rentang harga, skenario, invalidasi tesis, monitoring, dan perubahan penting sejak analisis sebelumnya.</p>
-    <p class="bm-about-product__boundary">Bitmomo menyediakan riset dan decision support — bukan perintah transaksi, bukan sinyal beli/jual, dan bukan nasihat keuangan personal.</p>
+    <h2 id="bm-about-product-title">Gratis menjelaskan kondisi sekarang. Pro memetakan apa yang perlu dipantau berikutnya.</h2>
+    <p>BTC Intelligence merangkum kondisi BTC saat ini dan perubahan penting. Bitmomo Pro menambahkan Expected Range, Scenario Map, kondisi invalidasi tesis, dan What Changed untuk membantu memantau apa yang dapat mengubah pembacaan pasar.</p>
+    <p class="bm-about-product__boundary">Decision Ledger memperlihatkan apa yang Bitmomo katakan sebelumnya dan apa yang benar-benar terjadi. Bitmomo tetap merupakan alat bantu analisis, bukan perintah transaksi atau nasihat keuangan personal.</p>
   </div>
   <div class="bm-about-product__actions">
-    <a class="bm-about-button bm-about-button--primary" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat BTC Intelligence</a>
-    <a class="bm-about-button" href="<?php echo esc_url( home_url( '/#founding-whitelist' ) ); ?>">Gabung Founding Whitelist</a>
+    <a class="bm-about-button" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Lihat BTC Intelligence</a>
+    <a class="bm-about-button bm-about-button--primary" href="<?php echo esc_url( home_url( '/#founding-whitelist' ) ); ?>">Gabung Founding Whitelist</a>
     <a class="bm-about-text-link" href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>">Buka Bitmomo Research →</a>
   </div>
 </section>
