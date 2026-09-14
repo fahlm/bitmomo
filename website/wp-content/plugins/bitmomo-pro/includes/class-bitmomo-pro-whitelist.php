@@ -583,8 +583,8 @@ class Bitmomo_Pro_Whitelist {
 			</div>
 
 			<div class="bm-wl__panel bm-wl__success" id="bm-wl-success-panel" hidden>
-				<p class="bm-wl__success-title" id="bm-wl-success-title"><?php esc_html_e( 'Whitelist berhasil. Kamu akan jadi salah satu yang pertama tahu saat akses dibuka.', 'bitmomo-pro' ); ?></p>
-				<p><?php esc_html_e( 'Cek email kamu untuk informasi lebih lanjut.', 'bitmomo-pro' ); ?></p>
+				<p class="bm-wl__success-title" id="bm-wl-success-title"><?php esc_html_e( 'Whitelist berhasil. Informasi akses akan dikirim saat Founding access dibuka.', 'bitmomo-pro' ); ?></p>
+				<p><?php esc_html_e( 'Periksa email untuk informasi selanjutnya.', 'bitmomo-pro' ); ?></p>
 				<p class="bm-wl__success-small"><?php esc_html_e( 'Whitelist belum menjamin tempat. Akses aktif setelah pembayaran berhasil, selama Batch pertama masih tersedia.', 'bitmomo-pro' ); ?></p>
 
 				<?php if ( $whatsapp_enabled ) : ?>

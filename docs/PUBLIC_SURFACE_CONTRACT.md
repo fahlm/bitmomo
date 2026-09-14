@@ -70,20 +70,37 @@ Homepage Market Research is a research desk, not a generic blog grid. It surface
 `/btc-intelligence/` owns deeper public context and accountability. It should answer:
 
 1. What is the current BTC reading?
-2. Why does Bitmomo read the market that way?
+2. What happened in the latest canonical session context?
 3. What materially changed from the previous canonical reading?
-4. How has directional context changed over the recent record?
-5. How has the current evaluation methodology performed against future outcomes?
+4. Why does that change matter?
+5. What is one public-safe thing worth observing next?
+6. How has directional context changed over the recent record?
+7. How has the current evaluation methodology performed against future outcomes?
 
 The main public reading may expose:
 
 - reference BTC price;
+- canonical session identity and anchor (`US PRE-OPEN`, `US POST-CLOSE`, or the closed-market presentation label);
 - directional reading in human language;
 - Confidence with a clear explanation;
 - market activity translated to `Tinggi / Normal / Rendah` without exposing percentile/range internals;
 - up to two public-safe factors/reasons;
 - up to two human-readable changes;
+- up to two translated public-safe `why_it_matters` explanations;
+- for Post-Close, one concise trailing-24h observed summary using public-safe fields only;
+- exactly one allowlisted public watch context;
 - concise source and exact WIB timestamp.
+
+The Free product contract is **Now + Change + Meaning + One Watch**. The public watch context is observational rather than actionable: it tells a visitor what evidence to observe next. It must never be a target, price forecast, expected range, scenario, invalidation level, alert trigger, or arbitrary current Pro monitoring condition.
+
+Only these deterministic watch codes may be translated to a current Free public watch item:
+
+- `directional_consistency`;
+- `structure_continuity`.
+
+Unknown codes fail closed. Even when the canonical payload contains two candidates, the public renderer publishes at most one.
+
+The fast Market Pulse and the twice-daily Major Brief are separate clocks. Opportunity consumes 5-minute candles and evaluates canonically every 15 minutes. Session Intelligence produces DST-aware Pre-Open and Post-Close editions. Public copy may describe the fast layer as `evaluasi 15 menit dari candle 5 menit`; it must not claim a five-minute canonical evaluation cadence.
 
 The 30-day public context is direction-only. It may summarize Bullish / Netral / Bearish official daily records and must never fabricate missing days.
 
@@ -106,7 +123,9 @@ The following may exist internally but are not public UI primitives:
 - stale/blocked/missing-data rates and settlement-completeness diagnostics;
 - provider implementation/fallback wording;
 - source diagnostics, internal evidence, record IDs and private notes;
-- current Pro-only scenarios, monitoring conditions, watched range and invalidation details on the free surface.
+- current Pro-only scenarios, full monitoring conditions, watched range and invalidation details on the free surface.
+
+A single allowlisted Free public watch context is not a Pro `monitoring_condition`; those are separate contracts. Free must never expose or translate arbitrary Pro monitoring content.
 
 Methodology explanation remains behind progressive disclosure. It explains concepts in visitor language rather than dumping engine internals.
 
@@ -235,7 +254,8 @@ Acceptance includes:
 - accountability proof precedes commitment;
 - homepage excludes AI Lab/referral/future-capability walls and duplicate newsletter;
 - qualified Research only;
-- BTC Intelligence excludes engine kitchen details;
+- BTC Intelligence excludes engine kitchen details while preserving the contracted Free session brief;
+- BTC Intelligence Free renders no more than one allowlisted public watch context and never current Pro monitoring/scenario/range/invalidation content;
 - Pro has one commercial conversion path and no unsupported live-data claim;
 - Help remains functional by keyboard;
 - footer newsletter appears exactly once and is visually secondary;
@@ -251,6 +271,8 @@ CI must fail if:
 - homepage becomes a generic publisher/dashboard surface;
 - private engine details leak publicly;
 - the free/Pro boundary blurs;
+- the Free session brief loses its contracted Now + Change + Meaning + One Watch value;
+- an unknown/arbitrary watch code is rendered publicly;
 - commercial and informational CTA semantics collapse into one visual treatment;
 - homepage/Research/accountability classification boundaries weaken;
 - newsletter disappears, duplicates, becomes a popup, or is silently conflated with Founding Whitelist;

@@ -29,6 +29,64 @@ Theme JSON, samples, editor copy, and archived posts are never current intellige
 
 Regime and directional bias are independent. Neither may be inferred from the other.
 
+## Public delivery contract
+
+Bitmomo does not split Free and Pro by word count. The boundary is **decision depth**.
+
+### Free — understand now
+
+The public BTC Intelligence surface may expose only public-safe, already-recorded observations that help a visitor understand the current market without turning the Free product into a decision-support terminal:
+
+- current Bias, Confidence, reference price, freshness and source;
+- visitor-facing market activity (`Tinggi / Normal / Rendah`) from the latest accepted Opportunity state;
+- up to two public-safe factors;
+- up to two material changes from the canonical comparison brief;
+- up to two public-safe `why_it_matters` explanations;
+- for post-close, one concise trailing-24h observed summary using public-safe fields only;
+- exactly **one** public watch context selected from the allowlist below;
+- canonical session identity and anchor so a visitor can distinguish US Pre-Open from US Post-Close.
+
+The Free product model is:
+
+**Now + Change + Meaning + One Watch.**
+
+A public watch context is observational. It tells the visitor what evidence to observe next; it is not a trigger, target, forecast range, scenario, invalidation level, or alert condition.
+
+Allowed Free watch codes:
+
+| Internal deterministic code | Public meaning |
+|---|---|
+| `directional_consistency` | observe whether directional evidence remains consistent on the next canonical reading |
+| `structure_continuity` | observe whether market structure continues to support the current directional context |
+
+Unknown watch codes fail closed and are not rendered. The public renderer may publish at most one allowlisted watch item even when the canonical Free payload carries more than one deterministic candidate.
+
+### Pro — navigate next
+
+Current Pro decision support may add:
+
+- the full monitoring/watch set;
+- Base / Bull / Bear scenarios;
+- expected range and decision levels when backed by a frozen/versioned methodology;
+- invalidation;
+- state-change monitoring and entitlement-gated alerts when operationally enabled;
+- richer timely archive and decision-support history.
+
+The Pro product model is:
+
+**Full Watch + Scenarios + Levels + Invalidation + Monitoring.**
+
+`public_watch_context` and Pro `monitoring_conditions` are different contracts. A Free watch item must never be produced by copying arbitrary current Pro monitoring text.
+
+## Cadence contract
+
+Two different cadences must not be conflated in public copy:
+
+- Opportunity / Market Pulse consumes 5-minute candles and evaluates canonically every 15 minutes. The public latest Opportunity record fails closed when it exceeds its freshness budget.
+- Session Intelligence produces canonical US Pre-Open and US Post-Close editions at DST-aware New York anchors defined by `Bitmomo_AI_Session_Intelligence`.
+
+The public UI may describe the fast layer as **“evaluasi 15 menit dari candle 5 menit”**. It must not claim that the canonical Opportunity engine evaluates every five minutes.
+
 ## Market Regime V1 normalization
 
 The Regime adapter must produce every required `Bitmomo_Regime_Input` field from the same closed-candle snapshot used by Bitmomo AI.
@@ -60,6 +118,7 @@ Missing required values invalidate the whole Regime evaluation. They must never 
 - Market Regime consumes the canonical record and produces append-only regime state.
 - Watchtower may later consume ETF, macro, news, and event data; those fields do not enter Regime V1.
 - Bitmomo Pro and homepage components consume intelligence outputs; they do not classify markets or alter source data.
+- The public BTC Intelligence renderer is presentation-only: it may translate allowlisted deterministic codes into visitor language, but it does not recompute market intelligence.
 
 ## Versioning and traceability
 

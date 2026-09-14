@@ -183,9 +183,14 @@ const methodologyDetails = btcPage.match(/<details class="bm-bi__details"([^>]*)
 if (!methodologyDetails || /\bopen\b/i.test(methodologyDetails[1] || '')) fail('methodology must remain behind closed progressive disclosure');
 
 const btcCss = read(btcPluginDir, 'assets/css/bitmomo-btc-intelligence.css');
-if (!btcCss.includes('--bmi-subtle:var(--bm-text-subtle-readable,#8294ae)')) fail('BTC Intelligence must retain readable micro-text fallback contract');
-if (!btcCss.includes('--bmi-sticky-header:64px') || !btcCss.includes('--bmi-sticky-rail:63px') || !btcCss.includes('--bmi-sticky-header:60px')) {
-  fail('BTC rail must preserve 64px desktop / 60px mobile header geometry and explicit rail clearance');
+const subtleToken = designCss.match(/--bm-text-subtle:\s*(#[0-9a-f]{6})\s*;/i)?.[1];
+if (!subtleToken || !designCss.includes('--bm-text-subtle-readable: var(--bm-text-subtle)') || !btcCss.includes(`--bmi-subtle:var(--bm-text-subtle-readable,${subtleToken})`)) {
+  fail('BTC Intelligence must inherit the canonical readable micro-text token with a matching fail-safe fallback');
+} else {
+  requireContrast('BTC subtle fallback / terminal background', subtleToken, '#090f16');
+}
+if (!btcCss.includes('--bmi-sticky-header:var(--bm-header-height,64px)') || !btcCss.includes('--bmi-sticky-rail:63px') || !btcCss.includes('--bmi-sticky-header:var(--bm-header-height-mobile,60px)')) {
+  fail('BTC rail must consume canonical 64px desktop / 60px mobile header tokens and preserve explicit rail clearance');
 }
 if (!btcCss.includes('scroll-margin-top:calc(var(--bmi-sticky-header) + var(--bmi-sticky-rail) + 12px)')) {
   fail('BTC anchors must clear both sticky site header and section rail');

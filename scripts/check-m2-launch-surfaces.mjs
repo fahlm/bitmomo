@@ -86,10 +86,11 @@ check(
     && !/market_state|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
 );
 check(
-  'Homepage explanation uses institutional visitor language instead of engine vocabulary',
-  /Puluhan data pasar diringkas/.test(howItWorks)
-    && /BTC Intelligence merangkum kondisi saat ini/.test(howItWorks)
-    && /Setiap analisis dicatat sebelum hasil pasar diketahui/.test(howItWorks)
+  'Homepage explanation uses the canonical visitor lifecycle instead of engine vocabulary',
+  /01 · UNDERSTAND NOW/.test(howItWorks)
+    && /02 · MAP WHAT CHANGES/.test(howItWorks)
+    && /03 · AUDIT THE RESULT/.test(howItWorks)
+    && /Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis/.test(howItWorks)
     && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b|Data bermasalah ditahan/i.test(howItWorks)
 );
 check(
@@ -107,15 +108,33 @@ check(
 );
 
 check(
-  'BTC Intelligence reads public-safe boundaries and keeps copy filtering scoped to its own shortcode',
+  'BTC Intelligence reads public-safe boundaries and renderer-owned copy only',
   /Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::history\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::evaluation_summary\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Btc_Intelligence_Accountability/.test(btcIntelligencePage)
     && !/Bitmomo_AI_Scorecard::|Bitmomo_Regime_State_Store::|Bitmomo_Pro_[A-Za-z]+::/.test(btcIntelligencePage)
-    && /add_filter\(\s*'do_shortcode_tag',\s*'bitmomo_btc_intelligence_public_copy'/.test(btcIntelligencePlugin)
-    && /'bitmomo_btc_intelligence'\s*!==\s*\$tag/.test(btcIntelligencePlugin)
+    && /TIDAK SESUAI/.test(btcIntelligencePage)
+    && /BELUM DINILAI/.test(btcIntelligencePage)
+    && !/do_shortcode_tag|bitmomo_btc_intelligence_public_copy|strtr\s*\(/.test(btcIntelligencePlugin)
     && !/Bitmomo_Btc_Opportunity_UI/.test(btcIntelligencePlugin)
+);
+check(
+  'BTC Free Major Brief preserves Now + Change + Meaning + One Watch without exposing arbitrary monitoring text',
+  /MAJOR BRIEF/.test(btcIntelligencePage)
+    && /APA YANG BERUBAH\?/.test(btcIntelligencePage)
+    && /MENGAPA PENTING/.test(btcIntelligencePage)
+    && /PANTAU BERIKUTNYA/.test(btcIntelligencePage)
+    && /directional_consistency/.test(btcIntelligencePage)
+    && /structure_continuity/.test(btcIntelligencePage)
+    && /count\( \$lines \) >= 2/.test(btcIntelligencePage)
+    && /array_slice\([\s\S]*?key_drivers[\s\S]*?0, 2/.test(btcIntelligencePage)
+    && !/monitoring_conditions\s*\]|scenario_contract\s*\]|expected_range\s*\]|invalidation\s*\]/.test(btcPageOutput)
+);
+check(
+  'BTC fast layer states the truthful cadence rather than claiming five-minute canonical evaluations',
+  /evaluasi 15 menit dari candle 5 menit/.test(btcIntelligencePage)
+    && !/evaluasi(?: canonical)? (?:setiap )?5 menit/i.test(btcPageOutput)
 );
 check(
   'BTC accountability boundary is read-only and result-neutral',
@@ -144,37 +163,39 @@ check(
 );
 
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
-check('/pro sales page renders one whitelist/purchase CTA path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
+check('/pro sales page renders one whitelist/purchase path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
 check(
-  '/pro sales copy keeps future capabilities clearly not-live',
-  /SEGERA HADIR/.test(proSalesOutput)
-    && /belum live hari ini/i.test(proSalesOutput)
-    && /belum tersedia saat ini/i.test(proHelp)
+  '/pro sales path is current-product first and removes speculative roadmap theatre',
+  /Decision View BTC memetakan Expected Range/.test(proSalesOutput)
+    && /Analisis Pro aktif tidak ditampilkan pada halaman publik/.test(proSalesOutput)
+    && !/ROADMAP — SEGERA HADIR|Altcoin Intelligence|Daily Alpha Discovery|11 AI Analysts|Watchtower/.test(proSalesOutput)
     && !/24\/7|real-time|real time/.test(proSalesOutput)
 );
 check(
-  '/pro DATA flow is limited to currently supported market inputs',
-  /Harga, struktur pasar, funding\/basis, positioning derivatives, momentum, dan volatilitas BTC diproses dari data pasar yang tersedia\./.test(proSalesOutput)
+  '/pro sales copy avoids internal pipeline and generic capability language',
+  !/Bagaimana Bitmomo mengubah data menjadi intelligence|Harga, struktur pasar, funding\/basis|AI sebagai alat untuk membantu compression/i.test(proSalesOutput)
     && !/order book|sinyal on-chain BTC dikumpulkan secara berkelanjutan/i.test(proSalesOutput)
 );
 const proRenderMatch = proSales.match(/public function render_sales[\s\S]*?return ob_get_clean\(\);/);
 const proRender = proRenderMatch ? proRenderMatch[0] : '';
 const todayIndex = proRender.indexOf('render_what_exists_today()');
+const exampleIndex = proRender.indexOf('render_product_proof()');
+const comparisonIndex = proRender.indexOf('render_free_vs_pro()');
 const accountabilityIndex = proRender.indexOf('render_accountability()');
 const conversionIndex = proRender.indexOf('render_founding_economics()');
-const roadmapIndex = proRender.indexOf('render_roadmap()');
+const faqIndex = proRender.indexOf('render_buyer_faq()');
 check(
-  '/pro tells cold visitors what exists today before proof, conversion and roadmap',
-  todayIndex > -1 && accountabilityIndex > todayIndex && conversionIndex > accountabilityIndex && roadmapIndex > conversionIndex
+  '/pro tells the focused buyer journey in canonical order',
+  todayIndex > -1 && exampleIndex > todayIndex && comparisonIndex > exampleIndex
+    && accountabilityIndex > comparisonIndex && conversionIndex > accountabilityIndex && faqIndex > conversionIndex
 );
 check(
-  '/pro collapses future capabilities into one post-conversion roadmap instead of four roadmap walls',
-  /private function render_roadmap\(\)/.test(proSales) &&
-  !/private function render_altcoin_intelligence|private function render_alpha_discovery|private function render_ai_analysts|private function render_watchtower/.test(proSales)
+  '/pro renderer has no legacy generic problem, pipeline, market-experience or roadmap calls',
+  !/render_context_problem|render_intelligence_flow|render_market_experience|render_roadmap/.test(proRender)
 );
-check('/pro removes the duplicate final conversion block structurally, not with CSS', !/render_final_cta\s*\(/.test(proSalesOutput) && !/bm-pro-sales__final-cta/.test(publicSurfacesCss));
+check('/pro removes duplicate final conversion block structurally, not with CSS', !/render_final_cta\s*\(/.test(proSalesOutput) && !/bm-pro-sales__final-cta/.test(publicSurfacesCss));
 check('/pro pricing terms match M2 founding package', /Rp149\.000/.test(proSales) && /Rp1\.490\.000/.test(proSales) && /const SEAT_CAP\s*=\s*149/.test(proSales) && /const BATCH_ONE\s*=\s*25/.test(proSales));
-check('/pro avoids removed placeholder preview values', !/XX%|\$XX,XXX|\(placeholder\)|Contoh Tampilan Decision View/.test(proSales));
+check('/pro avoids placeholder preview values', !/XX%|\$XX,XXX|\(placeholder\)|Contoh Tampilan Decision View/.test(proSales));
 check('/pro avoids old public 7-day refund promise', !/7\s*(hari|day)|refund 7|7-day/i.test(proSales + proHelp));
 check('/pro avoids fabricated accuracy percentage', !/\d+%\s*akurat/i.test(proSales + proHelp));
 check('Whitelist says joining does not guarantee a seat', /Masuk whitelist tidak menjamin tempat/.test(proWhitelist));

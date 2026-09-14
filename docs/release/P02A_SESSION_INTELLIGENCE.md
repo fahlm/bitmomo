@@ -122,9 +122,44 @@ Pre-open selects the latest valid preceding post-close record. Post-close select
 
 ## Free and Pro boundary
 
-Free exposes current state, bias, confidence, up to three strongest drivers, concise observed context, up to four changes, up to two deterministic watch conditions, trusted event names when available, timestamp, freshness, and the Pro CTA.
+Free is intentionally useful enough to stand on its own. The split is by decision depth rather than by hiding half of every sentence.
 
-Pro retains detailed axes and risk levels through the existing entitlement-gated projection. P0.2A prepares nullable scenario, monitoring, and `what_matters_next` contracts without inventing values. It does not change pricing or entitlement.
+The Free session brief may expose:
+
+- current state, Bias and Confidence;
+- up to two strongest public-safe drivers on the BTC Intelligence renderer;
+- concise observed context;
+- up to two material, human-readable changes on the renderer;
+- up to two translated `why_it_matters` explanations;
+- trusted event names when available;
+- timestamp and freshness;
+- exactly **one public watch context** on the renderer;
+- the Pro CTA.
+
+The canonical payload may continue carrying up to two deterministic `what_to_watch` candidates for compatibility and downstream use. The public renderer must publish at most one and only from the explicit Free allowlist:
+
+- `directional_consistency`
+- `structure_continuity`
+
+That rendered item is observational context, not an actionable trigger. Unknown codes fail closed.
+
+Pro retains the complete monitoring/watch set plus detailed axes and risk levels through the existing entitlement-gated projection. Pro is also the home for current scenarios, expected range/decision levels when methodology-qualified, invalidation, monitoring conditions, and entitlement-gated alerts when operationally enabled. P0.2A itself does not invent nullable scenario values and does not change pricing or entitlement.
+
+Canonical product shorthand:
+
+- **Free = Now + Change + Meaning + One Watch**
+- **Pro = Full Watch + Scenarios + Levels + Invalidation + Monitoring**
+
+`public watch context` and Pro `monitoring_conditions` are separate contracts. Free must never copy arbitrary current Pro monitoring text.
+
+## Cadence language
+
+Session Intelligence and Opportunity are different clocks:
+
+- Session Intelligence publishes two canonical major briefs per day at the New York anchors above.
+- Opportunity / Market Pulse consumes 5-minute candles but evaluates canonically every 15 minutes.
+
+Public copy may say **“evaluasi 15 menit dari candle 5 menit”**. It must not state that the canonical Opportunity engine evaluates every five minutes.
 
 ## Data quality and extension points
 

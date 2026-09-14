@@ -6,47 +6,56 @@ $bm_snapshot = class_exists( 'Bitmomo_Public_Intelligence_Adapter' )
     ? Bitmomo_Public_Intelligence_Adapter::snapshot()
     : null;
 $bm_status = is_array( $bm_snapshot ) ? sanitize_key( (string) ( $bm_snapshot['status'] ?? '' ) ) : '';
-$bm_available = is_array( $bm_snapshot ) && in_array( $bm_status, array( 'fresh', 'delayed' ), true );
+$bm_snapshot_available = is_array( $bm_snapshot ) && in_array( $bm_status, array( 'fresh', 'delayed' ), true );
+$bm_current_available = $bm_snapshot_available && 'fresh' === $bm_status;
+$bm_delayed = $bm_snapshot_available && 'delayed' === $bm_status;
 
-$bm_bias = $bm_available ? sanitize_key( (string) ( $bm_snapshot['directional_bias'] ?? '' ) ) : '';
+$bm_bias = $bm_current_available ? sanitize_key( (string) ( $bm_snapshot['directional_bias'] ?? '' ) ) : '';
 $bm_bias_labels = array( 'bullish' => 'Bullish', 'neutral' => 'Netral', 'bearish' => 'Bearish' );
-$bm_bias_label = isset( $bm_bias_labels[ $bm_bias ] ) ? $bm_bias_labels[ $bm_bias ] : 'Belum tersedia';
+$bm_bias_label = $bm_delayed ? 'Ditahan' : ( isset( $bm_bias_labels[ $bm_bias ] ) ? $bm_bias_labels[ $bm_bias ] : 'Belum tersedia' );
 
-$bm_confidence = $bm_available && isset( $bm_snapshot['confidence']['value'] ) && is_numeric( $bm_snapshot['confidence']['value'] )
+$bm_confidence = $bm_current_available && isset( $bm_snapshot['confidence']['value'] ) && is_numeric( $bm_snapshot['confidence']['value'] )
     ? max( 0, min( 100, (int) $bm_snapshot['confidence']['value'] ) )
     : null;
-$bm_confidence_key = $bm_available ? sanitize_key( (string) ( $bm_snapshot['confidence']['label'] ?? '' ) ) : '';
+$bm_confidence_key = $bm_current_available ? sanitize_key( (string) ( $bm_snapshot['confidence']['label'] ?? '' ) ) : '';
 $bm_confidence_labels = array( 'high' => 'Tinggi', 'medium' => 'Sedang', 'low' => 'Rendah' );
 $bm_confidence_label = isset( $bm_confidence_labels[ $bm_confidence_key ] ) ? $bm_confidence_labels[ $bm_confidence_key ] : '';
+$bm_confidence_display = $bm_delayed
+    ? 'Ditahan'
+    : ( null !== $bm_confidence ? ( ( $bm_confidence_label ? $bm_confidence_label . ' · ' : '' ) . $bm_confidence . '/100' ) : 'Belum tersedia' );
 
-$bm_price = $bm_available && isset( $bm_snapshot['btc_reference_price'] ) && is_numeric( $bm_snapshot['btc_reference_price'] )
+$bm_price = $bm_current_available && isset( $bm_snapshot['btc_reference_price'] ) && is_numeric( $bm_snapshot['btc_reference_price'] )
     ? (float) $bm_snapshot['btc_reference_price']
     : 0.0;
-$bm_price_label = $bm_price > 0 ? '$' . number_format( $bm_price, 0, '.', ',' ) : 'Belum tersedia';
+$bm_price_label = $bm_delayed ? 'Ditahan' : ( $bm_price > 0 ? '$' . number_format( $bm_price, 0, '.', ',' ) : 'Belum tersedia' );
 
-$bm_drivers = $bm_available && is_array( $bm_snapshot['key_drivers'] ?? null )
+$bm_drivers = $bm_current_available && is_array( $bm_snapshot['key_drivers'] ?? null )
     ? array_values( array_filter( array_map( 'strval', $bm_snapshot['key_drivers'] ) ) )
     : array();
 $bm_driver = trim( (string) ( $bm_drivers[0] ?? '' ) );
+$bm_driver_display = $bm_delayed
+    ? 'Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.'
+    : ( $bm_driver ?: 'Analisis terbaru belum tersedia.' );
 
-$bm_updated_iso = $bm_available ? trim( (string) ( $bm_snapshot['freshness']['timestamp_iso'] ?? '' ) ) : '';
+$bm_updated_iso = $bm_snapshot_available ? trim( (string) ( $bm_snapshot['freshness']['timestamp_iso'] ?? '' ) ) : '';
 $bm_updated_ts = preg_match( '/(?:Z|[+-]\d{2}:\d{2})$/', $bm_updated_iso ) ? strtotime( $bm_updated_iso ) : false;
 $bm_updated_label = $bm_updated_ts
     ? ( new DateTimeImmutable( '@' . $bm_updated_ts ) )->setTimezone( new DateTimeZone( 'Asia/Jakarta' ) )->format( 'd M · H:i' ) . ' WIB'
     : 'Belum tersedia';
+$bm_updated_note = $bm_delayed ? 'Observasi terverifikasi terakhir.' : 'Waktu publikasi analisis terbaru.';
 
-$bm_source = $bm_available ? trim( (string) ( $bm_snapshot['provenance']['source'] ?? '' ) ) : '';
+$bm_source = $bm_snapshot_available ? trim( (string) ( $bm_snapshot['provenance']['source'] ?? '' ) ) : '';
 $bm_source_label = $bm_source !== '' ? $bm_source : 'Sumber belum tersedia';
-$bm_status_label = 'delayed' === $bm_status ? 'DATA TERTUNDA' : ( $bm_available ? 'DATA TERBARU' : 'BELUM TERSEDIA' );
-$bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
+$bm_status_label = $bm_delayed ? 'DATA TERTUNDA' : ( $bm_current_available ? 'DATA TERBARU' : 'BELUM TERSEDIA' );
+$bm_status_class = $bm_current_available ? '' : ' is-delayed';
 ?>
 <section class="bm-home-hero" aria-labelledby="bm-home-title">
   <div class="bm-container">
     <div class="bm-home-hero__grid">
       <div class="bm-home-hero__copy">
         <p class="bm-home-hero__eyebrow">BTC MARKET INTELLIGENCE</p>
-        <h1 class="bm-home-hero__title" id="bm-home-title">Pahami kondisi BTC sekarang. Ketahui apa yang perlu dipantau berikutnya.</h1>
-        <p class="bm-home-hero__lead">BTC Intelligence merangkum bias pasar, confidence, dan faktor utama yang membentuk kondisi BTC saat ini. Bitmomo Pro menambahkan skenario, rentang harga, serta kondisi yang mengubah tesis pasar. Setiap analisis dicatat agar dapat dievaluasi terhadap hasil aktual.</p>
+        <h1 class="bm-home-hero__title" id="bm-home-title">Pahami kondisi BTC sekarang.</h1>
+        <p class="bm-home-hero__lead"><strong>Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.</strong> BTC Intelligence merangkum kondisi, perubahan material, mengapa perubahan itu penting, dan satu konteks yang layak dipantau. Bitmomo Pro memperluasnya dengan monitoring lengkap, Expected Range, skenario, dan kondisi invalidasi. Setiap analisis dicatat agar dapat dievaluasi terhadap hasil aktual.</p>
 
         <div class="bm-home-hero__actions">
           <a class="bm-home-hero__primary" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_primary">Buka BTC Intelligence</a>
@@ -70,28 +79,28 @@ $bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
           <div class="bm-home-reading__metric" role="listitem">
             <span class="bm-home-reading__metric-label">BIAS</span>
             <strong class="bm-home-reading__metric-value is-<?php echo esc_attr( in_array( $bm_bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? $bm_bias : 'unknown' ); ?>"><?php echo esc_html( $bm_bias_label ); ?></strong>
-            <small>Arah dominan berdasarkan data pasar saat ini.</small>
+            <small><?php echo esc_html( $bm_delayed ? 'Pembacaan arah saat ini tidak ditampilkan dari data tertunda.' : 'Arah dominan berdasarkan data pasar saat ini.' ); ?></small>
           </div>
           <div class="bm-home-reading__metric" role="listitem">
             <span class="bm-home-reading__metric-label">CONFIDENCE</span>
-            <strong class="bm-home-reading__metric-value"><?php echo null !== $bm_confidence ? esc_html( ( $bm_confidence_label ? $bm_confidence_label . ' · ' : '' ) . $bm_confidence . '/100' ) : esc_html__( 'Belum tersedia', 'bitmomo' ); ?></strong>
-            <small>Konsistensi bukti pendukung; bukan probabilitas pergerakan harga.</small>
+            <strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_confidence_display ); ?></strong>
+            <small><?php echo esc_html( $bm_delayed ? 'Confidence saat ini ditahan sampai data kembali memenuhi standar freshness.' : 'Konsistensi bukti pendukung; bukan probabilitas pergerakan harga.' ); ?></small>
           </div>
           <div class="bm-home-reading__metric" role="listitem">
             <span class="bm-home-reading__metric-label">REFERENSI BTC</span>
             <strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_price_label ); ?></strong>
-            <small>Harga referensi ketika analisis dibuat.</small>
+            <small><?php echo esc_html( $bm_delayed ? 'Referensi current tidak ditampilkan dari snapshot tertunda.' : 'Harga referensi ketika analisis dibuat.' ); ?></small>
           </div>
           <div class="bm-home-reading__metric" role="listitem">
             <span class="bm-home-reading__metric-label">DIPERBARUI</span>
             <strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_updated_label ); ?></strong>
-            <small>Waktu publikasi analisis terbaru.</small>
+            <small><?php echo esc_html( $bm_updated_note ); ?></small>
           </div>
         </div>
 
         <div class="bm-home-reading__driver">
           <span>FAKTOR UTAMA</span>
-          <p><?php echo esc_html( $bm_driver ?: 'Analisis terbaru belum tersedia.' ); ?></p>
+          <p><?php echo esc_html( $bm_driver_display ); ?></p>
         </div>
 
         <footer class="bm-home-reading__footer">
@@ -123,8 +132,9 @@ $bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
   </div>
 </section>
 <?php unset(
-    $bm_snapshot, $bm_status, $bm_available, $bm_bias, $bm_bias_labels, $bm_bias_label,
-    $bm_confidence, $bm_confidence_key, $bm_confidence_labels, $bm_confidence_label,
-    $bm_price, $bm_price_label, $bm_drivers, $bm_driver, $bm_updated_iso, $bm_updated_ts,
-    $bm_updated_label, $bm_source, $bm_source_label, $bm_status_label, $bm_status_class
+    $bm_snapshot, $bm_status, $bm_snapshot_available, $bm_current_available, $bm_delayed,
+    $bm_bias, $bm_bias_labels, $bm_bias_label,
+    $bm_confidence, $bm_confidence_key, $bm_confidence_labels, $bm_confidence_label, $bm_confidence_display,
+    $bm_price, $bm_price_label, $bm_drivers, $bm_driver, $bm_driver_display, $bm_updated_iso, $bm_updated_ts,
+    $bm_updated_label, $bm_updated_note, $bm_source, $bm_source_label, $bm_status_label, $bm_status_class
 ); ?>

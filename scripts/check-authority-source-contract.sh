@@ -74,30 +74,38 @@ grep -q '"assets/css/design-system.css"' config/production-runtime.json
 grep -q '"assets/css/home.css"' config/production-runtime.json
 grep -q '"assets/css/article-reading.css"' config/production-runtime.json
 
-# Research Hub UX contract.
+# Research Hub UX contract: publication inventory is the proof. Empty taxonomy
+# layers must not be required simply to make the page look larger.
 css="${theme}/assets/css/research.css"
 footer="${theme}/footer.php"
 research_contract="docs/RESEARCH_HUB_CONTRACT.md"
 
 grep -q "The Research Hub is a research workspace" "${research_contract}"
-grep -q "RESEARCH LIBRARY" "${hub}"
-grep -q "RESEARCH PROGRAMS" "${hub}"
+grep -q "Publication-first contract" "${research_contract}"
+grep -q "LEAD RESEARCH" "${hub}"
+grep -q "LATEST RESEARCH" "${hub}"
+grep -q "RESEARCH STANDARD" "${hub}"
 grep -q "INTELLIGENCE SYSTEMS" "${hub}"
 grep -q "research_q" "${hub}"
+grep -q "bm_visible_filters" "${hub}"
+grep -q "count( \$bm_visible_filters )" "${hub}"
 grep -Eq "TEMUAN UTAMA|RINGKASAN RISET" "${hub}"
 grep -q "RESEARCH FIGURE" "${hub}"
 grep -q "bitmomo_post_reading_minutes" "${hub}"
 grep -q "bitmomo_post_matches_research_focus" "${hub}"
+grep -q "Belum ada publikasi yang cocok" "${hub}"
 ! grep -q "Gabung Founding Whitelist" "${hub}"
+! grep -q "RESEARCH PROGRAMS" "${hub}"
+! grep -q "RESEARCH DOMAINS" "${hub}"
 grep -q "Intelligence Systems" "${footer}"
 
-library_line="$(grep -n "RESEARCH LIBRARY" "${hub}" | head -1 | cut -d: -f1)"
+library_line="$(grep -n "LATEST RESEARCH" "${hub}" | head -1 | cut -d: -f1)"
 method_line="$(grep -n "RESEARCH STANDARD" "${hub}" | tail -1 | cut -d: -f1)"
 test "${library_line}" -lt "${method_line}"
 
 grep -q "bm-research-filter" "${css}"
+grep -q "bm-research-lead" "${css}"
 grep -q "bm-research-library__list" "${css}"
-grep -q "bm-research-programs__list" "${css}"
 grep -q "bm-research-methodology" "${css}"
 
 # Google-to-article reading contract.

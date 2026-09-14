@@ -12,7 +12,28 @@ Before changing code, read [`docs/ENGINEERING_OPERATING_MODEL.md`](docs/ENGINEER
 4. Branch from `main` unless your change has a real code dependency on an unmerged PR.
 5. Open a **draft PR early** using the repository PR template.
 6. Keep one PR focused on one reviewable outcome.
-7. Mark it Ready for review only when the change is frozen enough to justify CI/reviewer attention.
+7. Run the local source preflight while the PR is still draft.
+8. Mark it Ready for review only when the change is frozen enough to justify CI/reviewer attention.
+
+## Local-first validation
+
+GitHub-hosted CI is an authoritative gate, not the first place to discover routine source failures.
+
+During normal iteration run:
+
+```bash
+bash scripts/preflight-source.sh fast
+```
+
+Before a PR is marked Ready for review run:
+
+```bash
+bash scripts/preflight-source.sh full
+```
+
+`fast` performs deterministic syntax, lint, architecture, copy, UI-source, navigation, research-boundary, and CSS-debt checks. `full` adds every supported deterministic PHP test suite for the managed plugins.
+
+The local preflight deliberately does **not** build a production artifact, run staging/browser acceptance, access production, or authorize a release. Those remain separate release gates. Do not mark a draft PR Ready merely to obtain basic lint/test feedback that can be produced locally.
 
 ## Branch naming
 
