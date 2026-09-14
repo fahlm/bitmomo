@@ -31,9 +31,19 @@ Before a PR is marked Ready for review run:
 bash scripts/preflight-source.sh full
 ```
 
-`fast` performs deterministic syntax, lint, architecture, copy, UI-source, navigation, research-boundary, and CSS-debt checks. `full` adds every supported deterministic PHP test suite for the managed plugins.
+`fast` performs deterministic syntax, lint, CI-governance, architecture, copy, UI-source, navigation, research-boundary, institutional design, and CSS-debt checks. `full` adds every supported deterministic PHP test suite for the managed plugins.
 
 The local preflight deliberately does **not** build a production artifact, run staging/browser acceptance, access production, or authorize a release. Those remain separate release gates. Do not mark a draft PR Ready merely to obtain basic lint/test feedback that can be produced locally.
+
+### Hosted-runner budget rule
+
+Draft means **zero intentional GitHub-hosted validation work**. Theme, Authority, Regime and CI Governance jobs must remain draft-guarded; local preflight is the feedback loop while code is moving.
+
+For a long-lived release PR, keep the PR Draft during every mutation. Mark it Ready only after an exact candidate SHA is frozen. If a defect is found after Ready, convert the release PR back to Draft **before** pushing or merging another fix, revoke the old candidate SHA, and freeze a new candidate only after the focused fix is complete.
+
+Do not rerun a failed workflow blindly. First classify the failure as source/test, runner/platform, external dependency, or release-identity failure; fix the cause, then spend one deliberate rerun if evidence is still required.
+
+Full Release and browser acceptance are expensive gates. Run Full Release once per exact frozen candidate, and run browser acceptance only against the exact artifact deployed to canonical staging (or an explicitly chosen production audit), never on a timer during pre-production hardening.
 
 ## Branch naming
 
@@ -59,6 +69,8 @@ A PR may target another branch only when it truly requires code that is not yet 
 - keep the stack shallow (normally no more than 2 dependent layers);
 - do not create a release candidate on top of an arbitrary component branch;
 - once the parent merges, promptly rebase/retarget the child to `main`.
+
+A focused repair for an already declared release may target that canonical release branch only when the release ledger explicitly requires it. This does not create a second release authority.
 
 ## PR hygiene
 
