@@ -47,6 +47,9 @@ jobs:
           esac
           echo "PASS explicit candidate ${actual_sha} on ${GITHUB_REF}"
 
+      - name: Enforce CI governance before expensive release work
+        run: node scripts/check-ci-governance.mjs
+
       - name: Lint every managed PHP file
         shell: bash
         run: |
@@ -81,6 +84,7 @@ jobs:
             -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
 
           for script in \
+            scripts/check-ci-governance.mjs \
             scripts/check-m2-launch-surfaces.mjs \
             scripts/check-navigation-footer.mjs \
             scripts/check-ui-architecture.mjs \
