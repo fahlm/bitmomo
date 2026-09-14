@@ -7,158 +7,98 @@ Local research project: `~/bitmomo-hl-volume-bot`
 
 ## Objective
 
-With approximately $100 USDC of capital, research a legitimate Hyperliquid trading/execution strategy that can accumulate the $10,000 trading-volume requirement for referral eligibility at the lowest practical expected cost, ideally with positive expectancy. No wash trading, self-trading, spoofing, or other artificial-volume behavior.
+With approximately $100 USDC of capital, research a legitimate Hyperliquid trading/execution strategy that can accumulate the $10,000 trading-volume requirement for referral eligibility at the lowest practical expected cost, ideally with positive expectancy. No wash trading, self-trading, spoofing, or artificial-volume behavior.
 
-## Research conclusions so far
+## High-level conclusions
 
-### Rejected directional hypotheses
+Rejected directional hypotheses:
 
-1. HH/HL, LL/LH, BOS/retest structure strategies failed out-of-sample validation after fees.
-2. A fade/opposite-direction variant also failed on a second untouched holdout.
-3. Candle-level aggressive-flow/order-flow proxy strategies did not produce a meaningful fee-adjusted edge.
+1. HH/HL, LL/LH, BOS/retest failed out-of-sample after fees.
+2. A fade/opposite-direction variant failed on a second untouched holdout.
+3. Candle-level aggressive-flow/order-flow proxy did not produce meaningful fee-adjusted edge.
 
-These ideas are not production trade triggers. Market structure may still be useful as context/regime information later.
+Strongest informational feature remains 3/3 microstructure alignment:
 
-### Hyperliquid microstructure finding
-
-The strongest information signal found so far remains 3/3 microstructure alignment:
-
-- order-book imbalance,
-- microprice edge,
+- order-book imbalance;
+- microprice edge;
 - aggressor trade flow.
 
-This showed monotonic short-horizon directional information in prior BTC research, but execution/fill economics remain the dominant problem.
+The unresolved problem is execution economics: passive JOIN fills are negatively selected.
 
-## Frozen VVV validation result
+## Frozen VVV unseen holdout
 
-Frozen primary policy before holdout:
+Previously frozen policy:
 
-- Market: VVV
-- Notional: $100
-- Signal: score 3/3
-- Maker entry: IMP1
-- Maker exit: IMP1
-- Exit lifetime: 30s
+- VVV
+- $100 notional
+- score 3/3
+- IMP1 maker entry
+- IMP1 maker exit
+- 30s exit lifetime
 
-Unseen 8-hour holdout result:
+Unseen 8h result:
 
-- RT: 94
-- Fill: 16.2%
-- Maker ratio: 76.1%
-- Volume/hour: ~$2,350
-- T10K: 4.3h
-- P10K: -$6.42
-- Max DD: $12.07
-- Verdict: FAIL
+- RT 94
+- fill 16.2%
+- maker 76.1%
+- T10K 4.3h
+- P10K -$6.42
+- max DD $12.07
+- FAIL
 
-Control (`IMP1 -> JOIN`, 30s) also failed:
+Control `IMP1 -> JOIN` also failed: maker 68.3%, T10K 4.4h, P10K -$5.99, DD $10.79.
 
-- RT: 90
-- Maker: 68.3%
-- T10K: 4.4h
-- P10K: -$5.99
-- DD: $10.79
+State-aware exit research on the now-SEEN VVV holdout improved economics only slightly and did not solve the problem. Conclusion: the deeper issue is adverse selection at entry/fill, not exit logic alone.
 
-## State-aware exit diagnostic
-
-The failed VVV holdout was subsequently marked SEEN and used only for diagnostic research.
-
-Best maker-compatible candidate:
-
-- `state_hold2_weak1_flip3_180s`
-- Sample: 577
-- RT: 93
-- Maker: 79.6%
-- T10K: 4.3h
-- P10K: -$5.40
-- DD: $10.13
-
-Best raw P10K/DD candidate:
-
-- `state_hold1_weak0_flip3_180s`
-- Sample: 548
-- RT: 83
-- Maker: 74.7%
-- T10K: 4.8h
-- P10K: -$5.03
-- DD: $8.38
-
-Conclusion: exit-policy tuning helped only slightly. The deeper problem is entry/fill adverse selection.
-
-## Market selector architecture
+## Selector architecture
 
 Deterministic fail-closed stack:
 
 `Market Observer -> Eligibility Engine -> Market Ranker -> Supervisor`
 
-Design principles:
+Principles:
 
-- market-agnostic, not VVV-hard-coded;
-- no LLM in the trading loop;
+- market-agnostic;
+- no LLM in trading loop;
 - one eventual execution authority only;
 - no qualified market => IDLE;
-- active-market deterioration => stop new entries, drain/flatten, switch only when flat;
+- stop new entries on degradation, drain/flatten, switch only when flat;
 - hysteresis prevents rapid switching.
 
-Frozen Session 3 qualification rules were:
+Frozen Session 3 research gates:
 
 - 24h volume >= $10M
 - spread 1–12 bp
 - BBO queue / $100 <= 20x
 - trade rate >= 3/min
-- empirical execution samples >= 30
+- execution samples >= 30
 - fill >= 5%
-- maker ratio >= 75%
+- maker >= 75%
 - 5s markout >= 0 bp
 - T10K <= 6h
 - P10K >= -$2
 
-These remain research thresholds, not production approval rules.
-
 ## Dual-window selector
 
-Session 2 exposed a structural evaluator flaw: market-state metrics and execution evidence both used the same 15-minute rolling window, causing `ExecN` to collapse even when the append-only JSONL had accumulated many attempts.
+Session 2 exposed that market-state and execution evidence incorrectly shared one 15m window.
 
-The fix separates the horizons:
+Current architecture:
 
-### Market-state window
+- market state: rolling 15m;
+- execution evidence: rolling 4h, latest 100 attempts;
+- execution freshness: <=30m.
 
-Rolling 15 minutes for:
-
-- spread,
-- queue/depth,
-- trade rate,
-- imbalance,
-- microprice,
-- aggressor flow.
-
-### Execution-evidence window
-
-Rolling 4 hours, capped to latest 100 attempts, for:
-
-- execution sample count,
-- fill rate,
-- maker ratio,
-- 5s markout,
-- realized/proxy volume per hour,
-- T10K,
-- P10K.
-
-Latest execution evidence must also be <=30 minutes old.
-
-Session 3 validated that this architecture works: `ExecN` persisted beyond the 15-minute market window and reached useful sample sizes.
+Session 3 validated that the architecture retains execution evidence correctly while market state remains responsive.
 
 ## Session 3 — FROZEN
 
-Canonical verdict document:
+Canonical result:
 
 `docs/research/hyperliquid-volume/SESSION3_VERDICT.md`
 
 Status: **FROZEN — NO QUALIFIED MARKET / IDLE**.
 
-Session 3 is now SEEN data and must not be reused as an unseen holdout for a modified policy.
-
-Final observed checkpoint:
+Final checkpoint:
 
 | Market | Verdict | Spread | Queue/$100 | Trades/min | ExecN | Fill | Maker | Markout5 | P10K | T10K |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -168,117 +108,162 @@ Final observed checkpoint:
 | PUMP | REJECT | 2.75 bp | 33.36x | 56.27 | 100 | 11.00% | 54.55% | -2.64 bp | -$6.63 | 7.74h |
 | BTC | REJECT | 0.13 bp | 5,288.56x | 210.93 | 100 | 10.00% | 55.00% | -0.74 bp | -$3.63 | 8.52h |
 
-Final transport/supervisor checkpoint:
+Final supervisor state: IDLE, no active market, new entries disabled. Session 3 is now SEEN data.
 
-- feed healthy: YES
-- websocket generation: 1
-- reconnects: 0
-- supervisor: IDLE
-- active market: none
-- new entries: NO
+## Evidence integrity / restart accounting
 
-### Session 3 interpretation
+Session 3 local evidence was preserved across restart:
 
-PONS and VVV demonstrated that structural market access is not enough. Both failed the economics gates decisively:
+- original JSONL 625 rows;
+- continuation 19 rows;
+- merged resume seed 644 unique rows;
+- duplicates removed 0;
+- seed loaded successfully and fresh continuation events accepted.
 
-- PONS maker 65%, markout -9.38 bp, P10K -$10.09;
-- VVV maker 70%, markout -9.54 bp, P10K -$8.19.
+A restart-accounting bug was then fixed: historical execution evidence rehydrated after restart no longer clips throughput elapsed-time to the fresh process start.
 
-This is strong evidence of a toxic-fill / adverse-selection problem under the standardized `JOIN + 3/3` shadow probe.
+Local verification after the fix: **34 tests passed**, including two dedicated regression tests for rehydrated and uninterrupted T10K/volume-per-hour behavior.
 
-PUMP and BTC remained structurally unsuitable for the $100 target notional at the final checkpoint. ETHFI remained REJECT under the frozen evaluator and also had weak execution evidence.
+Therefore restart-safe throughput accounting is now considered fixed for this research branch.
 
-The correct result is **NO QUALIFIED MARKET / IDLE**. Do not weaken thresholds to manufacture a candidate.
+## Entry-policy development plan
 
-## Evidence-integrity / restart notes
+Canonical predeclared search space:
 
-Local Session 3 evidence was preserved across a restart:
+`docs/research/hyperliquid-volume/ENTRY_POLICY_DEV_PLAN.md`
 
-- original JSONL: 625 rows;
-- continuation segment 1: 19 rows;
-- merged resume seed: 644 unique rows;
-- duplicates removed: 0;
-- selector tests before continuation: 32 passed;
-- resume seed loaded successfully (`external_loaded=644`);
-- additional fresh continuation events were accepted afterward.
+Only SEEN data may be used for development. Session 4 must remain unseen until one candidate is selected and frozen.
 
-Raw JSONL datasets remain local and should generally not be committed.
+Fixed components during this development cycle:
 
-### T10K restart caveat
+- selector thresholds;
+- fee assumptions;
+- $100 target notional;
+- queue-ahead fill semantics;
+- exit policy / exit lifetime;
+- no cancellation credit;
+- no wallet/order submission.
 
-The current observer uses process `started_ms` when computing the elapsed-time denominator for `volume_per_hour` / T10K. Rehydrating historical execution events into a fresh process can therefore temporarily bias T10K.
+Predeclared entry families:
 
-Do not use resumed-session T10K as the sole basis for Session 3 conclusions. The frozen result is robust without it because PONS and VVV independently fail maker ratio, markout, and P10K.
+- C0: immediate 3/3 JOIN control;
+- P1: 3/3 persistence confirmation (0.5s / 1.0s / 2.0s);
+- P2: normalized microprice-strength filter (0.10 / 0.20 / 0.30);
+- P3: aggressor-flow strength filter (0.10 / 0.20 / 0.30);
+- P4: same-side queue accessibility guard (2x / 5x / 10x).
 
-This accounting issue must be fixed before a future validation depends on rehydrated throughput metrics.
+Arbitrary brute-force combinations are prohibited. A two-filter combination is allowed only if at least two independent families first show consistent improvement across SEEN datasets.
 
-## WebSocket/reliability status
+## Development Cycle 1 — FROZEN
 
-The selector includes:
+Canonical result:
 
-- L2/book heartbeat as primary transport-health signal;
-- 60s all-book stale watchdog;
-- automatic reconnect;
-- generation fencing for obsolete callbacks;
-- bounded disconnect cleanup;
-- exponential backoff capped at 30s;
-- fail-closed supervisor state during reconnect.
+`docs/research/hyperliquid-volume/ENTRY_POLICY_DEV1_RESULT.md`
 
-Recovery works, but earlier long sessions sometimes showed high reconnect frequency. Session 3's final continuation checkpoint itself was healthy with zero reconnects.
+Status: **NO SESSION-4 CANDIDATE YET**.
+
+### VVV 8h replay
+
+C0 control:
+
+- attempts 400
+- fill 7.2%
+- maker 62.1%
+- mean markout -7.01 bp
+- P10K -$7.68
+- T10K 13.82h
+- max DD $4.46
+
+Best persistence result was P1_1.0s:
+
+- attempts 389
+- fill 6.9%
+- maker 64.8%
+- mean markout -2.80 bp
+- P10K -$4.93
+- T10K 14.84h
+- max DD $2.84
+- dMark +4.21 bp
+- dP10K +$2.75
+
+Interpretation: persistence confirmation materially reduced adverse selection on VVV without simply suppressing nearly all trading, but economics still failed.
+
+### Multi-market 30m sanity check
+
+P1 did not generalize consistently:
+
+- P1_0.5s: valid 2, +Mark 0, +P10K 2, Both+ 0, median dMark -1.13 bp, median dP10K +$1.52.
+- P1_1.0s: valid 3, +Mark 0, +P10K 1, Both+ 0, median dMark -0.65 bp, median dP10K $0.00.
+- P1_2.0s: valid 3, +Mark 1, +P10K 0, Both+ 0, median dMark 0.00 bp, median dP10K -$0.99.
+
+Other families:
+
+- P2 showed some positive short-sample cross-market markout but harmed the longer VVV replay, so it is inconsistent.
+- P3 is mixed.
+- P4_5x / P4_10x produced modest positive direction on both VVV 8h and the short cross-market sanity check. Queue accessibility is therefore the most directionally consistent family so far, but the multi-market fill counts are too small to freeze a candidate.
+
+Frozen conclusion: no policy is ready for Session 4; the predeclared combination rule is not activated.
+
+## Raw development data available locally
+
+Useful SEEN replay datasets include:
+
+- `data/vvv_holdout_8h_books.csv`
+- `data/vvv_holdout_8h_trades.csv`
+- `data/hl_multi_30m_books.csv`
+- `data/hl_multi_30m_trades.csv`
+- `data/hl_microstructure_120m.csv`
+- shorter execution/reconnect/watchdog captures.
+
+VVV 8h is ~480 minutes of one-market raw L2/trades. Multi-market 30m contains BTC, ETHFI, PONS, PUMP, VVV. Raw books include top-5 levels and raw trades include exchange timestamps, side, price, size, trade ID/hash.
+
+## Current next action
+
+**Do not start Session 4 yet.**
+
+Collect a new **SEEN multi-market development capture** using the same raw event schema, then replay the already-predeclared C0/P1/P2/P3/P4 grid unchanged.
+
+Recommended capture:
+
+- markets: BTC, ETHFI, PONS, PUMP, VVV;
+- duration: at least 4 hours; 6–8 hours preferred if transport remains healthy;
+- raw L2 top-5 books + individual trades;
+- resilient reconnect and health log;
+- label the capture DEVELOPMENT / SEEN before it starts;
+- no policy tuning during capture.
+
+Why: the existing 30m cross-market sample has too few fills to distinguish a robust policy from noise. A longer SEEN multi-market capture is needed before choosing/freeze one entry policy.
+
+After that capture:
+
+1. replay the unchanged predeclared grid;
+2. evaluate P10K, mean/median markout, maker, fill, T10K, max DD, sample size and consistency by market;
+3. select at most one candidate only if the improvement is robust;
+4. freeze that candidate and all gates;
+5. only then begin fresh unseen Session 4.
+
+If no candidate becomes convincing, record the development cycle as failed and remain IDLE rather than loosening gates.
 
 ## Safety / mainnet status
 
 Mainnet trading is NOT approved.
 
-Current blockers:
+Still required before any live wallet execution:
 
-1. No execution policy has passed fresh unseen economics/risk validation.
-2. Adverse selection remains severe under the standardized passive-entry probe.
-3. Restart-safe T10K/volume-per-hour accounting must be corrected.
-4. A new candidate must pass a fresh unseen Session 4 after being frozen in advance.
-5. Risk guardian, reconciliation, position/account state, and single execution authority are not yet integrated for live execution.
-6. Shadow/paper soak testing must show no silent state divergence.
-7. Reconnect behavior still needs broader reliability characterization.
+1. one frozen execution policy must pass fresh unseen Session 4 economics/risk validation;
+2. acceptable P10K and drawdown;
+3. reliable market-selection/IDLE behavior across regimes;
+4. transport/reconnect reliability characterized;
+5. risk guardian, reconciliation, account/position state and one execution authority;
+6. shadow/paper soak with no silent divergence.
 
-## Next action — start a new policy research iteration, NOT Session 3 tuning
+## Important docs
 
-Do not collect more Session 3 data for policy selection. Session 3 is frozen and SEEN.
-
-The next research question is now:
-
-> Why does a directionally informative 3/3 microstructure signal produce strongly negative markout when entered passively, and can a legitimate maker-entry policy reduce this negative fill selection enough to meet the economics gates?
-
-Recommended order:
-
-1. Fix restart-safe throughput accounting first, with tests, without changing Session 3 results.
-2. Use SEEN diagnostic/replay evidence to investigate entry adverse selection rather than further optimizing exit logic.
-3. Pre-declare a small number of entry-policy variants. Candidate dimensions may include queue position / price improvement, shorter genuine order lifetime, signal persistence before quote placement, and cancel-on-signal-decay rules. Any real order design must represent genuine trading intent; no spoofing or artificial-volume behavior.
-4. Select at most one candidate using SEEN research evidence.
-5. Freeze that candidate and all gates before starting a fresh unseen Session 4.
-6. If the candidate still cannot produce acceptable P10K/markout/drawdown, remain IDLE and reject the approach rather than loosening gates.
-
-## Current files/modules
-
-Selector code:
-
-`research/hyperliquid-volume/market_selector/`
-
-Important modules:
-
-- `observer.py`
-- `eligibility.py`
-- `ranker.py`
-- `supervisor.py`
-- `feedback.py`
-- `shadow_probe.py`
-- `transport.py`
-- `live_dry_run.py`
-
-Important docs:
-
-- `CURRENT_HANDOFF.md` — source of truth for the next chat/session
-- `SESSION3_VERDICT.md` — frozen Session 3 result
-- `SESSION3_RUNBOOK.md` — Session 3 operational/restart procedure
+- `CURRENT_HANDOFF.md` — source of truth
+- `SESSION3_VERDICT.md` — frozen Session 3
+- `ENTRY_POLICY_DEV_PLAN.md` — predeclared entry search space
+- `ENTRY_POLICY_DEV1_RESULT.md` — frozen Development Cycle 1 result
+- `SESSION3_RUNBOOK.md`
 - `DUAL_WINDOW_SELECTOR_V1.md`
 - `EXECUTION_FEEDBACK_CONTRACT.md`
 - `MARKET_SELECTOR_ARCHITECTURE_V0.md`
@@ -287,4 +272,4 @@ Important docs:
 
 ## New-chat bootstrap
 
-A new ChatGPT conversation must read this file first. The correct starting state is now **post-Session-3**: Session 3 is frozen `NO QUALIFIED MARKET / IDLE`; the next work is restart-safe throughput accounting and a new adverse-selection/entry-policy research iteration before any fresh Session 4 validation.
+A new chat must read this file first. Correct starting state: Session 3 is frozen `NO QUALIFIED MARKET / IDLE`; restart-safe throughput accounting is fixed and locally verified with 34 passing tests; Entry Policy Development Cycle 1 is frozen with **NO SESSION-4 CANDIDATE YET**; next work is a longer SEEN multi-market development capture, not Session 4.
