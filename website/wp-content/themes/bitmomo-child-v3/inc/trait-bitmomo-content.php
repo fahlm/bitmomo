@@ -21,15 +21,16 @@ trait Bitmomo_Content_Trait {
     }
 
     /**
-     * The launch funnel no longer exposes an independent newsletter CTA.
-     * Preserve legacy /subscribe links by resolving them to the canonical
-     * Founding whitelist instead of leaving users on a retired footer form.
+     * Newsletter and Founding Whitelist serve different product jobs:
+     * newsletter = free retention/distribution, whitelist = Pro acquisition.
+     * Preserve legacy /subscribe links by resolving them to the one compact
+     * global-footer newsletter surface.
      */
     public function handle_subscribe_redirect() {
         $req  = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '');
         $path = trim(parse_url($req, PHP_URL_PATH) ?? '/', '/');
         if (strcasecmp($path, 'subscribe') === 0) {
-            wp_safe_redirect(home_url('/#founding-whitelist'), 302);
+            wp_safe_redirect(home_url('/#newsletter'), 302);
             exit;
         }
     }
@@ -39,7 +40,7 @@ trait Bitmomo_Content_Trait {
         if (empty($atts['href'])) return $atts;
         $href = strtolower($atts['href']);
         if (strpos($href, '#subscribe') !== false || strpos($href, '#newsletter') !== false || preg_match('~(^|/)subscribe/?$~', $href)) {
-            $atts['href'] = home_url('/#founding-whitelist');
+            $atts['href'] = home_url('/#newsletter');
             if (isset($atts['class'])) {
                 $atts['class'] = trim(str_replace('js-open-subscribe', '', $atts['class']));
             }
