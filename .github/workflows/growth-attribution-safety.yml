@@ -1,0 +1,46 @@
+name: Growth attribution safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "research/growth-attribution/**"
+      - "docs/research-distribution/GROWTH_ATTRIBUTION_V1.md"
+      - ".github/workflows/growth-attribution-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/growth-attribution/**"
+      - "docs/research-distribution/GROWTH_ATTRIBUTION_V1.md"
+      - ".github/workflows/growth-attribution-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: growth-attribution-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    name: Lint and deterministic attribution contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint Growth Attribution V1 implementation and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l research/growth-attribution/includes/class-bitmomo-growth-attribution-v1.php
+          php -l research/growth-attribution/includes/class-bitmomo-growth-attribution-report-v1.php
+          php -l research/growth-attribution/tests/test-bitmomo-growth-attribution-v1.php
+
+      - name: Run Growth Attribution V1 deterministic suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          php research/growth-attribution/tests/test-bitmomo-growth-attribution-v1.php
