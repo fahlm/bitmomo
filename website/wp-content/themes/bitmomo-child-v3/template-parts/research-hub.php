@@ -113,8 +113,8 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       <p class="bm-research-kicker">BITMOMO RESEARCH</p>
       <div class="bm-research-head__grid">
         <div>
-          <h1 id="bm-research-hub-title">Riset pasar yang dapat diuji. Sistem intelligence yang dapat dipercaya.</h1>
-          <p class="bm-research-head__lead">Research desk untuk Bitcoin dan pasar aset digital, dengan fokus pada market structure, derivatives, liquidity, macro, capital flows, serta sistem intelligence yang menjaga provenance, reliability, dan evaluation.</p>
+          <h1 id="bm-research-hub-title">Riset pasar yang dapat diuji. Sistem intelligence yang dapat diaudit.</h1>
+          <p class="bm-research-head__lead">Riset Bitcoin dan pasar aset digital dengan fokus pada market structure, derivatives, likuiditas, makro, capital flows, serta sistem intelligence yang menjaga sumber data, keandalan, dan metode evaluasi tetap dapat ditelusuri.</p>
         </div>
         <div class="bm-research-head__utility">
           <p><strong>Cakupan</strong><span>Markets · Intelligence Systems</span></p>
@@ -122,13 +122,13 @@ $bm_domain_systems = array_slice( array_values( array_filter(
           <a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Buka BTC Intelligence →</a>
         </div>
       </div>
-      <div class="bm-research-standard-line" aria-label="Standar Research Bitmomo">
+      <div class="bm-research-standard-line" aria-label="Standar riset Bitmomo">
         <span>TRACEABLE EVIDENCE</span><span>THESIS + INVALIDATION</span><span>PROVENANCE</span><span>EVALUATION</span>
       </div>
     </header>
 
-    <section class="bm-research-discovery" aria-label="Navigasi dan pencarian research">
-      <nav class="bm-research-filter" aria-label="Filter Research">
+    <section class="bm-research-discovery" aria-label="Navigasi dan pencarian riset">
+      <nav class="bm-research-filter" aria-label="Filter riset">
         <?php foreach ( $bm_focus_filters as $bm_filter_key => $bm_filter ) : ?>
           <a href="<?php echo esc_url( $bm_filter_url( $bm_filter_key ) ); ?>"<?php echo $bm_filter_key === $bm_focus ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $bm_filter['label'] ); ?></a>
         <?php endforeach; ?>
@@ -137,7 +137,7 @@ $bm_domain_systems = array_slice( array_values( array_filter(
         <?php if ( 'all' !== $bm_focus ) : ?><input type="hidden" name="focus" value="<?php echo esc_attr( $bm_focus ); ?>"><?php endif; ?>
         <label for="bm-research-search-input">Cari riset</label>
         <div>
-          <input id="bm-research-search-input" type="search" name="research_q" value="<?php echo esc_attr( $bm_research_q ); ?>" placeholder="Judul, thesis, topik…">
+          <input id="bm-research-search-input" type="search" name="research_q" value="<?php echo esc_attr( $bm_research_q ); ?>" placeholder="Judul, tesis, topik…">
           <button type="submit">Cari</button>
         </div>
       </form>
@@ -212,7 +212,7 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       <?php elseif ( ! $bm_lead ) : ?>
         <div class="bm-research-empty">
           <strong>Tidak ada publikasi riset yang memenuhi klasifikasi ini.</strong>
-          <p>Ubah filter atau kata pencarian. Artikel lama yang belum memiliki klasifikasi research eksplisit tetap tidak akan dipromosikan sebagai institutional research.</p>
+          <p>Ubah filter atau kata pencarian. Publikasi lama yang belum memiliki klasifikasi riset eksplisit tetap tersedia di arsip umum dan tidak ditampilkan di Research Hub.</p>
           <a href="<?php echo esc_url( $bm_research_url ); ?>">Reset tampilan riset →</a>
         </div>
       <?php else : ?>
@@ -224,17 +224,17 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       <header class="bm-research-library__head">
         <div>
           <p class="bm-research-kicker">RESEARCH DOMAINS</p>
-          <h2 id="bm-research-domains-title">Dua disiplin. Satu standar intelligence.</h2>
+          <h2 id="bm-research-domains-title">Dua disiplin. Satu standar riset.</h2>
         </div>
-        <p>Markets menjelaskan apa yang berubah. Intelligence Systems menjelaskan bagaimana evidence diproses, diuji, dan dibuat dapat dipercaya.</p>
+        <p>Markets menganalisis perubahan pasar. Intelligence Systems menjelaskan bagaimana data dan bukti diproses, diuji, dan dievaluasi.</p>
       </header>
       <div class="bm-research-domains__grid">
         <article class="bm-research-domain">
           <div class="bm-research-domain__head">
             <span>01 · MARKETS</span>
             <h3>Market Research</h3>
-            <p>Bitcoin, macro, market structure, derivatives, liquidity, capital flows, volatility, dan fundamental drivers.</p>
-            <a href="<?php echo esc_url( $bm_filter_url( 'bitcoin' ) ); ?>">Buka market research →</a>
+            <p>Bitcoin, makro, market structure, derivatives, likuiditas, capital flows, volatilitas, dan faktor fundamental.</p>
+            <a href="<?php echo esc_url( $bm_filter_url( 'bitcoin' ) ); ?>">Buka Market Research →</a>
           </div>
           <?php if ( $bm_domain_market ) : ?><ol><?php foreach ( $bm_domain_market as $bm_post ) : ?><li><time datetime="<?php echo esc_attr( get_the_date( 'c', $bm_post ) ); ?>"><?php echo esc_html( get_the_date( 'd M', $bm_post ) ); ?></time><a href="<?php echo esc_url( get_permalink( $bm_post ) ); ?>"><?php echo esc_html( get_the_title( $bm_post ) ); ?></a></li><?php endforeach; ?></ol><?php endif; ?>
         </article>
@@ -242,8 +242,8 @@ $bm_domain_systems = array_slice( array_values( array_filter(
           <div class="bm-research-domain__head">
             <span>02 · SYSTEMS</span>
             <h3>Intelligence Systems</h3>
-            <p>Agent architecture, evaluation, provenance, reliability, model boundaries, dan decision-intelligence systems.</p>
-            <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>">Buka intelligence systems research →</a>
+            <p>Arsitektur agen, evaluasi, sumber data, keandalan, batas model, dan desain decision-intelligence systems.</p>
+            <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>">Buka Intelligence Systems Research →</a>
           </div>
           <?php if ( $bm_domain_systems ) : ?><ol><?php foreach ( $bm_domain_systems as $bm_post ) : ?><li><time datetime="<?php echo esc_attr( get_the_date( 'c', $bm_post ) ); ?>"><?php echo esc_html( get_the_date( 'd M', $bm_post ) ); ?></time><a href="<?php echo esc_url( get_permalink( $bm_post ) ); ?>"><?php echo esc_html( get_the_title( $bm_post ) ); ?></a></li><?php endforeach; ?></ol><?php endif; ?>
         </article>
@@ -256,13 +256,13 @@ $bm_domain_systems = array_slice( array_values( array_filter(
           <p class="bm-research-kicker">RESEARCH PROGRAMS</p>
           <h2 id="bm-research-programs-title">Kerangka berulang untuk pasar yang kompleks.</h2>
         </div>
-        <p>Program research mengelompokkan pertanyaan yang terus diuji, bukan sekadar topik yang sedang ramai.</p>
+        <p>Program riset mengelompokkan pertanyaan yang diuji secara berulang, bukan sekadar topik yang sedang ramai.</p>
       </header>
       <div class="bm-research-programs__list">
-        <a href="<?php echo esc_url( $bm_filter_url( 'market-structure' ) ); ?>"><span>01</span><strong>Market Structure Notes</strong><em>Trend, structure breaks, regime context, dan perilaku harga.</em><b>→</b></a>
-        <a href="<?php echo esc_url( $bm_filter_url( 'derivatives' ) ); ?>"><span>02</span><strong>Derivatives Monitor</strong><em>Funding, positioning, leverage, dan struktur pasar futures.</em><b>→</b></a>
-        <a href="<?php echo esc_url( $bm_filter_url( 'flows' ) ); ?>"><span>03</span><strong>ETF &amp; Capital Flows</strong><em>Demand absorption, institutional flows, dan transmisi ke pasar.</em><b>→</b></a>
-        <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>"><span>04</span><strong>Intelligence Systems</strong><em>Provenance, evaluation, agent reliability, dan desain decision system.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'market-structure' ) ); ?>"><span>01</span><strong>Market Structure Notes</strong><em>Tren, structure breaks, konteks rezim, dan perilaku harga.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'derivatives' ) ); ?>"><span>02</span><strong>Derivatives Monitor</strong><em>Funding rate, positioning, leverage, dan struktur pasar futures.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'flows' ) ); ?>"><span>03</span><strong>ETF &amp; Capital Flows</strong><em>Penyerapan permintaan, arus institusional, dan transmisi ke pasar.</em><b>→</b></a>
+        <a href="<?php echo esc_url( $bm_filter_url( 'systems' ) ); ?>"><span>04</span><strong>Intelligence Systems</strong><em>Sumber data, evaluasi, keandalan agen, dan desain decision system.</em><b>→</b></a>
       </div>
     </section>
 
@@ -270,19 +270,19 @@ $bm_domain_systems = array_slice( array_values( array_filter(
       <div class="bm-research-methodology__intro">
         <p class="bm-research-kicker">RESEARCH STANDARD</p>
         <h2 id="bm-research-methodology-title">Evidence before narrative.</h2>
-        <p>Research Bitmomo harus menjelaskan evidence, konteks, batas thesis, dan bagaimana kesimpulan dapat dievaluasi ketika data berubah.</p>
+        <p>Riset Bitmomo harus menjelaskan bukti, konteks, batas tesis, serta metode evaluasi ketika data atau kondisi pasar berubah.</p>
       </div>
       <div class="bm-research-methodology__rules">
-        <div><span>01</span><strong>Traceable evidence</strong><p>Sumber, waktu observasi, dan quality boundary harus dapat ditelusuri sejauh sistem memungkinkan.</p></div>
-        <div><span>02</span><strong>Context over noise</strong><p>Data dibaca dalam struktur dan regime, bukan sebagai angka atau headline yang berdiri sendiri.</p></div>
-        <div><span>03</span><strong>Thesis + invalidation</strong><p>Analisis menjelaskan apa yang mendukung thesis dan apa yang membuatnya tidak lagi berlaku.</p></div>
-        <div><span>04</span><strong>Evaluation</strong><p>Insight yang dapat diuji dinilai terhadap hasil aktual; ketidakpastian dan sampel kecil tetap disebut apa adanya.</p></div>
+        <div><span>01</span><strong>Traceable evidence</strong><p>Sumber, waktu observasi, dan batas kualitas data harus dapat ditelusuri sejauh sistem memungkinkan.</p></div>
+        <div><span>02</span><strong>Context over noise</strong><p>Data dibaca dalam struktur dan rezim pasar, bukan sebagai angka atau headline yang berdiri sendiri.</p></div>
+        <div><span>03</span><strong>Thesis + invalidation</strong><p>Analisis menjelaskan bukti yang mendukung tesis dan kondisi yang membuat tesis tersebut tidak lagi berlaku.</p></div>
+        <div><span>04</span><strong>Evaluation</strong><p>Analisis yang dapat diuji dinilai terhadap hasil aktual; ketidakpastian dan ukuran sampel tetap dinyatakan secara eksplisit.</p></div>
       </div>
     </section>
 
     <footer class="bm-research-boundary">
       <strong>Batas klasifikasi</strong>
-      <p>Hanya publikasi dengan klasifikasi research eksplisit yang muncul di Research Hub. Artikel lama/general tetap tersedia di URL aslinya tetapi tidak otomatis memperoleh label institutional research.</p>
+      <p>Hanya publikasi dengan klasifikasi riset eksplisit yang muncul di Research Hub. Publikasi lama atau publikasi umum tetap tersedia di URL aslinya tetapi tidak otomatis diklasifikasikan sebagai riset Bitmomo.</p>
     </footer>
   </div>
 </section>
