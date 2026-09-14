@@ -13,8 +13,8 @@ $page = Bitmomo_Btc_Intelligence_Page::instance();
 $html = $page->render_page( array() );
 check( 'Page renders without public adapter', strlen( $html ) > 400 );
 check( 'Page has canonical wrapper', false !== strpos( $html, 'class="bm-bi"' ) );
-check( 'Hero is visitor-first rather than engine-first', false !== strpos( $html, 'tanpa tenggelam dalam data' ) );
-check( 'Unavailable reading fails closed', false !== strpos( $html, 'Analisis arah belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.' ) );
+check( 'Hero explains the two-clock visitor model', false !== strpos( $html, 'Market Pulse menunjukkan aktivitas intraday' ) && false !== strpos( $html, 'Major Brief menunjukkan bias' ) );
+check( 'Unavailable Major Brief fails closed', false !== strpos( $html, 'Major Brief belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.' ) );
 check( 'No fabricated BTC reference without adapter', false === strpos( $html, '$65,000' ) && false === strpos( $html, '$65.000' ) );
 check( 'Only one Pro conversion action is rendered', 1 === substr_count( $html, 'Lihat Bitmomo Pro' ) );
 check( 'Page still renders accountability boundaries without data', false !== strpos( $html, 'Decision Ledger' ) && false !== strpos( $html, 'Arsip Pro' ) );
@@ -31,8 +31,9 @@ check( 'Commercial action consumes canonical amber token', false !== strpos( $cs
 check( 'Secondary methodology stays progressively disclosed', false !== strpos( $css, '.bm-bi__details' ) );
 check( 'Mobile snapshot collapses to one column', false !== strpos( $css, '.bm-bi__snapshot-grid{grid-template-columns:1fr}' ) );
 check( 'Ledger overflow is contained instead of overflowing the page', false !== strpos( $css, '.bm-bi__ledger-wrap' ) && false !== strpos( $css, 'overflow-x:auto' ) );
-check( 'Renderer contains explicit delayed current-view withholding contract', false !== strpos( $class_source, 'PEMBACAAN SAAT INI DITAHAN' ) && false !== strpos( $class_source, 'render_delayed_current_boundary' ) );
+check( 'Renderer explicitly separates stale Major Brief from Market Pulse', false !== strpos( $class_source, 'MAJOR BRIEF TERTUNDA' ) && false !== strpos( $class_source, 'Market Pulse tetap ditampilkan terpisah' ) && false !== strpos( $class_source, 'render_market_pulse' ) );
 check( 'Early sample copy explicitly cautions against inference', false !== strpos( $class_source, 'Sampel awal — belum layak disimpulkan' ) );
+check( 'Insufficient sample accuracy is explicitly withheld', false !== strpos( $class_source, 'Akurasi ditahan sampai sampel minimum terpenuhi.' ) );
 
 class Bitmomo_Public_Intelligence_Adapter {
 	public static $snapshot_fixture = null;
@@ -65,9 +66,9 @@ Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = array(
 	'freshness' => array( 'state' => 'fresh', 'timestamp_iso' => '2026-09-12T20:10:07+00:00', 'label' => 'fresh' ),
 	'provenance' => array( 'source' => 'Binance public market data + Bybit derivatives fallback', 'as_of' => '2026-09-12T20:10:07+00:00', 'timezone' => 'Asia/Jakarta' ),
 	'key_drivers' => array( 'Momentum BTC menguat.', 'Volatilitas meningkat.', 'Driver ketiga tidak boleh tampil.' ),
-	'session' => array( 'label' => 'US POST-CLOSE', 'edition_id' => 'internal-edition-id' ),
+	'session' => array( 'type' => 'us_post_close', 'label' => 'US POST-CLOSE', 'edition_id' => 'internal-edition-id', 'anchor' => '2026-09-12T20:10:00-04:00' ),
 	'session_intelligence' => array(
-		'what_happened' => array( 'btc_change_pct' => 2.25, 'derivatives_context' => array( 'open_interest_change_24h_pct' => 3.5, 'funding_rate' => 0.0001, 'basis_pct' => 0.12 ) ),
+		'what_happened' => array( 'btc_change_pct' => 2.25, 'ending_directional_bias' => 'bullish', 'derivatives_context' => array( 'open_interest_change_24h_pct' => 3.5, 'funding_rate' => 0.0001, 'basis_pct' => 0.12 ) ),
 		'comparison' => array( 'status' => 'compared' ),
 		'what_changed' => array(
 			array( 'field' => 'directional_bias', 'from' => 'neutral', 'to' => 'bullish' ),
@@ -137,7 +138,8 @@ $html = $method->invoke( $instance, array() );
 check( 'Current reading exposes direction in human language', false !== strpos( $html, 'Bullish kuat' ) );
 check( 'Current terminal uses final institutional labels at source', false !== strpos( $html, '>BIAS<' ) && false !== strpos( $html, '>CONFIDENCE<' ) );
 check( 'Confidence is exact but explicitly not a price probability', false !== strpos( $html, '82/100' ) && false !== strpos( $html, 'bukan probabilitas pergerakan harga' ) );
-check( 'Activity is translated into a visitor-facing state', false !== strpos( $html, 'AKTIVITAS PASAR' ) && false !== strpos( $html, '>Tinggi<' ) && false !== strpos( $html, 'Aktivitas pasar berada di atas kondisi normal 14 hari.' ) );
+check( 'Market Pulse is translated into a visitor-facing intraday state', false !== strpos( $html, 'MARKET PULSE · INTRADAY' ) && false !== strpos( $html, '>Tinggi<' ) && false !== strpos( $html, 'Aktivitas pasar berada di atas kondisi normal 14 hari.' ) );
+check( 'Market Pulse exposes its independent clock', false !== strpos( $html, 'Evaluasi canonical setiap 15 menit dari candle 5 menit' ) );
 check( 'Opportunity internals are not displayed', false === strpos( $html, 'activity percentile' ) && false === strpos( $html, '60m range' ) && false === strpos( $html, '84.2' ) && false === strpos( $html, '1.17%' ) );
 check( 'Market State taxonomy and classifier certainty stay out of current public presentation', false === strpos( $html, 'Ekspansi' ) && false === strpos( $html, 'Distribusi' ) && false === strpos( $html, '76% certainty' ) && false === strpos( $html, 'MARKET STATE' ) );
 check( 'Raw derivative kitchen metrics stay out of public presentation', false === strpos( $html, 'OI 24H' ) && false === strpos( $html, 'FUNDING' ) && false === strpos( $html, 'BASIS' ) );
@@ -163,14 +165,37 @@ check( 'Delayed Pro proof is explicitly historical and time-delayed', false !== 
 check( 'Internal evaluation diagnostics still do not render', false === strpos( $html, 'Settlement complete' ) && false === strpos( $html, 'Stale rate' ) && false === strpos( $html, 'Confidence vs akurasi' ) );
 check( 'Free page does not leak current-Pro internal field identifiers', false === strpos( $html, 'monitoring_conditions' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'what_to_watch' ) );
 
+$insufficient_metric = array( 'n' => 8, 'conclusive_n' => 6, 'correct' => 5, 'incorrect' => 1, 'inconclusive' => 2, 'accuracy_pct' => 83.3, 'sample_status' => 'INSUFFICIENT SAMPLE' );
+Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
+	'directional_evaluation' => array(
+		'engine-v2 | classifier-v2 | observed-close-24h-v2' => array(
+			'all' => $insufficient_metric,
+			'rolling_30' => $insufficient_metric,
+			'by_direction' => array( 'bullish' => $insufficient_metric, 'bearish' => $insufficient_metric ),
+		),
+	),
+);
+$insufficient_instance = $reflection->newInstanceWithoutConstructor();
+$insufficient_html = $method->invoke( $insufficient_instance, array() );
+check( 'Insufficient sample does not advertise a seductive accuracy percentage', false !== strpos( $insufficient_html, 'Akurasi ditahan sampai sampel minimum terpenuhi.' ) && false === strpos( $insufficient_html, 'Akurasi 83.3%' ) );
+
+Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
+	'directional_evaluation' => array(
+		'engine-v2 | classifier-v2 | observed-close-24h-v2' => array(
+			'outcome_methodology' => 'observed-close-24h-v2', 'all' => $current_metric, 'rolling_30' => $rolling_metric,
+			'by_direction' => array( 'bullish' => $current_metric, 'bearish' => array_merge( $current_metric, array( 'accuracy_pct' => 57.1 ) ), 'neutral' => $current_metric ),
+		),
+	),
+);
 Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['status'] = 'delayed';
 Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['freshness']['state'] = 'delayed';
 $delayed_instance = $reflection->newInstanceWithoutConstructor();
 $delayed_html = $method->invoke( $delayed_instance, array() );
-check( 'Delayed intelligence is explicitly labelled', false !== strpos( $delayed_html, 'DATA TERTUNDA' ) );
-check( 'Delayed intelligence withholds the current directional view', false !== strpos( $delayed_html, 'PEMBACAAN SAAT INI DITAHAN' ) && false !== strpos( $delayed_html, 'Observasi terverifikasi terakhir: 13 Sep 2026 · 03:10 WIB.' ) );
-check( 'Delayed intelligence labels the reference as historical rather than current', false !== strpos( $delayed_html, 'BTC referensi terakhir: $65,000.' ) );
-check( 'Delayed intelligence does not show stale bias confidence or drivers as current', false === strpos( $delayed_html, 'Bullish kuat' ) && false === strpos( $delayed_html, '82/100' ) && false === strpos( $delayed_html, 'Momentum BTC menguat.' ) );
+check( 'Delayed Major Brief is explicitly labelled', false !== strpos( $delayed_html, 'DATA TERTUNDA' ) && false !== strpos( $delayed_html, 'MAJOR BRIEF TERTUNDA' ) );
+check( 'Delayed Major Brief withholds the directional view', false !== strpos( $delayed_html, 'Observasi brief terverifikasi terakhir: 13 Sep 2026 · 03:10 WIB.' ) );
+check( 'Delayed Major Brief labels its reference as historical', false !== strpos( $delayed_html, 'BTC referensi brief terakhir: $65,000.' ) );
+check( 'Delayed Major Brief does not show stale bias confidence or drivers as current', false === strpos( $delayed_html, 'Bullish kuat' ) && false === strpos( $delayed_html, '82/100' ) && false === strpos( $delayed_html, 'Momentum BTC menguat.' ) );
+check( 'Fresh Market Pulse survives a stale Major Brief', false !== strpos( $delayed_html, 'MARKET PULSE · INTRADAY' ) && false !== strpos( $delayed_html, 'Aktivitas pasar berada di atas kondisi normal 14 hari.' ) );
 check( 'Delayed intelligence still preserves public provenance', false !== strpos( $delayed_html, 'Sumber data: Binance + Bybit' ) );
 
 $setup = Bitmomo_Btc_Intelligence_Setup::instance();

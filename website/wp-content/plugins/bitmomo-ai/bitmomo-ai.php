@@ -35,8 +35,8 @@ final class Bitmomo_AI_Intelligence {
 
         $data = $source['data'];
         $evaluation = $source['evaluation'];
-        $bias = sanitize_key((string) ($evaluation['bias'] ?? 'neutral'));
-        if (!in_array($bias, ['bullish', 'neutral', 'bearish'], true)) $bias = 'neutral';
+        $bias = sanitize_key((string) ($evaluation['bias'] ?? ''));
+        if (!in_array($bias, ['bullish', 'neutral', 'bearish'], true)) return self::unavailable_projection();
 
         $state = $age <= self::FRESH_AGE_SECONDS ? 'fresh' : 'delayed';
         $direction_strength = sanitize_key((string) ($evaluation['direction_strength'] ?? ''));
@@ -51,7 +51,7 @@ final class Bitmomo_AI_Intelligence {
             'bias' => $bias,
             'direction_strength' => $direction_strength,
             'market_state' => self::market_state_label($bias),
-            'confidence' => min(100, max(0, (int) ($evaluation['confidence'] ?? 0))),
+            'confidence' => min(100, max(0, (int) $evaluation['confidence'])),
             'primary_driver' => self::primary_driver($evaluation),
             'key_drivers' => self::key_drivers($evaluation),
             'timestamp' => $timestamp,
@@ -123,8 +123,8 @@ final class Bitmomo_AI_Intelligence {
             'session_type' => $source['session_type'],
             'provenance' => 'recorded_live',
             'metrics' => $source['data']['regime_metrics'],
-            'directional_bias' => (string) ($evaluation['bias'] ?? 'neutral'),
-            'directional_confidence' => (float) ($evaluation['confidence'] ?? 0),
+            'directional_bias' => (string) $evaluation['bias'],
+            'directional_confidence' => (float) $evaluation['confidence'],
             'direction_score' => (float) ($axes['direction']['score'] ?? 0),
             'open_interest_change_pct' => $axes['crowding']['oi_change_24h_pct'] ?? null,
             'funding_rate' => $axes['carry']['funding_rate'] ?? null,
@@ -148,9 +148,17 @@ final class Bitmomo_AI_Intelligence {
 
         $timestamp = strtotime((string) ($preview['generated_at'] ?? ($preview['time'] ?? ($data['timestamp'] ?? ''))));
         if (!$timestamp || $timestamp > time() + (5 * MINUTE_IN_SECONDS)) return null;
-        if ((float) ($data['close'] ?? 0) <= 0) return null;
+        if (!isset($data['close']) || !is_numeric($data['close']) || (float) $data['close'] <= 0) return null;
 
-        $session_type = Bitmomo_AI_Session_Intelligence::normalize_session_type($preview['session_type'] ?? ($preview['edition'] ?? ''));
+        $bias = sanitize_key((string) ($evaluation['bias'] ?? ''));
+        if (!in_array($bias, ['bullish', 'neutral', 'bearish'], true)) return null;
+        if (!isset($evaluation['confidence']) || !is_numeric($evaluation['confidence'])) return null;
+        if (!isset($evaluation['score']) || !is_numeric($evaluation['score'])) return null;
+
+        $raw_session_type = $preview['session_type'] ?? ($preview['edition'] ?? '');
+        if (!Bitmomo_AI_Session_Intelligence::is_supported_session_type($raw_session_type)) return null;
+        $session_type = Bitmomo_AI_Session_Intelligence::normalize_session_type($raw_session_type);
+
         return [
             'data' => $data,
             'evaluation' => $evaluation,
@@ -172,10 +180,14 @@ final class Bitmomo_AI_Intelligence {
         if (!class_exists('Bitmomo_AI_Runtime_State')) return [];
         $attempt = Bitmomo_AI_Runtime_State::latest_attempt();
         if (!$attempt) return [];
+        $raw_session_type = $attempt['session_type'] ?? ($attempt['edition'] ?? '');
+        $session_type = Bitmomo_AI_Session_Intelligence::is_supported_session_type($raw_session_type)
+            ? Bitmomo_AI_Session_Intelligence::normalize_session_type($raw_session_type)
+            : '';
         return [
             'attempted_at' => sanitize_text_field((string) ($attempt['attempted_at'] ?? '')),
             'edition' => sanitize_key((string) ($attempt['edition'] ?? '')),
-            'session_type' => Bitmomo_AI_Session_Intelligence::normalize_session_type($attempt['session_type'] ?? ($attempt['edition'] ?? '')),
+            'session_type' => $session_type,
             'session_anchor' => sanitize_text_field((string) ($attempt['session_anchor'] ?? '')),
             'status' => sanitize_key((string) ($attempt['status'] ?? 'unknown')),
             'quality_status' => sanitize_key((string) ($attempt['quality_gate']['status'] ?? 'unknown')),
@@ -220,7 +232,7 @@ final class Bitmomo_AI_Intelligence {
             'bearish' => __('Bearish', 'bitmomo-ai'),
             'neutral' => __('Netral', 'bitmomo-ai'),
         ];
-        return $labels[$bias] ?? $labels['neutral'];
+        return $labels[$bias] ?? __('Belum tersedia', 'bitmomo-ai');
     }
 
     private static function primary_driver(array $evaluation) {

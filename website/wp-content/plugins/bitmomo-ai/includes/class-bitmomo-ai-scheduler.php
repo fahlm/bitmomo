@@ -125,6 +125,14 @@ final class Bitmomo_AI_Scheduler {
     }
 
     public static function run($edition = 'us_post_close') {
+        if (!Bitmomo_AI_Session_Intelligence::is_supported_session_type($edition)) {
+            $error = new WP_Error(
+                'bitmomo_invalid_session_type',
+                __('Intelligence session type is unsupported; generation was blocked.', 'bitmomo-ai')
+            );
+            self::record('blocked', $error->get_error_message());
+            return $error;
+        }
         $edition = Bitmomo_AI_Session_Intelligence::normalize_session_type($edition);
         $data = Bitmomo_AI_Binance::snapshot();
         if (is_wp_error($data)) {
