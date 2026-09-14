@@ -118,9 +118,9 @@
     overlays.innerHTML = [
       '<div class="bm-mc__pro-copy"><span>KONTEKS PRO</span><p>Pro menambahkan Expected Range, Scenario Map, dan Invalidation pada grafik yang sama.</p></div>',
       '<div class="bm-mc__pro-items" aria-label="Overlay Bitmomo Pro">',
-      '<span>Expected Range <b aria-hidden="true">↗</b></span>',
-      '<span>Scenario Map <b aria-hidden="true">↗</b></span>',
-      '<span>Invalidation <b aria-hidden="true">↗</b></span>',
+      '<span>Expected Range</span>',
+      '<span>Scenario Map</span>',
+      '<span>Invalidation</span>',
       '</div>'
     ].join('');
 
