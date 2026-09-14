@@ -319,9 +319,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		if ( ! is_array( $opportunity ) || 'available' !== sanitize_key( (string) ( $opportunity['status'] ?? '' ) ) ) {
 			return '';
 		}
-		$observed = $this->format_wib( $opportunity['knowledge_time'] ?? '', 'd M · H:i' );
-		$line = __( 'Market Pulse · evaluasi 15 menit dari candle 5 menit', 'bitmomo-btc-intelligence' );
-		return $observed ? $line . ' · ' . $observed : $line;
+		return __( 'Market Pulse · evaluasi 15 menit dari candle 5 menit', 'bitmomo-btc-intelligence' );
 	}
 
 	private function what_happened_summary( $snapshot, $session_intelligence ) {
