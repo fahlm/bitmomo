@@ -207,7 +207,7 @@ if ( class_exists( "Bitmomo_Pro_Email_Service" ) && class_exists( "Bitmomo_Pro_W
         && false !== strpos( $subject, "whitelist Bitmomo Pro" )
         && false !== strpos( $message, "Whitelist berhasil" )
         && false !== strpos( $message, "bitmomo.id" )
-        && false !== strpos( $message, "tidak menjamin tempat" )
+        && false !== strpos( $message, "belum menjamin tempat" )
         && false === strpos( $message, "Tambahkan nomor WhatsApp" );
 
     if ( $probe_post_id > 0 ) {
