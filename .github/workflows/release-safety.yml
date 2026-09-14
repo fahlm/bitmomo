@@ -1,37 +1,12 @@
 name: Full release safety
 
 on:
-  pull_request:
-    # Expensive convergence gate: feature/remediation PRs use scoped source workflows.
-    # Run this full suite only when a candidate is converging into main.
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "website/wp-content/themes/bitmomo-child-v3/**"
-      - "website/wp-content/plugins/bitmomo-ai/**"
-      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
-      - "website/wp-content/plugins/bitmomo-pro/**"
-      - "website/wp-content/plugins/bitmomo-regime/**"
-      - "config/production-runtime.json"
-      - "scripts/build-production-artifact.py"
-      - "scripts/check-m2-launch-surfaces.mjs"
-      - "scripts/check-navigation-footer.mjs"
-      - "scripts/check-ui-architecture.mjs"
-      - "scripts/check-terminal-grade-contract.mjs"
-      - "scripts/check-institutional-copy.mjs"
-      - "scripts/check-home-research-boundary.mjs"
-      - "scripts/audit-css-debt.mjs"
-      - "scripts/check-staging-artifact.py"
-      - "scripts/check-staging-asset-coherence.py"
-      - "scripts/check-staging-safety.sh"
-      - "scripts/check-staging-readiness.sh"
-      - "docs/PUBLIC_SURFACE_CONTRACT.md"
-      - "docs/RELEASE_GOVERNANCE.md"
-      - "docs/editorial/**"
-      - ".github/workflows/release-safety.yml"
+  # Full convergence is intentionally explicit. Scoped PR workflows provide
+  # iterative feedback; run this artifact/provenance gate only after the
+  # release candidate is frozen, then again automatically after main changes.
+  workflow_dispatch:
   push:
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -42,7 +17,6 @@ concurrency:
 
 jobs:
   release:
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: Runtime, authoritative contracts, and artifact
     runs-on: ubuntu-latest
     timeout-minutes: 12
