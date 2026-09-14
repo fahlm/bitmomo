@@ -25,11 +25,18 @@ const functions = read('website/wp-content/themes/bitmomo-child-v3/functions.php
 const helpers = read('website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php');
 const assets = read('website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php');
 const hero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
+const howItWorks = read('website/wp-content/themes/bitmomo-child-v3/template-parts/how-it-works.php');
+const whitelistHome = read('website/wp-content/themes/bitmomo-child-v3/template-parts/whitelist.php');
+const researchHub = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php');
+const aboutAuthority = read('website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php');
+const single = read('website/wp-content/themes/bitmomo-child-v3/single.php');
 const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/design-system.css');
 const navCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/navigation-footer.css');
 const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
+const keyDrivers = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-key-drivers.php');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
+const proCopy = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php');
 const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
 const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
 const whitelistPhp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php');
@@ -75,10 +82,42 @@ check('Homepage is product-first and exposes accountability proof before commitm
   hero.includes('href="#founding-whitelist"') &&
   hero.indexOf('/btc-intelligence/#decision-ledger') < hero.indexOf('href="#founding-whitelist"')
 );
-check('Homepage current reading exposes finance-grade context without engine internals',
-  hero.includes('>ARAH<') && hero.includes('>KEYAKINAN<') && hero.includes('>REFERENSI BTC<') &&
-  hero.includes('>DIPERBARUI<') && hero.includes('>ALASAN UTAMA<') && hero.includes('<strong>SUMBER</strong>') &&
+check('Homepage market view exposes finance-grade context without engine internals',
+  hero.includes('>BTC MARKET VIEW<') && hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') &&
+  hero.includes('>REFERENSI BTC<') && hero.includes('>DIPERBARUI<') && hero.includes('>FAKTOR UTAMA<') &&
+  hero.includes('<strong>SUMBER DATA</strong>') &&
   !/market_state|market_state_certainty|direction_strength|Bitmomo_Public_Intelligence_Adapter::history/.test(hero)
+);
+check('Homepage public copy avoids non-institutional legacy language',
+  !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b/i.test(hero) &&
+  hero.includes('Konsistensi bukti pendukung; bukan probabilitas pergerakan harga.')
+);
+check('Dynamic market factors use concise professional market language',
+  keyDrivers.includes('Momentum harga menunjukkan tekanan bearish yang kuat.') &&
+  keyDrivers.includes('Momentum dan struktur harga sama-sama mengonfirmasi bias bullish.') &&
+  keyDrivers.includes('Struktur harga mencatat breakdown di bawah level teknikal utama.') &&
+  !/cukup kuat ke arah|mendukung arah naik|tekanan ke arah turun|menembus level penting/i.test(keyDrivers)
+);
+check('Homepage product model uses validated-analysis language rather than casual copy',
+  howItWorks.includes('intelligence yang dapat divalidasi') &&
+  howItWorks.includes('Analisis tidak diterbitkan ketika data tidak memenuhi standar kualitas') &&
+  !/bisa diuji|Data bermasalah ditahan/i.test(howItWorks)
+);
+check('Homepage founding surface uses restrained commercial language',
+  whitelistHome.includes('Founding Price') &&
+  whitelistHome.includes('AKTIFKAN FOUNDING MEMBERSHIP') &&
+  !/Harga Founding|KUNCI HARGA FOUNDING|\binvalidation\b/i.test(whitelistHome)
+);
+check('Research and article surfaces use natural Indonesian explanatory copy',
+  researchHub.includes('Judul, tesis, topik…') &&
+  researchHub.includes('bukti, konteks, batas tesis') &&
+  single.includes('Bukti, konteks, batas tesis') &&
+  !/institutional research|batas thesis|Research Bitmomo harus menjelaskan evidence/i.test(researchHub + single)
+);
+check('About page removes internal engineering and mixed-language filler',
+  aboutAuthority.includes('platform market intelligence dan riset Bitcoin') &&
+  aboutAuthority.includes('masukan, koreksi riset, atau bantuan') &&
+  !/feedback|support,|outcome|uncertainty|black box|\bClaim\b/i.test(aboutAuthority)
 );
 
 check('Every route has one keyboard skip target contract',
@@ -115,10 +154,20 @@ check('One public noindex predicate owns all utility/archive side doors',
   functions.includes('rank_math/frontend/robots')
 );
 
-check('Pro runtime detaches its legacy duplicate SEO owner and bumps public asset cache',
+check('Pro runtime detaches its legacy duplicate SEO owner and loads canonical public copy',
   proMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   proMain.includes("remove_action( 'wp_head'") &&
-  proMain.includes("BITMOMO_PRO_VERSION', '0.12.8'")
+  proMain.includes("BITMOMO_PRO_VERSION', '0.12.8'") &&
+  proMain.includes('class-bitmomo-pro-public-copy.php') &&
+  proMain.includes('Bitmomo_Pro_Public_Copy::init()')
+);
+check('Pro and Help public copy layer is tightly scoped and institutionalized',
+  proCopy.includes("'bitmomo-pro' !== $domain") &&
+  proCopy.includes("array( 'bitmomo_help_center', 'bitmomo_pro_sales' )") &&
+  proCopy.includes('Founding Price berlaku selama membership tetap aktif.') &&
+  proCopy.includes('Analisis Pro aktif tidak ditampilkan pada halaman publik.') &&
+  proCopy.includes('Bitmomo tidak melakukan backfill retrospektif hanya untuk melengkapi visualisasi.') &&
+  proCopy.includes('Mengapa riwayat Market State belum selalu berisi 30 hari?')
 );
 check('BTC Intelligence runtime owns accountability and market context but not a second SEO layer',
   btcMain.includes('class-bitmomo-btc-intelligence-accountability.php') &&
@@ -145,13 +194,15 @@ check('BTC market-context shell is server-stable and series are not color-only',
   btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
 );
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes integrated homepage/accountability/market-context runtime and 117 managed files',
-  runtime.includes('"expected_file_count": 117') &&
+check('Runtime manifest includes integrated public runtime and 118 managed files',
+  runtime.includes('"expected_file_count": 118') &&
   runtime.includes('"expected_file_count": 46') &&
   runtime.includes('"expected_file_count": 8') &&
+  runtime.includes('"expected_file_count": 28') &&
   runtime.includes('"assets/css/home.css"') &&
   runtime.includes('class-bitmomo-btc-intelligence-accountability.php') &&
   runtime.includes('class-bitmomo-btc-intelligence-market-context.php') &&
+  runtime.includes('class-bitmomo-pro-public-copy.php') &&
   runtime.includes('assets/js/market-context-explorer.js') &&
   runtime.includes('assets/css/market-context-explorer.css')
 );
@@ -195,7 +246,7 @@ check('Canonical Privacy copy matches Whitelist V1 channel behavior',
 );
 check('Pro public claims cannot contradict a fail-closed current intelligence state',
   proSales.includes('Decision View · produk inti Pro') &&
-  proSales.includes('Intelligence hanya ditampilkan ketika data memenuhi quality gate yang berlaku.') &&
+  proCopy.includes('Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.') &&
   !proSales.includes('Decision View aktif hari ini') &&
   !proSales.includes('Decision View BTC, aktif setiap hari.')
 );
