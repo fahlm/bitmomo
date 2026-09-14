@@ -282,13 +282,13 @@ final class Bitmomo_Content_Compiler_V1 {
         return [
             'findings' => self::normalize_findings($research['findings']),
             'metrics' => self::scalar_map($research['metrics'] ?? []),
-            'limitations' => self::string_list($research['limitations']),
+            'limitations' => self::ordered_string_list($research['limitations']),
             'provenance' => [
                 'source_record_id' => self::text($research['provenance']['source_record_id'] ?? ''),
                 'as_of' => self::text($research['provenance']['as_of'] ?? ''),
                 'producer' => self::text($research['provenance']['producer'] ?? ''),
                 'methodology_version' => self::text($research['provenance']['methodology_version'] ?? ''),
-                'source_refs' => self::string_list($research['provenance']['source_refs'] ?? []),
+                'source_refs' => self::ordered_string_list($research['provenance']['source_refs'] ?? []),
             ],
         ];
     }
@@ -430,6 +430,21 @@ final class Bitmomo_Content_Compiler_V1 {
         }
         $out = array_values(array_unique($out));
         sort($out, SORT_STRING);
+        return $out;
+    }
+
+    /** Evidence lists retain upstream order while removing exact duplicates. */
+    private static function ordered_string_list($values) {
+        if (!is_array($values)) $values = [$values];
+        $out = [];
+        $seen = [];
+        foreach ($values as $value) {
+            if (!is_scalar($value)) continue;
+            $value = self::text($value);
+            if ($value === '' || isset($seen[$value])) continue;
+            $seen[$value] = true;
+            $out[] = $value;
+        }
         return $out;
     }
 
