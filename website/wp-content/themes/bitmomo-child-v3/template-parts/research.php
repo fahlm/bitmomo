@@ -91,7 +91,7 @@ if ( ! $bm_research_items ) {
         <div class="bm-home-research__meta">
           <strong><?php echo esc_html( $bm_item['label'] ); ?></strong>
           <time datetime="<?php echo esc_attr( $bm_item['date_iso'] ); ?>"><?php echo esc_html( $bm_item['date_label'] ); ?></time>
-          <span><?php echo esc_html( sprintf( __( '%d min read', 'bitmomo' ), $bm_item['reading_time'] ) ); ?></span>
+          <span><?php echo esc_html( sprintf( __( '%d menit baca', 'bitmomo' ), $bm_item['reading_time'] ) ); ?></span>
         </div>
         <div class="bm-home-research__body">
           <h3><a href="<?php echo esc_url( $bm_item['link'] ); ?>"><?php echo esc_html( $bm_item['title'] ); ?></a></h3>
