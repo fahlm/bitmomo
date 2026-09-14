@@ -123,7 +123,7 @@ $alert = $result['alerts'][0] ?? [];
 oa_check('operator alert carries exact tweet URL', ($alert['source_url'] ?? '') === 'https://x.com/i/web/status/2000000000000000003');
 oa_check('operator alert carries source text', strpos((string) ($alert['source_text'] ?? ''), 'Butuh sinyal BTC') !== false);
 oa_check('operator alert reports age in minutes', abs(((float) ($alert['age_minutes'] ?? 0)) - 5.0) < 0.1);
-oa_check('operator alert has Indonesia targeting confidence rather than percentage', ($alert['indonesia_target']['confidence_band'] ?? '') === 'high' && ($alert['indonesia_target']['audience_percentage'] ?? 'not-null') === null);
+oa_check('operator alert has Indonesia targeting confidence rather than percentage', ($alert['indonesia_target']['confidence_band'] ?? '') === 'high' && array_key_exists('audience_percentage', (array) ($alert['indonesia_target'] ?? [])) && $alert['indonesia_target']['audience_percentage'] === null);
 oa_check('operator alert contains ready-to-post reply', trim((string) ($alert['ready_to_post'] ?? '')) !== '');
 oa_check('operator alert contains research evidence lineage', ($alert['research_evidence']['research_id'] ?? '') === 'bmr-btc-live-id-001');
 oa_check('operator alert contains material caveat', trim((string) ($alert['research_evidence']['limitation'] ?? '')) !== '');
@@ -138,9 +138,11 @@ oa_check('dispatcher sends operator notification via injected notifier', count($
 oa_check('notification contains no discovery credentials', strpos($sent_messages[0][0] ?? '', 'SECRET_X_TOKEN') === false && strpos($sent_messages[0][0] ?? '', 'SECRET_YT_KEY') === false);
 oa_check('notification contains no raw X author id', strpos($sent_messages[0][0] ?? '', 'raw-author-fresh') === false);
 
+$requests2 = [];
+$http2 = oa_fake_http_factory($now, $requests2);
 $repeat = Bitmomo_Operator_Alert_Engine_V1::run(
     ['x_bearer_token' => 'SECRET_X_TOKEN', 'youtube_api_key' => 'SECRET_YT_KEY'],
-    oa_fake_http_factory($now, $requests2 = []),
+    $http2,
     oa_research(),
     ['alerted_ids' => [$alert['alert_id'] ?? '']], [], [], $now
 );
