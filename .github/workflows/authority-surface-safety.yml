@@ -75,6 +75,10 @@ jobs:
       - name: Enforce canonical authority source contract
         run: bash scripts/check-authority-source-contract.sh
 
+      - name: Verify BTC public provenance contract
+        working-directory: website/wp-content/plugins/bitmomo-btc-intelligence
+        run: php tests/test-bitmomo-btc-intelligence-provenance.php
+
       - name: Enforce terminal-grade public invariants
         run: node scripts/check-terminal-grade-contract.mjs
 
