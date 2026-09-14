@@ -126,6 +126,29 @@ $GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['data']['quality']['sou
 adapter_check('unrecognized provider fails closed', Bitmomo_Public_Intelligence_Adapter::snapshot() === null);
 $GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['data']['quality']['source'] = 'Binance public market data + Binance USD-M';
 
+$original_time = $GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['time'];
+$GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['time'] = gmdate('c', time() - (7 * HOUR_IN_SECONDS));
+$delayed = Bitmomo_Public_Intelligence_Adapter::snapshot();
+adapter_check('delayed snapshot remains visible as provenance, not current intelligence',
+    is_array($delayed) &&
+    ($delayed['status'] ?? '') === 'delayed' &&
+    ($delayed['btc_reference_price'] ?? 0) > 0 &&
+    ($delayed['provenance']['as_of'] ?? '') !== '' &&
+    ($delayed['freshness']['state'] ?? '') === 'delayed'
+);
+adapter_check('delayed snapshot withholds every current assessment field',
+    ($delayed['market_state'] ?? null) === null &&
+    ($delayed['market_state_certainty'] ?? null) === null &&
+    ($delayed['directional_bias'] ?? null) === null &&
+    ($delayed['direction_strength'] ?? null) === null &&
+    ($delayed['confidence']['value'] ?? null) === null &&
+    ($delayed['confidence']['label'] ?? '') === '' &&
+    ($delayed['key_drivers'] ?? []) === [] &&
+    ($delayed['session_intelligence'] ?? []) === [] &&
+    ($delayed['opportunity']['status'] ?? '') === 'unavailable'
+);
+$GLOBALS['adapter_options']['bitmomo_ai_latest_preview']['time'] = $original_time;
+
 $GLOBALS['adapter_options']['bitmomo_ai_latest_quality_gate'] = ['status' => 'blocked'];
 adapter_check('new blocked attempt does not hide previous valid snapshot', Bitmomo_Public_Intelligence_Adapter::snapshot() !== null);
 
