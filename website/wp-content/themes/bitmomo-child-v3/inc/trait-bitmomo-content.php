@@ -20,17 +20,28 @@ trait Bitmomo_Content_Trait {
         if ($q->is_category() || $q->is_tag()) $q->set('posts_per_page', BM_ARCHIVE_POSTS_PER_PAGE);
     }
 
+    /** Resolve newsletter capability from environment-owned configuration. */
+    private function newsletter_surface_available() {
+        $default_id = defined('BITMOMO_NEWSLETTER_FORM_ID')
+            ? (int) BITMOMO_NEWSLETTER_FORM_ID
+            : (int) get_option('bitmomo_newsletter_form_id', 0);
+        $form_id = max(0, (int) apply_filters('bitmomo_newsletter_form_id', $default_id));
+        return $form_id > 0 && shortcode_exists('mailpoet_form');
+    }
+
     /**
      * Newsletter and Founding Whitelist serve different product jobs:
      * newsletter = free retention/distribution, whitelist = Pro acquisition.
-     * Preserve legacy /subscribe links by resolving them to the one compact
-     * global-footer newsletter surface.
+     * Preserve legacy /subscribe links only when the configured newsletter
+     * backend is actually available. Otherwise fail closed to the homepage
+     * rather than pointing at a nonexistent subscription capability.
      */
     public function handle_subscribe_redirect() {
         $req  = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '');
         $path = trim(parse_url($req, PHP_URL_PATH) ?? '/', '/');
         if (strcasecmp($path, 'subscribe') === 0) {
-            wp_safe_redirect(home_url('/#newsletter'), 302);
+            $target = $this->newsletter_surface_available() ? home_url('/#newsletter') : home_url('/');
+            wp_safe_redirect($target, 302);
             exit;
         }
     }
@@ -40,7 +51,7 @@ trait Bitmomo_Content_Trait {
         if (empty($atts['href'])) return $atts;
         $href = strtolower($atts['href']);
         if (strpos($href, '#subscribe') !== false || strpos($href, '#newsletter') !== false || preg_match('~(^|/)subscribe/?$~', $href)) {
-            $atts['href'] = home_url('/#newsletter');
+            $atts['href'] = $this->newsletter_surface_available() ? home_url('/#newsletter') : home_url('/');
             if (isset($atts['class'])) {
                 $atts['class'] = trim(str_replace('js-open-subscribe', '', $atts['class']));
             }
