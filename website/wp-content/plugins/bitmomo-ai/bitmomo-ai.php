@@ -283,6 +283,7 @@ require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-session-intelligence.ph
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-runtime-state.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-performance.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-scorecard.php';
+require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-opportunity.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-public-intelligence-adapter.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-editorial-gate.php';
 require_once BITMOMO_AI_DIR . 'includes/class-bitmomo-ai-admin-notices.php';
@@ -300,6 +301,7 @@ final class Bitmomo_AI_Plugin {
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_assets']);
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_assets']);
         Bitmomo_AI_Webhook::register();
+        Bitmomo_AI_Opportunity::register();
         Bitmomo_AI_Scheduler::register();
         Bitmomo_AI_Shortcodes::register();
         Bitmomo_AI_Editorial_Gate::register();
