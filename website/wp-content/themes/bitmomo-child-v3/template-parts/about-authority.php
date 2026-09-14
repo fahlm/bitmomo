@@ -17,21 +17,21 @@ if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
   <h2 id="bm-about-authority-title">Dari data pasar menjadi tesis yang dapat diuji.</h2>
   <p class="bm-about-authority__lead">Bitmomo adalah <strong>platform market intelligence dan riset Bitcoin</strong>. Kami menghubungkan data pasar, konteks, tesis, kondisi invalidasi, dan evaluasi hasil agar perubahan BTC dapat dipahami tanpa harus merangkai puluhan sumber secara manual.</p>
 
-  <div class="bm-about-authority__grid" aria-label="Fokus Bitmomo">
+  <div class="bm-about-authority__grid" aria-label="Output Bitmomo">
     <article>
-      <span>01 · MARKETS</span>
-      <h3>Market Research</h3>
-      <p>Menguji perubahan struktur pasar, derivatives, likuiditas, volatilitas, makro, capital flows, dan faktor fundamental yang relevan bagi BTC.</p>
+      <span>01 · CURRENT VIEW</span>
+      <h3>BTC Intelligence</h3>
+      <p>Ringkasan kondisi BTC saat ini: bias, confidence, faktor utama, sumber data, dan waktu analisis dalam satu tampilan yang dapat diperiksa.</p>
     </article>
     <article>
-      <span>02 · SYSTEMS</span>
-      <h3>Intelligence Systems</h3>
-      <p>Menguji sumber data, metode evaluasi, keandalan model, dan kontrol kualitas agar intelligence tidak bergantung pada satu black box.</p>
+      <span>02 · RESEARCH</span>
+      <h3>Bitmomo Research</h3>
+      <p>Publikasi yang menguji struktur pasar, derivatives, likuiditas, volatilitas, makro, capital flows, serta sistem intelligence yang digunakan untuk membaca BTC.</p>
     </article>
     <article>
-      <span>03 · PRODUCT</span>
-      <h3>Decision Intelligence</h3>
-      <p>Menerjemahkan riset menjadi kondisi pasar, skenario, invalidasi tesis, perubahan penting, dan rekam evaluasi yang dapat digunakan untuk decision support.</p>
+      <span>03 · DECISION SUPPORT</span>
+      <h3>Bitmomo Pro</h3>
+      <p>Expected Range, Scenario Map, invalidasi tesis, What Changed, dan rekam evaluasi untuk membantu memantau kapan pembacaan pasar perlu diperbarui.</p>
     </article>
   </div>
 </section>
