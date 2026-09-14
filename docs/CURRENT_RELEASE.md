@@ -59,6 +59,8 @@ GitHub-hosted CI is an authoritative confirmation layer, not the engineering fee
 - `bash scripts/preflight-source.sh fast` is the normal iteration loop.
 - `bash scripts/preflight-source.sh full` is required before a focused PR is marked Ready.
 - Draft PRs must perform **zero intentional hosted-runner validation work**; scoped workflows remain present but their jobs are draft-guarded/skipped.
+- A focused PR is marked Ready once after local `full`, so only the path-scoped authoritative jobs relevant to that diff run.
+- The long-lived canonical release PR stays Draft during candidate validation; do not pay for cumulative Theme/Authority/Regime checks immediately before a Full Release that already supersets them.
 - Full Release is manual-only and requires an explicit exact `candidate_sha`.
 - Full Release rejects a selected ref whose resolved SHA differs from `candidate_sha`.
 - Full Release is restricted to `main` or `release/*` and self-audits CI governance before expensive work.
@@ -109,19 +111,19 @@ PR #169 remains Draft during source review. Its hosted workflow jobs are expecte
 
 1. Finish source review on PR #169 while it remains Draft; do not use GitHub-hosted CI as the iteration loop.
 2. Run local `bash scripts/preflight-source.sh full` from a real checkout and attach the result to PR #169.
-3. Freeze #169 head and mark #169 Ready **once** so only its scoped Authority / CI Governance confirmation runs.
+3. Freeze #169 head and mark #169 Ready **once** so only its path-scoped Authority / Regime / CI Governance confirmation runs.
 4. If #169 scoped CI fails, convert it back to Draft before any mutation, fix the cause locally, then perform one new Ready-time confirmation after a new head is frozen.
 5. When #169 is accepted, merge it into `release/whitelist-v1`. Keep PR #135 Draft during that mutation.
-6. Record the new immutable `release/whitelist-v1` head SHA in PR #135 and mark #135 Ready **once** for cumulative release-candidate scoped checks.
-7. If any #135 candidate check fails, immediately return #135 to Draft, revoke that SHA, fix through one focused PR, and freeze a new SHA. Do not rerun blindly.
-8. When candidate checks are green, run Full Release **once** from `release/whitelist-v1` with `candidate_sha` equal to the recorded frozen SHA.
+6. Record the new immutable `release/whitelist-v1` head SHA in PR #135. **Do not mark #135 Ready merely to trigger cumulative scoped CI.**
+7. Run Full Release **once** from `release/whitelist-v1` with `candidate_sha` equal to that recorded frozen SHA. Full Release is the release-wide deterministic/source/artifact gate and supersets the scoped candidate checks.
+8. If Full Release fails, revoke that candidate SHA, keep #135 Draft, fix the actual cause through one focused PR, and freeze a new SHA. Do not rerun blindly.
 9. Accept only an artifact whose manifest proves that exact source commit/tree and deterministic artifact hash.
 10. Take/verify the staging rollback point, then deploy only that exact artifact to canonical staging.
 11. Verify runtime parity, asset coherence, BTC/data readiness, Research qualification, whitelist, newsletter lifecycle, real mail, checkout OFF and WhatsApp OFF.
 12. Run manual browser QA at 360x800, 390x568, 390x844, 768x1024, 1024x900 and 1440x1000 plus 200% text zoom.
 13. Require Axe serious/critical = 0, keyboard/focus/reduced-motion acceptance, no clipping, no first-party console errors, correct SEO/OG/X metadata, analytics receipt at the configured sink, and screenshot evidence.
 14. Only after all staging gates pass may production authorization be considered.
-15. After the exact production artifact is verified, converge the accepted source tree back to `main` and retire PR #135 / `release/whitelist-v1`.
+15. After the exact production artifact is verified, mark PR #135 Ready only for its genuine final review/merge to `main`, then converge/retire the release line without mutating the already accepted source tree.
 
 ## Known governance constraint
 
