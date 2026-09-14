@@ -93,7 +93,6 @@ function boa_manual_research($path) {
     $path = boa_text($path);
     if ($path === '') return [];
     $doc = boa_load_json($path, []);
-    if (is_array($doc['items'] ?? null)) return $doc['items'];
     return array_values(array_filter($doc, 'is_array'));
 }
 
@@ -112,8 +111,9 @@ function boa_budget_for_today(array $state, $now) {
 
 $home = boa_text(getenv('HOME'));
 $config_path = boa_text(getenv('BITMOMO_ALERT_CONFIG'));
+if ($config_path === '' && isset($argv[1])) $config_path = boa_text($argv[1]);
 if ($config_path === '') {
-    if ($home === '') boa_fail('HOME is unavailable and BITMOMO_ALERT_CONFIG was not set.');
+    if ($home === '') boa_fail('HOME is unavailable; pass the private config path as argv[1].');
     $config_path = rtrim($home, '/') . '/.bitmomo/opportunity-radar.php';
 }
 if (!is_file($config_path)) boa_fail('Private config not found: ' . $config_path);
@@ -130,6 +130,15 @@ if ($repo_root === '' || !is_dir($repo_root)) boa_fail('repo_root is invalid.');
 if ($wp_root === '' || !is_file($wp_root . '/wp-load.php')) boa_fail('wordpress_root is invalid.');
 if ($state_path === '') boa_fail('state_path is required.');
 if (strpos(str_replace('\\', '/', $state_path), '/public_html/') !== false) boa_fail('Refusing state_path inside public_html.');
+
+$state_dir = dirname($state_path);
+if (!is_dir($state_dir) && !mkdir($state_dir, 0700, true) && !is_dir($state_dir)) boa_fail('Unable to create private state directory.');
+$lock_handle = fopen($state_path . '.lock', 'c');
+if ($lock_handle === false) boa_fail('Unable to open runtime lock.');
+if (!flock($lock_handle, LOCK_EX | LOCK_NB)) {
+    fwrite(STDOUT, json_encode(['ok' => true, 'skipped' => 'previous_run_still_active']) . "\n");
+    exit(0);
+}
 
 // Load WordPress first so canonical Bitmomo AI runtime classes are available.
 ob_start();
@@ -156,7 +165,8 @@ $now = time();
 $state = boa_load_json($state_path, []);
 $budget = boa_budget_for_today($state, $now);
 $daily_limit = max(0.0, (float) ($config['daily_x_read_budget_usd'] ?? 1.0));
-$budget_exhausted = $daily_limit > 0 && $budget['x_estimated_read_cost_usd'] >= $daily_limit;
+$max_next_poll_cost = 0.05;
+$budget_exhausted = $daily_limit > 0 && ($budget['x_estimated_read_cost_usd'] + $max_next_poll_cost) > $daily_limit;
 
 $feed = Bitmomo_Research_Feed_Provider_V1::build(
     boa_manual_research($config['manual_research_path'] ?? ''),
@@ -236,6 +246,8 @@ if ($dry_run) {
 }
 
 boa_write_json_atomic($state_path, $next_state);
+flock($lock_handle, LOCK_UN);
+fclose($lock_handle);
 
 fwrite(STDOUT, json_encode([
     'ok' => true,
