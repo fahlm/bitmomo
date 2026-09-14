@@ -81,11 +81,11 @@ add_filter('pre_get_document_title', 'bitmomo_public_seo_title', 20);
 add_filter('rank_math/frontend/title', 'bitmomo_public_seo_title', 20);
 
 function bitmomo_public_seo_description($description) {
-    if (is_front_page()) return 'Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan riwayat evaluasi dalam satu sistem market intelligence berbasis evidence.';
-    if (is_page('pro')) return 'Bitmomo Pro membantu Anda memahami kondisi BTC, skenario paling relevan, apa yang perlu dipantau, dan kapan pandangan pasar perlu berubah.';
+    if (is_front_page()) return 'Bitmomo merangkum kondisi BTC, faktor pasar utama, perubahan penting, dan riwayat evaluasi dalam satu sistem market intelligence.';
+    if (is_page('pro')) return 'Bitmomo Pro membantu memahami kondisi BTC, skenario yang relevan, apa yang perlu dipantau, dan kondisi yang dapat mengubah tesis pasar.';
     if (is_page('btc-intelligence')) return 'Lihat kondisi BTC saat ini, perubahan penting, konteks 30 hari, riwayat evaluasi, dan bukti historis Bitmomo Pro.';
-    if (is_page('tentang-kami')) return 'Bitmomo adalah research & intelligence platform untuk digital-asset markets dan intelligence systems, dengan evidence, provenance, invalidation, dan accountability sebagai standar.';
-    if (is_category('riset')) return 'Bitmomo Research menyajikan market research Bitcoin dan intelligence systems research dengan evidence, thesis, provenance, dan evaluation yang eksplisit.';
+    if (is_page('tentang-kami')) return 'Bitmomo adalah platform market intelligence dan riset Bitcoin dengan standar sumber data yang dapat ditelusuri, tesis yang dapat diuji, dan evaluasi hasil.';
+    if (is_category('riset')) return 'Bitmomo Research menyajikan riset pasar Bitcoin dan riset sistem intelligence dengan bukti, tesis, sumber data, dan metode evaluasi yang eksplisit.';
     if (bitmomo_is_pro_account_page()) return 'Masuk untuk melihat status dan akses akun Bitmomo Pro Anda.';
 
     if (is_single()) {
