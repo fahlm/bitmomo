@@ -2,14 +2,14 @@
 
 **Last updated:** 2026-09-15 WIB  
 **Production authorization:** **HOLD / NO-GO**  
-**Staging promotion authorization:** **PENDING FRESH RELEASE ARTIFACT / NO-GO**  
+**Staging promotion authorization:** **PENDING FULL RELEASE ARTIFACT / NO-GO**
 **Canonical coordination issue:** #131  
 **Canonical release PR:** #135  
 **Canonical release branch:** `release/whitelist-v1`
 
-> **FINAL INTEGRITY CLOSURE IN PROGRESS — DO NOT FREEZE OR DEPLOY YET**
+> **SOURCE CONVERGED FOR EXACT-CANDIDATE FREEZE — DO NOT MUTATE**
 >
-> The main Launch Integrity remediation is integrated, but the final root-cause re-audit found a small set of residual integrity and CI-governance gaps. Focused PR #169 is closing those gaps. Any previously implied/frozen candidate identity is revoked until #169 is reviewed, merged into the canonical release line, and a new exact release SHA is frozen.
+> PR #168, #169, and #170 have been reconciled into the canonical release line with semantic conflict review. The source tree is ready to be frozen at the exact post-ledger commit SHA and validated by one Full Release run. Any new source mutation revokes this candidate and requires a fresh SHA.
 
 This file is the fast entry point for engineers. It records the actual release topology and acceptance state; it is not a roadmap and it must not be treated as deployment authorization.
 
@@ -18,16 +18,18 @@ This file is the fast entry point for engineers. It records the actual release t
 - Default branch / ordinary engineering source of truth: `main`.
 - One and only active Whitelist V1 release line: `release/whitelist-v1` / PR #135.
 - Main reviewed runtime/product remediation basis: `becdee740b5979da4795d9b13ec870d2282a86c7` (squash merge of PR #161).
-- Focused final integrity closure: PR #169, targeting `release/whitelist-v1`; it is **not** a second release authority.
-- PR #135 remains the sole release authority and must remain Draft while #169 or any other candidate mutation is in progress.
+- Focused BTC Intelligence hardening: PR #168 reconciled into the release line.
+- Focused final integrity closure: PR #169 reconciled into the release line; it is **not** a second release authority.
+- Singular public freshness provenance: PR #170 merged into the release line before this convergence.
+- PR #135 remains the sole release authority and must remain Draft during exact-candidate Full Release validation.
 - Runtime contract in source remains **118 managed files** unless Full Release proves otherwise.
-- No immutable candidate SHA is currently authorized. A new candidate may be recorded only after #169 is accepted and the release branch stops moving.
+- The immutable candidate SHA is the exact `release/whitelist-v1` head after this ledger update is committed and pushed. Do not change source after that point unless the candidate is explicitly revoked.
 
 The ledger intentionally does not try to store its own commit SHA. The immutable candidate identity belongs in the PR #135 freeze record and Full Release provenance, where recording it does not mutate the source being identified.
 
 ## Remediation status
 
-The main whole-product Launch Integrity remediation is integrated into the canonical release line. Final closure is in progress for residual root-cause gaps.
+The main whole-product Launch Integrity remediation and final BTC Intelligence closure are integrated into the canonical release line.
 
 Already integrated reconciliations include:
 
@@ -43,14 +45,16 @@ Already integrated reconciliations include:
 - checkout remains OFF;
 - WhatsApp remains OFF.
 
-PR #169 closes the remaining source/governance gaps identified by the final audit:
+Final closure integrated from PR #168/#169/#170:
 
-- delayed public intelligence must also fail closed at the **public adapter contract**, not only in visible renderers;
-- CI Governance itself must skip Draft so Draft work consumes zero intentional hosted-runner validation;
-- local preflight must own routine CI-governance/design feedback before GitHub Actions;
-- UI Browser Safety must be manual-only during pre-production and run only against an explicitly selected exact staging/production target;
-- institutional design consistency must be wired into authoritative scoped/full validation;
-- Open Graph/X preview completeness must be verified as rendered runtime behavior rather than assumed from SEO configuration.
+- Market Pulse and Opportunity are read from the canonical session snapshot, with point-in-time lineage retained internally and sanitized fail-closed.
+- Delayed public intelligence fails closed at the public adapter contract, not only in visible renderers.
+- The public BTC surface keeps a singular canonical freshness timestamp and does not expose independent Opportunity observation timestamps.
+- CI Governance skips Draft so Draft work consumes zero intentional hosted-runner validation.
+- Local preflight owns routine CI-governance/design feedback before GitHub Actions.
+- UI Browser Safety is manual-only during pre-production and runs only against an explicitly selected exact staging/production target.
+- Institutional design consistency is wired into authoritative scoped/full validation.
+- Open Graph/X preview completeness is verified as rendered runtime behavior rather than assumed from SEO configuration.
 
 ## CI architecture / budget discipline
 
@@ -77,29 +81,29 @@ Previous main remediation head: PR #161 head `b53a86aee513c15563fec81cb72f7ac4d0
 - Theme Safety run `34878672062` — **PASS**
 - Authority Surface Safety run `34878671941` — **PASS**
 
-The release branch also had green Theme / Authority / Regime / CI Governance evidence after PR #161 integration. Those runs remain useful historical evidence, but they do **not** validate the new focused #169 diff and they do not authorize a release candidate.
+The release branch also had green Theme / Authority / Regime / CI Governance evidence after PR #161 integration. Those runs remain useful historical evidence, but they do **not** authorize the new converged candidate.
 
-PR #169 remains Draft during source review. Its hosted workflow jobs are expected to be skipped until the PR is deliberately marked Ready once.
+Local source checks available in the release-integrator environment passed for design consistency, CI governance, M2 launch-surface contracts, UI architecture, institutional copy, home research boundary, theme source, authority source, and social-preview syntax. PHP is not available in that environment, so deterministic PHP suites must be proven by Full Release.
 
 ## Artifact state
 
 - Historical artifact `10350132727` remains **REVOKED / SUPERSEDED FOR PROMOTION**.
 - No current artifact is authorized.
 - No staging deployment is authorized from historical evidence.
-- Do **not** run Full Release while PR #169 is open/unmerged.
-- The next accepted artifact must be generated by Full Release from the new exact frozen candidate SHA recorded in PR #135 after final closure.
+- Run Full Release once from the exact frozen release-head SHA after this ledger update is pushed.
+- The next accepted artifact must be generated by Full Release from the new exact frozen candidate SHA recorded in PR #135 / release-integrator handoff.
 - Artifact provenance must match exact source commit + source tree and deterministic build A/B must agree.
 
 ## Current release gates
 
 | Gate | State | Meaning |
 |---|---|---|
-| SOURCE | **FOCUSED CLOSURE IN PROGRESS** | PR #169 must close the residual source/governance gaps before a new freeze. |
-| SCOPED CI | **PRIOR PASS / NEW CLOSURE PENDING** | Prior remediation was green; #169 still requires one deliberate Ready-time scoped confirmation. |
-| RELEASE-WIDE CI | **BLOCKED UNTIL NEW FREEZE** | Do not run against a moving release branch. |
+| SOURCE | **CONVERGED / FREEZE AFTER LEDGER COMMIT** | PR #168/#169/#170 have been reconciled into the release line. Any mutation revokes the candidate. |
+| SCOPED CI | **SUPERSEDED BY FULL RELEASE FOR CANDIDATE** | Prior focused evidence was useful; release-wide validation now belongs to one exact-candidate Full Release. |
+| RELEASE-WIDE CI | **READY FOR ONE EXACT-CANDIDATE RUN** | Run once after this ledger commit SHA is frozen. |
 | ARTIFACT | **NONE AUTHORIZED** | Historical artifacts are revoked. |
 | STAGING | **NO-GO** | Wait for the fresh exact-candidate artifact. |
-| RUNTIME | **PENDING EXACT-CANDIDATE VALIDATION** | Full Release must validate all managed runtime suites and provenance after the new freeze. |
+| RUNTIME | **PENDING EXACT-CANDIDATE VALIDATION** | Full Release must validate all managed runtime suites and provenance for the frozen SHA. |
 | BROWSER | **PENDING STAGING** | Manual browser acceptance runs only after exact artifact is on canonical staging. |
 | PRODUCT READY | **NO** | Staging/runtime/browser/data/conversion/newsletter/SEO/social/analytics acceptance remains. |
 | CHECKOUT | **OFF** | Must remain off. |
@@ -109,21 +113,17 @@ PR #169 remains Draft during source review. Its hosted workflow jobs are expecte
 
 ## Exact next executable sequence
 
-1. Finish source review on PR #169 while it remains Draft; do not use GitHub-hosted CI as the iteration loop.
-2. Run local `bash scripts/preflight-source.sh full` from a real checkout and attach the result to PR #169.
-3. Freeze #169 head and mark #169 Ready **once** so only its path-scoped Authority / Regime / CI Governance confirmation runs.
-4. If #169 scoped CI fails, convert it back to Draft before any mutation, fix the cause locally, then perform one new Ready-time confirmation after a new head is frozen.
-5. When #169 is accepted, merge it into `release/whitelist-v1`. Keep PR #135 Draft during that mutation.
-6. Record the new immutable `release/whitelist-v1` head SHA in PR #135. **Do not mark #135 Ready merely to trigger cumulative scoped CI.**
-7. Run Full Release **once** from `release/whitelist-v1` with `candidate_sha` equal to that recorded frozen SHA. Full Release is the release-wide deterministic/source/artifact gate and supersets the scoped candidate checks.
-8. If Full Release fails, revoke that candidate SHA, keep #135 Draft, fix the actual cause through one focused PR, and freeze a new SHA. Do not rerun blindly.
-9. Accept only an artifact whose manifest proves that exact source commit/tree and deterministic artifact hash.
-10. Take/verify the staging rollback point, then deploy only that exact artifact to canonical staging.
-11. Verify runtime parity, asset coherence, BTC/data readiness, Research qualification, whitelist, newsletter lifecycle, real mail, checkout OFF and WhatsApp OFF.
-12. Run manual browser QA at 360x800, 390x568, 390x844, 768x1024, 1024x900 and 1440x1000 plus 200% text zoom.
-13. Require Axe serious/critical = 0, keyboard/focus/reduced-motion acceptance, no clipping, no first-party console errors, correct SEO/OG/X metadata, analytics receipt at the configured sink, and screenshot evidence.
-14. Only after all staging gates pass may production authorization be considered.
-15. After the exact production artifact is verified, mark PR #135 Ready only for its genuine final review/merge to `main`, then converge/retire the release line without mutating the already accepted source tree.
+1. Commit and push this ledger update as the final source mutation for the candidate.
+2. Record the resulting immutable `release/whitelist-v1` head SHA in PR #135 / release handoff. **Do not mark #135 Ready merely to trigger cumulative scoped CI.**
+3. Run Full Release **once** from `release/whitelist-v1` with `candidate_sha` equal to that recorded frozen SHA. Full Release is the release-wide deterministic/source/artifact gate and supersets the scoped candidate checks.
+4. If Full Release fails, revoke that candidate SHA, keep #135 Draft, fix the actual cause through one focused PR, and freeze a new SHA. Do not rerun blindly.
+5. Accept only an artifact whose manifest proves that exact source commit/tree and deterministic artifact hash.
+6. Take/verify the staging rollback point, then deploy only that exact artifact to canonical staging.
+7. Verify runtime parity, asset coherence, BTC/data readiness, Research qualification, whitelist, newsletter lifecycle, real mail, checkout OFF and WhatsApp OFF.
+8. Run manual browser QA at 360x800, 390x568, 390x844, 768x1024, 1024x900 and 1440x1000 plus 200% text zoom.
+9. Require Axe serious/critical = 0, keyboard/focus/reduced-motion acceptance, no clipping, no first-party console errors, correct SEO/OG/X metadata, analytics receipt at the configured sink, and screenshot evidence.
+10. Only after all staging gates pass may production authorization be considered.
+11. After the exact production artifact is verified, mark PR #135 Ready only for its genuine final review/merge to `main`, then converge/retire the release line without mutating the already accepted source tree.
 
 ## Known governance constraint
 
