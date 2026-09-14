@@ -89,6 +89,17 @@ check('Homepage market view exposes finance-grade context without engine interna
   hero.includes('<strong>SUMBER DATA</strong>') &&
   !/market_state|market_state_certainty|direction_strength|Bitmomo_Public_Intelligence_Adapter::history/.test(hero)
 );
+check('Homepage delayed snapshot is transparent but cannot masquerade as current intelligence',
+  hero.includes("$bm_snapshot_available = is_array( $bm_snapshot ) && in_array( $bm_status, array( 'fresh', 'delayed' ), true );") &&
+  hero.includes("$bm_current_available = $bm_snapshot_available && 'fresh' === $bm_status;") &&
+  hero.includes("$bm_delayed = $bm_snapshot_available && 'delayed' === $bm_status;") &&
+  hero.includes("$bm_bias = $bm_current_available") &&
+  hero.includes("$bm_confidence = $bm_current_available") &&
+  hero.includes("$bm_price = $bm_current_available") &&
+  hero.includes("$bm_drivers = $bm_current_available") &&
+  hero.includes('Observasi terverifikasi terakhir.') &&
+  hero.includes('Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.')
+);
 check('Homepage public copy avoids non-institutional legacy language',
   !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b/i.test(hero) &&
   hero.includes('Konsistensi bukti pendukung; bukan probabilitas pergerakan harga.')
@@ -118,6 +129,7 @@ check('Research and article surfaces use natural Indonesian explanatory copy',
 check('About page removes internal engineering and mixed-language filler',
   aboutAuthority.includes('platform market intelligence dan riset Bitcoin') &&
   aboutAuthority.includes('masukan, koreksi riset, atau bantuan') &&
+  aboutAuthority.includes('Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.') &&
   !/feedback|support,|outcome|uncertainty|black box|\bClaim\b/i.test(aboutAuthority)
 );
 
@@ -155,20 +167,20 @@ check('One public noindex predicate owns all utility/archive side doors',
   functions.includes('rank_math/frontend/robots')
 );
 
-check('Pro runtime detaches its legacy duplicate SEO owner and loads canonical public copy',
+check('Pro runtime detaches its legacy duplicate SEO owner and loads the no-op compatibility shim',
   proMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   proMain.includes("remove_action( 'wp_head'") &&
   proMain.includes("BITMOMO_PRO_VERSION', '0.12.8'") &&
   proMain.includes('class-bitmomo-pro-public-copy.php') &&
   proMain.includes('Bitmomo_Pro_Public_Copy::init()')
 );
-check('Pro and Help public copy layer is tightly scoped and institutionalized',
-  proCopy.includes("'bitmomo-pro' !== $domain") &&
-  proCopy.includes("array( 'bitmomo_help_center', 'bitmomo_pro_sales' )") &&
-  proCopy.includes('Founding Price berlaku selama membership tetap aktif.') &&
-  proCopy.includes('Analisis Pro aktif tidak ditampilkan pada halaman publik.') &&
-  proCopy.includes('Bitmomo tidak melakukan backfill retrospektif hanya untuk melengkapi visualisasi.') &&
-  proCopy.includes('Mengapa riwayat Market State belum selalu berisi 30 hari?')
+check('Pro public copy is source-owned; the compatibility shim performs no post-render mutation',
+  proCopy.includes('Intentionally empty. Public copy must be source-owned.') &&
+  !/strtr\s*\(|do_shortcode_tag|add_filter\s*\(\s*[\'\"]gettext/.test(proCopy) &&
+  proSales.includes('Founding Price berlaku selama membership tetap aktif.') &&
+  proSales.includes('Analisis Pro aktif tidak ditampilkan pada halaman publik.') &&
+  proHelp.includes('Bitmomo tidak melakukan backfill retrospektif hanya untuk melengkapi visualisasi.') &&
+  proHelp.includes('Mengapa riwayat Market State belum selalu berisi 30 hari?')
 );
 check('BTC Intelligence runtime owns accountability and market context but not a second SEO layer',
   btcMain.includes('class-bitmomo-btc-intelligence-accountability.php') &&
@@ -256,7 +268,7 @@ check('Canonical Privacy copy matches Whitelist V1 channel behavior',
 );
 check('Pro public claims cannot contradict a fail-closed current intelligence state',
   proSales.includes('Decision View · produk inti Pro') &&
-  proCopy.includes('Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.') &&
+  proSales.includes('Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.') &&
   !proSales.includes('Decision View aktif hari ini') &&
   !proSales.includes('Decision View BTC, aktif setiap hari.')
 );
