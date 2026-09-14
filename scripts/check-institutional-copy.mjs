@@ -154,10 +154,14 @@ check('Public-copy compatibility shim performs no post-render mutation',
   proCopy.includes('Intentionally empty. Public copy must be source-owned.') &&
   !/strtr\s*\(|do_shortcode_tag|add_filter\s*\(\s*[\'\"]gettext/.test(proCopy)
 );
-check('Help Center owns visitor language directly',
+check('Help Center owns visitor language directly and documents the two-clock BTC product accurately',
   helpCenter.includes('layanan decision support untuk BTC') &&
+  helpCenter.includes('Market Pulse</strong> mengevaluasi kondisi intraday setiap 15 menit dari candle 5 menit') &&
+  helpCenter.includes('Major Brief</strong> terbit pada anchor US Post-Close sekitar 20.10 New York dan US Pre-Open sekitar 08.10 New York') &&
+  helpCenter.includes('jam WIB dapat bergeser satu jam ketika daylight-saving AS berubah') &&
+  helpCenter.includes('BTC Intelligence gratis sudah cukup untuk memahami kondisi sekarang, perubahan material, mengapa perubahan itu penting, dan satu konteks yang layak dipantau') &&
   helpCenter.includes('Mengapa riwayat Market State belum selalu berisi 30 hari?') &&
-  !/quality gate|Bukan sinyal buy \/ sell/i.test(helpCenter)
+  !/Morning Intelligence|US Session Intelligence|Watchtower direncanakan sebagai sistem monitoring tambahan dan belum tersedia saat ini|quality gate|Bukan sinyal buy \/ sell/i.test(helpCenter)
 );
 check('Pro account and acquisition success copy avoid informal second-person language',
   proAccount.includes('Masuk untuk melihat status akses Bitmomo Pro') &&
