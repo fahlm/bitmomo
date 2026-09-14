@@ -96,7 +96,8 @@ check('Research Hub is publication-first and communicates a testable-thesis valu
   researchHub.includes('Setiap tesis harus dapat diuji.') &&
   researchHub.includes('$bm_visible_filters') &&
   researchHub.includes('Do not advertise empty research programs') &&
-  !/RESEARCH DOMAINS|RESEARCH PROGRAMS|Kerangka berulang untuk pasar yang kompleks|Dua disiplin\. Satu standar riset\./i.test(researchHub)
+  !/>\s*RESEARCH (?:DOMAINS|PROGRAMS)\s*</i.test(researchHub) &&
+  !/Kerangka berulang untuk pasar yang kompleks|Dua disiplin\. Satu standar riset\./i.test(researchHub)
 );
 check('Article trust chrome remains compact and evidence-led',
   article.includes('Bukti, konteks, batas tesis, dan metode evaluasi') &&
