@@ -72,12 +72,14 @@ check( 'FLOW: generic AI/experience section is not rendered', false === strpos( 
 check( 'FLOW: speculative roadmap is not rendered', false === strpos( $html, 'ROADMAP — SEGERA HADIR' ) && false === strpos( $html, 'Altcoin Intelligence' ) && false === strpos( $html, '11 AI Analysts' ) && false === strpos( $html, 'Watchtower' ) );
 
 // Current product and Free vs Pro distinction.
-foreach ( array( 'Expected Range', 'Scenario Map', 'Invalidasi Tesis', 'What Changed', 'Confidence' ) as $deliverable ) {
+foreach ( array( 'Expected Range', 'Scenario Map', 'Invalidasi Tesis', 'Full Monitoring', 'Confidence Context' ) as $deliverable ) {
 	check( 'CURRENT PRODUCT: ' . $deliverable . ' is visible', false !== strpos( $html, $deliverable ) );
 }
 check( 'CURRENT PRODUCT: quality boundary is visitor-facing language', false !== strpos( $html, 'Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.' ) );
-check( 'FREE VS PRO: decision boundary is explicit', false !== strpos( $html, 'Bedanya bukan lebih banyak data. Bedanya adalah pertanyaan yang dijawab.' ) );
-check( 'FREE VS PRO: free/current and Pro/next framing is explicit', false !== strpos( $html, 'Gratis menjawab “apa yang terjadi sekarang”. Pro menambahkan skenario berikutnya' ) );
+check( 'FREE VS PRO: decision-depth boundary is explicit', false !== strpos( $html, 'Bedanya bukan lebih banyak data. Bedanya adalah kedalaman keputusan.' ) );
+check( 'FREE VS PRO: useful Free and deeper Pro framing is explicit', false !== strpos( $html, 'Gratis sudah cukup untuk memahami kondisi, perubahan, makna, dan satu konteks pantauan. Pro menambahkan monitoring lengkap, skenario, level, dan invalidasi' ) );
+check( 'FREE VS PRO: comparison grants Free material change, meaning and one watch', false !== strpos( $html, 'What Changed · ringkas' ) && false !== strpos( $html, 'Why It Matters' ) && false !== strpos( $html, '1 konteks What to Watch' ) );
+check( 'FREE VS PRO: full monitoring remains Pro-only', false !== strpos( $html, 'Full monitoring / watch set' ) );
 
 // Public proof must be real, delayed, and fail closed.
 check( 'PROOF: renderer asks only for one delayed public proof row', false !== strpos( $source, 'Bitmomo_Btc_Intelligence_Accountability::delayed_proof( 1 )' ) );
