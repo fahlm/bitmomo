@@ -6,12 +6,14 @@ on:
     paths:
       - "research/operator-alert/**"
       - "docs/research-distribution/OPERATOR_ALERT_ENGINE_V1.md"
+      - "docs/research-distribution/HOSTINGER_OPERATOR_RADAR_RUNTIME_V1.md"
       - ".github/workflows/operator-alert-engine-safety.yml"
   push:
     branches: [main]
     paths:
       - "research/operator-alert/**"
       - "docs/research-distribution/OPERATOR_ALERT_ENGINE_V1.md"
+      - "docs/research-distribution/HOSTINGER_OPERATOR_RADAR_RUNTIME_V1.md"
       - ".github/workflows/operator-alert-engine-safety.yml"
   workflow_dispatch:
 
@@ -31,14 +33,26 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Lint P7 implementation, runner, and tests
+      - name: Lint P7 implementation, runners, config example, and tests
         shell: bash
         run: |
           set -euo pipefail
           php -l research/operator-alert/includes/class-bitmomo-indonesia-discovery-v1.php
           php -l research/operator-alert/includes/class-bitmomo-operator-alert-engine-v1.php
           php -l research/operator-alert/bin/run-once.php
+          php -l research/operator-alert/bin/hostinger-run-once.php
+          php -l research/operator-alert/config/hostinger-config.example.php
           php -l research/operator-alert/tests/test-bitmomo-operator-alert-engine-v1.php
+
+      - name: Enforce private Hostinger secret and state boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "Refusing config inside public_html" research/operator-alert/bin/hostinger-run-once.php
+          grep -q "Refusing state_path inside public_html" research/operator-alert/bin/hostinger-run-once.php
+          grep -q "daily_x_read_budget_usd" research/operator-alert/config/hostinger-config.example.php
+          grep -q "dry_run" research/operator-alert/config/hostinger-config.example.php
+          ! grep -R --line-number -E 'Bearer [A-Za-z0-9._-]{20,}|bot[0-9]{6,}:[A-Za-z0-9_-]{20,}' research/operator-alert docs/research-distribution/HOSTINGER_OPERATOR_RADAR_RUNTIME_V1.md
 
       - name: Run P7 deterministic integration suite with fake HTTP/notifier only
         shell: bash
