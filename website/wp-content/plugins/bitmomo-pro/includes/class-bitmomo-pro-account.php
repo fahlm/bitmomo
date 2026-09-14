@@ -73,7 +73,7 @@ class Bitmomo_Pro_Account {
 				'<a class="bm-pro-account__cta" href="%1$s">%2$s</a><p class="bm-pro-account__contact-note">%3$s</p>',
 				esc_url( home_url( '/pro/#bm-pro-whitelist' ) ),
 				esc_html__( 'Gabung Founding Whitelist', 'bitmomo-pro' ),
-				esc_html__( 'Checkout belum dibuka. Whitelist adalah jalur resmi untuk menerima pemberitahuan akses batch berikutnya.', 'bitmomo-pro' )
+				esc_html__( 'Checkout belum dibuka. Whitelist adalah jalur resmi untuk menerima pemberitahuan saat akses batch berikutnya tersedia.', 'bitmomo-pro' )
 			);
 			return;
 		}
@@ -98,7 +98,7 @@ class Bitmomo_Pro_Account {
 
 	private function render_logged_out() {
 		echo '<div class="bm-pro-account__gate">';
-		echo '<h2 class="bm-pro-account__gate-title">' . esc_html__( 'Masuk untuk melihat status akun Bitmomo Pro kamu', 'bitmomo-pro' ) . '</h2>';
+		echo '<h2 class="bm-pro-account__gate-title">' . esc_html__( 'Masuk untuk melihat status akses Bitmomo Pro', 'bitmomo-pro' ) . '</h2>';
 		echo '<div class="bm-pro-account__login-form">';
 		wp_login_form( array( 'redirect' => $this->current_url() ) );
 		echo '</div>';
@@ -114,7 +114,7 @@ class Bitmomo_Pro_Account {
 	private function render_inactive() {
 		echo '<div class="bm-pro-account__gate">';
 		echo '<h2 class="bm-pro-account__gate-title">' . esc_html__( 'Bitmomo Pro tidak aktif', 'bitmomo-pro' ) . '</h2>';
-		echo '<p class="bm-pro-account__gate-text">' . esc_html__( 'Akun kamu belum memiliki akses Bitmomo Pro yang aktif.', 'bitmomo-pro' ) . '</p>';
+		echo '<p class="bm-pro-account__gate-text">' . esc_html__( 'Akun ini belum memiliki akses Bitmomo Pro yang aktif.', 'bitmomo-pro' ) . '</p>';
 		$this->checkout_cta( __( 'Aktifkan Bitmomo Pro', 'bitmomo-pro' ) );
 		$this->render_support();
 		echo '</div>';
