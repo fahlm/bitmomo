@@ -86,3 +86,54 @@ def test_execution_evidence_expires_on_long_window():
     metrics = observer.snapshot(now_ms=start + 3_600_001)
     assert metrics.execution_samples == 0
     assert metrics.execution_age_seconds == float("inf")
+
+
+def test_rehydrated_execution_uses_historical_horizon_for_throughput():
+    cfg = SelectorConfig(
+        warmup_seconds=0,
+        execution_window_seconds=14_400,
+        execution_max_samples=100,
+    )
+    observer = MarketObserver("PONS", cfg)
+
+    evidence_start = 1_000_000
+    now = evidence_start + 3_600_000  # one hour of historical evidence
+
+    # Simulate a process restart at `now`, then hydrate execution events that
+    # predate the fresh process start. The old implementation incorrectly used
+    # started_ms=now and therefore treated the historical volume as if it had
+    # accumulated almost instantaneously.
+    observer.started_ms = now
+    for i in range(10):
+        observer.on_execution(execution(evidence_start + i * 300_000))
+
+    metrics = observer.snapshot(now_ms=now)
+
+    assert metrics.execution_samples == 10
+    assert metrics.volume_per_hour_usd == 2000.0
+    assert metrics.t10k_hours == 5.0
+
+
+def test_uninterrupted_execution_throughput_keeps_process_start_horizon():
+    cfg = SelectorConfig(
+        warmup_seconds=0,
+        execution_window_seconds=14_400,
+        execution_max_samples=100,
+    )
+    observer = MarketObserver("PONS", cfg)
+
+    started = 1_000_000
+    now = started + 3_600_000
+    observer.started_ms = started
+
+    # First attempt starts ten minutes after the process; uninterrupted behavior
+    # should still include the initial observation/warm-up interval.
+    first_execution = started + 600_000
+    for i in range(10):
+        observer.on_execution(execution(first_execution + i * 240_000))
+
+    metrics = observer.snapshot(now_ms=now)
+
+    assert metrics.execution_samples == 10
+    assert metrics.volume_per_hour_usd == 2000.0
+    assert metrics.t10k_hours == 5.0
