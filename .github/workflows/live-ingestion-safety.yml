@@ -24,6 +24,7 @@ concurrency:
 
 jobs:
   read-only-contract:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: Deterministic read-only ingestion contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
