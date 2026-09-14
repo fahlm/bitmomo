@@ -31,15 +31,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Lint Intent Radar V1 implementation and test
+      - name: Lint Intent Radar V1 implementation and tests
         shell: bash
         run: |
           set -euo pipefail
           php -l research/intent-radar/includes/class-bitmomo-intent-radar-v1.php
+          php -l research/intent-radar/includes/class-bitmomo-intent-radar-queue-v1.php
           php -l research/intent-radar/tests/test-bitmomo-intent-radar-v1.php
+          php -l research/intent-radar/tests/test-bitmomo-intent-radar-queue-v1.php
 
-      - name: Run Intent Radar V1 deterministic suite
+      - name: Run Intent Radar V1 deterministic suites
         shell: bash
         run: |
           set -euo pipefail
           php research/intent-radar/tests/test-bitmomo-intent-radar-v1.php
+          php research/intent-radar/tests/test-bitmomo-intent-radar-queue-v1.php
