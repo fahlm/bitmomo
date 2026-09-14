@@ -12,6 +12,8 @@ final class Bitmomo_Public_Intelligence_Adapter {
         $projection = Bitmomo_AI_Intelligence::free_projection();
         if (!is_array($projection) || !in_array(($projection['status'] ?? ''), ['fresh', 'delayed'], true)) return null;
 
+        $status = sanitize_key((string) ($projection['status'] ?? ''));
+        $is_fresh = 'fresh' === $status;
         $canonical_source_id = sanitize_text_field((string) ($projection['edition_id'] ?? ''));
         $regime = self::regime_for_source($canonical_source_id);
         $strength = self::strength_or_null($projection['direction_strength'] ?? null);
@@ -20,31 +22,43 @@ final class Bitmomo_Public_Intelligence_Adapter {
         $as_of = sanitize_text_field((string) ($projection['timestamp_iso'] ?? ''));
         if ($bias === null || $strength === null || $public_source === '' || $as_of === '' || $canonical_source_id === '') return null;
 
-        $market_state = self::regime_or_null($regime['regime'] ?? null);
-        $market_state_certainty = $market_state !== null && isset($regime['regime_confidence'])
+        $market_state = $is_fresh ? self::regime_or_null($regime['regime'] ?? null) : null;
+        $market_state_certainty = $is_fresh && $market_state !== null && isset($regime['regime_confidence'])
             ? min(100, max(0, (int) $regime['regime_confidence']))
             : null;
 
-        $session_intelligence = is_array($projection['session_intelligence'] ?? null) ? $projection['session_intelligence'] : [];
-        if (is_array($session_intelligence['current_setup'] ?? null)) $session_intelligence['current_setup']['market_state'] = $market_state;
-        $opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
+        $session_intelligence = $is_fresh && is_array($projection['session_intelligence'] ?? null)
+            ? $projection['session_intelligence']
+            : [];
+        if ($is_fresh && is_array($session_intelligence['current_setup'] ?? null)) {
+            $session_intelligence['current_setup']['market_state'] = $market_state;
+        }
+
+        $opportunity = $is_fresh && class_exists('Bitmomo_AI_Opportunity_Store')
             ? Bitmomo_AI_Opportunity_Store::public_latest()
             : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
 
         return [
-            'status' => (string) $projection['status'],
+            'status' => $status,
+            // A delayed snapshot may retain the last validated reference price for
+            // transparency, but every current assessment field below fails closed.
             'btc_reference_price' => (float) ($projection['price'] ?? 0),
             'opportunity' => $opportunity,
             'market_state' => $market_state,
             'market_state_certainty' => $market_state_certainty,
-            'directional_bias' => $bias,
-            'direction_strength' => $strength,
-            'confidence' => [
-                'value' => min(100, max(0, (int) ($projection['confidence'] ?? 0))),
-                'label' => self::confidence_label($projection['confidence'] ?? 0),
-            ],
+            'directional_bias' => $is_fresh ? $bias : null,
+            'direction_strength' => $is_fresh ? $strength : null,
+            'confidence' => $is_fresh
+                ? [
+                    'value' => min(100, max(0, (int) ($projection['confidence'] ?? 0))),
+                    'label' => self::confidence_label($projection['confidence'] ?? 0),
+                ]
+                : [
+                    'value' => null,
+                    'label' => '',
+                ],
             'freshness' => [
-                'state' => (string) $projection['status'],
+                'state' => $status,
                 'label' => (string) ($projection['freshness_label'] ?? ''),
                 'timestamp' => (int) ($projection['timestamp'] ?? 0),
                 'timestamp_iso' => $as_of,
@@ -55,7 +69,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
                 'timezone' => self::PUBLIC_DISPLAY_TIMEZONE,
             ],
             'latest_attempt' => is_array($projection['latest_attempt'] ?? null) ? $projection['latest_attempt'] : [],
-            'key_drivers' => self::public_drivers($projection['key_drivers'] ?? []),
+            'key_drivers' => $is_fresh ? self::public_drivers($projection['key_drivers'] ?? []) : [],
             'session' => [
                 'edition_id' => sanitize_text_field((string) ($projection['edition_id'] ?? '')),
                 'type' => Bitmomo_AI_Session_Intelligence::normalize_session_type($projection['session_type'] ?? ''),
