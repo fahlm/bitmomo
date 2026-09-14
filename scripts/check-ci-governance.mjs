@@ -30,12 +30,17 @@ function hasDraftGuard(source) {
   return /github\.event_name != 'pull_request' \|\| github\.event\.pull_request\.draft == false/.test(source);
 }
 
+function hasReadOnlyContents(source) {
+  return /permissions:\s*\n\s*contents:\s*read/.test(source);
+}
+
 const release = read('.github/workflows/release-safety.yml');
 const production = read('.github/workflows/production-synthetic-monitor.yml');
 const theme = read('.github/workflows/theme-safety.yml');
 const authority = read('.github/workflows/authority-surface-safety.yml');
 const regime = read('.github/workflows/regime-safety.yml');
 const browser = read('.github/workflows/ui-browser-safety.yml');
+const governance = read('.github/workflows/ci-governance-safety.yml');
 
 check('Full Release is manual-only',
   hasTopLevelTrigger(release, 'workflow_dispatch') &&
@@ -89,6 +94,20 @@ check('Browser audit cancels superseded runs and is capped at 20m',
   hasCancelInProgress(browser) && maxTimeout(browser) <= 20
 );
 
+check('CI governance runs only for CI-policy changes or manual audit',
+  hasTopLevelTrigger(governance, 'pull_request') &&
+  hasTopLevelTrigger(governance, 'workflow_dispatch') &&
+  /paths:[\s\S]*?\.github\/workflows\/\*\*/.test(governance) &&
+  /scripts\/check-ci-governance\.mjs/.test(governance) &&
+  !hasTopLevelTrigger(governance, 'push') &&
+  !hasTopLevelTrigger(governance, 'schedule')
+);
+check('CI governance is intentionally draft-active, cancelable, and capped at 2m',
+  !hasDraftGuard(governance) &&
+  hasCancelInProgress(governance) &&
+  maxTimeout(governance) <= 2
+);
+
 for (const [name, source] of [
   ['Full Release', release],
   ['Production monitor', production],
@@ -96,10 +115,9 @@ for (const [name, source] of [
   ['Authority safety', authority],
   ['Regime safety', regime],
   ['Browser safety', browser],
+  ['CI governance', governance],
 ]) {
-  check(`${name} uses least-privilege contents: read`,
-    /permissions:\s*\n\s*contents:\s*read/.test(source)
-  );
+  check(`${name} uses least-privilege contents: read`, hasReadOnlyContents(source));
 }
 
 if (failures.length) {
