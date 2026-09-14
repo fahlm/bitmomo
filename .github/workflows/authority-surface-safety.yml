@@ -5,6 +5,8 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php"
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
@@ -58,6 +60,8 @@ jobs:
             website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
@@ -73,6 +77,9 @@ jobs:
           node --check scripts/check-institutional-copy.mjs
           node --check scripts/check-public-design-consistency.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
+
+      - name: Verify public intelligence adapter contract
+        run: php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php
 
       - name: Enforce canonical authority source contract
         run: bash scripts/check-authority-source-contract.sh
