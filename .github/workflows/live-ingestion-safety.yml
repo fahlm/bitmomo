@@ -1,0 +1,45 @@
+name: Live ingestion safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "research/live-ingestion/**"
+      - "docs/research-distribution/LIVE_INGESTION_V1.md"
+      - ".github/workflows/live-ingestion-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/live-ingestion/**"
+      - "docs/research-distribution/LIVE_INGESTION_V1.md"
+      - ".github/workflows/live-ingestion-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-ingestion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  read-only-contract:
+    name: Deterministic read-only ingestion contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint live-ingestion implementation and composition test
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l research/live-ingestion/includes/class-bitmomo-live-ingestion-v1.php
+          php -l research/live-ingestion/tests/test-bitmomo-live-ingestion-v1.php
+
+      - name: Run live-ingestion deterministic suite with fake HTTP only
+        shell: bash
+        run: |
+          set -euo pipefail
+          php research/live-ingestion/tests/test-bitmomo-live-ingestion-v1.php
