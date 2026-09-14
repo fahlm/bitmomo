@@ -139,8 +139,12 @@ final class Bitmomo_AI_Intelligence {
 
         $data = is_array($preview['data']) ? $preview['data'] : [];
         $evaluation = is_array($preview['evaluation']) ? $preview['evaluation'] : [];
-        $quality = is_array($evaluation['quality'] ?? null) ? $evaluation['quality'] : [];
-        if (!in_array((string) ($quality['status'] ?? ''), ['complete', 'degraded'], true)) return null;
+        if (class_exists('Bitmomo_AI_Runtime_State')) {
+            if (!Bitmomo_AI_Runtime_State::record_is_valid($preview)) return null;
+        } else {
+            $quality = is_array($evaluation['quality'] ?? null) ? $evaluation['quality'] : [];
+            if (!in_array((string) ($quality['status'] ?? ''), ['complete', 'degraded'], true)) return null;
+        }
 
         $timestamp = strtotime((string) ($preview['generated_at'] ?? ($preview['time'] ?? ($data['timestamp'] ?? ''))));
         if (!$timestamp || $timestamp > time() + (5 * MINUTE_IN_SECONDS)) return null;

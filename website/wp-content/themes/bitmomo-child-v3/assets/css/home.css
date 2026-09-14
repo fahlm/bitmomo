@@ -45,7 +45,7 @@
 
 .bm-home-hero__eyebrow,
 .bm-home-reading__label,
-.bm-home-reading__metric dt,
+.bm-home-reading__metric-label,
 .bm-home-reading__driver > span,
 .bm-home-proof__kicker,
 .bm-howworks-eyebrow,
@@ -215,7 +215,8 @@
   border-right: 1px solid rgba(255,255,255,.08);
 }
 
-.bm-home-reading__metric dt {
+.bm-home-reading__metric-label {
+  display: block;
   margin: 0 0 7px;
   color: #8294ae;
   font-size: 9px;
@@ -224,7 +225,8 @@
   text-transform: uppercase;
 }
 
-.bm-home-reading__metric dd {
+.bm-home-reading__metric-value {
+  display: block;
   margin: 0;
   color: var(--bm-text, #edf4f6);
   font-size: 19px;
@@ -232,9 +234,9 @@
   line-height: 1.2;
 }
 
-.bm-home-reading__metric dd.is-bullish { color: #5adbc6; }
-.bm-home-reading__metric dd.is-bearish { color: #ff9b8e; }
-.bm-home-reading__metric dd.is-neutral { color: #d4dee8; }
+.bm-home-reading__metric-value.is-bullish { color: #5adbc6; }
+.bm-home-reading__metric-value.is-bearish { color: #ff9b8e; }
+.bm-home-reading__metric-value.is-neutral { color: #d4dee8; }
 
 .bm-home-reading__metric small {
   display: block;

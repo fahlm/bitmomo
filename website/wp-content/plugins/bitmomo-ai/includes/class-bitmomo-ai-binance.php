@@ -247,7 +247,7 @@ final class Bitmomo_AI_Binance {
         $funding = array_map(function ($row) { return ['fundingRate' => (float) ($row['fundingRate'] ?? 0), 'fundingTime' => (int) ($row['fundingRateTimestamp'] ?? 0)]; }, $funding_raw);
         usort($funding, function ($a, $b) { return $a['fundingTime'] <=> $b['fundingTime']; });
         $ticker = reset($ticker_raw);
-        $premium = ['markPrice' => (float) ($ticker['markPrice'] ?? 0), 'indexPrice' => (float) ($ticker['indexPrice'] ?? 0)];
+        $premium = ['markPrice' => (float) ($ticker['markPrice'] ?? 0), 'indexPrice' => (float) ($ticker['indexPrice'] ?? 0), 'time' => (int) ($ticker['_response_time'] ?? 0)];
         $oi = array_map(function ($row) { return ['sumOpenInterestValue' => (float) ($row['openInterest'] ?? 0), 'timestamp' => (int) ($row['timestamp'] ?? 0)]; }, $oi_raw);
         usort($oi, function ($a, $b) { return $a['timestamp'] <=> $b['timestamp']; });
         $long_short = array_map(function ($row) {
@@ -264,7 +264,16 @@ final class Bitmomo_AI_Binance {
         if ((int) ($response['retCode'] ?? -1) !== 0 || !isset($response['result']['list']) || !is_array($response['result']['list'])) {
             return new WP_Error('bybit_payload', __('Bybit returned invalid derivatives data.', 'bitmomo-ai'));
         }
-        return $response['result']['list'];
+        return self::attach_response_time($response['result']['list'], $response['time'] ?? 0);
+    }
+
+    private static function attach_response_time(array $rows, $timestamp) {
+        $timestamp = (int) $timestamp;
+        if ($timestamp <= 0) return $rows;
+        return array_map(function ($row) use ($timestamp) {
+            if (is_array($row) && !isset($row['_response_time'])) $row['_response_time'] = $timestamp;
+            return $row;
+        }, $rows);
     }
 
     private static function get($path, array $params) {

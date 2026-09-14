@@ -34,7 +34,7 @@ require __DIR__ . '/../includes/class-bitmomo-ai-key-drivers.php';
 
 $checks = [];
 function runtime_check($label, $condition) { global $checks; $checks[] = [$label, (bool) $condition]; }
-function runtime_record($age_hours, $id = 'bitmomo-ai:test:valid') {
+function runtime_record($age_hours, $id = 'bitmomo-ai:test:valid', $quality_status = 'complete') {
     $data = [
         'close' => 65000,
         'timestamp' => gmdate('c', time() - ($age_hours * HOUR_IN_SECONDS)),
@@ -43,7 +43,7 @@ function runtime_record($age_hours, $id = 'bitmomo-ai:test:valid') {
         'structure' => ['state' => 'range'],
         'crowding' => ['oi_change_24h_pct' => 0, 'price_change_24h_pct' => 0],
         'volatility' => ['regime' => 'normal', 'atr_pct_1h' => 1],
-        'quality' => ['status' => 'complete', 'completeness_pct' => 100],
+        'quality' => ['status' => $quality_status, 'completeness_pct' => $quality_status === 'partial' ? 95 : 100],
     ];
     return [
         'data' => $data,
@@ -63,6 +63,13 @@ $valid = runtime_record(1);
 Bitmomo_AI_Runtime_State::record_valid_snapshot($valid, $passed_gate);
 Bitmomo_AI_Runtime_State::record_attempt('morning', 'success', $valid['data'], $passed_gate);
 runtime_check('successful current generation selects the canonical snapshot', Bitmomo_AI_Intelligence::free_projection()['status'] === 'fresh');
+
+$partial = runtime_record(1, 'bitmomo-ai:test:partial', 'partial');
+Bitmomo_AI_Runtime_State::record_valid_snapshot($partial, $passed_gate);
+runtime_check('gate-passed partial provider data remains a valid fresh snapshot', Bitmomo_AI_Intelligence::free_projection()['status'] === 'fresh');
+Bitmomo_AI_Runtime_State::record_valid_snapshot($partial, $blocked_gate);
+runtime_check('partial provider data without a passing gate fails closed', Bitmomo_AI_Intelligence::free_projection()['status'] === 'unavailable');
+Bitmomo_AI_Runtime_State::record_valid_snapshot($valid, $passed_gate);
 
 $original_time = $valid['generated_at'];
 $diagnostics = [

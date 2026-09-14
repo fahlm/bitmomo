@@ -78,9 +78,22 @@ final class Bitmomo_AI_Runtime_State {
         }
         if (!is_array($record) || empty($record['data']) || empty($record['evaluation'])) return [];
 
-        $quality = is_array($record['evaluation']['quality'] ?? null) ? $record['evaluation']['quality'] : [];
-        if (!in_array((string) ($quality['status'] ?? ''), ['complete', 'degraded'], true)) return [];
+        if (!self::record_is_valid($record)) return [];
         return $record;
+    }
+
+    public static function record_is_valid(array $record) {
+        $quality = is_array($record['evaluation']['quality'] ?? null)
+            ? $record['evaluation']['quality']
+            : (array) ($record['quality'] ?? []);
+        $quality_status = (string) ($quality['status'] ?? '');
+        if (in_array($quality_status, ['complete', 'degraded'], true)) return true;
+        if ($quality_status !== 'partial') return false;
+
+        $gate = is_array($record['quality_gate'] ?? null) ? $record['quality_gate'] : [];
+        return in_array((string) ($gate['status'] ?? ''), ['passed', 'degraded'], true)
+            && empty($gate['hard_blocked'])
+            && empty($gate['critical_failures']);
     }
 
     public static function latest_valid_metadata($now = null) {
