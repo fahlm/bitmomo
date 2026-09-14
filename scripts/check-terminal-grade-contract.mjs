@@ -110,10 +110,14 @@ check('Dynamic market factors use concise professional market language',
   keyDrivers.includes('Struktur harga mencatat breakdown di bawah level teknikal utama.') &&
   !/cukup kuat ke arah|mendukung arah naik|tekanan ke arah turun|menembus level penting/i.test(keyDrivers)
 );
-check('Homepage product model uses validated-analysis language rather than casual copy',
-  howItWorks.includes('intelligence yang dapat divalidasi') &&
-  howItWorks.includes('Analisis tidak diterbitkan ketika data tidak memenuhi standar kualitas') &&
-  !/bisa diuji|Data bermasalah ditahan/i.test(howItWorks)
+check('Homepage product model follows the visitor lifecycle without reverting to pipeline jargon',
+  howItWorks.includes('01 · UNDERSTAND NOW') &&
+  howItWorks.includes('02 · MAP WHAT CHANGES') &&
+  howItWorks.includes('03 · AUDIT THE RESULT') &&
+  howItWorks.includes('BTC Intelligence merangkum kondisi, perubahan material, maknanya, dan satu konteks pantauan') &&
+  howItWorks.includes('Bitmomo Pro menambahkan monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis') &&
+  howItWorks.includes('Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.') &&
+  !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
 );
 check('Homepage founding surface uses restrained commercial language',
   whitelistHome.includes('Founding Price') &&
