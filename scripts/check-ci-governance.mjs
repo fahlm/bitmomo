@@ -110,14 +110,11 @@ for (const [name, source] of [
   check(`${name} safety has a hard timeout <= 5m`, maxTimeout(source) <= 5);
 }
 
-check('Browser audit is operational/manual, never PR-triggered',
+check('Browser audit is explicit/manual acceptance, never PR/push/schedule churn',
   hasTopLevelTrigger(browser, 'workflow_dispatch') &&
-  hasTopLevelTrigger(browser, 'schedule') &&
+  !hasTopLevelTrigger(browser, 'schedule') &&
   !hasTopLevelTrigger(browser, 'pull_request') &&
   !hasTopLevelTrigger(browser, 'push')
-);
-check('Browser audit stays at weekly cadence',
-  /cron:\s*["']17 18 \* \* 1["']/.test(browser)
 );
 check('Browser audit cancels superseded runs and is capped at 20m',
   hasCancelInProgress(browser) && maxTimeout(browser) <= 20
@@ -131,8 +128,8 @@ check('CI governance runs only for CI-policy changes or manual audit',
   !hasTopLevelTrigger(governance, 'push') &&
   !hasTopLevelTrigger(governance, 'schedule')
 );
-check('CI governance is intentionally draft-active, cancelable, and capped at 2m',
-  !hasDraftGuard(governance) &&
+check('CI governance also skips draft PRs, is cancelable, and is capped at 2m',
+  hasDraftGuard(governance) &&
   hasCancelInProgress(governance) &&
   maxTimeout(governance) <= 2
 );
@@ -157,4 +154,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PASS CI governance contract: workflow inventory, triggers, schedules, budgets, concurrency, and release identity are fail-closed.');
+console.log('PASS CI governance contract: workflow inventory, triggers, schedules, budgets, concurrency, draft discipline, and release identity are fail-closed.');
