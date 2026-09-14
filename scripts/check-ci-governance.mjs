@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
+const workflowDir = path.join(root, '.github/workflows');
 const failures = [];
 
 function read(relative) {
@@ -34,6 +35,23 @@ function hasReadOnlyContents(source) {
   return /permissions:\s*\n\s*contents:\s*read/.test(source);
 }
 
+const allowedWorkflows = [
+  'authority-surface-safety.yml',
+  'ci-governance-safety.yml',
+  'production-synthetic-monitor.yml',
+  'regime-safety.yml',
+  'release-safety.yml',
+  'theme-safety.yml',
+  'ui-browser-safety.yml',
+].sort();
+const actualWorkflows = fs.readdirSync(workflowDir)
+  .filter((name) => /\.ya?ml$/.test(name))
+  .sort();
+
+check('Workflow inventory is fail-closed: no unclassified workflow exists',
+  JSON.stringify(actualWorkflows) === JSON.stringify(allowedWorkflows)
+);
+
 const release = read('.github/workflows/release-safety.yml');
 const production = read('.github/workflows/production-synthetic-monitor.yml');
 const theme = read('.github/workflows/theme-safety.yml');
@@ -56,6 +74,10 @@ check('Full Release requires an exact candidate SHA input',
 );
 check('Full Release is restricted to release branches or main',
   /refs\/heads\/release\/\*\|refs\/heads\/main/.test(release)
+);
+check('Full Release self-audits governance before expensive release work',
+  release.indexOf('node scripts/check-ci-governance.mjs') > -1 &&
+  release.indexOf('node scripts/check-ci-governance.mjs') < release.indexOf('Lint every managed PHP file')
 );
 check('Full Release cancels superseded work and has a hard timeout <= 12m',
   hasCancelInProgress(release) && maxTimeout(release) <= 12
@@ -118,6 +140,8 @@ for (const [name, source] of [
   ['CI governance', governance],
 ]) {
   check(`${name} uses least-privilege contents: read`, hasReadOnlyContents(source));
+  check(`${name} has cancel-in-progress protection`, hasCancelInProgress(source));
+  check(`${name} declares a finite job timeout`, Number.isFinite(maxTimeout(source)));
 }
 
 if (failures.length) {
@@ -126,4 +150,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PASS CI governance contract: expensive work is explicit, scoped, bounded, and cancelable.');
+console.log('PASS CI governance contract: workflow inventory, triggers, budgets, concurrency, and release identity are fail-closed.');
