@@ -1,14 +1,16 @@
 # Bitmomo Integrated Release Acceptance Matrix
 
-This is the canonical release gate for the public launch candidate that reconciles the institutional chrome/homepage/design system with BTC Market Context. Do not promote an older stacked artifact merely because its individual PR is green.
+This is the canonical release gate for the public Whitelist V1 launch candidate. It is a **product acceptance contract**, not merely a code checklist. A green source build cannot override an incorrect or contradictory product requirement.
 
 ## 0. Source of truth
 
-- Candidate must contain the current `release/whitelist-v1` product/site/BTC convergence state plus every reviewed launch-readiness patch deliberately reconciled into it.
-- One final artifact only. Record branch head SHA, PR merge-ref SHA, artifact ID/name, artifact SHA-256 and runtime file count in the release report.
-- Current integrated runtime contract: **117 managed files** before any additional runtime file is intentionally added; theme 46, bitmomo-ai 24, BTC Intelligence 8, Bitmomo Pro 27, regime 12.
-- `custom.css` remains frozen. Do not add emergency visual overrides there.
+- One and only active whitelist release authority: `release/whitelist-v1` / PR #135.
+- Runtime identity and file counts are owned by `config/production-runtime.json`; do not duplicate a hard-coded current file count here.
+- `docs/CURRENT_RELEASE.md` owns current mutable release status and exact candidate identity.
+- This document owns stable acceptance requirements.
+- `custom.css` remains frozen legacy debt. Do not add emergency public-surface overrides there.
 - Production is untouched until every P0 gate below passes on canonical staging.
+- A candidate under **AUDIT HOLD** must not be promoted even if its previous CI run was green.
 
 ## 1. P0 — source / CI / artifact
 
@@ -17,17 +19,24 @@ Required:
 - Full Release Safety = PASS.
 - Authority Surface Safety = PASS.
 - Theme Safety / UI architecture = PASS.
+- Regime Safety = PASS.
 - Homepage Research Boundary = PASS.
-- All deterministic PHP suites = PASS, including the default email-only whitelist contract and the separately enabled dormant WhatsApp capability contract.
-- All first-party JavaScript syntax checks = PASS.
-- Artifact builds twice byte-identically and file count matches the manifest.
-- BTC Intelligence asset version is newer than the previous public CSS/JS release; Bitmomo Pro version is newer than the previous Pro CSS release. Production must not depend on a manual browser cache purge.
+- Institutional public-copy contract = PASS.
+- Navigation/footer contract = PASS and agrees with the public-surface/browser contracts.
+- All deterministic PHP suites = PASS, including email-only whitelist behavior and dormant WhatsApp enabled-mode tests.
+- All first-party JavaScript syntax/contracts = PASS.
+- Artifact builds twice byte-identically and file count matches `config/production-runtime.json`.
+- Artifact provenance binds the exact accepted commit/tree.
+- No CI assertion may intentionally contradict another canonical product contract. If a contradiction is found, the release is blocked until the intended product behavior is reconciled and tests are updated.
+
+BTC / Market Context integrity remains mandatory:
+
 - Market Context is read-only and never queries current protected Pro records.
-- Market Context range failure clears stale payload/compare state; a failed new range must never be able to render the previous range under the new UI selection.
-- A first history observation without a known prior observation must not be labeled as a thesis/state transition.
+- Range failure clears stale payload/compare state; a failed new range cannot render the previous range under the new selection.
+- First history observation without a known prior observation is never labeled as a transition.
 - Only closed Binance daily candles may be labeled daily close.
 - Gold stays fail-closed when its provider/key is unavailable; never substitute PAXG or another proxy and call it Gold.
-- Current Pro Expected Range / Scenario Map / Invalidation remain unavailable in the public Market Context contract.
+- Current Pro Expected Range / Scenario Map / invalidation remain unavailable in the public Market Context contract unless the release explicitly changes that boundary.
 - Pro/Help/whitelist source contracts do not promise a capability merely because dormant code exists.
 
 ## 2. P0 — staging environment identity
@@ -36,198 +45,290 @@ Before visual QA, record:
 
 - exact staging URL;
 - deployed artifact ID + SHA-256;
+- manifest source commit/tree + runtime file count;
 - theme/plugin versions returned by runtime health/admin;
 - UTC and Asia/Jakarta timestamps;
 - database/environment identity;
-- confirmation that outbound production mail/webhooks/checkout actions remain disabled or staging-safe.
+- confirmation that outbound production payment/webhook actions remain disabled or staging-safe.
 
 If artifact/runtime identity cannot be proven, stop. Do not visually approve an unknown environment.
 
 ## 3. P0 — responsive public-surface matrix
 
-Run at **360 / 390 / 768 / 1024 / 1440**, including short-height **390x568**, for:
+Run at **360x800 / 390x568 / 390x844 / 768x1024 / 1024x900 / 1440x1000**, plus **200% text zoom**, for:
 
 - `/`
 - `/btc-intelligence/`
 - `/pro/`
 - `/help/`
 - `/category/riset/`
-- one qualified Research article
+- at least two qualified Research articles where available
 - `/tentang-kami/`
 - `/kebijakan-privasi/`
 - `/disclaimer/`
-- `/pro/account/`
+- `/pro/account/` logged out
 - search results
-- 404
+- canonical 404
 
 For every surface:
 
-- HTTP status is correct.
+- HTTP status is correct;
 - exactly one visible H1;
 - no header/H1 collision;
-- no horizontal overflow;
+- no horizontal overflow or hidden clipping;
 - canonical header/footer present;
 - active navigation semantics correct where applicable;
-- internal fragment links resolve;
-- no empty links;
+- internal fragments resolve and no empty links exist;
 - no legacy newsletter modal;
-- footer newsletter appears exactly once in the deterministic DOM and is visually fail-closed when unavailable;
-- no public `Subscribe email sementara tidak tersedia.` broken-capability message;
+- exactly one global footer newsletter subscribe surface when newsletter backend is operational;
+- newsletter may fail closed when its backend is unavailable, but must not display a broken-capability message;
 - no legacy `/category/tren-ai/` trust-path link;
 - keyboard focus order is logical;
-- mobile targets are at least 44px where touch interaction is expected;
-- 200% text zoom remains usable with no clipped critical content;
+- expected touch targets remain comfortable on mobile;
+- 200% text zoom remains usable without loss of critical content/function;
 - browser console/page errors = 0;
 - Axe serious/critical = 0 at minimum 390 and 1440.
 
-Also test short-height mobile navigation: menu must scroll internally, hidden links must not receive focus while closed, and Escape must close the menu and return focus to the hamburger control.
+Short-height mobile navigation must scroll internally; closed menu links must not receive focus; Escape closes and returns focus to the hamburger.
 
-## 4. P0 — BTC Intelligence / Market Context
+### Overflow integrity
+
+Global overflow suppression is not evidence that a layout fits. Browser acceptance must detect content whose geometry extends beyond its intended container even if `overflow-x` masking prevents a scrollbar. Do not approve clipping that is merely hidden by a global overflow rule.
+
+## 4. P0 — homepage product hierarchy
+
+The homepage must remain one coherent Bitcoin intelligence front door:
+
+1. product promise;
+2. current BTC market view;
+3. accountability/proof path;
+4. concise product mechanism;
+5. Founding/Pro conversion;
+6. qualified Research;
+7. retention/trust footer.
+
+The current market view exposes the canonical visitor terminology:
+
+- **Bias** — Bullish / Netral / Bearish;
+- **Confidence** — bounded confidence with explicit non-probability explanation;
+- **Referensi BTC**;
+- **Faktor Utama** — one concise public-safe driver;
+- **Diperbarui** — canonical observation/update time;
+- **Sumber Data** — concise allowlisted source label;
+- one link to complete BTC Intelligence;
+- direct accountability path to Decision Ledger.
+
+Homepage must not grow back into a mini-dashboard, generic crypto media site, AI Lab catalogue, future-capability wall, direct referral card, or duplicated newsletter/conversion wall.
+
+Commercial color semantics are intentional: commercial/paid actions use the commercial action token; free product/navigation actions should not be styled as if they are paid conversion actions.
+
+## 5. P0 — BTC Intelligence / Market Context
 
 ### Canonical Decision View
 
-- Direction, Market State, Confidence, reference price and freshness agree with the public-safe canonical adapter.
-- stale/delayed/unavailable states are visually explicit and never fabricated.
-- public snapshot has a valid `as_of` timestamp and is within the whitelist launch age budget (default **30 hours**); older intelligence is launch-blocking rather than accepted as arbitrarily old `delayed` data.
-- Pro/Help copy does not statically claim `Decision View aktif hari ini` or `aktif setiap hari` independently of runtime state.
-- What Changed is visually prior to supporting Why in enhanced experience.
-- server-rendered Decision View remains complete if Market Context JS or provider calls fail.
+- Direction/Bias, Market State where intentionally exposed, Confidence, reference price and freshness agree with the public-safe canonical adapter.
+- stale/delayed/unavailable states are explicit and never fabricated.
+- public snapshot has a valid `as_of` timestamp and is within the whitelist launch age budget (default **30 hours**).
+- Pro/Help copy does not statically claim a live current Decision View independently of runtime state.
+- server-rendered Decision View remains usable if Market Context JS/provider calls fail.
 - BTC shell width does not visibly jump when JavaScript initializes.
 
 ### Explorer ranges
 
-Exercise **7D / 30D / 90D / YTD / 1Y**.
+Exercise **7D / 30D / 90D / YTD / 1Y**:
 
-For each range:
-
-- selection state (`aria-pressed`) matches the visible range;
-- x-axis dates match the requested range;
-- BTC starts at indexed 100;
-- actual BTC source values in tooltip match source points;
-- changing ranges never shows data from the previous range after an error;
-- rapidly changing ranges cannot let a late older response overwrite the latest selection.
+- selected state matches visible range;
+- dates match requested range;
+- normalized comparison starts at indexed 100;
+- actual tooltip/source values agree with the payload;
+- changing ranges never shows stale data from the previous range after error;
+- late older responses cannot overwrite the latest selection.
 
 ### Asset comparison
 
-Exercise BTC plus Gold / ETH / SOL combinations:
-
 - maximum 3 active series;
-- comparison baseline is common and meaningful;
-- each line remains distinguishable without relying only on hue (line pattern/weight plus legend label);
+- common baseline is meaningful;
+- lines remain distinguishable without hue alone;
 - ETH/SOL/BTC use closed Binance daily candles;
-- Gold uses the configured Gold provider only;
-- if Gold is intentionally unconfigured, the state is honest and does not break BTC/ETH/SOL. For production, either configure Gold or explicitly accept the unavailable state in the release report.
+- Gold uses only configured Gold provider;
+- unavailable Gold remains honest and does not break crypto series.
 
-### Markers
+### Interaction clarity
 
-- first known record is not falsely shown as a transition;
-- state/bias transition markers correspond to actual prior→current change;
-- Decision Ledger markers correspond to public ledger records;
-- for 90D/YTD/1Y, reviewer must understand marker-history coverage. Absence of a marker must not be presented as proof that no historical transition occurred outside available recorded history.
+Controls or glyphs that look interactive must actually be interactive or be visually recast as labels/status. Do not use link-like arrows on non-links.
 
 ### Failure modes
 
-Test deliberately:
+Deliberately test REST/provider failure, Gold key absent, JavaScript disabled, slow/aborted range switches. Core BTC Intelligence remains usable or fails closed honestly.
 
-- Market Context REST failure;
-- Binance failure/timeout;
-- Gold key absent;
-- Gold provider failure/rate limit;
-- JavaScript disabled;
-- slow network / aborted range switch.
+## 6. P0 — conversion, retention and trust
 
-In all cases core BTC Intelligence remains usable or fails closed honestly.
+### Founding Whitelist
 
-## 5. P0 — conversion and trust
+Whitelist V1 is email-only by default. Dormant WhatsApp code does not make WhatsApp a launch capability.
 
-### Whitelist V1
-
-Whitelist V1 is **email-only by default**. Dormant WhatsApp code does not make WhatsApp a launch capability.
-
-Test the real staging flow, not only stubs:
+Test real staging flow:
 
 - valid email;
 - invalid email;
 - consent absent;
-- consent links directly to canonical Privacy;
+- consent links to canonical Privacy;
 - duplicate normalized email;
 - success state and focus movement;
-- exactly one canonical private record for a new email;
-- duplicate resolves to the same record and does not resend confirmation;
-- checkout is disabled;
-- WhatsApp opt-in is disabled/fail-closed: no phone field/button, no record token exposure, no WhatsApp notification promise;
-- confirmation email is generated exactly once for a new signup through the canonical `wp_mail` boundary;
-- staging readiness short-circuits the mail transport so the probe cannot send externally;
-- temporary readiness record is removed after the probe;
-- narrow viewport overflow = 0;
+- exactly one canonical private record;
+- duplicate resolves to same record and does not resend confirmation;
+- checkout disabled;
+- WhatsApp disabled/fail-closed;
+- confirmation generated exactly once;
+- temporary test records cleaned up;
 - no fake seat reservation/urgency;
-- no payment implication while checkout is unavailable.
+- no payment implication while checkout unavailable.
 
-Before real audience traffic, run a bounded production mail-transport preflight to an internal recipient. A successful staging generation probe is not proof of inbox delivery.
+Run bounded real mail transport preflight to internal recipient before opening audience traffic.
 
-A future release that enables WhatsApp must explicitly update the release expectation and pass separate runtime/browser/transport/privacy acceptance; it must not become live accidentally through dormant code.
+### Newsletter retention
+
+Newsletter and Founding Whitelist are separate user intents and separate consent paths.
+
+Required:
+
+- exactly one compact global-footer newsletter subscribe surface;
+- no newsletter popup/modal or second newsletter wall;
+- newsletter is visually secondary to commercial Founding/Pro actions;
+- do not use the commercial orange treatment for newsletter submit;
+- email-only input should minimize friction;
+- accessible label, loading, validation, duplicate/subscribed, success and failure states;
+- explicit Privacy link/disclosure appropriate to newsletter processing;
+- whitelist signup must not silently subscribe a user to newsletter and newsletter signup must not silently create a whitelist record;
+- legacy `/subscribe`, `#subscribe`, and `#newsletter` destinations resolve to the footer newsletter anchor, not to Founding Whitelist;
+- MailPoet may remain the backend, but visitor presentation must be owned by Bitmomo and not visually look like an embedded vendor widget;
+- backend/form identity must be configurable and staging readiness must prove the configured form actually exists;
+- launch acceptance must verify a real newsletter subscription lifecycle sufficiently to prove the form is not decorative.
 
 ### Pro / Account / Help
 
-- commercial action uses canonical orange hierarchy;
+- commercial action hierarchy remains clear;
 - login/account state resolves correctly;
 - lost-password path works;
 - protected content remains protected;
-- Help deep links/FAQ controls work by keyboard;
-- Help consistently calls the public product **BTC Intelligence**, not the retired `BTC Daily Intelligence` label;
-- Help does not route users back into legacy `/category/tren-ai/` publisher IA;
-- support links use the canonical configured support email;
-- founding pricing copy does not promise lifetime pricing after lapse or guarantee a future new-member price change;
+- Help deep links/controls work by keyboard;
+- product naming is consistent;
+- support uses canonical configured identity;
+- account/help tone uses one consistent formality level;
 - checkout URL remains fail-closed until explicitly configured.
 
 ### Footer / social / legal
 
-- social destinations are fail-closed: only configured validated HTTPS URLs may render;
-- if release expects Telegram/YouTube/X, record expected URLs and verify exact destinations;
-- Terms link appears only when the canonical published Terms page exists;
-- Privacy is published and semantically current with the Whitelist V1 email-only default plus conditional future WhatsApp language;
-- Disclaimer is published and semantically current with current product/data/accountability boundaries;
-- a merely published stale legal page is a release failure.
+- footer IA is compact and visually subordinate to page content;
+- Product / Research / Bitmomo groups remain distinct from legal utility links;
+- newsletter retention row and social links do not become another card/pill wall;
+- social destinations are fail-closed and validated HTTPS;
+- Terms appears only when a canonical published Terms page exists;
+- Privacy and Disclaimer are current, not merely published.
 
-## 6. P0 — Research / Google entry path
+## 7. P0 — Research / Google entry path
 
-- at least **2 qualified Market Research publications** exist in the staging database before whitelist launch;
-- Research Hub shows only qualified institutional research under the canonical classification boundary;
-- no AI Lab / generic legacy Riset leakage into the market Research promise;
-- homepage Research can render genuine qualified BTC/market work instead of disappearing or being padded with unrelated content;
-- Research Hub navigation/search/empty-state copy is coherent for the Indonesian audience while retaining intentional technical vocabulary;
-- article title/deck/meta/body typography is clean and deterministic across devices;
-- reading column remains approximately 720px desktop; wide research figures remain bounded;
-- article tables scroll horizontally rather than breaking the viewport;
-- no injected duplicate disclaimer/newsletter/body H1;
+- at least **2 qualified Market Research publications** exist before whitelist launch;
+- Research Hub shows only qualified institutional Research under the canonical classification boundary;
+- no AI Lab/generic legacy Riset leakage into Market Research promise;
+- homepage Research renders genuine qualified market work or hides cleanly;
+- Research Hub search/filter/empty states remain coherent;
+- article title/deck/meta/body typography is deterministic across devices;
+- reading column remains approximately 720px desktop; wide figures are bounded;
+- article tables scroll locally, not the page;
 - related research classification is correct;
-- search/legacy utility/archive side doors remain noindex where contracted.
+- search/legacy utility/archive side doors remain noindex where contracted;
+- English research labels/principles are intentional product/program names, not accidental mixed-language filler.
 
-## 7. P1 — quality improvements after P0 is green
+## 8. P0 — editorial / language integrity
 
-These should be reviewed before paid scale, but do not independently justify delaying a safe whitelist launch unless staging reveals material UX damage:
+`docs/editorial/BITMOMO_INSTITUTIONAL_COPY_SYSTEM_V1.md` is the language authority.
 
-- provide a non-pointer/keyboard equivalent for historical chart tooltip values;
-- expose explicit marker-history coverage metadata for long ranges;
-- minimize the Market Context REST `current` object to fields actually consumed by the public explorer;
-- replace vendor-owned newsletter presentation with a first-party Bitmomo renderer while retaining MailPoet only as backend if useful;
-- remove frozen legacy header/footer declarations from `custom.css` only after integrated staging parity is proven;
+Before release:
+
+- visitor-facing copy must be natural Bahasa Indonesia with intentional retained market/product terms;
+- no internal engineering terms leak into explanatory prose;
+- no casual phrases, urgency theater, defensive copy or literal translation artifacts;
+- labels, tooltips, empty/error/failure states, dynamic factors, meta descriptions, account states and email copy are included;
+- final public language should live in the owning renderer when feasible rather than depending on broad runtime string replacement. Any presentation compatibility layer must be narrowly scoped and justified.
+
+## 9. P0 — visual/design-system integrity
+
+- graphite/off-white/slate form the base visual system;
+- steel blue is restrained product/data/navigation emphasis;
+- amber/orange is reserved for commercial actions;
+- positive/negative/warning colors remain semantic;
+- direct hard-coded legacy teal/cyan values must not undermine the canonical palette;
+- typography hierarchy should feel analytical, not like a developer terminal; monospace is reserved for compact metadata/status contexts;
+- surfaces should not become card walls simply to create hierarchy;
+- footer/header must remain deterministic across every page type.
+
+## 10. P0 — analytics / PMF observability
+
+Before public whitelist promotion, prove that acquisition and product events have an actual sink; emitting browser events with no persisted analytics receiver is not observability.
+
+At minimum verify privacy-safe capture for:
+
+- landing/source/UTM;
+- homepage BTC Intelligence click;
+- Decision Ledger/proof interest;
+- Pro interest;
+- whitelist start/submit/success/duplicate/error;
+- newsletter subscribe attempt/success/error;
+- BTC Intelligence meaningful view and return visit;
+- Research-to-product navigation.
+
+Never include submitted email/phone/PII in analytics events. Document the analytics destination and validate events end-to-end on staging.
+
+## 11. P0 — SEO / social distribution
+
+Verify rendered, not assumed:
+
+- canonical URL;
+- index/noindex policy;
+- title + meta description;
+- sitemap/robots behavior;
+- Open Graph/Twitter/X title, description and image on homepage, Pro, Research Hub and representative Research article;
+- social preview assets are current, branded and not dependent on a stale generic image;
+- no staging hostname leaks into metadata.
+
+Social preview verification is launch-critical because whitelist traffic will be driven from social platforms.
+
+## 12. P0 — release governance
+
+- PR #135 remains the sole release authority.
+- `docs/CURRENT_RELEASE.md` is the only mutable current-state release document.
+- Static contract documents must not duplicate mutable candidate SHA/artifact/file-count state unless generated/validated automatically.
+- `release/whitelist-v1` should be protected or otherwise technically guarded against accidental direct mutation while it is the active release line; policy alone is weaker than enforcement.
+- No artifact is staging-eligible while `CURRENT_RELEASE.md` says AUDIT HOLD.
+
+## 13. P1 — quality improvements after P0 is green
+
+Review before paid scale, but do not independently delay a safe whitelist launch unless staging reveals material UX harm:
+
+- remove frozen legacy `custom.css` ownership only after integrated parity is proven;
+- provide keyboard/non-pointer access to historical chart values where needed;
+- expose marker-history coverage metadata for long ranges;
+- minimize Market Context payload to fields actually consumed publicly;
+- consider a first-party newsletter renderer over MailPoet backend to reduce vendor coupling;
 - author/review/publish canonical Terms before paid checkout goes live;
-- measure LCP/CLS/INP on the integrated staging artifact and investigate regressions rather than adding arbitrary animation/performance hacks.
+- simplify Pro page sections that do not answer a unique buyer question or objection;
+- strengthen verifiable editorial/analyst authority as the Research corpus grows;
+- measure LCP/CLS/INP and investigate actual regressions rather than adding speculative optimizations.
 
-## 8. Production promotion
+## 14. Production promotion
 
-Only after staging PASS:
+Only after final staging PASS:
 
 1. record fresh backup and rollback point;
-2. deploy the exact accepted artifact — do not rebuild from another ref;
-3. purge server/CDN cache once as deployment hygiene, while asset versions still guarantee browser invalidation;
-4. verify health/version and artifact identity;
-5. smoke home, BTC Intelligence, Pro, Research article, whitelist and account;
-6. verify canonical/robots/title/description on key indexable pages;
-7. verify HTTP security/cache headers appropriate to the actual Hostinger/Cloudflare runtime;
-8. verify no staging banner/config leaks and no production outbound integration is unexpectedly disabled;
-9. run bounded internal-recipient mail transport preflight before opening whitelist traffic;
-10. monitor console/runtime errors and conversion events after release.
+2. deploy the exact accepted artifact — never rebuild from another ref;
+3. purge server/CDN cache once as deployment hygiene while asset versions guarantee browser invalidation;
+4. verify health/version/artifact identity;
+5. smoke homepage, BTC Intelligence, Pro, Research article, whitelist, newsletter and account;
+6. verify canonical/robots/title/description/social metadata on key pages;
+7. verify runtime security/cache headers appropriate to Hostinger/Cloudflare;
+8. verify no staging banner/config leaks;
+9. run bounded internal-recipient mail tests;
+10. monitor runtime/console errors and acquisition/retention events after release.
 
-If production differs from accepted staging in source, database contract or runtime configuration, the staging approval does not transfer: stop and reconcile.
+If production differs from accepted staging in source, database contract or runtime configuration, staging approval does not transfer: stop and reconcile.
