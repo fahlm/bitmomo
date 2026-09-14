@@ -86,10 +86,11 @@ check(
     && !/market_state|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
 );
 check(
-  'Homepage explanation uses institutional visitor language instead of engine vocabulary',
-  /Puluhan data pasar diringkas/.test(howItWorks)
-    && /BTC Intelligence merangkum kondisi saat ini/.test(howItWorks)
-    && /Setiap analisis dicatat sebelum hasil pasar diketahui/.test(howItWorks)
+  'Homepage explanation uses the canonical visitor lifecycle instead of engine vocabulary',
+  /01 · UNDERSTAND NOW/.test(howItWorks)
+    && /02 · MAP WHAT CHANGES/.test(howItWorks)
+    && /03 · AUDIT THE RESULT/.test(howItWorks)
+    && /Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis/.test(howItWorks)
     && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b|Data bermasalah ditahan/i.test(howItWorks)
 );
 check(
@@ -107,14 +108,16 @@ check(
 );
 
 check(
-  'BTC Intelligence reads public-safe boundaries and keeps copy filtering scoped to its own shortcode',
+  'BTC Intelligence reads public-safe boundaries and renderer-owned copy only',
   /Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::history\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::evaluation_summary\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Btc_Intelligence_Accountability/.test(btcIntelligencePage)
     && !/Bitmomo_AI_Scorecard::|Bitmomo_Regime_State_Store::|Bitmomo_Pro_[A-Za-z]+::/.test(btcIntelligencePage)
-    && /add_filter\(\s*'do_shortcode_tag',\s*'bitmomo_btc_intelligence_public_copy'/.test(btcIntelligencePlugin)
-    && /'bitmomo_btc_intelligence'\s*!==\s*\$tag/.test(btcIntelligencePlugin)
+    && />FAKTOR UTAMA</.test(btcIntelligencePage)
+    && /TIDAK SESUAI/.test(btcIntelligencePage)
+    && /BELUM DINILAI/.test(btcIntelligencePage)
+    && !/do_shortcode_tag|bitmomo_btc_intelligence_public_copy|strtr\s*\(/.test(btcIntelligencePlugin)
     && !/Bitmomo_Btc_Opportunity_UI/.test(btcIntelligencePlugin)
 );
 check(
