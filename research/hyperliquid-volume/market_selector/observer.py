@@ -44,9 +44,10 @@ class ExecutionObservation:
 class MarketObserver:
     """Rolling read-only market metrics for one Hyperliquid market.
 
-    It deliberately keeps empirical execution metrics separate from raw book/trade
-    metrics. If no execution observations exist, fill/maker/markout/P10K remain
-    UNKNOWN rather than being inferred from unrelated fields.
+    Raw market state intentionally uses a short window while empirical execution
+    evidence uses a longer bounded window. This prevents a 15-minute spread/queue
+    horizon from continuously deleting the sample needed to estimate fill, maker
+    ratio, markout, P10K and T10K.
     """
 
     def __init__(
@@ -54,11 +55,16 @@ class MarketObserver:
         coin: str,
         cfg: SelectorConfig,
         *,
-        window_seconds: int = 900,
+        window_seconds: int | None = None,
     ):
         self.coin = coin
         self.cfg = cfg
-        self.window_ms = window_seconds * 1000
+        self.market_window_ms = int(
+            (cfg.market_window_seconds if window_seconds is None else window_seconds)
+            * 1000
+        )
+        self.execution_window_ms = int(cfg.execution_window_seconds * 1000)
+        self.execution_max_samples = cfg.execution_max_samples
         self.started_ms = int(time.time() * 1000)
         self.books: Deque[BookObservation] = deque()
         self.trades: Deque[TradeObservation] = deque()
@@ -74,21 +80,30 @@ class MarketObserver:
 
     def on_book(self, obs: BookObservation) -> None:
         self.books.append(obs)
-        self._trim(obs.timestamp_ms)
+        self._trim_market(obs.timestamp_ms)
+        self._trim_execution(obs.timestamp_ms)
 
     def on_trade(self, obs: TradeObservation) -> None:
         self.trades.append(obs)
-        self._trim(obs.timestamp_ms)
+        self._trim_market(obs.timestamp_ms)
+        self._trim_execution(obs.timestamp_ms)
 
     def on_execution(self, obs: ExecutionObservation) -> None:
         self.executions.append(obs)
-        self._trim(obs.timestamp_ms)
+        self._trim_execution(obs.timestamp_ms)
 
-    def _trim(self, now_ms: int) -> None:
-        cutoff = now_ms - self.window_ms
-        for queue in (self.books, self.trades, self.executions):
+    def _trim_market(self, now_ms: int) -> None:
+        cutoff = now_ms - self.market_window_ms
+        for queue in (self.books, self.trades):
             while queue and queue[0].timestamp_ms < cutoff:
                 queue.popleft()
+
+    def _trim_execution(self, now_ms: int) -> None:
+        cutoff = now_ms - self.execution_window_ms
+        while self.executions and self.executions[0].timestamp_ms < cutoff:
+            self.executions.popleft()
+        while len(self.executions) > self.execution_max_samples:
+            self.executions.popleft()
 
     @staticmethod
     def _p90(values: list[float]) -> Optional[float]:
@@ -100,7 +115,8 @@ class MarketObserver:
 
     def snapshot(self, now_ms: Optional[int] = None) -> RollingMetrics:
         now_ms = now_ms or int(time.time() * 1000)
-        self._trim(now_ms)
+        self._trim_market(now_ms)
+        self._trim_execution(now_ms)
 
         spreads: list[float] = []
         queues_usd: list[float] = []
@@ -141,7 +157,7 @@ class MarketObserver:
         observed_seconds = max(0.0, (now_ms - self.started_ms) / 1000)
         effective_trade_window_minutes = min(
             max(observed_seconds / 60, 1e-9),
-            self.window_ms / 60_000,
+            self.market_window_ms / 60_000,
         )
         trade_rate = (
             len(self.trades) / effective_trade_window_minutes
@@ -151,6 +167,7 @@ class MarketObserver:
 
         last_book_ms = self.books[-1].timestamp_ms if self.books else None
         last_trade_ms = self.trades[-1].timestamp_ms if self.trades else None
+        last_execution_ms = self.executions[-1].timestamp_ms if self.executions else None
         book_age = (
             (now_ms - last_book_ms) / 1000
             if last_book_ms is not None
@@ -159,6 +176,11 @@ class MarketObserver:
         trade_age = (
             (now_ms - last_trade_ms) / 1000
             if last_trade_ms is not None
+            else float("inf")
+        )
+        execution_age = (
+            (now_ms - last_execution_ms) / 1000
+            if last_execution_ms is not None
             else float("inf")
         )
 
@@ -196,12 +218,18 @@ class MarketObserver:
 
                 volume = sum(x.round_trip_volume_usd or 0.0 for x in completed)
                 pnl_values = [x.pnl_usd for x in completed if x.pnl_usd is not None]
-                elapsed_hours = min(
-                    max(observed_seconds / 3600, 1e-9),
-                    self.window_ms / 3_600_000,
+
+                evidence_start_ms = max(
+                    self.started_ms,
+                    now_ms - self.execution_window_ms,
+                    self.executions[0].timestamp_ms,
                 )
-                volume_per_hour = volume / elapsed_hours if elapsed_hours > 0 else None
-                if volume_per_hour and volume_per_hour > 0:
+                elapsed_hours = max(
+                    (now_ms - evidence_start_ms) / 3_600_000,
+                    1 / 3600,
+                )
+                volume_per_hour = volume / elapsed_hours
+                if volume_per_hour > 0:
                     t10k = 10_000 / volume_per_hour
                 if volume > 0 and pnl_values:
                     p10k = sum(pnl_values) / volume * 10_000
@@ -230,6 +258,7 @@ class MarketObserver:
             microprice_edge_bps=statistics.mean(micro_edges) if micro_edges else None,
             aggressor_flow=aggressor_flow,
             execution_samples=execution_samples,
+            execution_age_seconds=execution_age,
             fill_rate=fill_rate,
             maker_ratio=maker_ratio,
             markout_5s_bps=markout_5s,
