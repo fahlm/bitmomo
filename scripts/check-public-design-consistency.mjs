@@ -46,14 +46,20 @@ check(
 );
 
 check(
-  'Legacy teal-named compatibility aliases resolve to the steel-blue product accent',
+  'Legacy compatibility aliases resolve only to the canonical design foundation',
+  /--bg:\s*var\(--bm-bg\)/.test(design) &&
+  /--bg-2:\s*var\(--bm-bg-elevated\)/.test(design) &&
+  /--ink:\s*var\(--bm-text\)/.test(design) &&
+  /--muted:\s*var\(--bm-text-muted\)/.test(design) &&
   /--teal:\s*var\(--bm-accent\)/.test(design) &&
+  /--stroke:\s*var\(--bm-border\)/.test(design) &&
+  /--cta:\s*var\(--bm-action\)/.test(design) &&
+  /--cta-hover:\s*var\(--bm-action-hover\)/.test(design) &&
   /--bm-teal:\s*var\(--bm-accent\)/.test(design) &&
   /--bm-teal-hover:\s*var\(--bm-accent-hover\)/.test(design) &&
   /--bm-muted:\s*var\(--bm-text-muted\)/.test(design) &&
   /--bm-public-max:\s*var\(--bm-shell-width\)/.test(design) &&
-  /--bm-reading-max:\s*var\(--bm-reading-wide\)/.test(design) &&
-  /--cta-hover:\s*var\(--bm-action-hover\)/.test(design)
+  /--bm-reading-max:\s*var\(--bm-reading-wide\)/.test(design)
 );
 
 check(
@@ -178,11 +184,14 @@ check(
   assets.indexOf('home.css') > assets.indexOf('navigation-footer.css')
 );
 
+const researchUsesCanonicalOrMappedTokens =
+  /var\(--bm-/.test(research) ||
+  /var\(--(?:bg|bg-2|ink|muted|teal|stroke|cta|cta-hover)\)/.test(research);
 check(
   'Research remains a named surface and inherits the shared foundation without its own root token block',
   !/:root\s*\{/.test(research) &&
   /\.bm-research-hub/.test(research) &&
-  /var\(--bm-/.test(research)
+  researchUsesCanonicalOrMappedTokens
 );
 
 if (failures.length) {
