@@ -15,6 +15,7 @@ on:
       - "scripts/check-article-cleanliness.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
       - "scripts/check-institutional-copy.mjs"
+      - "scripts/check-public-design-consistency.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
       - "docs/ARTICLE_READING_CONTRACT.md"
@@ -70,6 +71,7 @@ jobs:
           node --check scripts/check-article-cleanliness.mjs
           node --check scripts/check-terminal-grade-contract.mjs
           node --check scripts/check-institutional-copy.mjs
+          node --check scripts/check-public-design-consistency.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
       - name: Enforce canonical authority source contract
@@ -80,3 +82,6 @@ jobs:
 
       - name: Enforce institutional public copy
         run: node scripts/check-institutional-copy.mjs
+
+      - name: Enforce sitewide institutional design consistency
+        run: node scripts/check-public-design-consistency.mjs
