@@ -21,7 +21,7 @@ if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
     <article>
       <span>01 · CURRENT VIEW</span>
       <h3>BTC Intelligence</h3>
-      <p>Ringkasan kondisi BTC saat ini: bias, confidence, faktor utama, sumber data, dan waktu analisis dalam satu tampilan yang dapat diperiksa.</p>
+      <p>Ringkasan kondisi BTC saat ini, perubahan material, maknanya, dan satu konteks yang layak dipantau — lengkap dengan sumber dan waktu analisis.</p>
     </article>
     <article>
       <span>02 · RESEARCH</span>
@@ -31,7 +31,7 @@ if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
     <article>
       <span>03 · DECISION SUPPORT</span>
       <h3>Bitmomo Pro</h3>
-      <p>Expected Range, Scenario Map, invalidasi tesis, What Changed, dan rekam evaluasi untuk membantu memantau kapan pembacaan pasar perlu diperbarui.</p>
+      <p>Monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis untuk membantu menavigasi apa yang terjadi berikutnya dan kapan pembacaan pasar perlu dievaluasi ulang.</p>
     </article>
   </div>
 </section>
@@ -54,8 +54,8 @@ if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
 <section class="bm-about-product" aria-labelledby="bm-about-product-title">
   <div>
     <p class="bm-about-authority__eyebrow">FROM RESEARCH TO PRODUCT</p>
-    <h2 id="bm-about-product-title">Gratis menjelaskan kondisi sekarang. Pro memetakan apa yang perlu dipantau berikutnya.</h2>
-    <p>BTC Intelligence merangkum kondisi BTC saat ini dan perubahan penting. Bitmomo Pro menambahkan Expected Range, Scenario Map, kondisi invalidasi tesis, dan What Changed untuk membantu memantau apa yang dapat mengubah pembacaan pasar.</p>
+    <h2 id="bm-about-product-title">Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.</h2>
+    <p>BTC Intelligence merangkum kondisi BTC, perubahan material, mengapa perubahan itu penting, dan satu konteks pantauan. Bitmomo Pro memperluasnya dengan monitoring lengkap, Expected Range, Scenario Map, dan kondisi invalidasi tesis.</p>
     <p class="bm-about-product__boundary">Decision Ledger memperlihatkan apa yang Bitmomo katakan sebelumnya dan apa yang benar-benar terjadi. Bitmomo tetap merupakan alat bantu analisis, bukan perintah transaksi atau nasihat keuangan personal.</p>
   </div>
   <div class="bm-about-product__actions">
