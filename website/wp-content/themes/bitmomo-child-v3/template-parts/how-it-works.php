@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <p><?php esc_html_e( 'BTC Intelligence merangkum kondisi, perubahan material, maknanya, dan satu konteks pantauan untuk membantu memahami pasar sekarang.', 'bitmomo' ); ?></p>
       </li>
       <li>
-        <span class="bm-howworks-step-label"><?php esc_html_e( '02 · NAVIGATE NEXT', 'bitmomo' ); ?></span>
+        <span class="bm-howworks-step-label"><?php esc_html_e( '02 · MAP WHAT CHANGES', 'bitmomo' ); ?></span>
         <p><?php esc_html_e( 'Bitmomo Pro menambahkan monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis untuk membantu menavigasi apa yang terjadi berikutnya.', 'bitmomo' ); ?></p>
       </li>
       <li>
