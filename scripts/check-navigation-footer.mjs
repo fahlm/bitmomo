@@ -78,17 +78,27 @@ check(
   /--bm-action:\s*#f4ad32/.test(designCss) && /background:\s*var\(--bm-action/.test(navCss) && /--bm-action-hover/.test(designCss)
 );
 check(
-  'Launch footer contains no competing newsletter or MailPoet conversion surface',
-  !/id="newsletter"|mailpoet_form|EMAIL BRIEF|bm-footer-newsletter|bm-footer-connect/.test(footer + navCss) &&
+  'Exactly one compact footer newsletter is the free retention surface',
+  occurrences(footer, /id="newsletter"/g) === 1 && /mailpoet_form/.test(footer) && /bm-footer-newsletter/.test(footer + navCss) &&
   !/template-parts\/newsletter/.test(frontPage) && !fs.existsSync(path.join(theme, 'template-parts/newsletter.php'))
 );
 check(
-  'Legacy newsletter modal is structurally disabled rather than page-by-page suppressed',
+  'Newsletter backend identity is configurable and fails closed',
+  /BITMOMO_NEWSLETTER_FORM_ID/.test(footer) && /bitmomo_newsletter_form_id/.test(footer) &&
+  /shortcode_exists\(\s*'mailpoet_form'\s*\)/.test(footer) && /if \( \$bm_newsletter_available \)/.test(footer)
+);
+check(
+  'Newsletter is visually secondary and does not consume the commercial action token',
+  /\.bm-footer-newsletter__form[\s\S]*?background:\s*var\(--bm-bg-soft/.test(navCss) &&
+  !/\.bm-footer-newsletter[\s\S]{0,1400}background:\s*var\(--bm-action/.test(navCss)
+);
+check(
+  'Legacy newsletter modal remains structurally disabled',
   /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontend) && !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontend + js)
 );
 check(
-  'Legacy subscribe routes and menu links resolve to the canonical Founding whitelist',
-  content.includes("home_url('/#founding-whitelist')") && /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) &&
+  'Legacy subscribe routes and menu links resolve to the canonical footer newsletter',
+  content.includes("home_url('/#newsletter')") && /strcasecmp\(\$path\s*,\s*'subscribe'\)\s*===\s*0/.test(content) &&
   /#subscribe/.test(content) && /#newsletter/.test(content) && /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
