@@ -5,8 +5,9 @@ from dataclasses import dataclass
 class SelectorConfig:
     """Provisional research thresholds for market selection.
 
-    These are intentionally not production-frozen. They are explicit so research can
-    distinguish a change in logic from a change in market data.
+    These are intentionally not production-frozen. Market-state metrics and
+    execution-evidence metrics use different horizons so short-lived spread/queue
+    changes do not erase the larger sample needed to estimate execution economics.
     """
 
     target_order_notional: float = 100.0
@@ -14,9 +15,18 @@ class SelectorConfig:
     # Warm-up / data health
     warmup_seconds: int = 300
     max_book_age_seconds: float = 5.0
-    max_trade_age_seconds: float = 15.0
+    max_trade_age_seconds: float = 15.0  # informational only; not a transport gate
     min_book_observations: int = 120
     min_trade_observations: int = 20
+
+    # Market-state window (spread / queue / flow / trade activity).
+    market_window_seconds: int = 900
+
+    # Execution-evidence window. Keep enough evidence to estimate fill/maker/
+    # markout/P10K/T10K while still requiring recent attempts.
+    execution_window_seconds: int = 14_400
+    execution_max_samples: int = 100
+    max_execution_age_seconds: float = 1_800.0
 
     # Market-quality prerequisites
     min_day_volume_usd: float = 10_000_000.0
