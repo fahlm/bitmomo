@@ -1,0 +1,46 @@
+name: Engagement copilot safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "research/engagement-copilot/**"
+      - "docs/research-distribution/ENGAGEMENT_COPILOT_V1.md"
+      - ".github/workflows/engagement-copilot-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/engagement-copilot/**"
+      - "docs/research-distribution/ENGAGEMENT_COPILOT_V1.md"
+      - ".github/workflows/engagement-copilot-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engagement-copilot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    name: Lint and deterministic engagement contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint Engagement Copilot V1 implementation and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l research/engagement-copilot/includes/class-bitmomo-engagement-copilot-v1.php
+          php -l research/engagement-copilot/includes/class-bitmomo-engagement-copilot-queue-v1.php
+          php -l research/engagement-copilot/tests/test-bitmomo-engagement-copilot-v1.php
+
+      - name: Run Engagement Copilot V1 deterministic suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          php research/engagement-copilot/tests/test-bitmomo-engagement-copilot-v1.php
