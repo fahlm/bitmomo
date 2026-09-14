@@ -6,6 +6,8 @@ if (!/^https?:\/\//.test(baseUrl)) {
   process.exit(2);
 }
 
+const auditHost = new URL(baseUrl).hostname;
+const productionAudit = /(^|\.)bitmomo\.id$/i.test(auditHost);
 const forbiddenHostPattern = /(?:seagreen|staging\.bitmomo|\.hostingersite\.|\.hostingerapp\.)/i;
 const browser = await chromium.launch({ headless: true });
 const failures = [];
@@ -78,7 +80,9 @@ async function audit(label, url) {
       ['twitter:image', meta.twitterImage],
     ]) {
       if (value && !absoluteHttp(value)) fail(label, `${name} is not an absolute http(s) URL: ${value}`);
-      if (value && forbiddenHostPattern.test(value)) fail(label, `${name} leaks staging/preview identity: ${value}`);
+      if (productionAudit && value && forbiddenHostPattern.test(value)) {
+        fail(label, `${name} leaks staging/preview identity on production: ${value}`);
+      }
     }
 
     if (meta.twitterCard && meta.twitterCard !== 'summary_large_image') {
