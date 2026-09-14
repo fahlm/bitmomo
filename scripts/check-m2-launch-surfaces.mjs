@@ -107,13 +107,15 @@ check(
 );
 
 check(
-  'BTC Intelligence reads public-safe boundaries, never raw private stores from the renderer',
+  'BTC Intelligence reads public-safe boundaries and keeps copy filtering scoped to its own shortcode',
   /Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::history\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Public_Intelligence_Adapter::evaluation_summary\(\)/.test(btcIntelligencePage)
     && /Bitmomo_Btc_Intelligence_Accountability/.test(btcIntelligencePage)
     && !/Bitmomo_AI_Scorecard::|Bitmomo_Regime_State_Store::|Bitmomo_Pro_[A-Za-z]+::/.test(btcIntelligencePage)
-    && !/do_shortcode_tag|Bitmomo_Btc_Opportunity_UI/.test(btcIntelligencePlugin)
+    && /add_filter\(\s*'do_shortcode_tag',\s*'bitmomo_btc_intelligence_public_copy'/.test(btcIntelligencePlugin)
+    && /'bitmomo_btc_intelligence'\s*!==\s*\$tag/.test(btcIntelligencePlugin)
+    && !/Bitmomo_Btc_Opportunity_UI/.test(btcIntelligencePlugin)
 );
 check(
   'BTC accountability boundary is read-only and result-neutral',
