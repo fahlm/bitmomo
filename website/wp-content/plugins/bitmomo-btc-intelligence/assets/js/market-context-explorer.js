@@ -30,7 +30,7 @@
     const badge = document.createElement('span');
     badge.className = 'bm-bi__market-state';
     badge.hidden = true;
-    badge.innerHTML = '<span>MARKET STATE</span><strong>—</strong>';
+    badge.innerHTML = '<span>KONDISI PASAR</span><strong>—</strong>';
     title.insertAdjacentElement('afterend', badge);
   }
 
@@ -39,7 +39,7 @@
     if (rail && !rail.querySelector('a[href="#market-context"]')) {
       const link = document.createElement('a');
       link.href = '#market-context';
-      link.textContent = 'Context';
+      link.textContent = 'Konteks';
       const firstLink = rail.querySelector('a');
       if (firstLink) firstLink.insertAdjacentElement('afterend', link);
       else rail.appendChild(link);
@@ -60,11 +60,11 @@
     heading.className = 'bm-mc__heading';
     heading.innerHTML = [
       '<div>',
-      '<p class="bm-bi__eyebrow">MARKET CONTEXT</p>',
-      '<h2 id="bm-mc-title">Lihat BTC dalam konteks, bukan sendirian.</h2>',
-      '<p>Bandingkan kinerja lintas aset dan lihat kapan thesis Bitmomo berubah.</p>',
+      '<p class="bm-bi__eyebrow">KONTEKS PASAR</p>',
+      '<h2 id="bm-mc-title">Pahami BTC dalam konteks pasar yang lebih luas.</h2>',
+      '<p>Bandingkan BTC dengan aset lain untuk melihat perubahan relatif dan kapan tesis pasar berubah.</p>',
       '</div>',
-      '<div class="bm-mc__mode"><span>RELATIVE PERFORMANCE</span><strong>Start = 100</strong></div>'
+      '<div class="bm-mc__mode"><span>KINERJA RELATIF</span><strong>Awal = 100</strong></div>'
     ].join('');
 
     const controls = document.createElement('div');
@@ -93,7 +93,7 @@
     compareWrap.className = 'bm-mc__compare';
     const compareLabel = document.createElement('span');
     compareLabel.className = 'bm-mc__control-label';
-    compareLabel.textContent = 'COMPARE';
+    compareLabel.textContent = 'BANDINGKAN';
     const compareGroup = document.createElement('div');
     compareGroup.className = 'bm-mc__series-controls';
     compareGroup.setAttribute('role', 'group');
@@ -116,7 +116,7 @@
     const overlays = document.createElement('div');
     overlays.className = 'bm-mc__pro-overlays';
     overlays.innerHTML = [
-      '<div class="bm-mc__pro-copy"><span>PRO CONTEXT</span><p>Pro menambahkan expected range, scenario, dan invalidation langsung di chart yang sama.</p></div>',
+      '<div class="bm-mc__pro-copy"><span>KONTEKS PRO</span><p>Pro menambahkan Expected Range, Scenario Map, dan Invalidation pada grafik yang sama.</p></div>',
       '<div class="bm-mc__pro-items" aria-label="Overlay Bitmomo Pro">',
       '<span>Expected Range <b aria-hidden="true">↗</b></span>',
       '<span>Scenario Map <b aria-hidden="true">↗</b></span>',
@@ -169,9 +169,9 @@
       state.payload = null;
       state.active = new Set(['btc']);
       explorer.compareGroup.replaceChildren();
-      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Konteks pasar belum tersedia.</strong><span>Decision View di atas tetap menggunakan data canonical Bitmomo.</span></div>';
+      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Konteks pasar belum tersedia.</strong><span>Decision View di atas tetap menggunakan data utama Bitmomo.</span></div>';
       explorer.legend.replaceChildren();
-      explorer.status.textContent = 'Market Context Explorer gagal dimuat; pembacaan BTC utama tidak terpengaruh.';
+      explorer.status.textContent = 'Konteks Pasar gagal dimuat; pembacaan BTC utama tidak terpengaruh.';
     } finally {
       if (requestId !== state.requestSeq) return;
       if (state.controller === controller) state.controller = null;
@@ -188,11 +188,11 @@
     const badge = snapshot.querySelector('.bm-bi__market-state');
     if (!badge || current.status !== 'available' || !current.market_state) return;
     const labels = {
-      accumulation: 'Accumulation',
-      expansion: 'Expansion',
-      distribution: 'Distribution',
-      capitulation: 'Capitulation',
-      transition: 'Transition'
+      accumulation: 'Akumulasi',
+      expansion: 'Ekspansi',
+      distribution: 'Distribusi',
+      capitulation: 'Kapitulasi',
+      transition: 'Transisi'
     };
     badge.hidden = false;
     badge.className = `bm-bi__market-state is-${escapeToken(current.market_state)}`;
@@ -251,7 +251,7 @@
     if (!state.payload) return;
     const available = state.payload.series.filter((item) => state.active.has(item.id) && item.status === 'available' && Array.isArray(item.points) && item.points.length > 1);
     if (!available.length) {
-      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Series pembanding belum tersedia.</strong></div>';
+      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Data pembanding belum tersedia.</strong></div>';
       return;
     }
 
@@ -317,7 +317,7 @@
     explorer.chart.replaceChildren(svg, tooltip);
     bindChartPointer(svg, hit, crosshair, tooltip, normalized, bounds, dims);
     renderLegend(normalized);
-    explorer.status.textContent = `${normalized.map((item) => item.label).join(', ')} dibandingkan dari baseline tanggal ${formatDate(normalized[0].baselineT, '1y')}. Semua garis dimulai dari indeks 100.`;
+    explorer.status.textContent = `${normalized.map((item) => item.label).join(', ')} dibandingkan dari titik awal ${formatDate(normalized[0].baselineT, '1y')}. Semua garis dimulai dari indeks 100.`;
   }
 
   function normalizeTogether(seriesList) {
@@ -437,16 +437,16 @@
   }
 
   function markerTitle(marker) {
-    const parts = [marker.label || 'Bitmomo marker'];
+    const parts = [marker.label || 'Penanda Bitmomo'];
     if (marker.market_state) parts.push(humanize(marker.market_state));
     if (marker.bias) parts.push(humanize(marker.bias));
-    if (Number.isFinite(Number(marker.confidence))) parts.push(`Confidence ${Number(marker.confidence)}/100`);
+    if (Number.isFinite(Number(marker.confidence))) parts.push(`Keyakinan ${Number(marker.confidence)}/100`);
     return parts.join(' · ');
   }
 
   function unavailableLabel(reason) {
     if (reason === 'provider_not_configured') return 'belum dikonfigurasi';
-    if (reason === 'insufficient_history' || reason === 'insufficient_closed_history') return 'history belum cukup';
+    if (reason === 'insufficient_history' || reason === 'insufficient_closed_history') return 'riwayat belum cukup';
     return 'sementara tidak tersedia';
   }
 
