@@ -45,8 +45,8 @@ $bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
     <div class="bm-home-hero__grid">
       <div class="bm-home-hero__copy">
         <p class="bm-home-hero__eyebrow">BTC MARKET INTELLIGENCE</p>
-        <h1 class="bm-home-hero__title" id="bm-home-title">Pahami kondisi BTC sekarang. Ketahui apa yang perlu dipantau berikutnya.</h1>
-        <p class="bm-home-hero__lead">BTC Intelligence merangkum bias pasar, confidence, dan faktor utama yang membentuk kondisi BTC saat ini. Bitmomo Pro menambahkan skenario, rentang harga, serta kondisi yang mengubah tesis pasar. Setiap analisis dicatat agar dapat dievaluasi terhadap hasil aktual.</p>
+        <h1 class="bm-home-hero__title" id="bm-home-title">Pahami kondisi BTC sekarang.</h1>
+        <p class="bm-home-hero__lead"><strong>Gratis menjelaskan kondisi sekarang. Pro memetakan apa yang perlu dipantau berikutnya.</strong> BTC Intelligence merangkum bias pasar, confidence, dan faktor utama. Bitmomo Pro menambahkan skenario, rentang harga, kondisi invalidasi, dan perubahan penting sejak analisis sebelumnya. Setiap analisis dicatat agar dapat dievaluasi terhadap hasil aktual.</p>
 
         <div class="bm-home-hero__actions">
           <a class="bm-home-hero__primary" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_primary">Buka BTC Intelligence</a>
