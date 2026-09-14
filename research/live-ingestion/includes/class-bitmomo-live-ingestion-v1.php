@@ -44,28 +44,8 @@ final class Bitmomo_Live_Ingestion_V1 {
             'youtube_published_after' => self::nullable_text($state['youtube_published_after'] ?? null),
         ];
 
-        self::discover_x(
-            $credentials,
-            $http_get,
-            $state,
-            $config,
-            $observations,
-            $diagnostics,
-            $usage,
-            $state_hints
-        );
-
-        self::discover_youtube(
-            $credentials,
-            $http_get,
-            $state,
-            $config,
-            $now,
-            $observations,
-            $diagnostics,
-            $usage,
-            $state_hints
-        );
+        self::discover_x($credentials, $http_get, $state, $config, $observations, $diagnostics, $usage, $state_hints);
+        self::discover_youtube($credentials, $http_get, $state, $config, $now, $observations, $diagnostics, $usage, $state_hints);
 
         $deduped = self::deduplicate_observations($observations);
         $usage['x_estimated_read_cost_usd'] = round($usage['x_posts_returned'] * self::X_POST_READ_USD, 6);
@@ -128,11 +108,7 @@ final class Bitmomo_Live_Ingestion_V1 {
             $formats,
             $now
         );
-
-        return [
-            'ingestion' => $batch,
-            'acquisition_run' => $run,
-        ];
+        return ['ingestion' => $batch, 'acquisition_run' => $run];
     }
 
     private static function discover_x(
@@ -168,8 +144,8 @@ final class Bitmomo_Live_Ingestion_V1 {
                 'query' => $params,
                 'headers' => ['Authorization' => 'Bearer ' . $token],
             ];
-
             $usage['x_requests']++;
+
             try {
                 $response = call_user_func($http_get, $request);
             } catch (Throwable $e) {
@@ -213,16 +189,10 @@ final class Bitmomo_Live_Ingestion_V1 {
                     ],
                     'ingestion' => ['cluster' => $cluster],
                 ];
-
                 if ($highest_id === null || self::numeric_string_compare($id, $highest_id) > 0) $highest_id = $id;
             }
 
-            $diagnostics[] = [
-                'source' => 'x',
-                'cluster' => $cluster,
-                'status' => 'ok',
-                'returned' => count($rows),
-            ];
+            $diagnostics[] = ['source' => 'x', 'cluster' => $cluster, 'status' => 'ok', 'returned' => count($rows)];
         }
 
         if ($highest_id !== null) $state_hints['x_since_id'] = $highest_id;
@@ -262,14 +232,9 @@ final class Bitmomo_Live_Ingestion_V1 {
             if ($config['youtube_region'] !== null) $params['regionCode'] = $config['youtube_region'];
             if ($config['youtube_language'] !== null) $params['relevanceLanguage'] = $config['youtube_language'];
 
-            $request = [
-                'method' => 'GET',
-                'url' => self::YOUTUBE_ENDPOINT,
-                'query' => $params,
-                'headers' => [],
-            ];
-
+            $request = ['method' => 'GET', 'url' => self::YOUTUBE_ENDPOINT, 'query' => $params, 'headers' => []];
             $usage['youtube_search_calls']++;
+
             try {
                 $response = call_user_func($http_get, $request);
             } catch (Throwable $e) {
@@ -316,16 +281,10 @@ final class Bitmomo_Live_Ingestion_V1 {
                     ],
                     'ingestion' => ['query' => $query],
                 ];
-
                 if ($latest_published === null || strcmp($published, $latest_published) > 0) $latest_published = $published;
             }
 
-            $diagnostics[] = [
-                'source' => 'youtube',
-                'query_index' => $index,
-                'status' => 'ok',
-                'returned' => count($rows),
-            ];
+            $diagnostics[] = ['source' => 'youtube', 'query_index' => $index, 'status' => 'ok', 'returned' => count($rows)];
         }
 
         if ($latest_published !== null) $state_hints['youtube_published_after'] = $latest_published;
@@ -333,6 +292,7 @@ final class Bitmomo_Live_Ingestion_V1 {
 
     private static function normalize_config(array $config) {
         $x_clusters = self::bounded_int($config['x_max_clusters'] ?? 3, 1, 3);
+        // X recent search standard API minimum is 10; V1 fixes both min/max at 10.
         $x_results = self::bounded_int($config['x_max_results'] ?? 10, 10, 10);
         $yt_calls = self::bounded_int($config['youtube_max_calls'] ?? 4, 1, 4);
         $yt_results = self::bounded_int($config['youtube_max_results'] ?? 10, 1, 10);
@@ -357,14 +317,18 @@ final class Bitmomo_Live_Ingestion_V1 {
     }
 
     private static function youtube_published_after(array $state, array $config, $now) {
-        $fallback = gmdate('c', $now - ($config['youtube_lookback_hours'] * 3600));
+        $fallback = self::utc_z($now - ($config['youtube_lookback_hours'] * 3600));
         $candidate = self::nullable_text($state['youtube_published_after'] ?? null);
         if ($candidate === null) return $fallback;
         $ts = strtotime($candidate);
         if (!$ts || $ts > $now) return $fallback;
         $floor = $now - (168 * 3600);
-        if ($ts < $floor) return gmdate('c', $floor);
-        return gmdate('c', $ts);
+        if ($ts < $floor) return self::utc_z($floor);
+        return self::utc_z($ts);
+    }
+
+    private static function utc_z($timestamp) {
+        return gmdate('Y-m-d\TH:i:s\Z', (int) $timestamp);
     }
 
     private static function deduplicate_observations(array $observations) {
