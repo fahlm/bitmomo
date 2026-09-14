@@ -47,7 +47,7 @@ if ( ! is_email( $bm_about_support_email ) ) $bm_about_support_email = '';
     <article><strong>Bukti sebelum narasi</strong><span>Kesimpulan dibatasi oleh data yang tersedia dan sumbernya harus dapat ditelusuri.</span></article>
     <article><strong>Konteks, bukan noise</strong><span>Data dibaca dalam struktur dan kondisi pasar, bukan sebagai sinyal yang berdiri sendiri.</span></article>
     <article><strong>Tesis + invalidasi</strong><span>Analisis menjelaskan apa yang mendukung tesis dan kondisi yang membuatnya perlu dievaluasi ulang.</span></article>
-    <article><strong>Evaluasi hasil</strong><span>Analisis yang dapat diuji dicatat sebelum hasil diketahui lalu dibandingkan dengan outcome aktual.</span></article>
+    <article><strong>Evaluasi hasil</strong><span>Analisis yang dapat diuji dicatat sebelum hasil diketahui lalu dibandingkan dengan hasil aktual.</span></article>
   </div>
 </section>
 
