@@ -6,6 +6,13 @@ on:
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
+      - "website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-free-projection-key-drivers-contract.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-surface-context.php"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php"
@@ -59,9 +66,14 @@ jobs:
             website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research.php \
+            website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php; do
@@ -75,6 +87,16 @@ jobs:
           node --check scripts/check-institutional-copy.mjs
           node --check scripts/check-public-design-consistency.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
+
+      - name: Run public intelligence boundary regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-free-projection-key-drivers-contract.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-surface-context.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php
 
       - name: Enforce canonical authority source contract
         run: bash scripts/check-authority-source-contract.sh
