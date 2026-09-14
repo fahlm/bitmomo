@@ -77,19 +77,20 @@ check(
     && !/Bitmomo_Regime_State_Store|Bitmomo_Pro_/.test(homeHero)
 );
 check(
-  'Homepage reading is concise but finance-grade: direction, confidence, reference, reason, time and safe source only',
-  />ARAH</.test(homeHero) && />KEYAKINAN</.test(homeHero) && />REFERENSI BTC</.test(homeHero)
-    && />ALASAN UTAMA</.test(homeHero) && />DIPERBARUI</.test(homeHero) && /<strong>SUMBER<\/strong>/.test(homeHero)
+  'Homepage market view is concise but finance-grade: bias, confidence, reference, factor, time and safe source only',
+  />BTC MARKET VIEW</.test(homeHero) && />BIAS</.test(homeHero) && />CONFIDENCE</.test(homeHero)
+    && />REFERENSI BTC</.test(homeHero) && />FAKTOR UTAMA</.test(homeHero) && />DIPERBARUI</.test(homeHero)
+    && /<strong>SUMBER DATA<\/strong>/.test(homeHero)
     && /\$bm_drivers\[0\]/.test(homeHero) && /\['provenance'\]\['source'\]/.test(homeHero)
     && !/>OPPORTUNITY</.test(homeHero) && !/>STATE</.test(homeHero)
     && !/market_state|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
 );
 check(
-  'Homepage explanation uses visitor language instead of engine vocabulary',
+  'Homepage explanation uses institutional visitor language instead of engine vocabulary',
   /Puluhan data pasar diringkas/.test(howItWorks)
-    && /BTC Intelligence menjelaskan kondisi sekarang/.test(howItWorks)
-    && /Setiap insight dicatat, diuji, dan dievaluasi terhadap hasil aktual/.test(howItWorks)
-    && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
+    && /BTC Intelligence merangkum kondisi saat ini/.test(howItWorks)
+    && /Setiap analisis dicatat sebelum hasil pasar diketahui/.test(howItWorks)
+    && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b|Data bermasalah ditahan/i.test(howItWorks)
 );
 check(
   'Synthetic HTML contract mirrors public facts only',
@@ -196,12 +197,12 @@ check(
     && /BTC Intelligence — Bitmomo/.test(themeFunctions) && /rank_math\/frontend\/title/.test(themeFunctions) && /pre_get_document_title/.test(themeFunctions)
 );
 check(
-  'Launch-critical SEO descriptions use accountability-oriented visitor language rather than engine terms',
-  /Bitmomo merangkum kondisi BTC, alasan utama, perubahan penting, dan riwayat evaluasi/.test(themeFunctions)
-    && /kapan pandangan pasar perlu berubah/.test(themeFunctions)
+  'Launch-critical SEO descriptions use institutional visitor language rather than engine or translation artifacts',
+  /Bitmomo merangkum kondisi BTC, faktor pasar utama, perubahan penting, dan riwayat evaluasi/.test(themeFunctions)
+    && /kondisi yang dapat mengubah tesis pasar/.test(themeFunctions)
     && /Lihat kondisi BTC saat ini, perubahan penting, konteks 30 hari, riwayat evaluasi/.test(themeFunctions)
     && /bukti historis Bitmomo Pro/.test(themeFunctions)
-    && !/Opportunity, Directional Bias, Confidence, Market State/.test(themeFunctions)
+    && !/alasan utama|berbasis evidence|\bthesis\b|Opportunity, Directional Bias, Confidence, Market State/i.test(themeFunctions)
 );
 check(
   'Legacy newsletter modal is structurally disabled globally',
