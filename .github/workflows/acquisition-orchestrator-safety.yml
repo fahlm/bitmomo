@@ -1,0 +1,45 @@
+name: Acquisition orchestrator safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "research/acquisition-orchestrator/**"
+      - "docs/research-distribution/ACQUISITION_ORCHESTRATOR_V1.md"
+      - ".github/workflows/acquisition-orchestrator-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/acquisition-orchestrator/**"
+      - "docs/research-distribution/ACQUISITION_ORCHESTRATOR_V1.md"
+      - ".github/workflows/acquisition-orchestrator-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: acquisition-orchestrator-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  end-to-end-dry-run:
+    name: End-to-end deterministic acquisition dry run
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint orchestrator and upstream composition test
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l research/acquisition-orchestrator/includes/class-bitmomo-acquisition-orchestrator-v1.php
+          php -l research/acquisition-orchestrator/tests/test-bitmomo-acquisition-orchestrator-v1.php
+
+      - name: Run end-to-end acquisition orchestrator suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          php research/acquisition-orchestrator/tests/test-bitmomo-acquisition-orchestrator-v1.php
