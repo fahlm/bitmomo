@@ -228,6 +228,7 @@ final class Bitmomo_AI_Session_Intelligence {
             'why_it_matters' => array_slice((array) ($session['why_it_matters'] ?? []), 0, 2),
             'known_events' => array_slice((array) ($session['known_events'] ?? []), 0, 2),
             'what_to_watch' => array_slice((array) ($session['what_to_watch'] ?? []), 0, 2),
+            'opportunity' => is_array($session['opportunity'] ?? null) ? $session['opportunity'] : ['status' => 'unavailable'],
             'crypto_context' => is_array($session['crypto_context'] ?? null) ? $session['crypto_context'] : [],
             'tradfi_context' => is_array($session['tradfi_context'] ?? null) ? $session['tradfi_context'] : [],
             'bond_context' => null,

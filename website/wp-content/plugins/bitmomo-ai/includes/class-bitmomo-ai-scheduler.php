@@ -6,6 +6,7 @@ final class Bitmomo_AI_Scheduler {
     const MORNING_HOOK = 'bitmomo_ai_morning_generation';
     const SETTLEMENT_HOOK = 'bitmomo_ai_outcome_settlement';
     const PUBLISH_LOG_OPTION = 'bitmomo_ai_publish_log';
+    const SESSION_RUNS_OPTION = 'bitmomo_ai_last_session_runs';
 
     public static function auto_publish_enabled() {
         return defined('BITMOMO_AI_AUTO_PUBLISH') && (bool) BITMOMO_AI_AUTO_PUBLISH;
@@ -80,48 +81,158 @@ final class Bitmomo_AI_Scheduler {
     }
 
     public static function automation_health() {
-        $timezone = new DateTimeZone(Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE);
-        $now = new DateTimeImmutable('now', $timezone);
-        $next = wp_next_scheduled(self::HOOK);
-        $last = (array) get_option('bitmomo_ai_last_run', []);
-        $last_timestamp = strtotime((string) ($last['time'] ?? '')) ?: 0;
-        $last_local = $last_timestamp ? (new DateTimeImmutable('@' . $last_timestamp))->setTimezone($timezone) : null;
-        $last_in_release_window = $last_local
-            && $last_local->format('Y-m-d') === $now->format('Y-m-d')
-            && (int) $last_local->format('Hi') >= 2000;
-        $cutoff = $now->setTime(20, 30);
-        $wp_cron_disabled = defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
+        $matrix = self::automation_health_matrix();
+        $post_close = $matrix['us_post_close'] ?? [];
+        $source = $matrix['source_freshness'] ?? [];
 
+        return [
+            'state' => (string) ($post_close['state'] ?? 'unknown'),
+            'message' => (string) ($post_close['message'] ?? __('Jadwal berikutnya mengikuti anchor sesi America/New_York.', 'bitmomo-ai')),
+            'next_timestamp' => (int) ($post_close['next_timestamp'] ?? 0),
+            'next_label' => (string) ($post_close['next_label'] ?? __('tidak terjadwal', 'bitmomo-ai')),
+            'last_timestamp' => (int) ($post_close['last_timestamp'] ?? 0),
+            'last_label' => (string) ($post_close['last_label'] ?? __('belum pernah', 'bitmomo-ai')),
+            'last_status' => (string) ($post_close['last_status'] ?? 'unknown'),
+            'wp_cron_disabled' => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
+            'trigger_label' => (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON)
+                ? __('WP-Cron internal dinonaktifkan; pemicu cron hosting wajib aktif.', 'bitmomo-ai')
+                : __('WP-Cron internal aktif; cron hosting setiap 5 menit tetap disarankan untuk ketepatan waktu.', 'bitmomo-ai'),
+            'health_matrix' => $matrix,
+            'source_state' => (string) ($source['state'] ?? 'unknown'),
+        ];
+    }
+
+    public static function automation_health_matrix($now = null) {
+        $timezone = new DateTimeZone(Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE);
+        $now_timestamp = null === $now ? time() : (int) $now;
+        $now_local = (new DateTimeImmutable('@' . $now_timestamp))->setTimezone($timezone);
+        $matrix = [
+            'market_pulse' => self::health_market_pulse($now_timestamp, $timezone),
+            'us_pre_open' => self::health_session_component(Bitmomo_AI_Session_Intelligence::PRE_OPEN, self::MORNING_HOOK, $now_timestamp, $now_local, $timezone),
+            'us_post_close' => self::health_session_component(Bitmomo_AI_Session_Intelligence::POST_CLOSE, self::HOOK, $now_timestamp, $now_local, $timezone),
+            'settlement' => self::health_settlement($now_timestamp, $timezone),
+            'source_freshness' => self::health_source_freshness($now_timestamp, $timezone),
+        ];
+        return $matrix;
+    }
+
+    private static function health_session_component($session_type, $hook, $now_timestamp, DateTimeImmutable $now_local, DateTimeZone $timezone) {
+        $next = wp_next_scheduled($hook);
+        $runs = (array) get_option(self::SESSION_RUNS_OPTION, []);
+        $last = is_array($runs[$session_type] ?? null) ? $runs[$session_type] : [];
+        if (!$last && $session_type === Bitmomo_AI_Session_Intelligence::POST_CLOSE) {
+            $last = (array) get_option('bitmomo_ai_last_run', []);
+        }
+        $last_timestamp = strtotime((string) ($last['time'] ?? '')) ?: 0;
+        $last_status = sanitize_key((string) ($last['status'] ?? 'unknown'));
+        $anchor = Bitmomo_AI_Session_Intelligence::next_anchor($session_type, $now_local->modify('-1 day'));
+        $release_cutoff = $anchor->modify('+20 minutes');
+        $last_local = $last_timestamp ? (new DateTimeImmutable('@' . $last_timestamp))->setTimezone($timezone) : null;
+        $last_after_anchor = $last_local && $last_local >= $anchor && $last_local <= $release_cutoff->modify('+6 hours');
         if (!$next) {
             $state = 'not_scheduled';
-            $message = __('Jadwal harian tidak ditemukan.', 'bitmomo-ai');
-        } elseif ($now > $cutoff && !$last_in_release_window) {
+            $message = __('Jadwal sesi tidak ditemukan.', 'bitmomo-ai');
+        } elseif ($now_local > $release_cutoff && !$last_after_anchor) {
             $state = 'overdue';
-            $message = __('US Post-Close Intelligence hari ini belum berjalan setelah batas 20:30 New York.', 'bitmomo-ai');
-        } elseif ($last_in_release_window && in_array(($last['status'] ?? ''), ['success', 'published'], true)) {
-            $state = 'healthy';
-            $message = __('Eksekusi pada jendela rilis hari ini berhasil.', 'bitmomo-ai');
-        } elseif ($last_in_release_window && in_array(($last['status'] ?? ''), ['error', 'blocked'], true)) {
+            $message = __('Sesi melewati freshness budget tanpa run yang tercatat.', 'bitmomo-ai');
+        } elseif (in_array($last_status, ['error', 'blocked'], true) && $last_after_anchor) {
             $state = 'failed';
-            $message = __('Eksekusi pada jendela rilis hari ini gagal atau diblokir.', 'bitmomo-ai');
+            $message = __('Run sesi terakhir gagal atau diblokir.', 'bitmomo-ai');
+        } elseif (in_array($last_status, ['success', 'published', 'degraded'], true) && $last_after_anchor) {
+            $state = 'healthy';
+            $message = __('Run sesi terakhir tercatat dalam jendela freshness.', 'bitmomo-ai');
         } else {
             $state = 'scheduled';
             $message = __('Jadwal berikutnya mengikuti anchor sesi America/New_York.', 'bitmomo-ai');
         }
+        return self::health_row($state, $message, $next, $last_timestamp, $last_status, 20 * MINUTE_IN_SECONDS, $timezone);
+    }
 
+    private static function health_market_pulse($now_timestamp, DateTimeZone $timezone) {
+        $last = class_exists('Bitmomo_AI_Opportunity') ? (array) get_option(Bitmomo_AI_Opportunity::LAST_RUN_OPTION, []) : [];
+        $latest = class_exists('Bitmomo_AI_Opportunity_Store') ? Bitmomo_AI_Opportunity_Store::public_latest($now_timestamp) : ['status' => 'unavailable'];
+        $last_timestamp = strtotime((string) ($last['time'] ?? '')) ?: 0;
+        $last_status = sanitize_key((string) ($last['status'] ?? 'unknown'));
+        $next = class_exists('Bitmomo_AI_Opportunity') ? wp_next_scheduled(Bitmomo_AI_Opportunity::HOOK) : 0;
+        if (!$next) {
+            $state = 'not_scheduled';
+            $message = __('Market Pulse 15 menit tidak terjadwal.', 'bitmomo-ai');
+        } elseif (($latest['status'] ?? '') === 'available') {
+            $state = 'healthy';
+            $message = __('Market Pulse terbaru tersedia dan masih fresh.', 'bitmomo-ai');
+        } elseif (in_array($last_status, ['error', 'blocked'], true)) {
+            $state = 'failed';
+            $message = __('Run Market Pulse terakhir gagal atau diblokir.', 'bitmomo-ai');
+        } else {
+            $state = 'stale';
+            $message = __('Market Pulse belum memiliki record fresh.', 'bitmomo-ai');
+        }
+        $budget = class_exists('Bitmomo_AI_Opportunity_Store') ? Bitmomo_AI_Opportunity_Store::MAX_LATEST_AGE_SECONDS : 30 * MINUTE_IN_SECONDS;
+        return self::health_row($state, $message, $next, $last_timestamp, $last_status, $budget, $timezone);
+    }
+
+    private static function health_settlement($now_timestamp, DateTimeZone $timezone) {
+        $last = (array) get_option('bitmomo_ai_last_settlement', []);
+        $last_timestamp = strtotime((string) ($last['time'] ?? '')) ?: 0;
+        $last_status = sanitize_key((string) ($last['status'] ?? 'unknown'));
+        $next = wp_next_scheduled(self::SETTLEMENT_HOOK);
+        if (!$next) {
+            $state = 'not_scheduled';
+            $message = __('Settlement recovery tidak terjadwal.', 'bitmomo-ai');
+        } elseif ($last_status === 'error') {
+            $state = 'failed';
+            $message = __('Settlement terakhir gagal.', 'bitmomo-ai');
+        } elseif ($last_timestamp && ($now_timestamp - $last_timestamp) <= Bitmomo_AI_Intelligence::DELAYED_AGE_SECONDS) {
+            $state = 'healthy';
+            $message = __('Settlement terakhir masih dalam budget pemantauan.', 'bitmomo-ai');
+        } else {
+            $state = 'scheduled';
+            $message = __('Settlement recovery menunggu jendela berikutnya.', 'bitmomo-ai');
+        }
+        return self::health_row($state, $message, $next, $last_timestamp, $last_status, Bitmomo_AI_Intelligence::DELAYED_AGE_SECONDS, $timezone);
+    }
+
+    private static function health_source_freshness($now_timestamp, DateTimeZone $timezone) {
+        $attempt = class_exists('Bitmomo_AI_Runtime_State') ? Bitmomo_AI_Runtime_State::latest_attempt() : [];
+        $diagnostics = is_array($attempt['source_diagnostics'] ?? null) ? $attempt['source_diagnostics'] : [];
+        $stale = 0;
+        $failed = 0;
+        foreach ($diagnostics as $row) {
+            if (!is_array($row)) continue;
+            if (empty($row['success'])) $failed++;
+            if (in_array((string) ($row['freshness'] ?? ''), ['stale', 'unavailable'], true)) $stale++;
+        }
+        $last_timestamp = strtotime((string) ($attempt['attempted_at'] ?? '')) ?: 0;
+        $last_status = sanitize_key((string) ($attempt['status'] ?? 'unknown'));
+        if (!$diagnostics) {
+            $state = 'unknown';
+            $message = __('Belum ada source freshness diagnostics.', 'bitmomo-ai');
+        } elseif ($failed > 0 || $stale > 0) {
+            $state = 'degraded';
+            $message = sprintf(__('Source freshness degraded: %d gagal, %d stale/unavailable.', 'bitmomo-ai'), $failed, $stale);
+        } else {
+            $state = 'healthy';
+            $message = __('Source freshness diagnostics terakhir fresh.', 'bitmomo-ai');
+        }
+        return self::health_row($state, $message, 0, $last_timestamp, $last_status, Bitmomo_AI_Intelligence::FRESH_AGE_SECONDS, $timezone);
+    }
+
+    private static function health_row($state, $message, $next, $last_timestamp, $last_status, $freshness_budget_seconds, DateTimeZone $timezone) {
         return [
             'state' => $state,
             'message' => $message,
             'next_timestamp' => $next ?: 0,
-            'next_label' => $next ? wp_date('d M Y, H:i:s T', $next, $timezone) : __('tidak terjadwal', 'bitmomo-ai'),
+            'next_label' => $next ? self::format_health_time($next, $timezone) : __('tidak terjadwal', 'bitmomo-ai'),
             'last_timestamp' => $last_timestamp,
-            'last_label' => $last_local ? $last_local->format('d M Y, H:i:s T') : __('belum pernah', 'bitmomo-ai'),
-            'last_status' => (string) ($last['status'] ?? 'unknown'),
-            'wp_cron_disabled' => $wp_cron_disabled,
-            'trigger_label' => $wp_cron_disabled
-                ? __('WP-Cron internal dinonaktifkan; pemicu cron hosting wajib aktif.', 'bitmomo-ai')
-                : __('WP-Cron internal aktif; cron hosting setiap 5 menit tetap disarankan untuk ketepatan waktu.', 'bitmomo-ai'),
+            'last_label' => $last_timestamp ? (new DateTimeImmutable('@' . $last_timestamp))->setTimezone($timezone)->format('d M Y, H:i:s T') : __('belum pernah', 'bitmomo-ai'),
+            'last_status' => $last_status,
+            'freshness_budget_seconds' => (int) $freshness_budget_seconds,
         ];
+    }
+
+    private static function format_health_time($timestamp, DateTimeZone $timezone) {
+        if (function_exists('wp_date')) return wp_date('d M Y, H:i:s T', $timestamp, $timezone);
+        return (new DateTimeImmutable('@' . (int) $timestamp))->setTimezone($timezone)->format('d M Y, H:i:s T');
     }
 
     public static function run($edition = 'us_post_close') {
@@ -137,7 +248,7 @@ final class Bitmomo_AI_Scheduler {
         $data = Bitmomo_AI_Binance::snapshot();
         if (is_wp_error($data)) {
             Bitmomo_AI_Runtime_State::record_attempt($edition, 'error', [], [], $data);
-            self::record('error', $data->get_error_message());
+            self::record_generation($edition, 'error', $data->get_error_message());
             return $data;
         }
 
@@ -163,7 +274,7 @@ final class Bitmomo_AI_Scheduler {
         $gate_result = (array) get_option('bitmomo_ai_latest_quality_gate', []);
         if (is_wp_error($gate)) {
             Bitmomo_AI_Runtime_State::record_attempt($edition, 'blocked', $data, $gate_result, $gate);
-            self::record('blocked', $gate->get_error_message());
+            self::record_generation($edition, 'blocked', $gate->get_error_message());
             return $gate;
         }
         $generated_at = gmdate('c');
@@ -175,7 +286,7 @@ final class Bitmomo_AI_Scheduler {
         $fingerprint = hash('sha256', 'binance-public|' . $record['session_anchor'] . '|' . $edition);
         $post_id = Bitmomo_AI_Webhook::create_draft($data, $evaluation, $fingerprint, $edition);
         if (is_wp_error($post_id)) {
-            self::record('error', $post_id->get_error_message());
+            self::record_generation($edition, 'error', $post_id->get_error_message());
             return $post_id;
         }
 
@@ -185,7 +296,7 @@ final class Bitmomo_AI_Scheduler {
         // the historical published signal to a different engine/source id.
         if (get_post_status($post_id) !== 'draft') {
             do_action('bitmomo_ai_edition_recorded', $edition, $record);
-            self::record('success', sprintf('Existing non-draft analysis %d was preserved byte-for-byte; new runtime intelligence was recorded separately.', $post_id), $post_id);
+            self::record_generation($edition, 'success', sprintf('Existing non-draft analysis %d was preserved byte-for-byte; new runtime intelligence was recorded separately.', $post_id), $post_id);
             self::record_publication('preserved', 'Existing non-draft intelligence metadata was left immutable on rerun.', $post_id);
             return $post_id;
         }
@@ -197,7 +308,7 @@ final class Bitmomo_AI_Scheduler {
         do_action('bitmomo_ai_edition_recorded', $edition, $record);
 
         if (!self::auto_publish_enabled()) {
-            self::record('success', sprintf('Daily draft %d created or refreshed; auto-publish is disabled by the safe default or kill switch.', $post_id), $post_id);
+            self::record_generation($edition, 'success', sprintf('Daily draft %d created or refreshed; auto-publish is disabled by the safe default or kill switch.', $post_id), $post_id);
             self::record_publication('disabled', 'Auto-publish requires BITMOMO_AI_AUTO_PUBLISH to be explicitly set to true.', $post_id);
             return $post_id;
         }
@@ -206,27 +317,44 @@ final class Bitmomo_AI_Scheduler {
         $published_id = wp_update_post(['ID' => $post_id, 'post_status' => 'publish'], true);
         if (is_wp_error($published_id)) {
             update_post_meta($post_id, '_bm_auto_publish_eligible', 'no');
-            self::record('error', $published_id->get_error_message(), $post_id);
+            self::record_generation($edition, 'error', $published_id->get_error_message(), $post_id);
             self::record_publication('error', $published_id->get_error_message(), $post_id);
             return $published_id;
         }
         if (get_post_status($post_id) !== 'publish') {
             update_post_meta($post_id, '_bm_auto_publish_eligible', 'no');
             $error = new WP_Error('bitmomo_auto_publish_blocked', __('Auto-publish was blocked by the release gate.', 'bitmomo-ai'));
-            self::record('blocked', $error->get_error_message(), $post_id);
+            self::record_generation($edition, 'blocked', $error->get_error_message(), $post_id);
             self::record_publication('blocked', $error->get_error_message(), $post_id);
             return $error;
         }
 
         update_post_meta($post_id, '_bm_auto_publish_eligible', 'no');
         update_post_meta($post_id, '_bm_auto_published_at', gmdate('c'));
-        self::record('published', sprintf('Daily analysis %d passed the conditional gate and was published automatically.', $post_id), $post_id);
+        self::record_generation($edition, 'published', sprintf('Daily analysis %d passed the conditional gate and was published automatically.', $post_id), $post_id);
         self::record_publication('published', 'Conditional auto-publish completed.', $post_id);
         return $post_id;
     }
 
     private static function record($status, $message, $post_id = 0) {
         update_option('bitmomo_ai_last_run', ['status' => sanitize_key($status), 'message' => sanitize_text_field($message), 'post_id' => absint($post_id), 'time' => gmdate('c')], false);
+    }
+
+    private static function record_generation($session_type, $status, $message, $post_id = 0) {
+        self::record($status, $message, $post_id);
+        self::record_session_run($session_type, $status, $message, $post_id);
+    }
+
+    private static function record_session_run($session_type, $status, $message, $post_id = 0) {
+        $runs = get_option(self::SESSION_RUNS_OPTION, []);
+        if (!is_array($runs)) $runs = [];
+        $runs[Bitmomo_AI_Session_Intelligence::normalize_session_type($session_type)] = [
+            'status' => sanitize_key($status),
+            'message' => sanitize_text_field($message),
+            'post_id' => absint($post_id),
+            'time' => gmdate('c'),
+        ];
+        update_option(self::SESSION_RUNS_OPTION, $runs, false);
     }
 
     private static function record_publication($status, $message, $post_id = 0) {
@@ -259,6 +387,14 @@ final class Bitmomo_AI_Scheduler {
         echo '<h2>' . esc_html__('Kesehatan otomasi', 'bitmomo-ai') . '</h2>';
         echo '<p><strong>' . esc_html(ucfirst((string) $automation['state'])) . '</strong> — ' . esc_html($automation['message']) . '</p>';
         echo '<p><strong>' . esc_html__('Jadwal berikutnya:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['next_label']) . '<br><strong>' . esc_html__('Eksekusi terakhir:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['last_label'] . ' · ' . $automation['last_status']) . '<br><strong>' . esc_html__('Pemicu:', 'bitmomo-ai') . '</strong> ' . esc_html($automation['trigger_label']) . '</p>';
+        if (!empty($automation['health_matrix']) && is_array($automation['health_matrix'])) {
+            echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Komponen', 'bitmomo-ai') . '</th><th>' . esc_html__('State', 'bitmomo-ai') . '</th><th>' . esc_html__('Last', 'bitmomo-ai') . '</th><th>' . esc_html__('Next', 'bitmomo-ai') . '</th><th>' . esc_html__('Budget', 'bitmomo-ai') . '</th></tr></thead><tbody>';
+            foreach ($automation['health_matrix'] as $component => $row) {
+                $budget_minutes = isset($row['freshness_budget_seconds']) ? round(((int) $row['freshness_budget_seconds']) / 60) : 0;
+                echo '<tr><td>' . esc_html(str_replace('_', ' ', (string) $component)) . '</td><td>' . esc_html((string) ($row['state'] ?? 'unknown')) . '<br><small>' . esc_html((string) ($row['message'] ?? '')) . '</small></td><td>' . esc_html((string) ($row['last_label'] ?? '')) . '<br><small>' . esc_html((string) ($row['last_status'] ?? 'unknown')) . '</small></td><td>' . esc_html((string) ($row['next_label'] ?? '')) . '</td><td>' . esc_html($budget_minutes ? sprintf('%d min', $budget_minutes) : 'n/a') . '</td></tr>';
+            }
+            echo '</tbody></table>';
+        }
         echo '<p><strong>' . esc_html__('TradingView webhook:', 'bitmomo-ai') . '</strong> ' . esc_html($webhook_configured ? 'configured' : 'not configured') . '</p>';
         echo '<p><strong>' . esc_html__('Conditional auto-publish:', 'bitmomo-ai') . '</strong> ' . esc_html(self::auto_publish_enabled() ? 'enabled explicitly (minimum 6/7; critical failures still block)' : 'disabled by safe default or kill switch') . '</p>';
         if ($last_webhook) echo '<p><strong>' . esc_html__('Last TradingView payload:', 'bitmomo-ai') . '</strong> ' . esc_html(($last_webhook['status'] ?? '') . ' — ' . ($last_webhook['message'] ?? '') . ' — ' . ($last_webhook['time'] ?? '')) . '</p>';

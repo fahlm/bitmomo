@@ -7,9 +7,13 @@ on:
       - "website/wp-content/themes/bitmomo-child-v3/**"
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-session-intelligence.php"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-free-projection-key-drivers-contract.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-surface-context.php"
@@ -65,9 +69,13 @@ jobs:
             website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
             website/wp-content/themes/bitmomo-child-v3/template-parts/research.php \
             website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php \
             website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-session-intelligence.php \
             website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php \
             website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
@@ -89,6 +97,8 @@ jobs:
         run: |
           set -euo pipefail
           php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php
           php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-free-projection-key-drivers-contract.php
           php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php
           php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-surface-context.php

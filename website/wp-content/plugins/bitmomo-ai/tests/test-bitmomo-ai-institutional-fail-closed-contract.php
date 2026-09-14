@@ -7,6 +7,7 @@ $GLOBALS['audit_options'] = array();
 function __($value, $domain = null) { return $value; }
 function sanitize_key($value) { return strtolower(preg_replace('/[^a-z0-9_\-]/i', '', (string) $value)); }
 function sanitize_text_field($value) { return trim(strip_tags((string) $value)); }
+function absint($value) { return abs((int) $value); }
 function update_option($name, $value, $autoload = null) { $GLOBALS['audit_options'][$name] = $value; return true; }
 
 class WP_Error {

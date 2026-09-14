@@ -328,7 +328,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			return '';
 		}
 		$observed = $this->format_wib( $opportunity['knowledge_time'] ?? '', 'd M · H:i' );
-		$line = __( 'Evaluasi canonical setiap 15 menit dari candle 5 menit', 'bitmomo-btc-intelligence' );
+		$line = __( 'Market Pulse: evaluasi 15 menit dari candle 5 menit', 'bitmomo-btc-intelligence' );
 		return $observed ? $line . ' · ' . $observed : $line;
 	}
 

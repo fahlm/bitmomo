@@ -139,7 +139,7 @@ check( 'Current reading exposes direction in human language', false !== strpos( 
 check( 'Current terminal uses final institutional labels at source', false !== strpos( $html, '>BIAS<' ) && false !== strpos( $html, '>CONFIDENCE<' ) );
 check( 'Confidence is exact but explicitly not a price probability', false !== strpos( $html, '82/100' ) && false !== strpos( $html, 'bukan probabilitas pergerakan harga' ) );
 check( 'Market Pulse is translated into a visitor-facing intraday state', false !== strpos( $html, 'MARKET PULSE · INTRADAY' ) && false !== strpos( $html, '>Tinggi<' ) && false !== strpos( $html, 'Aktivitas pasar berada di atas kondisi normal 14 hari.' ) );
-check( 'Market Pulse exposes its independent clock', false !== strpos( $html, 'Evaluasi canonical setiap 15 menit dari candle 5 menit' ) );
+check( 'Market Pulse exposes its independent clock', false !== strpos( $html, 'evaluasi 15 menit dari candle 5 menit' ) );
 check( 'Opportunity internals are not displayed', false === strpos( $html, 'activity percentile' ) && false === strpos( $html, '60m range' ) && false === strpos( $html, '84.2' ) && false === strpos( $html, '1.17%' ) );
 check( 'Market State taxonomy and classifier certainty stay out of current public presentation', false === strpos( $html, 'Ekspansi' ) && false === strpos( $html, 'Distribusi' ) && false === strpos( $html, '76% certainty' ) && false === strpos( $html, 'MARKET STATE' ) );
 check( 'Raw derivative kitchen metrics stay out of public presentation', false === strpos( $html, 'OI 24H' ) && false === strpos( $html, 'FUNDING' ) && false === strpos( $html, 'BASIS' ) );
