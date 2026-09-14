@@ -377,7 +377,7 @@ class Bitmomo_Btc_Intelligence_Page {
 
 				<div class="bm-bi__brief-grid">
 					<div class="bm-bi__brief-panel">
-						<h3><?php esc_html_e( 'Kenapa?', 'bitmomo-btc-intelligence' ); ?></h3>
+						<h3><?php esc_html_e( 'FAKTOR UTAMA', 'bitmomo-btc-intelligence' ); ?></h3>
 						<?php if ( $drivers ) : ?><ul><?php foreach ( $drivers as $driver ) : ?><li><?php echo esc_html( $driver ); ?></li><?php endforeach; ?></ul><?php else : ?><p>—</p><?php endif; ?>
 					</div>
 					<div class="bm-bi__brief-panel">
