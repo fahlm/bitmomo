@@ -6,17 +6,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
   <div class="bm-container">
     <header class="bm-howworks-head">
       <span class="bm-howworks-eyebrow"><?php esc_html_e( 'HOW BITMOMO WORKS', 'bitmomo' ); ?></span>
-      <h2 id="bm-howworks-title"><?php esc_html_e( 'Satu alur: pahami kondisi, pantau perubahan, lalu evaluasi hasil.', 'bitmomo' ); ?></h2>
+      <h2 id="bm-howworks-title"><?php esc_html_e( 'Satu alur: pahami kondisi, navigasi berikutnya, lalu evaluasi hasil.', 'bitmomo' ); ?></h2>
     </header>
 
     <ol class="bm-howworks-steps">
       <li>
         <span class="bm-howworks-step-label"><?php esc_html_e( '01 · UNDERSTAND NOW', 'bitmomo' ); ?></span>
-        <p><?php esc_html_e( 'BTC Intelligence merangkum bias, confidence, faktor utama, dan waktu analisis untuk menunjukkan kondisi pasar yang sedang dibaca.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'BTC Intelligence merangkum kondisi, perubahan material, maknanya, dan satu konteks pantauan untuk membantu memahami pasar sekarang.', 'bitmomo' ); ?></p>
       </li>
       <li>
-        <span class="bm-howworks-step-label"><?php esc_html_e( '02 · MAP WHAT CHANGES', 'bitmomo' ); ?></span>
-        <p><?php esc_html_e( 'Bitmomo Pro menambahkan Expected Range, Scenario Map, invalidasi tesis, dan What Changed agar perubahan material dapat dipantau.', 'bitmomo' ); ?></p>
+        <span class="bm-howworks-step-label"><?php esc_html_e( '02 · NAVIGATE NEXT', 'bitmomo' ); ?></span>
+        <p><?php esc_html_e( 'Bitmomo Pro menambahkan monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis untuk membantu menavigasi apa yang terjadi berikutnya.', 'bitmomo' ); ?></p>
       </li>
       <li>
         <span class="bm-howworks-step-label"><?php esc_html_e( '03 · AUDIT THE RESULT', 'bitmomo' ); ?></span>
