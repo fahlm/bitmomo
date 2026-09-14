@@ -123,10 +123,16 @@ check('Dormant affiliate CTAs cannot render unless explicitly enabled',
   ctaConfig.includes('if ( ! bitmomo_affiliate_ctas_enabled() )')
 );
 
-check('BTC Intelligence renderer owns final institutional terminology directly',
+check('BTC Intelligence renderer owns final institutional terminology and valuable Free brief directly',
   btcPage.includes("'missed'       => __( 'TIDAK SESUAI'") &&
   btcPage.includes("'unscored'     => __( 'BELUM DINILAI'") &&
-  btcPage.includes('>FAKTOR UTAMA<') &&
+  btcPage.includes('MAJOR BRIEF') &&
+  btcPage.includes('APA YANG BERUBAH?') &&
+  btcPage.includes('MENGAPA PENTING') &&
+  btcPage.includes('PANTAU BERIKUTNYA') &&
+  btcPage.includes('evaluasi 15 menit dari candle 5 menit') &&
+  btcPage.includes('directional_consistency') &&
+  btcPage.includes('structure_continuity') &&
   btcPage.includes('CONFIDENCE') &&
   !/strtr\s*\(/.test(btcMain) &&
   !/do_shortcode_tag/.test(btcMain)
