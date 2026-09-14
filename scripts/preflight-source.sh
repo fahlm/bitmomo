@@ -38,12 +38,14 @@ source_shell=(
 )
 
 source_node=(
+  scripts/check-ci-governance.mjs
   scripts/check-m2-launch-surfaces.mjs
   scripts/check-navigation-footer.mjs
   scripts/check-ui-architecture.mjs
   scripts/check-terminal-grade-contract.mjs
   scripts/check-institutional-copy.mjs
   scripts/check-home-research-boundary.mjs
+  scripts/check-public-design-consistency.mjs
   scripts/audit-css-debt.mjs
 )
 
@@ -66,6 +68,7 @@ while IFS= read -r -d '' file; do
 done < <(find "${managed_roots[@]}" -type f -name '*.php' -print0 | sort -z)
 
 echo "-- canonical source contracts"
+node scripts/check-ci-governance.mjs
 bash scripts/check-theme-source-contract.sh
 bash scripts/check-authority-source-contract.sh
 node scripts/check-m2-launch-surfaces.mjs
@@ -74,6 +77,7 @@ node scripts/check-ui-architecture.mjs
 node scripts/check-terminal-grade-contract.mjs
 node scripts/check-institutional-copy.mjs
 node scripts/check-home-research-boundary.mjs
+node scripts/check-public-design-consistency.mjs
 node scripts/audit-css-debt.mjs
 
 if [[ "${mode}" == "full" ]]; then
