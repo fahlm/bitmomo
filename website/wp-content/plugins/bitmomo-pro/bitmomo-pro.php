@@ -26,6 +26,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-brief-prefill.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-canonical-adapter.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-shortcodes.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-help-center.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-public-copy.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-sales.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-cache.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-setup.php';
@@ -48,6 +49,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Brief_Prefill::instance();
 	Bitmomo_Pro_Canonical_Adapter::instance();
 	Bitmomo_Pro_Shortcodes::instance();
+	Bitmomo_Pro_Public_Copy::init();
 	Bitmomo_Pro_Help_Center::instance();
 
 	// Public SEO is owned once by the active Bitmomo public layer. The Sales
