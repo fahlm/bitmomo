@@ -11,6 +11,11 @@ final class Bitmomo_Public_Intelligence_Adapter {
         if (!class_exists('Bitmomo_AI_Intelligence')) return null;
         $projection = Bitmomo_AI_Intelligence::free_projection();
         if (!is_array($projection) || !in_array(($projection['status'] ?? ''), ['fresh', 'delayed'], true)) return null;
+        if (!class_exists('Bitmomo_AI_Session_Intelligence')) return null;
+
+        $raw_session_type = $projection['session_type'] ?? '';
+        if (!Bitmomo_AI_Session_Intelligence::is_supported_session_type($raw_session_type)) return null;
+        $session_type = Bitmomo_AI_Session_Intelligence::normalize_session_type($raw_session_type);
 
         $canonical_source_id = sanitize_text_field((string) ($projection['edition_id'] ?? ''));
         $regime = self::regime_for_source($canonical_source_id);
@@ -18,7 +23,21 @@ final class Bitmomo_Public_Intelligence_Adapter {
         $bias = self::bias_or_null($projection['bias'] ?? null);
         $public_source = sanitize_text_field((string) ($projection['source'] ?? ''));
         $as_of = sanitize_text_field((string) ($projection['timestamp_iso'] ?? ''));
-        if ($bias === null || $strength === null || $public_source === '' || $as_of === '' || $canonical_source_id === '') return null;
+        $as_of_timestamp = strtotime($as_of);
+        $price = $projection['price'] ?? null;
+        $confidence = $projection['confidence'] ?? null;
+        if (
+            $bias === null
+            || $strength === null
+            || $public_source === ''
+            || $as_of === ''
+            || !$as_of_timestamp
+            || $as_of_timestamp > time() + (5 * MINUTE_IN_SECONDS)
+            || $canonical_source_id === ''
+            || !is_numeric($price)
+            || (float) $price <= 0
+            || !is_numeric($confidence)
+        ) return null;
 
         $market_state = self::regime_or_null($regime['regime'] ?? null);
         $market_state_certainty = $market_state !== null && isset($regime['regime_confidence'])
@@ -33,15 +52,15 @@ final class Bitmomo_Public_Intelligence_Adapter {
 
         return [
             'status' => (string) $projection['status'],
-            'btc_reference_price' => (float) ($projection['price'] ?? 0),
+            'btc_reference_price' => (float) $price,
             'opportunity' => $opportunity,
             'market_state' => $market_state,
             'market_state_certainty' => $market_state_certainty,
             'directional_bias' => $bias,
             'direction_strength' => $strength,
             'confidence' => [
-                'value' => min(100, max(0, (int) ($projection['confidence'] ?? 0))),
-                'label' => self::confidence_label($projection['confidence'] ?? 0),
+                'value' => min(100, max(0, (int) $confidence)),
+                'label' => self::confidence_label($confidence),
             ],
             'freshness' => [
                 'state' => (string) $projection['status'],
@@ -58,7 +77,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
             'key_drivers' => self::public_drivers($projection['key_drivers'] ?? []),
             'session' => [
                 'edition_id' => sanitize_text_field((string) ($projection['edition_id'] ?? '')),
-                'type' => Bitmomo_AI_Session_Intelligence::normalize_session_type($projection['session_type'] ?? ''),
+                'type' => $session_type,
                 'label' => sanitize_text_field((string) ($projection['session_label'] ?? '')),
                 'anchor' => sanitize_text_field((string) ($projection['session_anchor'] ?? '')),
                 'market_timezone' => Bitmomo_AI_Session_Intelligence::MARKET_TIMEZONE,

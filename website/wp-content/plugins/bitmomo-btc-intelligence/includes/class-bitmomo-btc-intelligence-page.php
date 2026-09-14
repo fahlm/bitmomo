@@ -264,14 +264,22 @@ class Bitmomo_Btc_Intelligence_Page {
 		$value = isset( $metric['accuracy_pct'] ) && is_numeric( $metric['accuracy_pct'] ) ? (float) $metric['accuracy_pct'] : null;
 		$n = isset( $metric['n'] ) ? max( 0, (int) $metric['n'] ) : 0;
 		$conclusive = isset( $metric['conclusive_n'] ) ? max( 0, (int) $metric['conclusive_n'] ) : 0;
-		$status = $this->public_sample_status_label( $metric['sample_status'] ?? '' );
+		$sample_code = (string) ( $metric['sample_status'] ?? '' );
+		$status = $this->public_sample_status_label( $sample_code );
 		$accuracy = null !== $value ? number_format_i18n( $value, 1 ) . '%' : '—';
+		if ( 'INSUFFICIENT SAMPLE' === $sample_code ) {
+			$accuracy_line = __( 'Akurasi ditahan sampai sampel minimum terpenuhi.', 'bitmomo-btc-intelligence' );
+		} elseif ( 'EARLY SAMPLE' === $sample_code ) {
+			$accuracy_line = sprintf( __( 'Akurasi sementara %s', 'bitmomo-btc-intelligence' ), $accuracy );
+		} else {
+			$accuracy_line = sprintf( __( 'Akurasi %s', 'bitmomo-btc-intelligence' ), $accuracy );
+		}
 		?>
 		<div class="bm-bi__proof-metric">
 			<span><?php echo esc_html( $label ); ?></span>
 			<strong><?php echo esc_html( sprintf( '%d / %d', $conclusive, $n ) ); ?></strong>
 			<small><?php echo esc_html( sprintf( __( 'outcome konklusif / total · %s', 'bitmomo-btc-intelligence' ), $status ) ); ?></small>
-			<small><?php echo esc_html( sprintf( __( 'Akurasi %s', 'bitmomo-btc-intelligence' ), $accuracy ) ); ?></small>
+			<small><?php echo esc_html( $accuracy_line ); ?></small>
 		</div>
 		<?php
 	}
@@ -284,12 +292,12 @@ class Bitmomo_Btc_Intelligence_Page {
 		$freshness = is_array( $snapshot['freshness'] ?? null ) ? $snapshot['freshness'] : array();
 		$iso = trim( (string) ( $freshness['timestamp_iso'] ?? '' ) );
 		$exact = $this->format_wib( $iso );
-		$note = __( 'DATA TERTUNDA — PEMBACAAN SAAT INI DITAHAN. Bias, confidence, dan aktivitas pasar tidak ditampilkan sampai data kembali memenuhi standar freshness Bitmomo.', 'bitmomo-btc-intelligence' );
+		$note = __( 'MAJOR BRIEF TERTUNDA — Bias dan confidence brief ditahan sampai data brief kembali memenuhi standar freshness Bitmomo. Market Pulse tetap ditampilkan terpisah bila data intraday-nya masih fresh.', 'bitmomo-btc-intelligence' );
 		if ( $exact ) {
-			$note .= ' ' . sprintf( __( 'Observasi terverifikasi terakhir: %s.', 'bitmomo-btc-intelligence' ), $exact );
+			$note .= ' ' . sprintf( __( 'Observasi brief terverifikasi terakhir: %s.', 'bitmomo-btc-intelligence' ), $exact );
 		}
 		if ( null !== $price ) {
-			$note .= ' ' . sprintf( __( 'BTC referensi terakhir: %s.', 'bitmomo-btc-intelligence' ), $this->format_price( $price ) );
+			$note .= ' ' . sprintf( __( 'BTC referensi brief terakhir: %s.', 'bitmomo-btc-intelligence' ), $this->format_price( $price ) );
 		}
 		$this->render_blocked_boundary( $note );
 		$this->render_provenance( $snapshot );
@@ -320,8 +328,26 @@ class Bitmomo_Btc_Intelligence_Page {
 			return '';
 		}
 		$observed = $this->format_wib( $opportunity['knowledge_time'] ?? '', 'd M · H:i' );
-		$line = __( 'Market Pulse · evaluasi 15 menit dari candle 5 menit', 'bitmomo-btc-intelligence' );
+		$line = __( 'Evaluasi canonical setiap 15 menit dari candle 5 menit', 'bitmomo-btc-intelligence' );
 		return $observed ? $line . ' · ' . $observed : $line;
+	}
+
+	private function render_market_pulse( $activity, $pulse_line ) {
+		if ( empty( $activity['available'] ) ) {
+			return;
+		}
+		?>
+		<div class="bm-bi__brief-grid" aria-label="<?php esc_attr_e( 'Market Pulse intraday', 'bitmomo-btc-intelligence' ); ?>">
+			<div class="bm-bi__brief-panel">
+				<h3><?php esc_html_e( 'MARKET PULSE · INTRADAY', 'bitmomo-btc-intelligence' ); ?></h3>
+				<p><strong><?php echo esc_html( $activity['label'] ); ?></strong> — <?php echo esc_html( $activity['copy'] ); ?></p>
+			</div>
+			<div class="bm-bi__brief-panel">
+				<h3><?php esc_html_e( 'CLOCK & FRESHNESS', 'bitmomo-btc-intelligence' ); ?></h3>
+				<p><?php echo esc_html( $pulse_line ?: __( 'Market Pulse memakai clock intraday terpisah dari Major Brief.', 'bitmomo-btc-intelligence' ) ); ?></p>
+			</div>
+		</div>
+		<?php
 	}
 
 	private function what_happened_summary( $snapshot, $session_intelligence ) {
@@ -397,7 +423,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<div>
 				<p class="bm-bi__eyebrow">BITMOMO · BTC INTELLIGENCE</p>
 				<h1><?php esc_html_e( 'BTC Intelligence', 'bitmomo-btc-intelligence' ); ?></h1>
-				<p><?php esc_html_e( 'Pahami kondisi BTC sekarang — tanpa tenggelam dalam data. Major Brief menunjukkan apa yang berubah, mengapa penting, dan satu hal yang layak dipantau; Decision Ledger menunjukkan apa yang benar-benar terjadi sesudahnya.', 'bitmomo-btc-intelligence' ); ?></p>
+				<p><?php esc_html_e( 'Market Pulse menunjukkan aktivitas intraday dengan clock yang cepat. Major Brief menunjukkan bias, apa yang berubah, mengapa penting, dan satu hal yang layak dipantau. Decision Ledger menunjukkan apa yang benar-benar terjadi sesudahnya.', 'bitmomo-btc-intelligence' ); ?></p>
 			</div>
 			<small><?php esc_html_e( 'Evidence before narrative · bukan sinyal beli/jual · bukan saran keuangan', 'bitmomo-btc-intelligence' ); ?></small>
 		</section>
@@ -452,15 +478,17 @@ class Bitmomo_Btc_Intelligence_Page {
 				</div>
 			</div>
 
+			<?php $this->render_market_pulse( $activity, $pulse_line ); ?>
+
 			<?php if ( $is_delayed ) : ?>
 				<?php $this->render_delayed_current_boundary( $snapshot, $price ); ?>
 			<?php elseif ( ! $available || ! $direction_valid ) : ?>
-				<?php $this->render_blocked_boundary( __( 'Analisis arah belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.', 'bitmomo-btc-intelligence' ) ); ?>
+				<?php $this->render_blocked_boundary( __( 'Major Brief belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
 				<div class="bm-bi__snapshot-grid">
 					<div><span>BIAS</span><strong class="is-<?php echo esc_attr( $bias ); ?>"><?php echo esc_html( $this->direction_label( $strength ) ); ?></strong><small><?php esc_html_e( 'arah dominan data pasar', 'bitmomo-btc-intelligence' ); ?></small></div>
 					<div><span>CONFIDENCE</span><strong><?php echo esc_html( null !== $confidence ? $confidence . '/100' . ( $confidence_label ? ' · ' . $confidence_label : '' ) : '—' ); ?></strong><small><?php esc_html_e( 'konsistensi bukti; bukan probabilitas pergerakan harga', 'bitmomo-btc-intelligence' ); ?></small></div>
-					<div><span>AKTIVITAS PASAR</span><strong><?php echo esc_html( $activity['label'] ); ?></strong><small><?php echo esc_html( $activity['copy'] ); ?></small><?php if ( $pulse_line ) : ?><small><?php echo esc_html( $pulse_line ); ?></small><?php endif; ?></div>
+					<div><span>MAJOR BRIEF</span><strong><?php echo esc_html( $session_label ?: __( 'Canonical brief', 'bitmomo-btc-intelligence' ) ); ?></strong><small><?php echo esc_html( $session_anchor ? sprintf( __( 'Anchor sesi · %s', 'bitmomo-btc-intelligence' ), $session_anchor ) : __( 'Clock sesi terpisah dari Market Pulse', 'bitmomo-btc-intelligence' ) ); ?></small></div>
 				</div>
 
 				<div class="bm-bi__brief-grid">
@@ -628,7 +656,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<?php if ( ! is_array( $current ) || empty( $current ) || empty( $current['all']['n'] ) ) : ?>
 				<?php $this->render_blocked_boundary( __( 'Belum ada cukup outcome yang layak untuk diringkas.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
-				<p class="bm-bi__section-intro"><?php esc_html_e( 'Jumlah outcome konklusif ditampilkan lebih dulu. Persentase akurasi baru dibaca setelah ukuran dan kematangan sampel.', 'bitmomo-btc-intelligence' ); ?></p>
+				<p class="bm-bi__section-intro"><?php esc_html_e( 'Jumlah outcome konklusif ditampilkan lebih dulu. Persentase akurasi hanya ditampilkan sebagai statistik sementara setelah minimum sampel tercapai, dan baru dianggap memadai setelah ambang sampel kuat.', 'bitmomo-btc-intelligence' ); ?></p>
 				<div class="bm-bi__proof-grid">
 					<?php $this->render_metric( __( 'Keseluruhan', 'bitmomo-btc-intelligence' ), $current['all'] ?? array() ); ?>
 					<?php $this->render_metric( __( '30 terakhir', 'bitmomo-btc-intelligence' ), $current['rolling_30'] ?? array() ); ?>
@@ -702,7 +730,7 @@ class Bitmomo_Btc_Intelligence_Page {
 				<div class="bm-bi__details-body">
 					<p><?php esc_html_e( 'Bitmomo merangkum price action, volatilitas, struktur pasar, serta kondisi derivatif menjadi Bias, Confidence, dan Activity.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Bias menunjukkan arah dominan data pasar. Confidence mengukur konsistensi bukti; bukan probabilitas pergerakan harga. Activity mengukur intensitas pergerakan, bukan arah.', 'bitmomo-btc-intelligence' ); ?></p>
-					<p><?php esc_html_e( 'Market Pulse menggunakan candle 5 menit dan evaluasi canonical 15 menit. Major Brief mengikuti anchor US Pre-Open dan US Post-Close yang menyesuaikan daylight-saving New York.', 'bitmomo-btc-intelligence' ); ?></p>
+					<p><?php esc_html_e( 'Market Pulse menggunakan candle 5 menit dan evaluasi canonical 15 menit dengan freshness intraday tersendiri. Major Brief memakai clock yang terpisah: 08:10 dan 20:10 America/New_York, menyesuaikan daylight-saving. Staleness pada salah satu clock tidak boleh membuat clock lain terlihat lebih fresh atau lebih stale daripada keadaan sebenarnya.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Decision Ledger hanya mengambil catatan recorded-live yang outcome-nya sudah matang. Record yang tidak sesuai atau window evaluasinya terlewat tetap dapat muncul; filter tidak bergantung pada hasil.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Arsip Pro hanya membaca snapshot yang dibekukan ketika brief dipublikasikan. Brief saat ini dan brief yang belum melewati delay publik tidak dapat muncul di sini.', 'bitmomo-btc-intelligence' ); ?></p>
 				</div>
