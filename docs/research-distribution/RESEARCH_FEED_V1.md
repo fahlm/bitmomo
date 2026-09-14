@@ -94,6 +94,7 @@ The adapter may only project fields already present in the canonical snapshot. I
 Required BTC inputs:
 
 - usable status: `fresh` or `delayed`;
+- quality status: `complete` or `degraded`;
 - positive BTC reference price;
 - valid `as_of` timestamp;
 - directional bias in `bullish|neutral|bearish`;
