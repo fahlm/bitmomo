@@ -21,7 +21,9 @@ const keyDrivers = read('website/wp-content/plugins/bitmomo-ai/includes/class-bi
 const btcMain = read('website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php');
 const marketContextJs = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/js/market-context-explorer.js');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
+const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
 const proCopy = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php');
+const proAccount = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php');
 const editorial = read('docs/editorial/BITMOMO_INSTITUTIONAL_COPY_SYSTEM_V1.md');
 
 check('Canonical editorial contract exists and defines the four information levels',
@@ -111,24 +113,38 @@ check('BTC Intelligence output is normalized to Bias/Confidence and professional
   btcMain.includes('Analisis arah belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.')
 );
 
-check('Pro public language owner is loaded and tightly scoped',
+check('Pro sales renderer owns final visitor language directly',
+  proSales.includes('Pahami skenario berikutnya — dan kapan tesis BTC berubah.') &&
+  proSales.includes('Decision View BTC memetakan Expected Range, skenario Base/Bull/Bear, kondisi invalidasi') &&
+  proSales.includes('Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.') &&
+  proSales.includes('Mengukur konsistensi bukti yang mendukung tesis; bukan probabilitas arah harga atau hasil investasi.') &&
+  proSales.includes('Analisis Pro aktif tidak ditampilkan pada halaman publik.') &&
+  !/\bthesis\b|quality gate|Bukan sinyal buy \/ sell|Kunci Harga Founding/i.test(proSales)
+);
+check('Pro buying path is current-product first and does not render roadmap theatre',
+  !proSales.includes('$this->render_context_problem();') &&
+  !proSales.includes('$this->render_intelligence_flow();') &&
+  !proSales.includes('$this->render_market_experience();') &&
+  !proSales.includes('$this->render_roadmap();') &&
+  !/Altcoin Intelligence|Daily Alpha Discovery|11 AI Analysts|Watchtower/.test(proSales)
+);
+check('Pro compatibility language layer is Help-only, not a post-render sales owner',
   proMain.includes('class-bitmomo-pro-public-copy.php') &&
   proMain.includes('Bitmomo_Pro_Public_Copy::init()') &&
-  proCopy.includes("'bitmomo-pro' !== $domain") &&
-  proCopy.includes("array( 'bitmomo_help_center', 'bitmomo_pro_sales' )")
+  proCopy.includes("'bitmomo_help_center' !== $tag") &&
+  !proCopy.includes('bitmomo_pro_sales') &&
+  !proCopy.includes("add_filter( 'gettext'")
 );
-check('Pro copy normalizes thesis, quality and commercial language',
-  proCopy.includes('kondisi yang dapat mengubah tesis pasar.') &&
-  proCopy.includes('Founding Price berlaku selama membership tetap aktif.') &&
-  proCopy.includes('Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.') &&
-  proCopy.includes('Mengukur konsistensi bukti yang mendukung tesis; bukan probabilitas arah harga atau hasil investasi.') &&
-  proCopy.includes('Analisis Pro aktif tidak ditampilkan pada halaman publik.')
-);
-check('Help copy normalizes history and product language',
+check('Help compatibility copy normalizes history and product language',
   proCopy.includes('Bitmomo tidak melakukan backfill retrospektif hanya untuk melengkapi visualisasi.') &&
   proCopy.includes('Mengapa riwayat Market State belum selalu berisi 30 hari?') &&
   proCopy.includes('layanan decision support untuk BTC') &&
   proCopy.includes('ketentuan atau harga yang berbeda')
+);
+check('Pro account tone is concise and avoids informal kamu copy',
+  proAccount.includes('Masuk untuk melihat status akses Bitmomo Pro') &&
+  proAccount.includes('Akun ini belum memiliki akses Bitmomo Pro yang aktif.') &&
+  !/\bkamu\b/i.test(proAccount)
 );
 
 if (failures.length) {
