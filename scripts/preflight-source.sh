@@ -46,6 +46,7 @@ source_node=(
   scripts/check-institutional-copy.mjs
   scripts/check-home-research-boundary.mjs
   scripts/check-public-design-consistency.mjs
+  scripts/check-social-preview.mjs
   scripts/audit-css-debt.mjs
 )
 
