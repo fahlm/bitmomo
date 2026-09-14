@@ -3,6 +3,17 @@
 $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_public_social_links() : array();
 $bm_terms_page   = get_page_by_path( 'syarat-layanan', OBJECT, 'page' );
 $bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status ) ? get_permalink( $bm_terms_page ) : '';
+
+/*
+ * Newsletter is a free retention surface, independent from the commercial
+ * Founding Whitelist. The backend identity is environment-configurable and
+ * fails closed when MailPoet (or its configured form) is unavailable.
+ */
+$bm_newsletter_default_id = defined( 'BITMOMO_NEWSLETTER_FORM_ID' )
+  ? (int) BITMOMO_NEWSLETTER_FORM_ID
+  : ( defined( 'BM_MAILPOET_FORM_ID' ) ? (int) BM_MAILPOET_FORM_ID : 0 );
+$bm_newsletter_form_id = max( 0, (int) apply_filters( 'bitmomo_newsletter_form_id', $bm_newsletter_default_id ) );
+$bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mailpoet_form' );
 ?>
 <footer class="bm-footer">
   <div class="bm-container">
@@ -44,6 +55,19 @@ $bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status
       </nav>
     </div>
 
+    <?php if ( $bm_newsletter_available ) : ?>
+      <section id="newsletter" class="bm-footer-newsletter" aria-labelledby="bm-footer-newsletter-title">
+        <div class="bm-footer-newsletter__copy">
+          <span><?php esc_html_e( 'BITMOMO BRIEF', 'bitmomo' ); ?></span>
+          <h2 id="bm-footer-newsletter-title"><?php esc_html_e( 'BTC intelligence dan riset terbaru, langsung ke inbox.', 'bitmomo' ); ?></h2>
+          <p><?php esc_html_e( 'Newsletter gratis dan terpisah dari Founding Whitelist. Berhenti berlangganan kapan saja.', 'bitmomo' ); ?></p>
+        </div>
+        <div class="bm-footer-newsletter__form">
+          <?php echo do_shortcode( sprintf( '[mailpoet_form id="%d"]', $bm_newsletter_form_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+        </div>
+      </section>
+    <?php endif; ?>
+
     <div class="bm-footer-bottom">
       <div class="bm-footer-bottom__identity">
         <p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> Bitmomo.</p>
@@ -61,7 +85,7 @@ $bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status
   </div>
 </footer>
 
-<?php unset( $bm_social_links, $bm_social_key, $bm_social, $bm_terms_page, $bm_terms_url ); ?>
+<?php unset( $bm_social_links, $bm_social_key, $bm_social, $bm_terms_page, $bm_terms_url, $bm_newsletter_default_id, $bm_newsletter_form_id, $bm_newsletter_available ); ?>
 <?php wp_footer(); ?>
 </body>
 </html>
