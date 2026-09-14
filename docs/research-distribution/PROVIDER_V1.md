@@ -10,6 +10,14 @@ Provider V1 is the call-on-demand bridge from Bitmomo's current canonical BTC ru
 
 It does not register hooks, schedules, REST routes, database writes, network calls, or publishers. Nothing executes unless a future consumer explicitly calls the provider.
 
+## Repository placement / production isolation
+
+The implementation lives under `research/distribution-core/`, outside every component listed in `config/production-runtime.json`.
+
+This is deliberate. P0 is a research/tooling integration contract, not a WordPress runtime feature. Merging P0 must not increase the `bitmomo-ai` artifact file count, alter production plugin bytes, or silently ship an unused provider into the website runtime.
+
+Any later decision to expose Research Feed through WordPress, a worker, an API, or another service is a separate runtime integration step with its own release gate.
+
 ## Current BTC read path
 
 The provider reads two existing canonical surfaces:
