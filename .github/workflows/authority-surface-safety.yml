@@ -8,13 +8,16 @@ on:
       - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
+      - "scripts/check-institutional-copy.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
       - "docs/ARTICLE_READING_CONTRACT.md"
+      - "docs/editorial/**"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
       - ".github/workflows/ui-browser-safety.yml"
@@ -57,12 +60,14 @@ jobs:
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
             website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
-            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php; do
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php \
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php; do
             php -l "$file"
           done
           node --check scripts/check-public-ui.mjs
           node --check scripts/check-article-cleanliness.mjs
           node --check scripts/check-terminal-grade-contract.mjs
+          node --check scripts/check-institutional-copy.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
       - name: Enforce one institutional classification boundary
@@ -82,7 +87,7 @@ jobs:
 
           grep -q "template-parts/about" "${theme}/page.php"
           grep -q "template-parts/research" "${theme}/category.php"
-          grep -Eqi "platform .*market intelligence.*research" "${about}"
+          grep -Eqi "platform .*market intelligence.*(research|riset)" "${about}"
           ! grep -Eqi "media independen|media independent" "${about}"
 
           grep -q "bitmomo_market_research_taxonomy_slugs" "${helpers}"
@@ -101,8 +106,8 @@ jobs:
           grep -q "bitmomo_post_is_market_research" "${home_research}"
           grep -q "bitmomo_post_research_classification" "${single}"
           grep -q "bitmomo_post_publication_label" "${single}"
-          grep -q "Market Research Terkait" "${single}"
-          grep -q "Intelligence Systems Research Terkait" "${single}"
+          grep -q "Riset Pasar Terkait" "${single}"
+          grep -q "Riset Sistem Intelligence Terkait" "${single}"
           ! grep -q "Riset Terkait" "${single}"
 
           grep -q "bitmomo_post_research_classification" "${header}"
@@ -128,8 +133,10 @@ jobs:
           assert expected_total == total
           assert 'bitmomo-child-v3' in components
           assert 'bitmomo-btc-intelligence' in components
+          assert 'bitmomo-pro' in components
           assert 'assets/css/home.css' in components['bitmomo-child-v3']['required']
           assert 'includes/class-bitmomo-btc-intelligence-accountability.php' in components['bitmomo-btc-intelligence']['required']
+          assert 'includes/class-bitmomo-pro-public-copy.php' in components['bitmomo-pro']['required']
           PY
           grep -q '"assets/css/design-system.css"' config/production-runtime.json
           grep -q '"assets/css/home.css"' config/production-runtime.json
@@ -251,6 +258,9 @@ jobs:
 
       - name: Enforce terminal-grade public invariants
         run: node scripts/check-terminal-grade-contract.mjs
+
+      - name: Enforce institutional public copy
+        run: node scripts/check-institutional-copy.mjs
 
       - name: Prevent publisher-first source-of-truth regression
         shell: bash

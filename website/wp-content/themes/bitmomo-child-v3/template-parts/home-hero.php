@@ -1,5 +1,5 @@
 <?php
-/** Homepage hero: institutional product positioning + one auditable BTC reading. @package Bitmomo */
+/** Homepage hero: institutional product positioning + one auditable BTC market view. @package Bitmomo */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 $bm_snapshot = class_exists( 'Bitmomo_Public_Intelligence_Adapter' )
@@ -46,7 +46,7 @@ $bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
       <div class="bm-home-hero__copy">
         <p class="bm-home-hero__eyebrow">BTC MARKET INTELLIGENCE</p>
         <h1 class="bm-home-hero__title" id="bm-home-title">Pahami kondisi BTC sekarang. Ketahui apa yang perlu dipantau berikutnya.</h1>
-        <p class="bm-home-hero__lead">BTC Intelligence merangkum arah, keyakinan, dan alasan utama di balik pembacaan pasar. Bitmomo Pro menambahkan skenario, rentang yang dipantau, dan kondisi yang mengubah pandangan. Setiap pembacaan dicatat agar hasilnya dapat ditinjau kembali.</p>
+        <p class="bm-home-hero__lead">BTC Intelligence merangkum bias pasar, confidence, dan faktor utama yang membentuk kondisi BTC saat ini. Bitmomo Pro menambahkan skenario, rentang harga, serta kondisi yang mengubah tesis pasar. Setiap analisis dicatat agar dapat dievaluasi terhadap hasil aktual.</p>
 
         <div class="bm-home-hero__actions">
           <a class="bm-home-hero__primary" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_primary">Buka BTC Intelligence</a>
@@ -60,43 +60,43 @@ $bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
         </p>
       </div>
 
-      <article class="bm-home-reading" aria-label="Pembacaan BTC terbaru">
+      <article class="bm-home-reading" aria-label="Analisis BTC terbaru">
         <header class="bm-home-reading__head">
-          <span class="bm-home-reading__label">CURRENT BTC READING</span>
+          <span class="bm-home-reading__label">BTC MARKET VIEW</span>
           <strong class="bm-home-reading__status<?php echo esc_attr( $bm_status_class ); ?>"><?php echo esc_html( $bm_status_label ); ?></strong>
         </header>
 
         <div class="bm-home-reading__metrics" role="list">
           <div class="bm-home-reading__metric" role="listitem">
-            <span class="bm-home-reading__metric-label">ARAH</span>
+            <span class="bm-home-reading__metric-label">BIAS</span>
             <strong class="bm-home-reading__metric-value is-<?php echo esc_attr( in_array( $bm_bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? $bm_bias : 'unknown' ); ?>"><?php echo esc_html( $bm_bias_label ); ?></strong>
-            <small>Arah evidence pasar saat ini.</small>
+            <small>Arah dominan berdasarkan data pasar saat ini.</small>
           </div>
           <div class="bm-home-reading__metric" role="listitem">
-            <span class="bm-home-reading__metric-label">KEYAKINAN</span>
+            <span class="bm-home-reading__metric-label">CONFIDENCE</span>
             <strong class="bm-home-reading__metric-value"><?php echo null !== $bm_confidence ? esc_html( ( $bm_confidence_label ? $bm_confidence_label . ' · ' : '' ) . $bm_confidence . '/100' ) : esc_html__( 'Belum tersedia', 'bitmomo' ); ?></strong>
-            <small>Konsistensi evidence, bukan peluang harga.</small>
+            <small>Konsistensi bukti pendukung; bukan probabilitas pergerakan harga.</small>
           </div>
           <div class="bm-home-reading__metric" role="listitem">
             <span class="bm-home-reading__metric-label">REFERENSI BTC</span>
             <strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_price_label ); ?></strong>
-            <small>Harga referensi pada waktu pembacaan.</small>
+            <small>Harga referensi ketika analisis dibuat.</small>
           </div>
           <div class="bm-home-reading__metric" role="listitem">
             <span class="bm-home-reading__metric-label">DIPERBARUI</span>
             <strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_updated_label ); ?></strong>
-            <small>Timestamp pembacaan publik.</small>
+            <small>Waktu publikasi analisis terbaru.</small>
           </div>
         </div>
 
         <div class="bm-home-reading__driver">
-          <span>ALASAN UTAMA</span>
-          <p><?php echo esc_html( $bm_driver ?: 'Pembacaan terbaru belum tersedia.' ); ?></p>
+          <span>FAKTOR UTAMA</span>
+          <p><?php echo esc_html( $bm_driver ?: 'Analisis terbaru belum tersedia.' ); ?></p>
         </div>
 
         <footer class="bm-home-reading__footer">
-          <p class="bm-home-reading__source"><strong>SUMBER</strong><br><?php echo esc_html( $bm_source_label ); ?></p>
-          <a class="bm-home-reading__link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_market_card">Buka pembacaan lengkap →</a>
+          <p class="bm-home-reading__source"><strong>SUMBER DATA</strong><br><?php echo esc_html( $bm_source_label ); ?></p>
+          <a class="bm-home-reading__link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_market_card">Buka analisis lengkap →</a>
         </footer>
       </article>
     </div>
@@ -104,15 +104,15 @@ $bm_status_class = 'fresh' === $bm_status ? '' : ' is-delayed';
     <div class="bm-home-proof" aria-label="Prinsip akuntabilitas Bitmomo">
       <div class="bm-home-proof__item">
         <span class="bm-home-proof__kicker">TIMESTAMPED</span>
-        <p>Pembacaan dicatat sebelum hasil pasar diketahui, bukan ditulis ulang setelah pasar bergerak.</p>
+        <p>Analisis dicatat sebelum hasil pasar diketahui dan tidak ditulis ulang setelah pasar bergerak.</p>
       </div>
       <div class="bm-home-proof__item">
         <span class="bm-home-proof__kicker">PUBLIC LEDGER</span>
-        <p>Hasil yang selaras, meleset, dan tidak konklusif tetap dapat ditinjau secara publik.</p>
+        <p>Hasil yang sesuai, tidak sesuai, dan tidak konklusif tetap tercatat dalam evaluasi publik.</p>
       </div>
       <div class="bm-home-proof__item">
         <span class="bm-home-proof__kicker">DATA DISCIPLINE</span>
-        <p>Data yang terlambat atau tidak valid ditandai atau ditahan, bukan dipaksakan menjadi insight.</p>
+        <p>Analisis tidak diterbitkan ketika data terlambat, tidak lengkap, atau tidak memenuhi standar kualitas.</p>
       </div>
     </div>
 

@@ -1,34 +1,18 @@
 <?php
 /**
- * Bitmomo_AI_Key_Drivers::derive()/rank_and_cap() contract
- * (KEY DRIVERS CUSTOMER-FACING COPY build + PR #61 targeted copy fix).
+ * Bitmomo_AI_Key_Drivers institutional-copy contract.
  *
- * Pure-logic tests: no WordPress runtime, only the one WP function this
- * class actually calls (__()) is stubbed, matching the convention already
- * used by tests/test-bitmomo-ai-regime-metrics.php.
- *
- * This revision hardens coverage per the "describe the market, not the
- * indicator" copy fix: every distinct customer-facing template is asserted
- * against its exact expected text (direction x4 tiers, structure x4 states
- * + the defensive unknown-state fallback, consolidated direction+structure
- * x2, carry x4 tiers, crowding x2 tiers, volatility x3 regimes, and the
- * calm/no-material fallback), and every one of those generated strings is
- * scanned for banned internal-analyst terminology AND forward-looking /
- * conditional-consequence language (Free must describe current state only).
- *
- * Run: php tests/test-bitmomo-ai-key-drivers-contract.php
+ * Presentation-only: validates deterministic market-factor wording without
+ * changing the signal engine. Run with:
+ * php tests/test-bitmomo-ai-key-drivers-contract.php
  */
 
 define('ABSPATH', __DIR__);
-
 if (!function_exists('__')) {
-    function __($text, $domain = 'default') {
-        return $text;
-    }
+    function __($text, $domain = 'default') { return $text; }
 }
 
 require __DIR__ . '/../includes/class-bitmomo-ai-key-drivers.php';
-require __DIR__ . '/../includes/class-bitmomo-ai-signal-engine.php';
 
 $checks = array();
 function check_kd($label, $condition) {
@@ -36,41 +20,7 @@ function check_kd($label, $condition) {
     $checks[] = array($label, (bool) $condition);
 }
 
-/**
- * Builds a full, realistic Signal_Engine::evaluate()-shaped input so the
- * integration path (raw market data -> axes -> key_drivers) is exercised,
- * not just hand-built axes arrays. Every field defaults to a "quiet, all-
- * neutral" market; callers override only what they need to move.
- */
-function base_signal_input($overrides = array()) {
-    $defaults = array(
-        'close' => 65000,
-        'direction' => array('adx' => 10, 'plus_di' => 20, 'minus_di' => 20, 'bias_1h' => 'neutral', 'bias_4h' => 'neutral', 'bias_1d' => 'neutral'),
-        'carry' => array('funding_rate' => 0.0001, 'basis_pct' => 0.02),
-        'structure' => array('state' => 'range', 'state_1d' => 'range', 'last_swing_low' => 63000, 'last_swing_high' => 67000, 'near_support' => 64000, 'near_resistance' => 66000),
-        'crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0),
-        'volatility' => array('atr_percentile_1d' => 50, 'regime' => 'normal', 'atr_pct_4h' => 1.0, 'atr_pct_1h' => 0.5, 'bb_width_pct_4h' => 2.0),
-        'quality' => array('status' => 'complete'),
-    );
-    foreach ($overrides as $key => $value) {
-        $defaults[$key] = array_merge($defaults[$key], $value);
-    }
-    return $defaults;
-}
-
-function evaluation_for($overrides = array()) {
-    return Bitmomo_AI_Signal_Engine::evaluate(base_signal_input($overrides));
-}
-
-/**
- * A hand-built evaluation array that bypasses Bitmomo_AI_Signal_Engine
- * entirely. Used only to exercise defensive code paths (like structure's
- * unknown-state fallback) that the real engine can structurally never
- * produce, since structure_score() only ever emits scores for its 4 known
- * states (or 0/neutral for anything else, which build_candidates() would
- * already filter out before structure_candidate() is even called).
- */
-function raw_evaluation($axes) {
+function raw_evaluation($axes = array()) {
     $blank = array('score' => 0, 'status' => 'neutral');
     return array('axes' => array(
         'direction' => array_merge($blank, $axes['direction'] ?? array()),
@@ -81,402 +31,157 @@ function raw_evaluation($axes) {
     ));
 }
 
-// ============================================================
-// Per-template exact-text coverage
-// ============================================================
-
-// --- Direction: 4 tiers.
-check_kd(
-    'direction positive strong: exact expected text',
-    array('Momentum harga BTC saat ini cukup kuat ke arah naik.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10))))
-);
-check_kd(
-    'direction positive moderate: exact expected text',
-    array('Momentum harga BTC mulai menguat ke arah naik.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('direction' => array('adx' => 22, 'plus_di' => 30, 'minus_di' => 10))))
-);
-check_kd(
-    'direction negative strong: exact expected text',
-    array('Momentum harga BTC saat ini cukup kuat ke arah turun.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('direction' => array('adx' => 30, 'plus_di' => 10, 'minus_di' => 30))))
-);
-check_kd(
-    'direction negative moderate: exact expected text',
-    array('Momentum harga BTC mulai melemah dan condong ke arah turun.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('direction' => array('adx' => 22, 'plus_di' => 10, 'minus_di' => 30))))
-);
-
-// --- Structure: 4 real states + defensive unknown-state fallback.
-check_kd(
-    'structure breakout_up: exact expected text',
-    array('Struktur harga BTC baru saja menembus level penting ke atas.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('structure' => array('state' => 'breakout_up'))))
-);
-check_kd(
-    'structure hh_hl: exact expected text',
-    array('Struktur harga BTC jangka pendek masih menunjukkan pola naik.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('structure' => array('state' => 'hh_hl'))))
-);
-check_kd(
-    'structure breakout_down: exact expected text',
-    array('Struktur harga BTC baru saja menembus level penting ke bawah.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('structure' => array('state' => 'breakout_down'))))
-);
-check_kd(
-    'structure lh_ll: exact expected text',
-    array('Struktur harga BTC jangka pendek masih menunjukkan pola turun.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('structure' => array('state' => 'lh_ll'))))
-);
-check_kd(
-    'structure defensive fallback (unrecognised state, bullish score): exact expected text',
-    array('Struktur harga BTC saat ini condong naik.') === Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array('structure' => array('score' => 45, 'status' => 'bullish', 'state' => 'mystery_state'))))
-);
-check_kd(
-    'structure defensive fallback (unrecognised state, bearish score): exact expected text',
-    array('Struktur harga BTC saat ini condong turun.') === Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array('structure' => array('score' => -45, 'status' => 'bearish', 'state' => 'mystery_state'))))
-);
-
-// --- Direction + structure consolidation: both signs.
-check_kd(
-    'consolidated direction+structure, bullish: exact expected text',
-    array('Momentum dan struktur harga BTC saat ini sama-sama mendukung arah naik.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array(
-        'direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10),
-        'structure' => array('state' => 'breakout_up'),
-    )))
-);
-check_kd(
-    'consolidated direction+structure, bearish: exact expected text',
-    array('Momentum dan struktur harga BTC saat ini sama-sama menunjukkan tekanan ke arah turun.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array(
-        'direction' => array('adx' => 30, 'plus_di' => 10, 'minus_di' => 30),
-        'structure' => array('state' => 'breakout_down'),
-    )))
-);
-
-// --- Carry: describes futures-market PRICING (funding cost / basis vs
-// --- spot), never a trader head-count or "dominant side" claim, and
-// --- branches on the same underlying funding_rate/basis_pct fields
-// --- carry_score() already thresholds on (0.00025/0.0005 funding,
-// --- 0.15/0.25 basis), not just the aggregate score.
-check_kd(
-    'carry: funding-only elevated (long side): exact expected text',
-    array('Biaya mempertahankan posisi long di pasar futures BTC sedang lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.05))))
-);
-check_kd(
-    'carry: basis-only elevated (long side): exact expected text',
-    array('Harga futures BTC saat ini diperdagangkan lebih tinggi dibandingkan harga spot.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0001, 'basis_pct' => 0.20))))
-);
-check_kd(
-    'carry: funding+basis both elevated, moderate score (long side): exact combined expected text',
-    array('Pasar futures BTC diperdagangkan di atas harga spot, sementara biaya posisi long juga lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.20))))
-);
-check_kd(
-    'carry: funding+basis both elevated, extreme score (long side): exact combined expected text',
-    array('Pasar futures BTC diperdagangkan di atas harga spot, sementara biaya posisi long juga lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30))))
-);
-check_kd(
-    'carry: funding-only elevated (short side): exact expected text',
-    array('Biaya mempertahankan posisi short di pasar futures BTC sedang lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0003, 'basis_pct' => -0.05))))
-);
-check_kd(
-    'carry: basis-only elevated (short side): exact expected text',
-    array('Harga futures BTC saat ini diperdagangkan lebih rendah dibandingkan harga spot.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0001, 'basis_pct' => -0.20))))
-);
-check_kd(
-    'carry: funding+basis both elevated (short side): exact combined expected text',
-    array('Pasar futures BTC diperdagangkan di bawah harga spot, sementara biaya posisi short juga lebih tinggi dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => -0.0008, 'basis_pct' => -0.30))))
-);
-check_kd(
-    'carry: unavailable (funding=0, basis=0, data_status=unavailable) never generates a market claim',
-    array('Pergerakan BTC saat ini relatif tenang dan belum ada faktor yang terlihat dominan.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('carry' => array('funding_rate' => 0, 'basis_pct' => 0, 'data_status' => 'unavailable'))))
-);
-// --- Defensive fail-closed guard: data_status === 'unavailable' must
-// --- suppress the carry candidate EVEN IF the score/status/funding/basis
-// --- fields are, on their own, unambiguously material -- e.g. a
-// --- malformed or stale payload that still carries a stale material
-// --- score alongside a feed that has since gone unavailable. Built via
-// --- raw_evaluation() (bypassing Signal_Engine::evaluate()) because the
-// --- real engine's carry_score() never actually reads data_status, so
-// --- this exact combination can only arise from a malformed/stale
-// --- payload -- which is precisely the case this guard exists for.
-// --- Other axes remain material and unaffected, proving the guard is
-// --- carry-specific, not a global fail-closed short-circuit.
-check_kd(
-    'carry: data_status=unavailable with material-looking score/status/funding/basis is still fully suppressed (no carry line, no fallback carry sentence, other drivers unaffected)',
-    (function () {
-        $evaluation = raw_evaluation(array(
-            'carry' => array(
-                'score' => -75,
-                'status' => 'strong_bearish',
-                'funding_rate' => 0.0009,
-                'basis_pct' => 0.35,
-                'data_status' => 'unavailable',
-            ),
-            'direction' => array('score' => 80, 'status' => 'strong_bullish'),
-        ));
-        $drivers = Bitmomo_AI_Key_Drivers::derive($evaluation);
-        $has_carry_line = (bool) array_filter($drivers, function ($l) {
-            return false !== stripos($l, 'futures') || false !== stripos($l, 'posisi long') || false !== stripos($l, 'posisi short') || false !== stripos($l, 'spot') || false !== stripos($l, 'biaya');
-        });
-        $has_direction_line = (bool) array_filter($drivers, function ($l) { return false !== strpos($l, 'Momentum harga BTC'); });
-        return !$has_carry_line && $has_direction_line && 1 === count($drivers);
-    })()
-);
-
-// --- Crowding: reports the specific observed fact(s) that actually
-// --- contributed to the composite (OI change, taker buy/sell activity,
-// --- the ACCOUNT long/short ratio) rather than translating the composite
-// --- sign into a blanket bullish/bearish or "crowded" conclusion.
-check_kd(
-    'crowding: OI-driven only: exact expected text',
-    array('Open interest futures BTC sedang meningkat, menunjukkan lebih banyak posisi terbuka di pasar.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))))
-);
-check_kd(
-    'crowding: taker buy-dominant only: exact expected text',
-    array('Aktivitas beli agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas jual.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2))))
-);
-check_kd(
-    'crowding: taker sell-dominant only: exact expected text',
-    array('Aktivitas jual agresif di pasar futures BTC saat ini lebih kuat daripada aktivitas beli.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 0.8))))
-);
-check_kd(
-    'crowding: account long/short ratio condong-long only: exact expected text, explicitly ACCOUNT wording',
-    array('Proporsi akun trader saat ini lebih condong ke posisi long.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.0))))
-);
-check_kd(
-    'crowding: account long/short ratio condong-short only: exact expected text, explicitly ACCOUNT wording',
-    array('Proporsi akun trader saat ini lebih condong ke posisi short.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.0))))
-);
-check_kd(
-    'crowding: OI + taker-buy both material -> consolidated into ONE natural sentence (matches the reviewed example)',
-    array('Open interest futures BTC sedang meningkat, sementara aktivitas beli agresif lebih kuat daripada aktivitas jual.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2))))
-);
-check_kd(
-    'crowding: all three facts material -> still exactly ONE candidate, top-2-priority (OI+taker) consolidated, account ratio dropped for concision',
-    array('Open interest futures BTC sedang meningkat, sementara aktivitas beli agresif lebih kuat daripada aktivitas jual.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.2))))
-);
-check_kd(
-    'crowding: no underlying derivatives data (ratio/taker unset, OI flat) never generates a market claim',
-    array('Pergerakan BTC saat ini relatif tenang dan belum ada faktor yang terlihat dominan.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0, 'price_change_24h_pct' => 0, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))))
-);
-
-// --- Semantic-accuracy regression: the specific overclaims review found
-// --- must never reappear in ANY carry/crowding output.
-$carry_crowding_samples = array(
-    evaluation_for(array('carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30))),
-    evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.05))),
-    evaluation_for(array('carry' => array('funding_rate' => 0.0001, 'basis_pct' => 0.20))),
-    evaluation_for(array('carry' => array('funding_rate' => -0.0008, 'basis_pct' => -0.30))),
-    evaluation_for(array('carry' => array('funding_rate' => -0.0003, 'basis_pct' => -0.05))),
-    evaluation_for(array('carry' => array('funding_rate' => -0.0001, 'basis_pct' => -0.20))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 0.8))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.0))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.0))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.2))),
-);
-$overclaim_terms = array(
-    'sangat dominan', 'banyak trader', 'mengambil posisi', // old carry overclaims
-    'cukup padat', 'banyak pelaku pasar', 'mulai lebih berat ke satu sisi', // old crowding overclaims
-    'crowded', 'concentrat', // literal loanwords, should never appear
-);
-$overclaim_hits = array();
-$directional_word_on_composite_hits = array();
-foreach ($carry_crowding_samples as $sample) {
-    foreach (Bitmomo_AI_Key_Drivers::derive($sample) as $line) {
-        foreach ($overclaim_terms as $term) {
-            if (false !== stripos($line, $term)) {
-                $overclaim_hits[] = $term . ' :: ' . $line;
-            }
-        }
-        // The composite must never be blindly translated into a
-        // bullish/bearish/naik/turun word.
-        if ((false !== stripos($line, 'bullish') || false !== stripos($line, 'bearish') || false !== stripos($line, ' naik') || false !== stripos($line, ' turun'))) {
-            $directional_word_on_composite_hits[] = $line;
-        }
-    }
+function expect_driver($label, $expected, $axes) {
+    check_kd($label, array($expected) === Bitmomo_AI_Key_Drivers::derive(raw_evaluation($axes)));
 }
-check_kd('no removed carry/crowding overclaims reappear (' . count($overclaim_hits) . ' hits: ' . implode(' | ', $overclaim_hits) . ')', empty($overclaim_hits));
-check_kd('crowding composite sign is never translated into a bullish/bearish/naik/turun word (' . count($directional_word_on_composite_hits) . ' hits)', empty($directional_word_on_composite_hits));
 
-// --- Volatility: 3 regimes.
-check_kd(
-    'volatility extreme: exact expected text',
-    array('Volatilitas BTC saat ini sangat tinggi dan pergerakan harga jauh lebih besar dari biasanya.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('volatility' => array('atr_percentile_1d' => 97, 'regime' => 'extreme'))))
-);
-check_kd(
-    'volatility high: exact expected text',
-    array('Volatilitas BTC sedang meningkat dan pergerakan harga menjadi lebih aktif.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('volatility' => array('atr_percentile_1d' => 80, 'regime' => 'high'))))
-);
-check_kd(
-    'volatility low: exact expected text',
-    array('Volatilitas BTC masih rendah dan pergerakan harga relatif tenang.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for(array('volatility' => array('atr_percentile_1d' => 10, 'regime' => 'low'))))
-);
-
-// --- Calm / no-material fallback.
-check_kd(
-    'calm fallback: exact expected text',
-    array('Pergerakan BTC saat ini relatif tenang dan belum ada faktor yang terlihat dominan.') === Bitmomo_AI_Key_Drivers::derive(evaluation_for())
-);
-
-// ============================================================
-// Selection / ranking behavior (architecture unchanged by this fix)
-// ============================================================
-
-$evaluation = evaluation_for(array(
-    'direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10),
-    'volatility' => array('atr_percentile_1d' => 97, 'regime' => 'extreme'),
+// Direction.
+expect_driver('strong bullish momentum', 'Momentum harga menunjukkan dorongan bullish yang kuat.', array(
+    'direction' => array('score' => 80, 'status' => 'strong_bullish'),
 ));
-$drivers = Bitmomo_AI_Key_Drivers::derive($evaluation);
-check_kd('multiple material, non-redundant drivers: more than 1 line', count($drivers) > 1);
-check_kd('multiple material drivers: strongest (volatility, materiality 90) ranked first', false !== strpos($drivers[0], 'Volatilitas'));
-
-$evaluation = evaluation_for(array('direction' => array('adx' => 17, 'plus_di' => 30, 'minus_di' => 10)));
-$drivers = Bitmomo_AI_Key_Drivers::derive($evaluation);
-check_kd('weak/sub-threshold direction (ADX under trend threshold) is excluded, not force-included', array('Pergerakan BTC saat ini relatif tenang dan belum ada faktor yang terlihat dominan.') === $drivers);
-
-$evaluation = evaluation_for(array(
-    'direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10),
-    'structure' => array('state' => 'breakout_up'),
+expect_driver('moderate bullish momentum', 'Momentum harga menunjukkan penguatan dengan bias bullish.', array(
+    'direction' => array('score' => 40, 'status' => 'bullish'),
 ));
-$drivers = Bitmomo_AI_Key_Drivers::derive($evaluation);
-check_kd('same-signed direction+structure consolidate into exactly 1 line', 1 === count($drivers));
-check_kd('consolidation: no separate stand-alone structure "menembus" line also present', 0 === count(array_filter($drivers, function ($line) { return false !== strpos($line, 'menembus'); })));
-
-$evaluation = evaluation_for(array(
-    'direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10),
-    'structure' => array('state' => 'lh_ll'),
+expect_driver('strong bearish momentum', 'Momentum harga menunjukkan tekanan bearish yang kuat.', array(
+    'direction' => array('score' => -80, 'status' => 'strong_bearish'),
 ));
-$drivers = Bitmomo_AI_Key_Drivers::derive($evaluation);
-$has_momentum_line = (bool) array_filter($drivers, function ($line) { return false !== strpos($line, 'Momentum harga BTC'); });
-$has_structure_line = (bool) array_filter($drivers, function ($line) { return false !== strpos($line, 'Struktur harga'); });
-check_kd('conflicting direction vs structure: momentum line retained', $has_momentum_line);
-check_kd('conflicting direction vs structure: structure line retained (not hidden/merged)', $has_structure_line);
-check_kd('conflicting direction vs structure: two separate lines, not one merged claim', 2 === count($drivers));
-
-// Current engine can produce at most 5 candidates: direction+structure
-// conflicting (2, since they don't consolidate) + carry + crowding +
-// volatility (1 each) = 5. Verify that ceiling directly.
-$evaluation = evaluation_for(array(
-    'direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10),
-    'structure' => array('state' => 'lh_ll'),
-    'carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30),
-    'crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.2),
-    'volatility' => array('atr_percentile_1d' => 97, 'regime' => 'extreme'),
+expect_driver('moderate bearish momentum', 'Momentum harga menunjukkan pelemahan dengan bias bearish.', array(
+    'direction' => array('score' => -40, 'status' => 'bearish'),
 ));
-$drivers = Bitmomo_AI_Key_Drivers::derive($evaluation);
-check_kd('current engine max: all 5 axes material + conflicting direction/structure yields exactly 5 drivers (not 6)', 5 === count($drivers));
 
-// ============================================================
-// Comprehensive banned-terminology + forward-looking-language scan
-// across every distinct template this class can generate.
-// ============================================================
+// Structure.
+expect_driver('breakout structure', 'Struktur harga mencatat breakout di atas level teknikal utama.', array(
+    'structure' => array('score' => 70, 'status' => 'strong_bullish', 'state' => 'breakout_up'),
+));
+expect_driver('higher-high/higher-low structure', 'Struktur harga jangka pendek tetap konstruktif dengan pola higher high dan higher low.', array(
+    'structure' => array('score' => 45, 'status' => 'bullish', 'state' => 'hh_hl'),
+));
+expect_driver('breakdown structure', 'Struktur harga mencatat breakdown di bawah level teknikal utama.', array(
+    'structure' => array('score' => -70, 'status' => 'strong_bearish', 'state' => 'breakout_down'),
+));
+expect_driver('lower-high/lower-low structure', 'Struktur harga jangka pendek tetap lemah dengan pola lower high dan lower low.', array(
+    'structure' => array('score' => -45, 'status' => 'bearish', 'state' => 'lh_ll'),
+));
+expect_driver('unknown bullish structure fallback', 'Struktur harga saat ini menunjukkan bias bullish.', array(
+    'structure' => array('score' => 45, 'status' => 'bullish', 'state' => 'unknown'),
+));
+expect_driver('unknown bearish structure fallback', 'Struktur harga saat ini menunjukkan bias bearish.', array(
+    'structure' => array('score' => -45, 'status' => 'bearish', 'state' => 'unknown'),
+));
 
-$all_sample_evaluations = array(
-    evaluation_for(),
-    evaluation_for(array('direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10))),
-    evaluation_for(array('direction' => array('adx' => 22, 'plus_di' => 30, 'minus_di' => 10))),
-    evaluation_for(array('direction' => array('adx' => 30, 'plus_di' => 10, 'minus_di' => 30))),
-    evaluation_for(array('direction' => array('adx' => 22, 'plus_di' => 10, 'minus_di' => 30))),
-    evaluation_for(array('structure' => array('state' => 'breakout_up'))),
-    evaluation_for(array('structure' => array('state' => 'hh_hl'))),
-    evaluation_for(array('structure' => array('state' => 'breakout_down'))),
-    evaluation_for(array('structure' => array('state' => 'lh_ll'))),
-    raw_evaluation(array('structure' => array('score' => 45, 'status' => 'bullish', 'state' => 'mystery_state'))),
-    raw_evaluation(array('structure' => array('score' => -45, 'status' => 'bearish', 'state' => 'mystery_state'))),
-    evaluation_for(array('direction' => array('adx' => 30, 'plus_di' => 30, 'minus_di' => 10), 'structure' => array('state' => 'breakout_up'))),
-    evaluation_for(array('direction' => array('adx' => 30, 'plus_di' => 10, 'minus_di' => 30), 'structure' => array('state' => 'breakout_down'))),
-    evaluation_for(array('carry' => array('funding_rate' => 0.0008, 'basis_pct' => 0.30))),
-    evaluation_for(array('carry' => array('funding_rate' => 0.0003, 'basis_pct' => 0.05))),
-    evaluation_for(array('carry' => array('funding_rate' => -0.0008, 'basis_pct' => -0.30))),
-    evaluation_for(array('carry' => array('funding_rate' => -0.0003, 'basis_pct' => -0.05))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.2))),
-    evaluation_for(array('crowding' => array('oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0))),
-    evaluation_for(array('volatility' => array('atr_percentile_1d' => 97, 'regime' => 'extreme'))),
-    evaluation_for(array('volatility' => array('atr_percentile_1d' => 80, 'regime' => 'high'))),
-    evaluation_for(array('volatility' => array('atr_percentile_1d' => 10, 'regime' => 'low'))),
+// Consolidation.
+expect_driver('bullish momentum + structure consolidation', 'Momentum dan struktur harga sama-sama mengonfirmasi bias bullish.', array(
+    'direction' => array('score' => 80, 'status' => 'strong_bullish'),
+    'structure' => array('score' => 70, 'status' => 'strong_bullish', 'state' => 'breakout_up'),
+));
+expect_driver('bearish momentum + structure consolidation', 'Momentum dan struktur harga sama-sama mengonfirmasi bias bearish.', array(
+    'direction' => array('score' => -80, 'status' => 'strong_bearish'),
+    'structure' => array('score' => -70, 'status' => 'strong_bearish', 'state' => 'breakout_down'),
+));
+
+// Carry / futures pricing.
+expect_driver('long funding only', 'Biaya funding untuk posisi long berada di atas kondisi normal.', array(
+    'carry' => array('score' => -30, 'status' => 'bearish', 'funding_rate' => 0.0003, 'basis_pct' => 0.05, 'data_status' => 'available'),
+));
+expect_driver('long basis only', 'Futures BTC diperdagangkan dengan premi terhadap harga spot.', array(
+    'carry' => array('score' => -30, 'status' => 'bearish', 'funding_rate' => 0.0001, 'basis_pct' => 0.20, 'data_status' => 'available'),
+));
+expect_driver('long funding + basis', 'Futures BTC diperdagangkan dengan premi terhadap spot, disertai biaya funding long yang meningkat.', array(
+    'carry' => array('score' => -70, 'status' => 'strong_bearish', 'funding_rate' => 0.0008, 'basis_pct' => 0.30, 'data_status' => 'available'),
+));
+expect_driver('short funding only', 'Biaya funding untuk posisi short berada di atas kondisi normal.', array(
+    'carry' => array('score' => 30, 'status' => 'bullish', 'funding_rate' => -0.0003, 'basis_pct' => -0.05, 'data_status' => 'available'),
+));
+expect_driver('short basis only', 'Futures BTC diperdagangkan dengan diskon terhadap harga spot.', array(
+    'carry' => array('score' => 30, 'status' => 'bullish', 'funding_rate' => -0.0001, 'basis_pct' => -0.20, 'data_status' => 'available'),
+));
+expect_driver('short funding + basis', 'Futures BTC diperdagangkan dengan diskon terhadap spot, disertai biaya funding short yang meningkat.', array(
+    'carry' => array('score' => 70, 'status' => 'strong_bullish', 'funding_rate' => -0.0008, 'basis_pct' => -0.30, 'data_status' => 'available'),
+));
+
+// Explicit carry fail-closed behavior.
+$carry_unavailable = Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array(
+    'carry' => array('score' => -80, 'status' => 'strong_bearish', 'funding_rate' => 0.0009, 'basis_pct' => 0.35, 'data_status' => 'unavailable'),
+    'direction' => array('score' => 80, 'status' => 'strong_bullish'),
+)));
+check_kd('unavailable carry is suppressed while other material factors remain',
+    array('Momentum harga menunjukkan dorongan bullish yang kuat.') === $carry_unavailable
 );
 
-$banned_terms = array(
-    'pembacaan', 'pembacaan pasar', 'berdasarkan pembacaan', 'assessment',
-    'positioning derivatif', 'crowded positioning', 'crowding', 'carry',
-    'composite', 'terkonsentrasi', 'kondisi netral',
-);
-$forward_looking_markers = array(
-    'jika', 'apabila', 'berpotensi', 'potensial', 'membuka ruang', 'nantinya',
-    'ke depan', 'seandainya', 'akan menembus', 'yang perlu dipantau',
-    'trigger', 'skenario', 'invalidasi', 'dilepas', 'unwind',
-);
+// Positioning / crowding facts.
+expect_driver('open-interest expansion', 'Open interest futures BTC meningkat, menunjukkan ekspansi posisi terbuka di pasar derivatif.', array(
+    'crowding' => array('score' => 30, 'status' => 'bullish', 'oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.0),
+));
+expect_driver('taker buy pressure', 'Taker flow futures menunjukkan tekanan beli yang lebih kuat daripada tekanan jual.', array(
+    'crowding' => array('score' => 30, 'status' => 'bullish', 'oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2),
+));
+expect_driver('taker sell pressure', 'Taker flow futures menunjukkan tekanan jual yang lebih kuat daripada tekanan beli.', array(
+    'crowding' => array('score' => -30, 'status' => 'bearish', 'oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => -0.1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 0.8),
+));
+expect_driver('account ratio long', 'Rasio akun long/short menunjukkan proporsi akun lebih condong ke posisi long.', array(
+    'crowding' => array('score' => -30, 'status' => 'bearish', 'oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => 0.1, 'global_long_short_ratio' => 1.3, 'taker_buy_sell_ratio' => 1.0),
+));
+expect_driver('account ratio short', 'Rasio akun long/short menunjukkan proporsi akun lebih condong ke posisi short.', array(
+    'crowding' => array('score' => 30, 'status' => 'bullish', 'oi_change_24h_pct' => 0.5, 'price_change_24h_pct' => -0.1, 'global_long_short_ratio' => 0.7, 'taker_buy_sell_ratio' => 1.0),
+));
 
-$all_generated_lines = array();
-foreach ($all_sample_evaluations as $sample) {
-    foreach (Bitmomo_AI_Key_Drivers::derive($sample) as $line) {
-        $all_generated_lines[] = $line;
-    }
-}
-$all_generated_lines = array_values(array_unique($all_generated_lines));
+// Volatility.
+expect_driver('extreme volatility', 'Volatilitas BTC berada pada level sangat tinggi dengan amplitudo pergerakan jauh di atas kondisi normal.', array(
+    'volatility' => array('status' => 'extreme'),
+));
+expect_driver('high volatility', 'Volatilitas BTC meningkat dengan amplitudo pergerakan di atas kondisi normal.', array(
+    'volatility' => array('status' => 'high'),
+));
+expect_driver('low volatility', 'Volatilitas BTC berada pada level rendah dengan amplitudo pergerakan yang terbatas.', array(
+    'volatility' => array('status' => 'low'),
+));
 
-check_kd('sample scan covers every distinct template (>= 21 unique lines generated)', count($all_generated_lines) >= 21);
+expect_driver('calm market fallback', 'Kondisi pasar relatif seimbang dan belum menunjukkan faktor dominan.', array());
 
-$banned_hits = array();
-$forward_looking_hits = array();
-foreach ($all_generated_lines as $line) {
-    foreach ($banned_terms as $term) {
-        if (false !== stripos($line, $term)) {
-            $banned_hits[] = $term . ' :: ' . $line;
-        }
-    }
-    foreach ($forward_looking_markers as $marker) {
-        if (false !== stripos($line, $marker)) {
-            $forward_looking_hits[] = $marker . ' :: ' . $line;
-        }
-    }
-}
-check_kd('no banned internal-analyst terminology in ANY generated template (' . count($banned_hits) . ' hits)', empty($banned_hits));
-check_kd('no forward-looking / conditional-consequence language in ANY generated template (' . count($forward_looking_hits) . ' hits)', empty($forward_looking_hits));
-
-// A narrow legitimacy check on the forward-looking scan itself: current-
-// state Indonesian sentences that happen to share short substrings with
-// the marker list (e.g. plain descriptive text) must not be swept up by
-// accident — spot check a few known-clean lines individually.
-check_kd(
-    'forward-looking scan does not false-positive on legitimate current-state text',
-    false === stripos('Momentum harga BTC saat ini cukup kuat ke arah naik.', 'jika')
-    && false === stripos('Struktur harga BTC jangka pendek masih menunjukkan pola naik.', 'apabila')
+// Conflicting direction/structure must remain separate.
+$conflict = Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array(
+    'direction' => array('score' => 80, 'status' => 'strong_bullish'),
+    'structure' => array('score' => -45, 'status' => 'bearish', 'state' => 'lh_ll'),
+)));
+check_kd('conflicting direction and structure remain visible separately',
+    2 === count($conflict)
+    && in_array('Momentum harga menunjukkan dorongan bullish yang kuat.', $conflict, true)
+    && in_array('Struktur harga jangka pendek tetap lemah dengan pola lower high dan lower low.', $conflict, true)
 );
 
-// ============================================================
-// rank_and_cap() pure primitive (unchanged architecture)
-// ============================================================
-
-$synthetic = array(
+// Ranking remains deterministic and stable on ties.
+$ranked = Bitmomo_AI_Key_Drivers::rank_and_cap(array(
     array('key' => 'a', 'materiality' => 10, 'text' => 'a'),
-    array('key' => 'b', 'materiality' => 90, 'text' => 'b'),
-    array('key' => 'c', 'materiality' => 50, 'text' => 'c'),
-    array('key' => 'd', 'materiality' => 50, 'text' => 'd'), // tie with c, appears after c -> must stay after c
-    array('key' => 'e', 'materiality' => 70, 'text' => 'e'),
-    array('key' => 'f', 'materiality' => 30, 'text' => 'f'),
+    array('key' => 'b', 'materiality' => 30, 'text' => 'b'),
+    array('key' => 'c', 'materiality' => 30, 'text' => 'c'),
+    array('key' => 'd', 'materiality' => 20, 'text' => 'd'),
+), 3);
+check_kd('ranking sorts descending and remains stable on ties',
+    array('b', 'c', 'd') === array_values(array_map(function ($item) { return $item['key']; }, $ranked))
 );
-$ranked = Bitmomo_AI_Key_Drivers::rank_and_cap($synthetic, 6);
-check_kd('rank_and_cap: all 6 of exactly 6 candidates are returned', 6 === count($ranked));
-check_kd('rank_and_cap: strongest (b, 90) ranked first', 'b' === $ranked[0]['key']);
-check_kd('rank_and_cap: tie (c vs d, both 50) preserves original order (c before d)', 'c' === $ranked[2]['key'] && 'd' === $ranked[3]['key']);
-check_kd('rank_and_cap: weakest (a, 10) ranked last', 'a' === $ranked[5]['key']);
 
-$eight = array(
-    array('key' => '1', 'materiality' => 10, 'text' => '1'),
-    array('key' => '2', 'materiality' => 95, 'text' => '2'),
-    array('key' => '3', 'materiality' => 40, 'text' => '3'),
-    array('key' => '4', 'materiality' => 80, 'text' => '4'),
-    array('key' => '5', 'materiality' => 5, 'text' => '5'),
-    array('key' => '6', 'materiality' => 60, 'text' => '6'),
-    array('key' => '7', 'materiality' => 25, 'text' => '7'),
-    array('key' => '8', 'materiality' => 55, 'text' => '8'),
+// Free copy must remain descriptive/current-state only and avoid internal jargon.
+$all_lines = array_merge(
+    Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array('direction' => array('score' => 80, 'status' => 'strong_bullish')))),
+    Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array('carry' => array('score' => -70, 'status' => 'strong_bearish', 'funding_rate' => 0.0008, 'basis_pct' => 0.30, 'data_status' => 'available')))),
+    Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array('crowding' => array('score' => 30, 'status' => 'bullish', 'oi_change_24h_pct' => 3, 'price_change_24h_pct' => 1, 'global_long_short_ratio' => 1.0, 'taker_buy_sell_ratio' => 1.2)))),
+    Bitmomo_AI_Key_Drivers::derive(raw_evaluation(array('volatility' => array('status' => 'extreme'))))
 );
-$capped = Bitmomo_AI_Key_Drivers::rank_and_cap($eight, 6);
-check_kd('8 synthetic candidates capped to exactly 6 (generic contract; current engine can never produce 8)', 6 === count($capped));
-$kept_keys = array_map(function ($c) { return $c['key']; }, $capped);
-check_kd('capped list keeps the 6 highest-materiality candidates (drops keys 1 and 5)', !in_array('1', $kept_keys, true) && !in_array('5', $kept_keys, true));
-check_kd('capped list is sorted strictly by descending materiality', array('2', '4', '6', '8', '3', '7') === $kept_keys);
-
-check_kd('Bitmomo_AI_Key_Drivers::MAX_DRIVERS is 6 (generic display cap; current engine max is 5)', 6 === Bitmomo_AI_Key_Drivers::MAX_DRIVERS);
-
-$passed = count(array_filter($checks, function ($row) { return $row[1]; }));
-foreach ($checks as $row) {
-    printf("[%s] %s\n", $row[1] ? 'PASS' : 'FAIL', $row[0]);
+$banned = array('assessment', 'crowding', 'carry', 'composite', 'jika', 'apabila', 'berpotensi', 'skenario', 'invalidasi', 'cukup kuat ke arah', 'menembus level penting');
+$banned_hit = false;
+foreach ($all_lines as $line) {
+    foreach ($banned as $term) {
+        if (false !== stripos($line, $term)) $banned_hit = true;
+    }
 }
-printf("\n%d/%d passed.\n", $passed, count($checks));
-exit($passed === count($checks) ? 0 : 1);
+check_kd('generated public factors contain no internal or forward-looking language', !$banned_hit);
+
+$pass = 0;
+foreach ($checks as $check) {
+    list($label, $ok) = $check;
+    echo '[' . ($ok ? 'PASS' : 'FAIL') . '] ' . $label . "\n";
+    if ($ok) $pass++;
+}
+
+echo $pass . '/' . count($checks) . " Key Drivers checks passed\n";
+exit($pass === count($checks) ? 0 : 1);

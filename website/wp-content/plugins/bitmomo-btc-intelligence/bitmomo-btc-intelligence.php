@@ -24,6 +24,35 @@ require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intellig
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-market-context.php';
 
 /**
+ * Keep the public terminal on the same institutional terminology as the
+ * homepage without touching engine/data contracts. This filter is scoped to
+ * the BTC Intelligence shortcode output only.
+ */
+function bitmomo_btc_intelligence_public_copy( $output, $tag, $attr, $m ) {
+	if ( 'bitmomo_btc_intelligence' !== $tag ) {
+		return $output;
+	}
+
+	return strtr(
+		$output,
+		array(
+			'>ARAH<' => '>BIAS<',
+			'>KEYAKINAN<' => '>CONFIDENCE<',
+			'MELESET' => 'TIDAK SESUAI',
+			'TAK DINILAI' => 'BELUM DINILAI',
+			'Pembacaan arah sedang ditahan sampai data memenuhi standar kualitas Bitmomo.' => 'Analisis arah belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.',
+			'condongnya bukti pasar' => 'arah dominan data pasar',
+			'konsistensi bukti, bukan probabilitas harga' => 'konsistensi bukti; bukan probabilitas pergerakan harga',
+			'Aktivitas pasar sedang menunggu data yang layak.' => 'Data aktivitas pasar belum memenuhi standar publikasi.',
+			'Lebih aktif dari kondisi normal 14 hari.' => 'Aktivitas pasar berada di atas kondisi normal 14 hari.',
+			'Di sekitar kondisi normal 14 hari.' => 'Aktivitas pasar berada di sekitar kondisi normal 14 hari.',
+			'Lebih tenang dari kondisi normal 14 hari.' => 'Aktivitas pasar berada di bawah kondisi normal 14 hari.',
+		)
+	);
+}
+add_filter( 'do_shortcode_tag', 'bitmomo_btc_intelligence_public_copy', 20, 4 );
+
+/**
  * One renderer owns the public product surface. Public SEO metadata remains
  * owned once by the Bitmomo theme layer; the plugin owns product rendering,
  * accountability proof, market context and conversion only.

@@ -15,6 +15,7 @@ on:
       - "scripts/check-navigation-footer.mjs"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
+      - "scripts/check-institutional-copy.mjs"
       - "scripts/check-home-research-boundary.mjs"
       - "scripts/audit-css-debt.mjs"
       - "scripts/check-staging-artifact.py"
@@ -23,6 +24,7 @@ on:
       - "scripts/check-staging-readiness.sh"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - "docs/RELEASE_GOVERNANCE.md"
+      - "docs/editorial/**"
       - ".github/workflows/release-safety.yml"
   push:
     branches: [main]
@@ -83,6 +85,7 @@ jobs:
             scripts/check-navigation-footer.mjs \
             scripts/check-ui-architecture.mjs \
             scripts/check-terminal-grade-contract.mjs \
+            scripts/check-institutional-copy.mjs \
             scripts/check-home-research-boundary.mjs \
             scripts/audit-css-debt.mjs; do
             node --check "$script"
@@ -113,6 +116,9 @@ jobs:
 
       - name: Check terminal-grade public contract
         run: node scripts/check-terminal-grade-contract.mjs
+
+      - name: Check institutional copy contract
+        run: node scripts/check-institutional-copy.mjs
 
       - name: Check homepage research qualification boundary
         run: node scripts/check-home-research-boundary.mjs

@@ -35,7 +35,7 @@ get_header();
     <div class="bm-container">
       <header class="bm-article-head">
         <?php if ( $bm_is_research ) : ?>
-          <nav class="bm-article-breadcrumb" aria-label="<?php esc_attr_e( 'Research context', 'bitmomo' ); ?>">
+          <nav class="bm-article-breadcrumb" aria-label="<?php esc_attr_e( 'Konteks riset', 'bitmomo' ); ?>">
             <a href="<?php echo esc_url( $bm_research_url ); ?>">Bitmomo Research</a>
             <?php if ( $bm_topic_label ) : ?><span aria-hidden="true">/</span><span><?php echo esc_html( $bm_topic_label ); ?></span><?php endif; ?>
           </nav>
@@ -74,7 +74,7 @@ get_header();
         <?php if ( $bm_is_research ) : ?>
           <aside class="bm-article-standard" aria-label="<?php esc_attr_e( 'Standar riset Bitmomo', 'bitmomo' ); ?>">
             <span>RESEARCH STANDARD</span>
-            <p><strong>Evidence before narrative.</strong> Evidence, konteks, batas thesis, dan cara evaluasi harus tetap terlihat ketika kesimpulan diuji ulang.</p>
+            <p><strong>Evidence before narrative.</strong> Bukti, konteks, batas tesis, dan metode evaluasi harus tetap dapat ditelusuri ketika kesimpulan diuji ulang.</p>
             <a href="<?php echo esc_url( $bm_research_url . '#research-standard' ); ?>">Lihat standar riset →</a>
           </aside>
           <a class="bm-article-back" href="<?php echo esc_url( $bm_research_url ); ?>">← Kembali ke Bitmomo Research</a>
@@ -113,7 +113,7 @@ get_header();
       );
       $bm_ai_tag = get_term_by( 'slug', 'ai-lab', 'post_tag' );
       if ( $bm_ai_tag && ! is_wp_error( $bm_ai_tag ) ) $bm_related_args['tag__not_in'] = array( (int) $bm_ai_tag->term_id );
-      $bm_related_title = __( 'Market Research Terkait', 'bitmomo' );
+      $bm_related_title = __( 'Riset Pasar Terkait', 'bitmomo' );
     } else {
       $bm_related_args['post__in'] = array( 0 );
     }
@@ -123,7 +123,7 @@ get_header();
     if ( $bm_riset && $bm_ai_tag && ! is_wp_error( $bm_ai_tag ) ) {
       $bm_related_args['cat'] = (int) $bm_riset->term_id;
       $bm_related_args['tag__in'] = array( (int) $bm_ai_tag->term_id );
-      $bm_related_title = __( 'Intelligence Systems Research Terkait', 'bitmomo' );
+      $bm_related_title = __( 'Riset Sistem Intelligence Terkait', 'bitmomo' );
     } else {
       $bm_related_args['post__in'] = array( 0 );
     }
