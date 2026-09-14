@@ -2,6 +2,9 @@ name: Full release safety
 
 on:
   pull_request:
+    # Expensive convergence gate: feature/remediation PRs use scoped source workflows.
+    # Run this full suite only when a candidate is converging into main.
+    branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
