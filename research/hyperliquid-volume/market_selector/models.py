@@ -45,6 +45,7 @@ class RollingMetrics:
     aggressor_flow: Optional[float] = None
 
     execution_samples: int = 0
+    execution_age_seconds: float = float("inf")
     fill_rate: Optional[float] = None
     maker_ratio: Optional[float] = None
     markout_5s_bps: Optional[float] = None
