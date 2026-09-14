@@ -1,9 +1,11 @@
 <?php
 /**
- * Central affiliate / CTA configuration and outbound click tracking.
+ * Dormant affiliate / CTA configuration and outbound click tracking.
  *
- * Edit the URL, label, and disclosure text below to change or add
- * partner links -- no template file needs to change when a link changes.
+ * Affiliate CTAs are disabled by default for the Whitelist V1 launch. They
+ * become callable only when the environment explicitly enables the capability;
+ * this prevents institutional/product surfaces from accidentally reviving a
+ * promotional CTA merely because legacy configuration remains in the theme.
  *
  * @package Bitmomo
  */
@@ -12,15 +14,24 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/** Whether dormant affiliate CTA definitions may be resolved at runtime. */
+function bitmomo_affiliate_ctas_enabled() {
+    $enabled = defined( 'BITMOMO_AFFILIATE_CTAS_ENABLED' ) && (bool) BITMOMO_AFFILIATE_CTAS_ENABLED;
+    return (bool) apply_filters( 'bitmomo_affiliate_ctas_enabled', $enabled );
+}
+
 /**
- * Returns one CTA definition by key, or null if it doesn't exist.
+ * Returns one CTA definition by key, or null when affiliate CTAs are disabled
+ * or the requested definition does not exist.
  */
 function bitmomo_get_cta( $key ) {
+    if ( ! bitmomo_affiliate_ctas_enabled() ) {
+        return null;
+    }
+
     $ctas = [
         'btc_intelligence' => [
             'label'        => 'Explore RedotPay Card',
-            // Resolved from the url.hk short link to the direct RedotPay referral URL
-            // (avoids an extra redirect hop and guarantees our UTM params survive).
             'url'          => 'https://wap.redotpay.com/en/invite/?referralId=88bh7',
             'utm_source'   => 'bitmomo',
             'utm_medium'   => 'btc_intelligence_card',
@@ -33,9 +44,7 @@ function bitmomo_get_cta( $key ) {
     return $ctas[ $key ] ?? null;
 }
 
-/**
- * Builds the final outbound URL for a CTA, with UTM parameters attached.
- */
+/** Builds the final outbound URL for an explicitly enabled CTA. */
 function bitmomo_get_cta_url( $key ) {
     $cta = bitmomo_get_cta( $key );
 
