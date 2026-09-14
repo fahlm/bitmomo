@@ -287,10 +287,11 @@ final class Bitmomo_Growth_Attribution_V1 {
 
     private static function opaque_ref($value, $anonymous_only) {
         $value = self::text($value);
-        if ($value === '' || strlen($value) > 128 || self::looks_like_pii($value)) return false;
+        if ($value === '' || strlen($value) > 128) return false;
         if ($anonymous_only) {
             return (bool) preg_match('/^(anon|sess)_[a-f0-9]{16,64}$/', $value);
         }
+        if (self::looks_like_pii($value)) return false;
         return (bool) preg_match('/^[A-Za-z0-9][A-Za-z0-9._:\-]{2,127}$/', $value);
     }
 
