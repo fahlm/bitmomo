@@ -27,7 +27,7 @@ market_context_check(
 );
 market_context_check(
 	'BTC asset version is bumped for deterministic cache invalidation',
-	false !== strpos( $plugin, "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.3'" )
+	false !== strpos( $plugin, "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.4'" )
 );
 market_context_check(
 	'Only the agreed V1 comparison universe and ranges are public',
@@ -41,7 +41,14 @@ market_context_check(
 market_context_check(
 	'Cross-asset comparison explicitly uses indexed-100 normalization',
 	false !== strpos( $context, "'normalization'  => 'indexed_100'" ) &&
-	false !== strpos( $js, '* 100' ) && false !== strpos( $js, 'Start = 100' )
+	false !== strpos( $js, '* 100' ) && false !== strpos( $js, 'Awal = 100' )
+);
+market_context_check(
+	'Market Context visitor copy is natural Indonesian and avoids literal translation artifacts',
+	false !== strpos( $js, 'Pahami BTC dalam konteks pasar yang lebih luas.' ) &&
+	false !== strpos( $js, 'kapan tesis pasar berubah.' ) &&
+	false === stripos( $js, 'sendirian' ) &&
+	false === stripos( $js, 'thesis' )
 );
 market_context_check(
 	'Gold is fail-closed behind an explicit provider key and never proxied with a crypto token',
