@@ -56,16 +56,18 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
     </div>
 
     <?php if ( $bm_newsletter_available ) : ?>
-      <section id="newsletter" class="bm-footer-newsletter" aria-labelledby="bm-footer-newsletter-title">
-        <div class="bm-footer-newsletter__copy">
-          <span><?php esc_html_e( 'BITMOMO BRIEF', 'bitmomo' ); ?></span>
-          <h2 id="bm-footer-newsletter-title"><?php esc_html_e( 'BTC intelligence dan riset terbaru, langsung ke inbox.', 'bitmomo' ); ?></h2>
-          <p><?php esc_html_e( 'Newsletter gratis dan terpisah dari Founding Whitelist. Berhenti berlangganan kapan saja.', 'bitmomo' ); ?></p>
-        </div>
-        <div class="bm-footer-newsletter__form">
-          <?php echo do_shortcode( sprintf( '[mailpoet_form id="%d"]', $bm_newsletter_form_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        </div>
-      </section>
+      <div id="newsletter" class="bm-footer-newsletter-anchor">
+        <section class="bm-footer-newsletter" aria-labelledby="bm-footer-newsletter-title">
+          <div class="bm-footer-newsletter__copy">
+            <span><?php esc_html_e( 'BITMOMO BRIEF', 'bitmomo' ); ?></span>
+            <h2 id="bm-footer-newsletter-title"><?php esc_html_e( 'BTC intelligence dan riset terbaru, langsung ke inbox.', 'bitmomo' ); ?></h2>
+            <p><?php esc_html_e( 'Newsletter gratis dan terpisah dari Founding Whitelist. Berhenti berlangganan kapan saja.', 'bitmomo' ); ?></p>
+          </div>
+          <div class="bm-footer-newsletter__form">
+            <?php echo do_shortcode( sprintf( '[mailpoet_form id="%d"]', $bm_newsletter_form_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+          </div>
+        </section>
+      </div>
     <?php endif; ?>
 
     <div class="bm-footer-bottom">
