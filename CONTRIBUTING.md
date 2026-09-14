@@ -39,7 +39,11 @@ The local preflight deliberately does **not** build a production artifact, run s
 
 Draft means **zero intentional GitHub-hosted validation work**. Theme, Authority, Regime and CI Governance jobs must remain draft-guarded; local preflight is the feedback loop while code is moving.
 
-For a long-lived release PR, keep the PR Draft during every mutation. Mark it Ready only after an exact candidate SHA is frozen. If a defect is found after Ready, convert the release PR back to Draft **before** pushing or merging another fix, revoke the old candidate SHA, and freeze a new candidate only after the focused fix is complete.
+For an ordinary focused PR, run local `full`, freeze the head, then mark Ready once for its path-scoped authoritative confirmation.
+
+For a long-lived canonical release PR, keep it Draft during every mutation **and during candidate validation**. Do not mark it Ready merely to trigger cumulative Theme/Authority/Regime checks before Full Release; Full Release already runs the complete deterministic suites and source contracts against the exact frozen SHA. Record the candidate SHA in the release PR, run Full Release once, then move to exact-artifact staging acceptance. Mark the canonical release PR Ready only when it is genuinely ready for final review/merge, not as a CI trigger.
+
+If any defect appears after a candidate is frozen, revoke that SHA before mutation, keep the release PR Draft, fix through one focused PR, and freeze a new candidate only after the focused fix is complete.
 
 Do not rerun a failed workflow blindly. First classify the failure as source/test, runner/platform, external dependency, or release-identity failure; fix the cause, then spend one deliberate rerun if evidence is still required.
 
