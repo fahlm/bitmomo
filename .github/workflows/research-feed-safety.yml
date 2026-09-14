@@ -6,14 +6,18 @@ on:
     paths:
       - "docs/research-distribution/**"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-provider-v1.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php"
       - ".github/workflows/research-feed-safety.yml"
   push:
     branches: [main]
     paths:
       - "docs/research-distribution/**"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-provider-v1.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php"
       - ".github/workflows/research-feed-safety.yml"
   workflow_dispatch:
 
@@ -33,15 +37,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Lint Research Feed V1 implementation and test
+      - name: Lint Research Feed V1 implementation and tests
         shell: bash
         run: |
           set -euo pipefail
           php -l website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php
+          php -l website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-provider-v1.php
           php -l website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php
+          php -l website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php
 
-      - name: Run Research Feed V1 deterministic suite
+      - name: Run Research Feed V1 deterministic suites
         shell: bash
         run: |
           set -euo pipefail
           php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-provider-v1.php
