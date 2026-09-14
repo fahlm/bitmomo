@@ -2,7 +2,7 @@ name: CI governance safety
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - ".github/workflows/**"
       - "scripts/check-ci-governance.mjs"
