@@ -33,8 +33,8 @@ $adapter = file_get_contents(__DIR__ . '/../includes/class-bitmomo-public-intell
 $page = file_get_contents(__DIR__ . '/../../bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php');
 
 audit_check('canonical intelligence validates raw session before normalization', false !== strpos($main, 'is_supported_session_type($raw_session_type)') && strpos($main, 'is_supported_session_type($raw_session_type)') < strpos($main, 'normalize_session_type($raw_session_type)'));
-audit_check('canonical intelligence rejects invalid bias instead of coercing to neutral', false !== strpos($main, "if (!in_array($bias, ['bullish', 'neutral', 'bearish'], true)) return null;") && false === strpos($main, "$bias = 'neutral';"));
-audit_check('canonical intelligence requires numeric confidence and score', false !== strpos($main, "!is_numeric($evaluation['confidence'])") && false !== strpos($main, "!is_numeric($evaluation['score'])"));
+audit_check('canonical intelligence rejects invalid bias instead of coercing to neutral', false !== strpos($main, "if (!in_array(\$bias, ['bullish', 'neutral', 'bearish'], true)) return null;") && false === strpos($main, "\$bias = 'neutral';"));
+audit_check('canonical intelligence requires numeric confidence and score', false !== strpos($main, "!is_numeric(\$evaluation['confidence'])") && false !== strpos($main, "!is_numeric(\$evaluation['score'])"));
 audit_check('public adapter requires supported session and positive numeric price', false !== strpos($adapter, 'is_supported_session_type($raw_session_type)') && false !== strpos($adapter, '!is_numeric($price)') && false !== strpos($adapter, '(float) $price <= 0'));
 
 $pulse_position = strpos($page, '$this->render_market_pulse( $activity, $pulse_line );');
