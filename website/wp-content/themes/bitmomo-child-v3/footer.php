@@ -6,12 +6,14 @@ $bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status
 
 /*
  * Newsletter is a free retention surface, independent from the commercial
- * Founding Whitelist. The backend identity is environment-configurable and
- * fails closed when MailPoet (or its configured form) is unavailable.
+ * Founding Whitelist. Backend identity is environment-owned: define
+ * BITMOMO_NEWSLETTER_FORM_ID or set the `bitmomo_newsletter_form_id` option.
+ * There is deliberately no numeric fallback; missing/invalid configuration
+ * fails closed and renders no decorative/broken subscription capability.
  */
 $bm_newsletter_default_id = defined( 'BITMOMO_NEWSLETTER_FORM_ID' )
   ? (int) BITMOMO_NEWSLETTER_FORM_ID
-  : ( defined( 'BM_MAILPOET_FORM_ID' ) ? (int) BM_MAILPOET_FORM_ID : 0 );
+  : (int) get_option( 'bitmomo_newsletter_form_id', 0 );
 $bm_newsletter_form_id = max( 0, (int) apply_filters( 'bitmomo_newsletter_form_id', $bm_newsletter_default_id ) );
 $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mailpoet_form' );
 ?>
