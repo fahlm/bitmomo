@@ -1,37 +1,17 @@
 name: Full release safety
 
 on:
-  pull_request:
-    # Expensive convergence gate: feature/remediation PRs use scoped source workflows.
-    # Run this full suite only when a candidate is converging into main.
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "website/wp-content/themes/bitmomo-child-v3/**"
-      - "website/wp-content/plugins/bitmomo-ai/**"
-      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
-      - "website/wp-content/plugins/bitmomo-pro/**"
-      - "website/wp-content/plugins/bitmomo-regime/**"
-      - "config/production-runtime.json"
-      - "scripts/build-production-artifact.py"
-      - "scripts/check-m2-launch-surfaces.mjs"
-      - "scripts/check-navigation-footer.mjs"
-      - "scripts/check-ui-architecture.mjs"
-      - "scripts/check-terminal-grade-contract.mjs"
-      - "scripts/check-institutional-copy.mjs"
-      - "scripts/check-home-research-boundary.mjs"
-      - "scripts/audit-css-debt.mjs"
-      - "scripts/check-staging-artifact.py"
-      - "scripts/check-staging-asset-coherence.py"
-      - "scripts/check-staging-safety.sh"
-      - "scripts/check-staging-readiness.sh"
-      - "docs/PUBLIC_SURFACE_CONTRACT.md"
-      - "docs/RELEASE_GOVERNANCE.md"
-      - "docs/editorial/**"
-      - ".github/workflows/release-safety.yml"
+  # Full convergence is intentionally explicit. Scoped PR workflows provide
+  # iterative feedback; run this artifact/provenance gate only after the
+  # release candidate is frozen, then again automatically after main changes.
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact frozen release-candidate commit SHA to validate
+        required: true
+        type: string
   push:
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -42,13 +22,34 @@ concurrency:
 
 jobs:
   release:
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: Runtime, authoritative contracts, and artifact
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+
+      - name: Verify explicit frozen candidate identity
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          EXPECTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          if [[ "${actual_sha}" != "${EXPECTED_CANDIDATE_SHA}" ]]; then
+            echo "::error title=Candidate SHA mismatch::Selected ref resolved to ${actual_sha}, expected ${EXPECTED_CANDIDATE_SHA}."
+            exit 1
+          fi
+          case "${GITHUB_REF}" in
+            refs/heads/release/*|refs/heads/main)
+              ;;
+            *)
+              echo "::error title=Invalid release ref::Full Release Safety may only run manually from release/* or main; got ${GITHUB_REF}."
+              exit 1
+              ;;
+          esac
+          echo "PASS explicit candidate ${actual_sha} on ${GITHUB_REF}"
 
       - name: Lint every managed PHP file
         shell: bash
