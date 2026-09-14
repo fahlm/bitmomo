@@ -1,0 +1,47 @@
+name: Research feed safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "docs/research-distribution/**"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php"
+      - ".github/workflows/research-feed-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/research-distribution/**"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php"
+      - ".github/workflows/research-feed-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: research-feed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-contract:
+    name: Lint and deterministic contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint Research Feed V1 implementation and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-research-feed-v1.php
+          php -l website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php
+
+      - name: Run Research Feed V1 deterministic suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-research-feed-v1.php
