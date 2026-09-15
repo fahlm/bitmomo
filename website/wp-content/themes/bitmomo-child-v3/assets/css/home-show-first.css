@@ -47,11 +47,36 @@
   min-height: 52px;
 }
 
+.bm-home-reading__status-stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+
 .bm-home-hero--show-first .bm-home-reading__status {
-  max-width: 54%;
+  max-width: none;
   justify-content: flex-end;
   text-align: right;
   line-height: 1.35;
+}
+
+.bm-home-reading__session,
+.bm-home-reading__updated {
+  color: var(--bm-text-subtle, #8294ae);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.bm-home-reading__updated strong {
+  color: var(--bm-text-secondary, #b7c0ca);
+  font: inherit;
 }
 
 /* The first grid is not four equally important explainers anymore. It is the
@@ -62,6 +87,7 @@
 }
 
 .bm-home-hero--show-first .bm-home-reading__metric {
+  min-width: 0;
   padding: 16px 14px;
   border-right: 1px solid rgba(255,255,255,.08);
   border-bottom: 1px solid rgba(255,255,255,.08);
@@ -142,6 +168,7 @@
 
 /* One real historical Pro artifact explains more than a feature catalogue. */
 .bm-home-proof-example {
+  scroll-margin-top: 88px;
   margin-top: clamp(38px, 5vw, 58px);
   overflow: hidden;
   border: 1px solid rgba(244,173,50,.24);
@@ -169,7 +196,7 @@
 
 .bm-home-proof-example > header span {
   display: block;
-  color: var(--bm-text-subtle, #7f8b98);
+  color: var(--bm-text-subtle, #8294ae);
   font-size: 8px;
   font-weight: 850;
   letter-spacing: .09em;
@@ -220,7 +247,7 @@
 .bm-home-proof-example__base span {
   display: block;
   margin-bottom: 6px;
-  color: var(--bm-text-subtle, #7f8b98);
+  color: var(--bm-text-subtle, #8294ae);
   font-size: 8px;
   font-weight: 850;
   letter-spacing: .09em;
@@ -247,11 +274,14 @@
 }
 
 .bm-home-proof-example > footer {
-  color: var(--bm-text-subtle, #7f8b98);
+  color: var(--bm-text-subtle, #8294ae);
   font-size: 10px;
 }
 
 .bm-home-proof-example > footer a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
   color: var(--bm-action, #f4ad32);
   font-size: 11px;
   font-weight: 800;
@@ -440,11 +470,15 @@
   .bm-home-hero--show-first .bm-home-reading__head {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 5px;
+    gap: 7px;
+  }
+
+  .bm-home-reading__status-stack {
+    align-items: flex-start;
+    text-align: left;
   }
 
   .bm-home-hero--show-first .bm-home-reading__status {
-    max-width: none;
     justify-content: flex-start;
     text-align: left;
   }
@@ -462,12 +496,6 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 9px;
-  }
-
-  .bm-home-proof-example > footer a {
-    display: inline-flex;
-    min-height: 44px;
-    align-items: center;
   }
 }
 
