@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "artifact_name": "bitmomo-runtime.tar",
-  "expected_file_count": 118,
+  "expected_file_count": 119,
   "include": [
     "*.php",
     "**/*.php",
@@ -107,7 +107,7 @@
       "name": "bitmomo-pro",
       "source": "website/wp-content/plugins/bitmomo-pro",
       "destination": "wp-content/plugins/bitmomo-pro",
-      "expected_file_count": 28,
+      "expected_file_count": 29,
       "required": [
         "bitmomo-pro.php",
         "includes/class-bitmomo-pro-public-copy.php",
@@ -115,6 +115,7 @@
         "includes/class-bitmomo-pro-whitelist.php",
         "includes/class-bitmomo-pro-account.php",
         "assets/css/bitmomo-pro-account.css",
+        "assets/css/bitmomo-pro-decision-view.css",
         "assets/js/bitmomo-pro-whitelist.js"
       ]
     },
