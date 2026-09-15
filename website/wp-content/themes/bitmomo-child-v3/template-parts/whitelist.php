@@ -48,7 +48,7 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Lanjutkan melalui checkout resmi Bitmomo.', 'bitmomo' ); ?></p>
           <?php elseif ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Masuk Founding Whitelist', 'bitmomo' ); ?></p>
-            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Satu email. Tanpa pembayaran sekarang. Kami memberi tahu ketika batch pertama dibuka.', 'bitmomo' ); ?></p>
+            <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Satu email. Tidak ada pembayaran pada tahap whitelist. Kami memberi tahu ketika batch pertama dibuka.', 'bitmomo' ); ?></p>
           <?php else : ?>
             <p class="bm-wl-unified__form-title"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo' ); ?></p>
             <p class="bm-wl-unified__form-copy"><?php esc_html_e( 'Pelajari struktur akses dan manfaat Founding Membership.', 'bitmomo' ); ?></p>
