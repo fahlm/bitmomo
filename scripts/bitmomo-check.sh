@@ -21,12 +21,6 @@ need() {
   }
 }
 
-need git
-need bash
-need php
-need node
-need python3
-
 changed_files_to() {
   local output="$1"
   {
@@ -45,6 +39,14 @@ lint_file() {
   case "$file" in
     *.php) php -l "$file" >/dev/null && echo "PASS php $file" ;;
     *.js|*.mjs) node --check "$file" >/dev/null && echo "PASS js $file" ;;
+    *.sh) bash -n "$file" && echo "PASS sh $file" ;;
+    *.py) python3 - "$file" <<'PY'
+import pathlib, sys
+path = sys.argv[1]
+compile(pathlib.Path(path).read_text(encoding='utf-8'), path, 'exec')
+print(f'PASS py {path}')
+PY
+      ;;
   esac
 }
 
@@ -60,6 +62,10 @@ run_plugin_tests() {
 }
 
 quick() {
+  need php
+  need node
+  need python3
+
   local list
   list="$(mktemp)"
   changed_files_to "$list"
@@ -119,6 +125,11 @@ test_touched() {
 }
 
 full() {
+  need php
+  need node
+  need python3
+  need cmp
+
   local expected_sha="${2:-}"
   [[ "$expected_sha" =~ ^[0-9a-f]{40}$ ]] || {
     echo "Usage: bash scripts/bitmomo-check.sh full <exact-40-char-sha>" >&2
@@ -139,7 +150,7 @@ full() {
 
   echo "Candidate commit=$actual_sha tree=$actual_tree"
 
-  find "${runtime_roots[@]}" -type f -name '*.php' -print0 | sort -z |
+  find "${runtime_roots[@]}" -type f -name '*.php' -print0 |
     while IFS= read -r -d '' file; do php -l "$file" >/dev/null; done
 
   local plugin
@@ -147,7 +158,7 @@ full() {
     run_plugin_tests "$plugin"
   done
 
-  find "${runtime_roots[@]}" -type f \( -name '*.js' -o -name '*.mjs' \) ! -path '*/tests/*' -print0 | sort -z |
+  find "${runtime_roots[@]}" -type f \( -name '*.js' -o -name '*.mjs' \) ! -path '*/tests/*' -print0 |
     while IFS= read -r -d '' file; do node --check "$file" >/dev/null; done
 
   node scripts/check-m2-launch-surfaces.mjs
