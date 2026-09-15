@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Bitmomo Hyperliquid Shadow Runtime Health Watchdog Every Minute
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=60s
+AccuracySec=5s
+Persistent=true
+Unit=bitmomo-hl-shadow-watchdog.service
+
+[Install]
+WantedBy=timers.target
