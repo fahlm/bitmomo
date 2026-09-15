@@ -35,6 +35,7 @@ jobs:
       - name: Run read-only autonomous shadow smoke
         shell: bash
         run: |
+          mkdir -p data/runtime
           set +e
           timeout 90s python -m market_selector.autonomous_runtime \
             --scan-top 8 \
