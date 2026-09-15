@@ -1,93 +1,17 @@
-name: Full release safety
+name: Full release safety [HOSTED RUNNERS LOCKED]
 
+# Zero-cost mode. Release validation is local/exact-SHA:
+#   bash scripts/bitmomo-check.sh full <exact-40-char-sha>
+# Do not rebuild an already accepted release candidate merely to obtain a hosted run.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "website/wp-content/themes/bitmomo-child-v3/**"
-      - "website/wp-content/plugins/bitmomo-ai/**"
-      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
-      - "website/wp-content/plugins/bitmomo-pro/**"
-      - "website/wp-content/plugins/bitmomo-regime/**"
-      - "config/production-runtime.json"
-      - "scripts/build-production-artifact.py"
-      - "scripts/check-m2-launch-surfaces.mjs"
-      - ".github/workflows/release-safety.yml"
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: full-release-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  release:
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
-    name: Runtime, contracts, and artifact
+  hosted-actions-locked:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Lint every managed PHP file
-        shell: bash
-        run: |
-          set -euo pipefail
-          roots=(
-            website/wp-content/themes/bitmomo-child-v3
-            website/wp-content/plugins/bitmomo-ai
-            website/wp-content/plugins/bitmomo-btc-intelligence
-            website/wp-content/plugins/bitmomo-pro
-            website/wp-content/plugins/bitmomo-regime
-          )
-          find "${roots[@]}" -type f -name '*.php' -print0 | sort -z | xargs -0 -n1 php -l
-
-      - name: Run every supported deterministic PHP suite
-        shell: bash
-        run: |
-          set -euo pipefail
-          for plugin in bitmomo-ai bitmomo-btc-intelligence bitmomo-pro bitmomo-regime; do
-            plugin_dir="website/wp-content/plugins/${plugin}"
-            while IFS= read -r test; do
-              echo "::group::${test}"
-              (cd "${plugin_dir}" && php "${test#${plugin_dir}/}")
-              echo "::endgroup::"
-            done < <(find "${plugin_dir}/tests" -maxdepth 1 -type f -name 'test-*.php' | sort)
-          done
-
-      - name: Syntax-check every first-party JavaScript file
-        shell: bash
-        run: |
-          set -euo pipefail
-          find website/wp-content/themes/bitmomo-child-v3 website/wp-content/plugins/bitmomo-ai website/wp-content/plugins/bitmomo-btc-intelligence website/wp-content/plugins/bitmomo-pro website/wp-content/plugins/bitmomo-regime \
-            -type f -name '*.js' ! -path '*/tests/*' -print0 | sort -z | xargs -0 -n1 node --check
-
-      - name: Check M2 launch contract
-        run: node scripts/check-m2-launch-surfaces.mjs
-
-      - name: Build deterministic production artifact twice
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/build-production-artifact.py --output-dir dist/first
-          python3 scripts/build-production-artifact.py --output-dir dist/second
-          cmp dist/first/bitmomo-runtime.tar dist/second/bitmomo-runtime.tar
-          expected_count="$(python3 -c 'import json; print(json.load(open("config/production-runtime.json"))["expected_file_count"])')"
-          actual_count="$(tar -tf dist/first/bitmomo-runtime.tar | wc -l | tr -d ' ')"
-          test "${actual_count}" -eq "${expected_count}"
-          ! tar -tf dist/first/bitmomo-runtime.tar | grep -Eq '(^|/)tests/|\.md$|\.env($|\.)|\.(key|pem|tmp|temp)$'
-
-      - name: Upload reviewed runtime artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bitmomo-runtime-${{ github.sha }}
-          path: |
-            dist/first/bitmomo-runtime.tar
-            dist/first/bitmomo-runtime-manifest.json
-          if-no-files-found: error
-          retention-days: 14
+      - run: echo 'Hosted GitHub Actions are locked. Use the exact-SHA local release command.'
