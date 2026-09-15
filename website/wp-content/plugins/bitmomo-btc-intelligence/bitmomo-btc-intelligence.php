@@ -22,6 +22,7 @@ require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intellig
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-page.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-setup.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-market-context.php';
+require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'show-first-loader.php';
 
 /**
  * One renderer owns the public product surface. Public SEO metadata remains
