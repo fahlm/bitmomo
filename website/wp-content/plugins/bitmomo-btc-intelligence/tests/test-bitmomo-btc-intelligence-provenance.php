@@ -1,17 +1,12 @@
 <?php
 require __DIR__ . '/wp-stubs.php';
+if ( ! function_exists( 'home_url' ) ) { function home_url( $path = '/' ) { return 'https://bitmomo.test' . $path; } }
 
 $GLOBALS['__prov_pass'] = 0;
 $GLOBALS['__prov_fail'] = 0;
-
 function prov_check( $label, $condition ) {
-	if ( $condition ) {
-		$GLOBALS['__prov_pass']++;
-		echo "[PASS] {$label}\n";
-	} else {
-		$GLOBALS['__prov_fail']++;
-		echo "[FAIL] {$label}\n";
-	}
+	if ( $condition ) { $GLOBALS['__prov_pass']++; echo "[PASS] {$label}\n"; }
+	else { $GLOBALS['__prov_fail']++; echo "[FAIL] {$label}\n"; }
 }
 
 class Bitmomo_Public_Intelligence_Adapter {
@@ -19,53 +14,42 @@ class Bitmomo_Public_Intelligence_Adapter {
 	public static $surface = array();
 	public static function snapshot() { return self::$snapshot; }
 	public static function surface_context() { return self::$surface; }
+	public static function history() { return array( 'days' => array() ); }
+	public static function evaluation_summary() { return array(); }
 }
 
 Bitmomo_Public_Intelligence_Adapter::$snapshot = array(
-	'direction_strength' => 'bullish',
-	'confidence' => array( 'label' => 'high' ),
-	'market_state' => 'accumulation',
+	'status' => 'fresh', 'btc_reference_price' => 65000,
+	'opportunity' => array( 'status' => 'available', 'state' => 'high', 'knowledge_time' => '2026-09-12T06:30:00+00:00' ),
+	'direction_strength' => 'bullish', 'directional_bias' => 'bullish',
+	'confidence' => array( 'value' => 71, 'label' => 'high' ),
+	'market_state' => 'accumulation', 'market_state_certainty' => 65,
 	'key_drivers' => array( 'Directional consistency' ),
+	'freshness' => array( 'state' => 'fresh', 'timestamp_iso' => '2026-09-12T06:20:00+00:00' ),
+	'provenance' => array( 'source' => 'Binance public market data', 'as_of' => '2026-09-12T06:20:00+00:00', 'timezone' => 'Asia/Jakarta' ),
+	'session' => array( 'label' => 'US POST-CLOSE' ), 'session_intelligence' => array(),
 );
-Bitmomo_Public_Intelligence_Adapter::$surface = array(
-	'opportunity' => array(
-		'status' => 'available',
-		'state' => 'HIGH',
-		'previous_state' => 'NORMAL',
-		'changed' => true,
-		'knowledge_time' => '2026-09-12T06:30:00+00:00',
-	),
-	'provenance' => array(
-		'source' => 'Binance public market data',
-		'as_of' => '2026-09-12T06:20:00+00:00',
-		'timezone' => 'Asia/Jakarta',
-	),
-);
+Bitmomo_Public_Intelligence_Adapter::$surface = array( 'opportunity' => Bitmomo_Public_Intelligence_Adapter::$snapshot['opportunity'] );
 
-require dirname( __DIR__ ) . '/bitmomo-btc-intelligence.php';
+require dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php';
+$reflection = new ReflectionClass( 'Bitmomo_Btc_Intelligence_Page' );
+$instance = $reflection->newInstanceWithoutConstructor();
+$method = $reflection->getMethod( 'render_page' );
+$method->setAccessible( true );
+$output = $method->invoke( $instance, array() );
 
-$base = '<section class="bm-bi__section bm-bi__section--peak bm-bi__snapshot"><p>snapshot</p></section>';
-$output = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
-
-prov_check( 'public page renders canonical source label', false !== strpos( $output, 'SOURCE</strong> Binance public market data' ) );
-prov_check( 'public page renders explicit as-of timestamp in WIB', false !== strpos( $output, 'AS OF</strong> 12 Sep 2026 · 13:20 · WIB' ) );
+prov_check( 'public page renders concise canonical source label', false !== strpos( $output, 'Sumber data: Binance' ) );
+prov_check( 'public page renders explicit as-of timestamp in WIB', false !== strpos( $output, '12 Sep 2026 · 13:20 WIB' ) );
 prov_check( 'public page preserves machine-readable canonical as-of timestamp', false !== strpos( $output, 'datetime="2026-09-12T06:20:00+00:00"' ) );
-prov_check( 'public page renders provenance beside Opportunity in the live snapshot panel', false !== strpos( $output, 'bm-bi__opportunity' ) && false !== strpos( $output, 'bm-bi__snapshot-provenance' ) );
+prov_check( 'provenance remains attached to the current reading', false !== strpos( $output, 'bm-bi__snapshot' ) && false !== strpos( $output, 'bm-bi__provenance' ) );
+prov_check( 'independent Opportunity observation timestamp stays out of the visitor surface', false === strpos( $output, '13:30 WIB' ) && false === strpos( $output, '15m observation' ) );
 prov_check( 'public page never exposes source diagnostics', false === strpos( $output, 'source_diagnostics' ) );
 
-Bitmomo_Public_Intelligence_Adapter::$surface['provenance']['source'] = 'Binance public market data + Bybit derivatives fallback';
-$fallback_output = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
-prov_check( 'fallback provider is disclosed exactly as supplied by the public adapter', false !== strpos( $fallback_output, 'Binance public market data + Bybit derivatives fallback' ) );
-
-Bitmomo_Public_Intelligence_Adapter::$surface['provenance'] = array(
-	'source' => null,
-	'as_of' => null,
-	'timezone' => 'Asia/Jakarta',
-);
-$missing_output = Bitmomo_Btc_Opportunity_UI::inject( $base, 'bitmomo_btc_intelligence', array(), array() );
-prov_check( 'missing public provenance renders honest labels', false !== strpos( $missing_output, 'SOURCE</strong> Belum tersedia' ) && false !== strpos( $missing_output, 'AS OF</strong> Belum tersedia · WIB' ) );
-
-prov_check( 'unrelated shortcodes are untouched', Bitmomo_Btc_Opportunity_UI::inject( $base, 'other_shortcode', array(), array() ) === $base );
+Bitmomo_Public_Intelligence_Adapter::$snapshot['provenance']['source'] = 'Binance public market data + Bybit derivatives fallback';
+$instance = $reflection->newInstanceWithoutConstructor();
+$fallback_output = $method->invoke( $instance, array() );
+prov_check( 'fallback source is disclosed in compact visitor language', false !== strpos( $fallback_output, 'Sumber data: Binance + Bybit' ) );
+prov_check( 'fallback implementation wording stays out of public copy', false === strpos( $fallback_output, 'derivatives fallback' ) );
 
 if ( $GLOBALS['__prov_fail'] > 0 ) exit( 1 );
 $total = $GLOBALS['__prov_pass'] + $GLOBALS['__prov_fail'];

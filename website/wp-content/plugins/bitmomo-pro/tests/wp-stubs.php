@@ -436,7 +436,39 @@ function get_transient( ...$args ) {
 }
 function delete_transient( ...$args ) {}
 function add_query_arg( ...$args ) {
-	return '';
+	if ( is_array( $args[0] ?? null ) ) {
+		$params = $args[0];
+		$url    = (string) ( $args[1] ?? '' );
+	} else {
+		$params = array( (string) ( $args[0] ?? '' ) => $args[1] ?? '' );
+		$url    = (string) ( $args[2] ?? '' );
+	}
+
+	$parts = parse_url( $url );
+	if ( false === $parts ) {
+		return $url;
+	}
+
+	$query = array();
+	if ( ! empty( $parts['query'] ) ) {
+		parse_str( $parts['query'], $query );
+	}
+	$query = array_merge( $query, $params );
+
+	$base = '';
+	if ( isset( $parts['scheme'] ) ) {
+		$base .= $parts['scheme'] . '://';
+	}
+	if ( isset( $parts['host'] ) ) {
+		$base .= $parts['host'];
+	}
+	if ( isset( $parts['port'] ) ) {
+		$base .= ':' . $parts['port'];
+	}
+	$base .= $parts['path'] ?? '';
+
+	$built = http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
+	return $base . ( '' !== $built ? '?' . $built : '' ) . ( isset( $parts['fragment'] ) ? '#' . $parts['fragment'] : '' );
 }
 function wp_safe_redirect( ...$args ) {}
 
@@ -509,6 +541,12 @@ function wp_kses( $content, $allowed_html = array(), $allowed_protocols = array(
 	return $content;
 }
 
+if ( ! function_exists( 'wp_kses_post' ) ) {
+	function wp_kses_post( $html ) {
+		return (string) $html;
+	}
+}
+
 // --- Nonces / AJAX ---------------------------------------------------------
 // Deliberately trivial (not cryptographically meaningful) -- just enough for
 // check_ajax_referer()/wp_verify_nonce() round-tripping inside a test.
@@ -559,4 +597,3 @@ function wp_send_json_error( $data = null, $status_code = null ) {
 function wp_timezone() {
 	return new DateTimeZone( 'UTC' );
 }
-

@@ -1,0 +1,128 @@
+name: Authority surface safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-btc-intelligence/**"
+      - "website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-session-intelligence.php"
+      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-free-projection-key-drivers-contract.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php"
+      - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-surface-context.php"
+      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
+      - "scripts/check-authority-source-contract.sh"
+      - "scripts/check-public-ui.mjs"
+      - "scripts/check-article-cleanliness.mjs"
+      - "scripts/check-social-preview.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
+      - "scripts/check-institutional-copy.mjs"
+      - "scripts/check-public-design-consistency.mjs"
+      - "docs/content/tentang-kami.md"
+      - "docs/RESEARCH_HUB_CONTRACT.md"
+      - "docs/ARTICLE_READING_CONTRACT.md"
+      - "docs/editorial/**"
+      - "config/production-runtime.json"
+      - ".github/workflows/authority-surface-safety.yml"
+      - ".github/workflows/ui-browser-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: authority-surface-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  authority-contract:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint authority PHP and browser contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in \
+            website/wp-content/themes/bitmomo-child-v3/functions.php \
+            website/wp-content/themes/bitmomo-child-v3/header.php \
+            website/wp-content/themes/bitmomo-child-v3/home.php \
+            website/wp-content/themes/bitmomo-child-v3/page.php \
+            website/wp-content/themes/bitmomo-child-v3/single.php \
+            website/wp-content/themes/bitmomo-child-v3/category.php \
+            website/wp-content/themes/bitmomo-child-v3/footer.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-assets.php \
+            website/wp-content/themes/bitmomo-child-v3/inc/trait-bitmomo-content.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php \
+            website/wp-content/themes/bitmomo-child-v3/template-parts/research.php \
+            website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-session-intelligence.php \
+            website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php \
+            website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php \
+            website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php \
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php; do
+            php -l "$file"
+          done
+          bash -n scripts/check-authority-source-contract.sh
+          node --check scripts/check-public-ui.mjs
+          node --check scripts/check-article-cleanliness.mjs
+          node --check scripts/check-social-preview.mjs
+          node --check scripts/check-terminal-grade-contract.mjs
+          node --check scripts/check-institutional-copy.mjs
+          node --check scripts/check-public-design-consistency.mjs
+          node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
+
+      - name: Run public intelligence boundary regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-free-projection-key-drivers-contract.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-intelligence-adapter.php
+          php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-surface-context.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php
+
+      - name: Enforce canonical authority source contract
+        run: bash scripts/check-authority-source-contract.sh
+
+      - name: Verify BTC public provenance contract
+        working-directory: website/wp-content/plugins/bitmomo-btc-intelligence
+        run: php tests/test-bitmomo-btc-intelligence-provenance.php
+
+      - name: Enforce terminal-grade public invariants
+        run: node scripts/check-terminal-grade-contract.mjs
+
+      - name: Enforce institutional public copy
+        run: node scripts/check-institutional-copy.mjs
+
+      - name: Enforce sitewide institutional design consistency
+        run: node scripts/check-public-design-consistency.mjs

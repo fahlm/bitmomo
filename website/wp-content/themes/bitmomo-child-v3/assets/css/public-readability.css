@@ -1,18 +1,14 @@
 /*
- * Bitmomo public readability contract.
+ * Bitmomo public product-token bridge.
  *
- * This is the first shared design-system migration layer after the legacy
- * custom.css freeze. It owns cross-surface readable secondary text and CTA
- * contrast while the older page styles are progressively consolidated.
- * Keep rules semantic and narrowly scoped; do not use this as a generic
- * visual hotfix file.
+ * Plugin-owned public surfaces remain independently namespaced, but their
+ * semantic brand colors, font stack and commercial actions resolve to the
+ * canonical theme foundation. This is a migration bridge, not a visual patch
+ * layer: layout stays owned by each product stylesheet.
  */
 
-:root {
-  --bm-text-subtle-readable: #8294ae;
-}
-
-/* Homepage: secondary data labels must remain readable at small mono sizes. */
+/* Older homepage/legacy data labels that can still appear off the canonical
+   homepage inherit one readable micro-text color. */
 .bm-hero-notes,
 .bm-direction-head,
 .bm-direction-head--current .bm-direction-metric > span,
@@ -23,41 +19,73 @@
 .bm-btc-opportunity-meta,
 .bm-btc-overview .bm-btc-kicker,
 .bm-btc-status time,
-.bm-platform-disclosure {
-  color: var(--bm-text-subtle-readable);
-}
-
+.bm-platform-disclosure,
 .bm-direction-dates,
 .bm-direction-dates > span {
-  color: var(--bm-text-subtle-readable);
+  color: var(--bm-text-subtle);
 }
 
-/*
- * Product wrappers expose their own semantic variables. Brighten the muted
- * token rather than styling dozens of descendants independently. Existing
- * intentional opacity on micro/price terms still clears WCAG AA with this
- * source color against the current surfaces.
- */
+/* BTC Intelligence keeps its denser terminal composition, while its palette
+   resolves to the canonical graphite + steel-blue system. Legacy local token
+   names are retained only for compatibility with the plugin stylesheet. */
 .bm-bi {
-  --bmi-text-muted: #a8b7ca;
+  --bmi-bg: var(--bm-surface-terminal);
+  --bmi-surface: var(--bm-surface-terminal-elevated);
+  --bmi-surface-2: var(--bm-bg-elevated);
+  --bmi-text: var(--bm-text);
+  --bmi-text-muted: var(--bm-text-muted);
+  --bmi-muted: var(--bm-text-muted);
+  --bmi-subtle: var(--bm-text-subtle);
+  --bmi-teal: var(--bm-accent);
+  --bmi-orange: var(--bm-action);
+  --bmi-bull: var(--bm-positive);
+  --bmi-bear: var(--bm-negative);
+  --bmi-neutral: var(--bm-neutral);
+  font-family: var(--bm-font-sans);
 }
 
+/* Pro sales + whitelist share Bitmomo semantics while preserving their own
+   page composition and interaction logic. */
 .bm-pro-sales {
-  --bms-text-muted: #a8b7ca;
+  --bms-text: var(--bm-text);
+  --bms-text-muted: var(--bm-text-muted);
+  --bms-teal: var(--bm-accent);
+  --bms-orange: var(--bm-action);
+  --bms-orange-dark: var(--bm-action-hover);
+  --bms-bull: var(--bm-positive);
+  --bms-bear: var(--bm-negative);
+  font-family: var(--bm-font-sans);
 }
 
-/*
- * The whitelist is embedded both on /pro and the homepage. Elementor/parent
- * button rules can otherwise outrank the widget's single-class selector.
- * Commercial CTA semantics are orange + dark ink everywhere on Bitmomo.
- */
 .bm-pro-sales .bm-wl__submit {
-  background: var(--bms-orange, #f4ad32);
-  color: #0b1620;
+  background: var(--bm-action) !important;
+  color: #0b1620 !important;
 }
 
 .bm-pro-sales .bm-wl__submit:hover,
 .bm-pro-sales .bm-wl__submit:focus-visible {
-  background: var(--bms-orange-dark, #e69a18);
-  color: #0b1620;
+  background: var(--bm-action-hover) !important;
+  color: #0b1620 !important;
+}
+
+/* Authenticated Pro dashboard uses the same semantic colors as its public
+   acquisition surface. */
+.bm-pro {
+  --bm-pro-text: var(--bm-text);
+  --bm-pro-text-muted: var(--bm-text-muted);
+  --bm-pro-teal: var(--bm-accent);
+  --bm-pro-bull: var(--bm-positive);
+  --bm-pro-bear: var(--bm-negative);
+  --bm-pro-neutral: var(--bm-neutral);
+  font-family: var(--bm-font-sans);
+}
+
+/* Help / FAQ uses local variable names for encapsulation, but no local brand. */
+.bm-help,
+.bm-pro-sales__faq {
+  --bmh-text: var(--bm-text);
+  --bmh-muted: var(--bm-text-muted);
+  --bmh-border: var(--bm-border-strong);
+  --bmh-accent: var(--bm-accent);
+  font-family: var(--bm-font-sans);
 }

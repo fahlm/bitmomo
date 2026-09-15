@@ -103,6 +103,7 @@ final class Bitmomo_AI_Webhook {
                 'status' => $age_minutes <= Bitmomo_AI_Quality_Gate::MAX_AGE_MINUTES ? 'complete' : 'stale',
                 'completeness_pct' => $completeness,
                 'data_age_minutes' => $age_minutes,
+                'last_closed_candle' => gmdate('c', $timestamp),
                 'source' => 'TradingView webhook',
                 'optional_missing' => [],
             ],
@@ -166,7 +167,7 @@ final class Bitmomo_AI_Webhook {
         update_post_meta($post_id, '_bm_edition', $session_type);
         update_post_meta($post_id, '_bm_session_anchor', $session['session_anchor']);
         update_post_meta($post_id, '_bm_us_market_status', $session['us_market_status']);
-        update_post_meta($post_id, '_bm_model', 'rules-mtf-v1');
+        update_post_meta($post_id, '_bm_model', Bitmomo_AI_Signal_Engine::MODEL_VERSION);
         update_post_meta($post_id, '_bm_payload_hash', $fingerprint);
         update_post_meta($post_id, '_bm_axis_snapshot', wp_json_encode($evaluation['axes']));
         // Immutable-at-creation engine input for forward validation and later replay.

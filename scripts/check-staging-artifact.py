@@ -31,6 +31,13 @@ def main() -> int:
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--host", default=DEFAULT_HOST)
     parser.add_argument("--root", default=DEFAULT_ROOT)
+    parser.add_argument("--expected-commit", default="", help="Exact candidate commit expected in the artifact manifest")
+    parser.add_argument("--expected-tree", default="", help="Exact candidate git tree expected in the artifact manifest")
+    parser.add_argument(
+        "--expected-artifact-sha256",
+        default="",
+        help="Expected runtime TAR SHA-256 recorded in the artifact manifest",
+    )
     args = parser.parse_args()
 
     if "/domains/seagreen-snail-158456.hostingersite.com/public_html" not in args.root:
@@ -40,6 +47,21 @@ def main() -> int:
     expected = {item["path"]: item["sha256"] for item in manifest.get("files", [])}
     if manifest.get("file_count") != len(expected) or any("/tests/" in path for path in expected):
         raise SystemExit("invalid runtime manifest")
+
+    source_commit = str(manifest.get("source_commit", ""))
+    source_tree = str(manifest.get("source_tree", ""))
+    artifact_sha256 = str(manifest.get("artifact_sha256", ""))
+    if args.expected_commit and source_commit != args.expected_commit:
+        raise SystemExit(
+            f"artifact candidate mismatch: manifest source_commit={source_commit} expected={args.expected_commit}"
+        )
+    if args.expected_tree and source_tree != args.expected_tree:
+        raise SystemExit(f"artifact tree mismatch: manifest source_tree={source_tree} expected={args.expected_tree}")
+    if args.expected_artifact_sha256 and artifact_sha256 != args.expected_artifact_sha256:
+        raise SystemExit(
+            "artifact digest mismatch: "
+            f"manifest artifact_sha256={artifact_sha256} expected={args.expected_artifact_sha256}"
+        )
 
     managed = sorted({"/".join(path.split("/")[:3]) for path in expected})
     remote_program = f"""
@@ -71,8 +93,9 @@ print(json.dumps(files, sort_keys=True))
     missing = sorted(set(expected) - set(remote))
     unexpected = sorted(set(remote) - set(expected))
     changed = sorted(path for path in set(expected) & set(remote) if expected[path] != remote[path])
-    print(f"source_commit={manifest.get('source_commit', '')}")
-    print(f"artifact_sha256={manifest.get('artifact_sha256', '')}")
+    print(f"source_commit={source_commit}")
+    print(f"source_tree={source_tree}")
+    print(f"artifact_sha256={artifact_sha256}")
     for name, paths in (("missing", missing), ("changed", changed), ("unexpected", unexpected)):
         print(f"{name}={len(paths)}")
         for path in paths:

@@ -1,43 +1,34 @@
-/*
- * Homepage Opportunity + public intelligence presentation.
- * Kept in a dedicated asset so visual CSS has one inspectable source of truth
- * instead of being emitted from PHP via wp_add_inline_style().
- */
-.bm-hero-opportunity{margin:0 0 22px;padding:20px 22px;border:1px solid rgba(38,208,198,.22);border-radius:14px;background:rgba(7,20,33,.72)}
-.bm-hero-opportunity-main{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
-.bm-hero-opportunity-main span,.bm-direction-context-label,.bm-btc-opportunity-meta,.bm-btc-opportunity-tag,.bm-btc-reference{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em}
-.bm-hero-opportunity-main span{color:#71839f;font-size:10px;font-weight:800}
-.bm-hero-opportunity-main strong{font-size:clamp(28px,3vw,40px);line-height:1;color:var(--teal)}
-.bm-hero-opportunity.is-normal .bm-hero-opportunity-main strong{color:#9db2cf}
-.bm-hero-opportunity.is-low .bm-hero-opportunity-main strong,.bm-hero-opportunity.is-unavailable .bm-hero-opportunity-main strong{color:#71839f}
-.bm-hero-opportunity p{margin:12px 0 0;color:#aebdd2;font-size:13px;line-height:1.55}
-.bm-hero-opportunity small{display:block;margin-top:12px;color:#6f839e;font:800 9px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em}
-.bm-direction-head--current{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:0 0 18px;border-bottom:1px solid var(--stroke)}
-.bm-direction-head--current .bm-direction-metric{align-items:flex-start;text-align:left}
-.bm-direction-head--current strong{margin-top:2px;color:var(--ink);font-size:12px;text-align:left}
-.bm-direction-context-label{margin:18px 0 0;color:#71839f;font-size:9px;font-weight:800}
-.bm-direction-card .bm-direction-chart{margin-top:12px}
-.bm-direction-card .bm-direction-meta{grid-template-columns:minmax(100px,.7fr) minmax(0,1.7fr) minmax(100px,.7fr)}
-.bm-btc-opportunity{padding:clamp(26px,3.4vw,44px);border-bottom:1px solid var(--stroke);background:linear-gradient(110deg,rgba(38,208,198,.09),rgba(12,28,42,.12))}
-.bm-btc-opportunity.is-normal{background:linear-gradient(110deg,rgba(121,150,190,.08),rgba(12,28,42,.12))}
-.bm-btc-opportunity.is-low,.bm-btc-opportunity.is-unavailable{background:rgba(8,20,33,.5)}
-.bm-btc-opportunity-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
-.bm-btc-opportunity-head>div{min-width:0}
-.bm-btc-opportunity .bm-btc-kicker{margin-bottom:10px;color:var(--teal)}
-.bm-btc-opportunity strong{display:block;color:var(--teal);font-size:clamp(38px,5vw,58px);line-height:1}
-.bm-btc-opportunity.is-normal strong{color:#aebdd2}
-.bm-btc-opportunity.is-low strong,.bm-btc-opportunity.is-unavailable strong{color:#71839f}
-.bm-btc-opportunity>p{max-width:720px;margin:18px 0 0;color:#b9c7d7;font-size:16px;line-height:1.6}
-.bm-btc-opportunity-tag{flex:0 0 auto;padding:7px 10px;border:1px solid var(--stroke);border-radius:999px;color:#7f92ad;font-size:9px;font-weight:800;text-transform:uppercase}
-.bm-btc-opportunity-meta{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:20px;color:#667b98;font-size:9px;font-weight:800}
-.bm-btc-opportunity-meta time{letter-spacing:.06em}
-.bm-btc-bias strong.is-bullish{color:#46dda5}.bm-btc-bias strong.is-bearish{color:#ff8080}.bm-btc-bias strong.is-neutral{color:#aebdd2}
-.bm-btc-confidence-segments{grid-template-columns:repeat(3,minmax(18px,1fr))}
-.bm-btc-reference{color:#8fa2bd;font-size:10px;font-weight:800;white-space:nowrap}
-@media(max-width:760px){
- .bm-direction-head--current{grid-template-columns:1fr 1fr}.bm-direction-head--current .bm-direction-metric--state{grid-column:1/-1}
- .bm-hero-opportunity{padding:18px}.bm-hero-opportunity-main{align-items:flex-start;flex-direction:column;gap:8px}
- .bm-btc-opportunity{padding:25px 22px}.bm-btc-opportunity-head{flex-direction:column;gap:14px}.bm-btc-opportunity-tag{align-self:flex-start}
- .bm-btc-opportunity>p{font-size:15px}.bm-btc-opportunity-meta{align-items:flex-start;flex-direction:column;gap:8px}
- .bm-btc-reference{white-space:normal}
+/* Homepage BTC intelligence: public essentials only. */
+.bm-hero-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:30px}
+.bm-hero-actions .bm-hero-btn{margin:0}
+.bm-hero-link{color:#aebdd2;font-size:14px;font-weight:750;text-decoration:none}
+.bm-hero-link:hover,.bm-hero-link:focus-visible{color:var(--teal)}
+
+.bm-direction-card{overflow:hidden}
+.bm-direction-card-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;color:#8294ae;font:800 8px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.1em}
+.bm-direction-card-head strong{color:#92a5bd;font-size:8px;letter-spacing:.08em}
+.bm-direction-card-head strong.is-delayed{color:#e7b861}
+
+.bm-direction-summary{display:grid;grid-template-columns:1fr 1fr;gap:0;padding-bottom:18px;border-bottom:1px solid var(--stroke)}
+.bm-direction-metric{min-width:0;padding:0 18px;border-left:1px solid var(--stroke)}
+.bm-direction-metric:first-child{padding-left:0;border-left:0}
+.bm-direction-metric:last-child{padding-right:0}
+.bm-direction-metric>span,.bm-direction-driver>span,.bm-direction-footer span{display:block;color:#8294ae;font:800 8px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.1em}
+.bm-direction-metric strong{display:block;margin-top:7px;color:var(--ink);font-size:18px;font-weight:780;line-height:1.2}
+.bm-direction-metric strong.is-bullish{color:#46dda5}.bm-direction-metric strong.is-bearish{color:#ff8080}.bm-direction-metric strong.is-neutral{color:#c6d2e1}
+.bm-direction-metric small{display:block;margin-top:6px;color:#8294ae;font-size:10px;line-height:1.45}
+
+.bm-direction-driver{padding:18px 0;border-bottom:1px solid var(--stroke)}
+.bm-direction-driver p{margin:7px 0 0;color:#c2cfde;font-size:13px;line-height:1.55}
+
+.bm-direction-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-top:14px}
+.bm-direction-footer p{margin:0;color:#8fa0b6;font-size:10px;line-height:1.45}
+.bm-direction-footer span{margin-bottom:3px;font-size:7px}
+.bm-direction-deep-link{color:#9caec5;font-size:11px;font-weight:740;text-decoration:none;white-space:nowrap}
+.bm-direction-deep-link:hover,.bm-direction-deep-link:focus-visible{color:var(--teal)}
+
+@media(max-width:768px){
+ .bm-hero-actions{align-items:stretch;flex-direction:column;gap:12px}.bm-hero-actions .bm-hero-btn{width:100%;justify-content:center}.bm-hero-actions .bm-hero-link{display:block;width:100%;text-align:center}
+ .bm-direction-summary{grid-template-columns:1fr;gap:16px}.bm-direction-metric{padding:0;border-left:0}.bm-direction-metric+ .bm-direction-metric{padding-top:16px;border-top:1px solid var(--stroke)}
+ .bm-direction-footer{align-items:flex-start;flex-direction:column;gap:10px}.bm-direction-deep-link{white-space:normal}
 }

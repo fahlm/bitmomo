@@ -1,0 +1,32 @@
+name: CI governance safety
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+    paths:
+      - ".github/workflows/**"
+      - "scripts/check-ci-governance.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-governance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    name: Prevent runaway CI configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Syntax-check governance contract
+        run: node --check scripts/check-ci-governance.mjs
+
+      - name: Enforce CI cost and trigger policy
+        run: node scripts/check-ci-governance.mjs

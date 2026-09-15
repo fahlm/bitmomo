@@ -5,8 +5,15 @@ final class Bitmomo_AI_Quality_Gate {
     const MAX_AGE_MINUTES = 90;
     const MIN_COMPLETENESS_PCT = 80;
     const MAX_LEVEL_DISTANCE_PCT = 12;
-    const MIN_PASSED_CHECKS = 6;
-    const CRITICAL_CHECKS = ['freshness', 'completeness', 'price', 'zones', 'bias_score', 'invalidation'];
+    const MIN_PASSED_CHECKS = 7;
+    const CRITICAL_CHECKS = ['freshness', 'source_freshness', 'completeness', 'price', 'zones', 'bias_score', 'invalidation'];
+    const DERIVATIVE_MAX_AGE_MINUTES = [
+        'funding' => 600,
+        'premium_index' => 30,
+        'open_interest' => 150,
+        'global_long_short_ratio' => 150,
+        'taker_buy_sell_ratio' => 150,
+    ];
 
     public static function check(array $data, array $evaluation) {
         $result = self::inspect($data, $evaluation);
@@ -48,6 +55,12 @@ final class Bitmomo_AI_Quality_Gate {
         $add('freshness', $timestamp && $timestamp <= time() + (5 * MINUTE_IN_SECONDS) && $age <= self::MAX_AGE_MINUTES && $quality_status !== 'stale',
             sprintf('Data terbaru: %d menit.', $age),
             sprintf('Pembaruan ditahan: data sudah berusia %d menit; batas maksimum %d menit.', $age, self::MAX_AGE_MINUTES));
+
+        $stale_sources = self::stale_derivative_sources((array) ($data['source_diagnostics'] ?? []));
+        $add('source_freshness', empty($stale_sources),
+            'Input derivatif yang digunakan masih berada dalam batas freshness masing-masing.',
+            sprintf('Pembaruan ditahan: input derivatif terlalu tua atau tidak memiliki timestamp tepercaya (%s).', implode(', ', $stale_sources)));
+
         $add('completeness', $completeness >= self::MIN_COMPLETENESS_PCT && $axis_count === 5,
             sprintf('Kelengkapan data %d%% dan lima kelompok data tersedia.', $completeness),
             sprintf('Pembaruan ditahan: kelengkapan data %d%%; minimum %d%% dan lima kelompok data wajib tersedia.', $completeness, self::MIN_COMPLETENESS_PCT));
@@ -102,5 +115,19 @@ final class Bitmomo_AI_Quality_Gate {
                     ? sprintf('%d/%d pemeriksaan lulus; kegagalan non-kritis diizinkan.', $passed_count, count($checks))
                     : implode(' ', $errors)),
         ];
+    }
+
+    /** Successful derivative inputs may influence the engine only while their observation timestamp is trustworthy and recent enough for that series. */
+    private static function stale_derivative_sources(array $diagnostics) {
+        $stale = [];
+        if (!$diagnostics) return $stale; // Backward-compatible for legacy/manual fixtures; live provider snapshots always carry diagnostics.
+        foreach ($diagnostics as $row) {
+            if (!is_array($row) || empty($row['success'])) continue;
+            $name = sanitize_key((string) ($row['requested_input'] ?? ''));
+            if (!isset(self::DERIVATIVE_MAX_AGE_MINUTES[$name])) continue;
+            $age = $row['age_minutes'] ?? null;
+            if (!is_numeric($age) || (int) $age > self::DERIVATIVE_MAX_AGE_MINUTES[$name]) $stale[] = $name;
+        }
+        return array_values(array_unique($stale));
     }
 }

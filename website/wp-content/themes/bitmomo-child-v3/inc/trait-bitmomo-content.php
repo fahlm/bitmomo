@@ -6,20 +6,13 @@ if (!defined('ABSPATH')) exit;
 trait Bitmomo_Content_Trait {
     /* ---------- Content Enhancements ---------- */
     public function add_content_enhancements($content) {
-        if (!is_single() || !in_the_loop() || !is_main_query()) return $content;
-
-        $cta = sprintf(
-            '<div class="bm-subscribe-cta">
-                <a href="#subscribe" class="bm-btn bm-btn-subscribe js-open-subscribe">🚀 %s</a>
-                <p class="bm-subscribe-caption">%s</p>
-            </div>',
-            __('Subscribe Newsletter Bitmomo','bitmomo'),
-            __('Ringkasan AI &amp; Crypto langsung ke inbox.','bitmomo')
-        );
-        $disc = sprintf('<div class="bm-disclaimer"><p><em>%s</em></p></div>',
-            __('Informasi edukasi, bukan saran investasi. Risiko aset kripto tinggi. DYOR.','bitmomo'));
-
-        return $content.$cta.$disc;
+        /*
+         * Canonical single.php owns article trust/disclosure chrome. Never
+         * append legal or conversion copy to the_content(): the article body
+         * must remain the authored publication itself for reading, excerpts,
+         * accessibility and search semantics.
+         */
+        return $content;
     }
 
     public function modify_archive_query($q) {
@@ -27,19 +20,41 @@ trait Bitmomo_Content_Trait {
         if ($q->is_category() || $q->is_tag()) $q->set('posts_per_page', BM_ARCHIVE_POSTS_PER_PAGE);
     }
 
+    /** Resolve newsletter capability from environment-owned configuration. */
+    private function newsletter_surface_available() {
+        $default_id = defined('BITMOMO_NEWSLETTER_FORM_ID')
+            ? (int) BITMOMO_NEWSLETTER_FORM_ID
+            : (int) get_option('bitmomo_newsletter_form_id', 0);
+        $form_id = max(0, (int) apply_filters('bitmomo_newsletter_form_id', $default_id));
+        return $form_id > 0 && shortcode_exists('mailpoet_form');
+    }
+
+    /**
+     * Newsletter and Founding Whitelist serve different product jobs:
+     * newsletter = free retention/distribution, whitelist = Pro acquisition.
+     * Preserve legacy /subscribe links only when the configured newsletter
+     * backend is actually available. Otherwise fail closed to the homepage
+     * rather than pointing at a nonexistent subscription capability.
+     */
     public function handle_subscribe_redirect() {
         $req  = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '');
         $path = trim(parse_url($req, PHP_URL_PATH) ?? '/', '/');
-        if (strcasecmp($path,'subscribe')===0) { wp_safe_redirect(home_url('/#subscribe'),302); exit; }
+        if (strcasecmp($path, 'subscribe') === 0) {
+            $target = $this->newsletter_surface_available() ? home_url('/#newsletter') : home_url('/');
+            wp_safe_redirect($target, 302);
+            exit;
+        }
     }
 
-    /* ---------- Universal subscribe ---------- */
+    /* ---------- Legacy subscribe-link compatibility ---------- */
     public function force_subscribe_link_attrs($atts, $item, $args) {
         if (empty($atts['href'])) return $atts;
         $href = strtolower($atts['href']);
-        if (strpos($href, '#subscribe') !== false || preg_match('~(^|/)subscribe/?$~', $href)) {
-            $atts['href'] = '#subscribe';
-            $atts['class'] = (isset($atts['class']) ? $atts['class'].' ' : '') . 'js-open-subscribe';
+        if (strpos($href, '#subscribe') !== false || strpos($href, '#newsletter') !== false || preg_match('~(^|/)subscribe/?$~', $href)) {
+            $atts['href'] = $this->newsletter_surface_available() ? home_url('/#newsletter') : home_url('/');
+            if (isset($atts['class'])) {
+                $atts['class'] = trim(str_replace('js-open-subscribe', '', $atts['class']));
+            }
         }
         return $atts;
     }

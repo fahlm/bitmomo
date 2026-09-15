@@ -5,8 +5,17 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "website/wp-content/themes/bitmomo-child-v3/**"
+      - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-account.css"
+      - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
+      - "scripts/check-theme-source-contract.sh"
       - "scripts/check-ui-architecture.mjs"
+      - "scripts/check-terminal-grade-contract.mjs"
+      - "scripts/check-navigation-footer.mjs"
+      - "scripts/check-public-ui.mjs"
       - "scripts/audit-css-debt.mjs"
+      - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
   workflow_dispatch:
 
@@ -20,7 +29,7 @@ concurrency:
 jobs:
   php-syntax:
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
-    name: PHP syntax and UI architecture
+    name: PHP syntax, public-surface and UI architecture
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -31,51 +40,37 @@ jobs:
       - name: Show PHP version
         run: php --version
 
-      - name: Verify production baseline file set
+      - name: Enforce canonical theme source contract
+        run: bash scripts/check-theme-source-contract.sh
+
+      - name: Lint changed public PHP
         shell: bash
         run: |
           set -euo pipefail
-
-          theme_dir="website/wp-content/themes/bitmomo-child-v3"
-          expected=(
-            "functions.php"
-            "custom.css"
-            "front-page.php"
-            "single.php"
-            "home.php"
-            "category.php"
-            "tag.php"
-            "style.css"
-            "assets/css/home-opportunity.css"
-            "assets/css/public-readability.css"
-          )
-
-          for file in "${expected[@]}"; do
-            test -f "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Required baseline file is missing"
-              exit 1
-            }
-          done
-
-      - name: Lint theme PHP
-        shell: bash
-        run: |
-          set -euo pipefail
-
           theme_dir="website/wp-content/themes/bitmomo-child-v3"
           mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
+          test "${#php_files[@]}" -gt 0
+          for file in "${php_files[@]}"; do php -l "${file}"; done
+          php -l website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php
+          php -l website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php
 
-          if [ "${#php_files[@]}" -eq 0 ]; then
-            echo "::error::No PHP files found in ${theme_dir}"
-            exit 1
-          fi
-
-          for file in "${php_files[@]}"; do
-            php -l "${file}"
-          done
+      - name: Syntax-check browser and contract sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/check-theme-source-contract.sh
+          node --check scripts/check-public-ui.mjs
+          node --check scripts/check-terminal-grade-contract.mjs
+          node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
       - name: Enforce UI architecture and WCAG source contracts
         run: node scripts/check-ui-architecture.mjs
+
+      - name: Enforce terminal-grade public contract
+        run: node scripts/check-terminal-grade-contract.mjs
+
+      - name: Enforce navigation and footer contract
+        run: node scripts/check-navigation-footer.mjs
 
       - name: Report CSS debt baseline
         run: node scripts/audit-css-debt.mjs

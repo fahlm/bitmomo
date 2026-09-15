@@ -1,454 +1,204 @@
 <?php
-/**
- * Standalone test harness (php tests/test-bitmomo-btc-intelligence.php),
- * not a WP testing framework substitute — matches the convention already
- * used by bitmomo-pro's and bitmomo-regime's own test suites.
- *
- * 2026-09-03 P0 wiring pass: this page now reads ONLY
- * Bitmomo_Public_Intelligence_Adapter (merged via PR #69 / commit
- * 056e488), never Bitmomo_AI_Intelligence::free_projection() or
- * Bitmomo_Regime_State_Store directly. This suite therefore mocks the
- * adapter itself, using the exact real field names/shapes read from the
- * merged bitmomo-ai source (class-bitmomo-public-intelligence-adapter.php)
- * and its own test fixtures -- never a guessed shape.
- */
-
 require __DIR__ . '/wp-stubs.php';
+if ( ! function_exists( 'home_url' ) ) { function home_url( $path = '/' ) { return 'https://bitmomo.test' . $path; } }
+if ( ! function_exists( 'wp_date' ) ) { function wp_date( $format, $timestamp = null ) { return date( $format, null === $timestamp ? time() : $timestamp ); } }
 
-$GLOBALS['__pass'] = 0;
-$GLOBALS['__fail'] = 0;
-
-function check( $label, $cond ) {
-	if ( $cond ) {
-		$GLOBALS['__pass']++;
-		echo "[PASS] $label\n";
-	} else {
-		$GLOBALS['__fail']++;
-		echo "[FAIL] $label\n";
-	}
-}
-
-class Bitmomo_Regime_Taxonomy {
-	public static function regime_label_id( $regime ) {
-		$labels = array(
-			'accumulation' => 'Akumulasi',
-			'expansion'    => 'Ekspansi',
-			'distribution' => 'Distribusi',
-			'transition'   => 'Transisi',
-		);
-		return $labels[ $regime ] ?? $regime;
-	}
-}
+$GLOBALS['__pass'] = 0; $GLOBALS['__fail'] = 0;
+function check( $label, $cond ) { if ( $cond ) { $GLOBALS['__pass']++; echo "[PASS] $label\n"; } else { $GLOBALS['__fail']++; echo "[FAIL] $label\n"; } }
 
 require dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php';
 require dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-setup.php';
 
-/* =========================================================================
- * PART A -- ADAPTER CLASS ABSENT (e.g. bitmomo-ai deactivated). Run BEFORE
- * Bitmomo_Public_Intelligence_Adapter is defined below, so class_exists()
- * genuinely returns false here -- this is the real "no adapter reachable"
- * path, not a fixture simulating it.
- * ====================================================================== */
 $page = Bitmomo_Btc_Intelligence_Page::instance();
 $html = $page->render_page( array() );
+check( 'Page renders without public adapter', strlen( $html ) > 400 );
+check( 'Page has canonical wrapper', false !== strpos( $html, 'class="bm-bi"' ) );
+check( 'Hero explains the two-clock visitor model', false !== strpos( $html, 'Market Pulse menunjukkan aktivitas intraday' ) && false !== strpos( $html, 'Major Brief menunjukkan bias' ) );
+check( 'Unavailable Major Brief fails closed', false !== strpos( $html, 'Pembacaan arah sedang ditahan karena Major Brief belum memenuhi standar kualitas Bitmomo.' ) );
+check( 'No fabricated BTC reference without adapter', false === strpos( $html, '$65,000' ) && false === strpos( $html, '$65.000' ) );
+check( 'Only one Pro conversion action is rendered', 1 === substr_count( $html, 'Lihat Bitmomo Pro' ) );
+check( 'Page still renders accountability boundaries without data', false !== strpos( $html, 'Decision Ledger' ) && false !== strpos( $html, 'Arsip Pro' ) );
 
-check( 'Page renders non-empty output', strlen( $html ) > 500 );
-check( 'Page output wrapped in bm-bi container', false !== strpos( $html, 'class="bm-bi"' ) );
-check( 'Hero headline matches locked copy exactly', false !== strpos( $html, 'Pahami BTC dalam konteks.' ) );
-check( 'Hero supporting line matches locked copy exactly', false !== strpos( $html, 'Lima axis. Satu framework. Track record terbuka.' ) );
-check( 'Hero disclaimer matches locked copy exactly, no extra explanatory sentence', false !== strpos( $html, '<p class="bm-bi__hero-micro">Bukan sinyal beli/jual. Bukan saran keuangan.</p>' ) );
-check( 'All 13 section anchors present (13 h1/h2 headings incl. hero)', substr_count( $html, 'bm-bi__section-title' ) + substr_count( $html, 'bm-bi__hero-title' ) >= 12 );
-
-check( 'ADAPTER ABSENT: snapshot renders the honest unavailable state, never fabricated', false !== strpos( $html, 'Update BTC terbaru belum tersedia.' ) );
-check( 'ADAPTER ABSENT: no spectrum instrument rendered without resolved data', false === strpos( $html, 'bm-bi__spectrum-track' ) );
-check( 'ADAPTER ABSENT: Track Record shows the "Belum Tersedia" boundary, not a number', substr_count( $html, 'Belum Tersedia' ) >= 5 );
-check( 'ADAPTER ABSENT: Historical regime section falls back honestly when shortcode is not registered', false !== strpos( $html, 'Riwayat Market State belum tersedia.' ) );
-check( 'ADAPTER ABSENT: no bare/fabricated illustrative percentages leak into output', false === strpos( $html, '68%' ) && false === strpos( $html, '312' ) );
-check( 'ADAPTER ABSENT: Expected Range section never shows a live/current range number', 0 === preg_match( '/Rp[\d.,]+\s*[-–]\s*Rp[\d.,]+/', $html ) );
-
-check( 'Output never mentions Scenario Map', false === stripos( $html, 'scenario map' ) );
-check( 'Output never mentions Thesis Invalidation', false === stripos( $html, 'thesis invalidation' ) );
-check( 'Output never mentions "What Changed" as a live data block', false === stripos( $html, 'what changed' ) );
-check( 'Page class file never references any Bitmomo_Pro_ class', 0 === preg_match_all( '/Bitmomo_Pro_[A-Za-z]+::/', file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' ) ) );
-check( 'Page class file never CALLS Bitmomo_AI_Scorecard:: (private P1 internals) -- a docblock mention explaining why it is avoided is fine, a static call is not', 0 === preg_match( '/Bitmomo_AI_Scorecard::/', file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' ) ) );
-check( 'Page class file never reads Bitmomo_AI_Intelligence::free_projection() directly -- adapter is now the sole source', 0 === preg_match( '/Bitmomo_AI_Intelligence::/', file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' ) ) );
-check( 'Page class file never reads Bitmomo_Regime_State_Store directly -- adapter wraps it', 0 === preg_match( '/Bitmomo_Regime_State_Store::/', file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' ) ) );
-
-check( 'Rendered public output never names the internal adapter class to users', false === strpos( $html, 'Bitmomo_Public_Intelligence_Adapter' ) );
-check( 'Rendered public output never says "adapter" to users', false === stripos( $html, 'adapter' ) );
-check( 'Rendered public output never says "tim engineering" to users', false === stripos( $html, 'tim engineering' ) );
-
+$class_source = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-intelligence-page.php' );
+$bootstrap_source = file_get_contents( dirname( __DIR__ ) . '/bitmomo-btc-intelligence.php' );
 $css = file_get_contents( dirname( __DIR__ ) . '/assets/css/bitmomo-btc-intelligence.css' );
-check( 'CSS defines a commercial-orange token matching the site-wide CTA color', false !== strpos( $css, '--bmi-orange: #f4ad32' ) );
-check( 'Pro CTA primary button uses the orange token, not cyan', false !== strpos( $css, 'background: var( --bmi-orange )' ) );
+check( 'Public page never reads private scorecard directly', 0 === preg_match( '/Bitmomo_AI_Scorecard::/', $class_source ) );
+check( 'Public page never reads raw Regime State Store directly', 0 === preg_match( '/Bitmomo_Regime_State_Store::/', $class_source ) );
+check( 'Public page never calls Pro internals', 0 === preg_match( '/Bitmomo_Pro_[A-Za-z]+::/', $class_source ) );
+check( 'Public page reaches row evidence only through accountability boundary', false !== strpos( $class_source, 'Bitmomo_Btc_Intelligence_Accountability::decision_ledger' ) && false !== strpos( $class_source, 'Bitmomo_Btc_Intelligence_Accountability::delayed_proof' ) );
+check( 'Final public copy is renderer-owned rather than shortcode-rewritten', false === strpos( $bootstrap_source, 'do_shortcode_tag' ) && false === strpos( $bootstrap_source, 'strtr(' ) );
+check( 'Commercial action consumes canonical amber token', false !== strpos( $css, '--bmi-action:var(--bm-action,#f4ad32)' ) && false !== strpos( $css, 'background:var(--bmi-action)' ) );
+check( 'Secondary methodology stays progressively disclosed', false !== strpos( $css, '.bm-bi__details' ) );
+check( 'Mobile snapshot collapses to one column', false !== strpos( $css, '.bm-bi__snapshot-grid{grid-template-columns:1fr}' ) );
+check( 'Ledger overflow is contained instead of overflowing the page', false !== strpos( $css, '.bm-bi__ledger-wrap' ) && false !== strpos( $css, 'overflow-x:auto' ) );
+check( 'Renderer explicitly separates stale Major Brief from Market Pulse', false !== strpos( $class_source, 'MAJOR BRIEF TERTUNDA' ) && false !== strpos( $class_source, 'Market Pulse tetap ditampilkan terpisah' ) && false !== strpos( $class_source, 'render_market_pulse' ) );
+check( 'Early sample copy explicitly cautions against inference', false !== strpos( $class_source, 'Sampel awal — belum layak disimpulkan' ) );
+check( 'Insufficient sample accuracy is explicitly withheld', false !== strpos( $class_source, 'Akurasi ditahan sampai sampel minimum terpenuhi.' ) );
 
-check( 'Customer-facing copy never uses the word "pembacaan"', 0 === preg_match( '/pembacaan/i', $html ) );
-check( 'Market State and Directional Bias explained as separate concepts', false !== strpos( $html, 'Market State menjelaskan struktur' ) && false !== strpos( $html, 'Directional Bias menjelaskan arah' ) );
-
-foreach ( array( 'Direction', 'Volatility', 'Carry', 'Structure', 'Crowding' ) as $axis ) {
-	check( "Five Axes: $axis card rendered", false !== strpos( $html, '>' . $axis . '<' ) );
-}
-check( 'Five Axes explicitly denies being 5 independent AI agents', false !== strpos( $html, 'bukan lima "agent" AI yang independen' ) );
-
-check( 'Pro CTA headline matches locked copy', false !== strpos( $html, 'Ketahui apa yang perlu diperhatikan berikutnya.' ) );
-check( 'Pro CTA links to /pro/', false !== strpos( $html, 'href="http://example.test/pro/"' ) );
-check( 'Pro CTA headline does not lead with Expected Range/Scenario Map as the feature', 0 === preg_match( '/perhatikan berikutnya\.<\/h2>\s*<p>[^<]*Expected Range/i', $html ) );
-
-check( 'Confidence evaluation shows locked headline verbatim', false !== strpos( $html, 'Apakah Confidence yang lebih tinggi benar-benar menghasilkan akurasi yang lebih konsisten?' ) );
-check( 'Confidence evaluation shows the updated canonical clarification verbatim', false !== strpos( $html, 'Confidence menunjukkan seberapa kuat keyakinan sistem terhadap insight saat ini berdasarkan konsistensi dan kualitas evidence yang mendukungnya. Confidence bukan probabilitas keberhasilan.' ) );
-
-$setup = Bitmomo_Btc_Intelligence_Setup::instance();
-check( 'Setup class instantiates cleanly', $setup instanceof Bitmomo_Btc_Intelligence_Setup );
-
-/* =========================================================================
- * PART B -- ADAPTER WIRED. Bitmomo_Public_Intelligence_Adapter mock below
- * matches the REAL contract shape read from the merged
- * class-bitmomo-public-intelligence-adapter.php (PR #69 / 056e488), not a
- * guess: snapshot() returns null unless directional_bias AND
- * direction_strength both resolve; evaluation_summary() is keyed by
- * version under directional_evaluation / expected_range_evaluation /
- * regime_performance, each metric row carrying the backend's own
- * sample_status string verbatim.
- * ====================================================================== */
 class Bitmomo_Public_Intelligence_Adapter {
 	public static $snapshot_fixture = null;
-	public static $history_fixture = null;
-	public static $evaluation_summary_fixture = null;
-	public static $calls = array( 'snapshot' => 0, 'history' => 0, 'evaluation_summary' => 0 );
-
-	public static function snapshot() {
-		self::$calls['snapshot']++;
-		return self::$snapshot_fixture;
-	}
-	public static function history() {
-		self::$calls['history']++;
-		return self::$history_fixture;
-	}
-	public static function evaluation_summary() {
-		self::$calls['evaluation_summary']++;
-		return self::$evaluation_summary_fixture;
-	}
+	public static $surface_fixture = array();
+	public static $history_fixture = array( 'days' => array() );
+	public static $evaluation_fixture = array();
+	public static function snapshot() { return self::$snapshot_fixture; }
+	public static function surface_context() { return self::$surface_fixture; }
+	public static function history() { return self::$history_fixture; }
+	public static function evaluation_summary() { return self::$evaluation_fixture; }
 }
+
+class Bitmomo_Btc_Intelligence_Accountability {
+	public static $ledger_fixture = array( 'rows' => array() );
+	public static $proof_fixture = array( 'delay_hours' => 48, 'rows' => array() );
+	public static function decision_ledger( $limit = 12 ) { return self::$ledger_fixture; }
+	public static function delayed_proof( $limit = 3 ) { return self::$proof_fixture; }
+}
+
+$opportunity = array(
+	'status' => 'available', 'state' => 'high', 'previous_state' => 'normal', 'changed' => true,
+	'knowledge_time' => '2026-09-12T20:15:00+00:00', 'activity_percentile' => 84.2,
+	'range_60m_pct' => 1.17, 'methodology_version' => 'opportunity-v1',
+);
+Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = array(
+	'status' => 'fresh', 'btc_reference_price' => 65000.0, 'opportunity' => $opportunity,
+	'market_state' => 'expansion', 'market_state_certainty' => 76,
+	'directional_bias' => 'bullish', 'direction_strength' => 'strong_bullish',
+	'confidence' => array( 'value' => 82, 'label' => 'high' ),
+	'freshness' => array( 'state' => 'fresh', 'timestamp_iso' => '2026-09-12T20:10:07+00:00', 'label' => 'fresh' ),
+	'provenance' => array( 'source' => 'Binance public market data + Bybit derivatives fallback', 'as_of' => '2026-09-12T20:10:07+00:00', 'timezone' => 'Asia/Jakarta' ),
+	'key_drivers' => array( 'Momentum BTC menguat.', 'Volatilitas meningkat.', 'Driver ketiga tidak boleh tampil.' ),
+	'session' => array( 'type' => 'us_post_close', 'label' => 'US POST-CLOSE', 'edition_id' => 'internal-edition-id', 'anchor' => '2026-09-12T20:10:00-04:00' ),
+	'session_intelligence' => array(
+		'what_happened' => array( 'btc_change_pct' => 2.25, 'ending_directional_bias' => 'bullish', 'derivatives_context' => array( 'open_interest_change_24h_pct' => 3.5, 'funding_rate' => 0.0001, 'basis_pct' => 0.12 ) ),
+		'comparison' => array( 'status' => 'compared' ),
+		'what_changed' => array(
+			array( 'field' => 'directional_bias', 'from' => 'neutral', 'to' => 'bullish' ),
+			array( 'field' => 'confidence', 'from' => 61, 'to' => 82 ),
+			array( 'field' => 'strongest_driver', 'from' => 'old', 'to' => 'new' ),
+		),
+	),
+	'versions' => array( 'engine' => 'engine-secret-v2', 'classifier' => 'classifier-secret-v2' ),
+);
+Bitmomo_Public_Intelligence_Adapter::$surface_fixture = array( 'opportunity' => $opportunity );
+Bitmomo_Public_Intelligence_Adapter::$history_fixture = array(
+	'target_days' => 30, 'available_days' => 4,
+	'days' => array(
+		array( 'date' => '2026-09-09', 'directional_bias' => 'bearish', 'market_state' => 'distribution', 'market_state_certainty' => 88, 'version_group' => 'classifier-secret-v1' ),
+		array( 'date' => '2026-09-10', 'directional_bias' => 'neutral', 'market_state' => 'transition', 'market_state_certainty' => 44, 'version_group' => 'classifier-secret-v1' ),
+		array( 'date' => '2026-09-11', 'directional_bias' => 'bullish', 'market_state' => 'accumulation', 'market_state_certainty' => 71, 'version_group' => 'classifier-secret-v2' ),
+		array( 'date' => '2026-09-12', 'directional_bias' => 'bullish', 'market_state' => 'expansion', 'market_state_certainty' => 76, 'version_group' => 'classifier-secret-v2' ),
+	),
+);
+$current_metric = array( 'n' => 40, 'conclusive_n' => 35, 'correct' => 22, 'incorrect' => 13, 'inconclusive' => 5, 'accuracy_pct' => 62.9, 'sample_status' => 'ADEQUATE' );
+$rolling_metric = array_merge( $current_metric, array( 'n' => 30, 'conclusive_n' => 27, 'accuracy_pct' => 63.0 ) );
+$legacy_metric = array( 'n' => 20, 'conclusive_n' => 18, 'accuracy_pct' => 11.1, 'sample_status' => 'EARLY SAMPLE' );
+Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
+	'directional_evaluation' => array(
+		'engine-v2 | classifier-v2 | observed-close-24h-v2' => array(
+			'outcome_methodology' => 'observed-close-24h-v2', 'all' => $current_metric, 'rolling_30' => $rolling_metric,
+			'by_direction' => array( 'bullish' => $current_metric, 'bearish' => array_merge( $current_metric, array( 'accuracy_pct' => 57.1 ) ), 'neutral' => $current_metric ),
+			'confidence_buckets' => array( array_merge( $current_metric, array( 'range' => '70–100' ) ) ),
+		),
+		'engine-v1 | classifier-v1 | legacy-window-v1' => array( 'all' => $legacy_metric, 'rolling_30' => $legacy_metric, 'by_direction' => array( 'bullish' => $legacy_metric ) ),
+	),
+	'expected_range_evaluation' => array( 'versions' => array( 'range-v2' => array( 'n' => 30, 'range_hit_pct' => 70.0 ) ) ),
+	'regime_performance' => array( 'versions' => array( 'classifier-v2' => array( 'expansion' => array( 'n' => 14, 'average_forward_return_pct' => 1.2 ) ) ) ),
+	'data_quality' => array( 'n' => 40, 'stale_rate_pct' => 2.5, 'settlement_completeness_pct' => 92.5, 'sample_status' => 'ADEQUATE' ),
+);
+
+Bitmomo_Btc_Intelligence_Accountability::$ledger_fixture = array(
+	'provenance' => 'recorded_live_matured_outcomes', 'policy' => 'RECENT_MATURED_NO_RESULT_FILTER', 'evaluation_window' => '+24h',
+	'rows' => array(
+		array( 'generated_at' => '2026-09-10T02:00:00+00:00', 'direction' => 'bullish', 'confidence' => 74, 'session' => 'Morning', 'reference_price' => 64000, 'forward_return_pct' => 1.42, 'verdict' => 'aligned' ),
+		array( 'generated_at' => '2026-09-09T13:00:00+00:00', 'direction' => 'bearish', 'confidence' => 69, 'session' => 'US Session', 'reference_price' => 63500, 'forward_return_pct' => 0.88, 'verdict' => 'missed' ),
+		array( 'generated_at' => '2026-09-08T02:00:00+00:00', 'direction' => 'neutral', 'confidence' => 51, 'session' => 'Morning', 'reference_price' => 63100, 'forward_return_pct' => null, 'verdict' => 'unscored' ),
+	),
+);
+Bitmomo_Btc_Intelligence_Accountability::$proof_fixture = array(
+	'provenance' => 'frozen_published_pro_briefs', 'policy' => 'DELAYED_PUBLIC_PROOF_V1', 'delay_hours' => 48,
+	'rows' => array(
+		array(
+			'published_at' => '2026-09-08T12:00:00+00:00', 'market_state' => 'bullish', 'confidence' => 77,
+			'reference_price' => 63000, 'expected_range_low' => 62500, 'expected_range_high' => 64500,
+			'base_scenario' => 'BTC bertahan di atas support dan menguji sisi atas range.',
+			'bull_scenario' => 'Acceptance di atas resistance membuka ekspansi lanjutan.',
+			'bear_scenario' => 'Kehilangan support menggeser fokus ke downside.',
+			'invalidation' => 'Thesis batal jika support utama gagal dipertahankan.',
+			'what_changed' => 'Momentum membaik sementara funding tetap terkendali.',
+			'evaluation_status' => 'evaluated', 'verdict' => 'aligned', 'outcome_return_pct' => 1.11, 'range_hit' => 'yes',
+		),
+	),
+);
 
 $reflection = new ReflectionClass( 'Bitmomo_Btc_Intelligence_Page' );
+$instance = $reflection->newInstanceWithoutConstructor();
+$method = $reflection->getMethod( 'render_page' );
+$method->setAccessible( true );
+$html = $method->invoke( $instance, array() );
 
-/**
- * Renders the page on a brand-new, non-singleton instance so its
- * per-instance adapter caches always reflect whatever fixture is set
- * immediately before calling this -- no cross-test cache bleed.
- */
-function render_fresh( ReflectionClass $reflection ) {
-	$instance = $reflection->newInstanceWithoutConstructor();
-	$method   = $reflection->getMethod( 'render_page' );
-	$method->setAccessible( true );
-	return $method->invoke( $instance, array() );
-}
+check( 'Current reading exposes direction in human language', false !== strpos( $html, 'Bullish kuat' ) );
+check( 'Current terminal uses final institutional labels at source', false !== strpos( $html, '>BIAS<' ) && false !== strpos( $html, '>CONFIDENCE<' ) );
+check( 'Confidence is exact but explicitly not a price probability', false !== strpos( $html, '82/100' ) && false !== strpos( $html, 'bukan probabilitas pergerakan harga' ) );
+check( 'Market Pulse is translated into a visitor-facing intraday state', false !== strpos( $html, 'MARKET PULSE · INTRADAY' ) && false !== strpos( $html, '>Tinggi<' ) && false !== strpos( $html, 'Aktivitas pasar berada di atas kondisi normal 14 hari.' ) );
+check( 'Market Pulse exposes its independent clock', false !== strpos( $html, 'evaluasi 15 menit dari candle 5 menit' ) );
+check( 'Opportunity internals are not displayed', false === strpos( $html, 'activity percentile' ) && false === strpos( $html, '60m range' ) && false === strpos( $html, '84.2' ) && false === strpos( $html, '1.17%' ) );
+check( 'Market State taxonomy and classifier certainty stay out of current public presentation', false === strpos( $html, 'Ekspansi' ) && false === strpos( $html, 'Distribusi' ) && false === strpos( $html, '76% certainty' ) && false === strpos( $html, 'MARKET STATE' ) );
+check( 'Raw derivative kitchen metrics stay out of public presentation', false === strpos( $html, 'OI 24H' ) && false === strpos( $html, 'FUNDING' ) && false === strpos( $html, 'BASIS' ) );
+check( 'Only two visitor-relevant reasons render', false !== strpos( $html, 'Momentum BTC menguat.' ) && false !== strpos( $html, 'Volatilitas meningkat.' ) && false === strpos( $html, 'Driver ketiga tidak boleh tampil.' ) );
+check( 'What changed is capped and humanized', false !== strpos( $html, 'Bias berubah dari Netral menjadi Bullish.' ) && false !== strpos( $html, 'Confidence berubah dari 61 menjadi 82.' ) && false === strpos( $html, 'strongest_driver' ) );
+check( 'Public trust metadata is concise', false !== strpos( $html, '13 Sep 2026 · 03:10 WIB' ) && false !== strpos( $html, 'Sumber data: Binance + Bybit' ) );
+check( '30-day context shows direction only', false !== strpos( $html, 'Bullish 2' ) && false !== strpos( $html, 'Netral 1' ) && false !== strpos( $html, 'Bearish 1' ) );
+check( '30-day context does not expose regime or classifier internals', false === strpos( $html, 'classifier-secret' ) );
+check( 'Decision Ledger includes wins, misses and unscored records instead of success-only rows', false !== strpos( $html, 'NO CHERRY-PICKING' ) && false !== strpos( $html, 'SESUAI' ) && false !== strpos( $html, 'TIDAK SESUAI' ) && false !== strpos( $html, 'BELUM DINILAI' ) );
+check( 'Decision Ledger shows frozen-time view and forward outcome', false !== strpos( $html, '$64,000' ) && false !== strpos( $html, '+1.42%' ) );
+check( 'Decision Ledger does not dump internal methodology IDs', false === strpos( $html, 'observed-close-24h-v2' ) );
+check( 'Track record uses current methodology outcome only', false !== strpos( $html, 'Akurasi 62.9%' ) && false !== strpos( $html, 'Akurasi 63.0%' ) && false === strpos( $html, '11.1%' ) );
+check( 'Track record hides engine and classifier version identifiers', false === strpos( $html, 'engine-v2' ) && false === strpos( $html, 'classifier-v2' ) && false === strpos( $html, 'legacy-window-v1' ) );
+$sample_position = strpos( $html, '35 / 40' );
+$accuracy_position = strpos( $html, 'Akurasi 62.9%' );
+check( 'Track record is sample-first rather than percentage-first', false !== $sample_position && false !== $accuracy_position && $sample_position < $accuracy_position && false !== strpos( $html, 'outcome konklusif / total · Sampel memadai' ) );
+check( 'Track record explains why sample comes first', false !== strpos( $html, 'Jumlah outcome konklusif ditampilkan lebih dulu' ) );
+check( 'Track record describes exact +24h evaluation', false !== strpos( $html, 'tepat +24 jam' ) );
+check( 'Legacy methodology is disclosed without dumping identifiers', false !== strpos( $html, 'Metodologi lama tetap disimpan untuk audit' ) );
+check( 'Delayed Pro proof exposes a real historical decision contract', false !== strpos( $html, 'FROM THE PRO ARCHIVE' ) && false !== strpos( $html, 'BTC bertahan di atas support' ) && false !== strpos( $html, 'Thesis batal jika support utama gagal dipertahankan' ) );
+check( 'Delayed Pro proof exposes actual settled outcome and range result', false !== strpos( $html, '+1.11%' ) && false !== strpos( $html, 'Range hit: YA' ) );
+check( 'Delayed Pro proof is explicitly historical and time-delayed', false !== strpos( $html, 'DELAY ≥ 48 JAM' ) && false !== strpos( $html, 'Arsip historis · bukan guidance saat ini' ) );
+check( 'Internal evaluation diagnostics still do not render', false === strpos( $html, 'Settlement complete' ) && false === strpos( $html, 'Stale rate' ) && false === strpos( $html, 'Confidence vs akurasi' ) );
+check( 'Free page does not leak current-Pro internal field identifiers', false === strpos( $html, 'monitoring_conditions' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'what_to_watch' ) );
 
-function make_snapshot( $bias, $strength, $confidence_value, $confidence_label, $extra = array() ) {
-	return array_merge( array(
-		'status'               => 'fresh',
-		'btc_reference_price'  => 65000.0,
-		'market_state'         => 'expansion',
-		'directional_bias'     => $bias,
-		'direction_strength'   => $strength,
-		'confidence'           => array( 'value' => $confidence_value, 'label' => $confidence_label ),
-		'freshness'            => array( 'label' => 'Tertunda · diperbarui 8 jam lalu', 'timestamp' => 1788394207, 'timestamp_iso' => '2026-09-03T00:10:07+00:00' ),
-		'key_drivers'          => array( 'Funding rate elevated', 'Spot volume rising' ),
-		'session'              => array( 'type' => 'us_post_close', 'label' => 'US POST-CLOSE', 'anchor' => '2026-09-02T20:10:00-04:00', 'market_timezone' => 'America/New_York', 'us_market_status' => 'regular_session_day' ),
-		'session_intelligence' => array(
-			'current_setup' => array( 'directional_bias' => $bias, 'structural_state' => 'hh_hl' ),
-			'what_happened' => array( 'btc_change_pct' => 1.25 ),
-			'what_changed' => array( array( 'field' => 'directional_bias', 'from' => 'neutral', 'to' => $bias ) ),
-			'comparison' => array( 'status' => 'compared' ),
-			'known_events' => array(),
-			'what_to_watch' => array( 'directional_consistency' ),
-		),
-		'versions'             => array( 'engine' => '1.2.4', 'classifier' => 'classifier-v1' ),
-	), $extra );
-}
-
-function spectrum_marker_style( $html ) {
-	if ( ! preg_match( '/bm-bi__spectrum-marker[^"]*"[^>]*style="([^"]+)"/', $html, $m ) ) {
-		return null;
-	}
-	return $m[1];
-}
-
-// Extracts the marker's full class attribute value. Deliberately used with
-// per-token checks (not a fixed substring) so these tests don't couple to
-// an arbitrary class array order in the PHP -- only the presence of each
-// semantic class matters, never which comes first.
-function spectrum_marker_classes( $html ) {
-	if ( ! preg_match( '/class="(bm-bi__spectrum-marker[^"]*)"/', $html, $m ) ) {
-		return null;
-	}
-	return explode( ' ', $m[1] );
-}
-
-function marker_has_classes( $html, array $expected ) {
-	$classes = spectrum_marker_classes( $html );
-	if ( null === $classes ) {
-		return false;
-	}
-	foreach ( $expected as $needle ) {
-		if ( ! in_array( $needle, $classes, true ) ) {
-			return false;
-		}
-	}
-	return true;
-}
-
-/* -------------------------------------------------------------------
- * ADAPTER SNAPSHOT CONSUMED -- basic wiring
- * ------------------------------------------------------------------ */
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'bullish', 'strong_bullish', 82, 'high' );
-$html_wired = render_fresh( $reflection );
-check( 'ADAPTER SNAPSHOT CONSUMED: BTC reference price rendered from snapshot()', false !== strpos( $html_wired, '65,000' ) || false !== strpos( $html_wired, '65.000' ) );
-check( 'ADAPTER SNAPSHOT CONSUMED: Market State rendered from snapshot()', false !== strpos( $html_wired, 'Ekspansi' ) );
-check( 'ADAPTER SNAPSHOT CONSUMED: Faktor Utama rendered from snapshot() key_drivers', false !== strpos( $html_wired, 'Funding rate elevated' ) );
-check( 'ADAPTER SNAPSHOT CONSUMED: backend freshness label rendered verbatim', false !== strpos( $html_wired, 'Tertunda · diperbarui 8 jam lalu' ) );
-check( 'FRESHNESS: exact timestamp converted to WIB', false !== strpos( $html_wired, '03 Sep 2026, 07:10 WIB' ) );
-check( 'FRESHNESS: never falsely claims current data', false === strpos( $html_wired, 'Data terkini' ) );
-check( 'SESSION UI: canonical post-close identity and structured sections render', false !== strpos( $html_wired, 'US POST-CLOSE' ) && false !== strpos( $html_wired, 'What Happened' ) && false !== strpos( $html_wired, 'What Changed' ) && false !== strpos( $html_wired, 'Next Context' ) );
-$closed_snapshot = make_snapshot( 'neutral', 'neutral', 55, 'medium', array( 'session' => array( 'type' => 'us_pre_open', 'label' => 'US MARKETS CLOSED - BTC UPDATE', 'anchor' => '2026-09-12T08:10:00-04:00', 'market_timezone' => 'America/New_York', 'us_market_status' => 'weekend' ) ) );
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = $closed_snapshot;
-$html_closed = render_fresh( $reflection );
-check( 'SESSION UI: weekend BTC update avoids false US pre-open language', false !== strpos( $html_closed, 'US MARKETS CLOSED - BTC UPDATE' ) && false !== strpos( $html_closed, 'BTC tetap diperdagangkan 24/7' ) && false === strpos( $html_closed, '>US PRE-OPEN<' ) );
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'bullish', 'strong_bullish', 82, 'high' );
-check( 'Hero intelligence visualization (spectrum) renders', false !== strpos( $html_wired, 'bm-bi__spectrum-track' ) && false !== strpos( $html_wired, 'MARKET DIRECTION SPECTRUM' ) );
-check( 'Spectrum shows all five canonical zone labels', false !== strpos( $html_wired, 'Strong Bear' ) && false !== strpos( $html_wired, 'Strong Bull' ) && false !== strpos( $html_wired, '>Neutral<' ) );
-
-/* -------------------------------------------------------------------
- * DIRECTION_STRENGTH EXACT ZONE RENDERED -- all five canonical states,
- * each must resolve to its own precise zone (left offset = zone*20%),
- * never the removed "wide" treatment, never a fabricated label.
- * ------------------------------------------------------------------ */
-$expected_zones = array(
-	'strong_bearish' => array( 'left' => 0, 'label' => 'Strong Bearish', 'bias' => 'bearish' ),
-	'bearish'        => array( 'left' => 20, 'label' => 'Moderate Bearish', 'bias' => 'bearish' ),
-	'neutral'        => array( 'left' => 40, 'label' => 'Neutral', 'bias' => 'neutral' ),
-	'bullish'        => array( 'left' => 60, 'label' => 'Moderate Bullish', 'bias' => 'bullish' ),
-	'strong_bullish' => array( 'left' => 80, 'label' => 'Strong Bullish', 'bias' => 'bullish' ),
-);
-foreach ( $expected_zones as $strength => $expectation ) {
-	Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( $expectation['bias'], $strength, 75, 'high' );
-	$html_zone = render_fresh( $reflection );
-	$style     = spectrum_marker_style( $html_zone );
-	check(
-		"DIRECTION_STRENGTH EXACT ZONE: $strength resolves to left:{$expectation['left']}% width:20%",
-		null !== $style && false !== strpos( $style, 'left:' . $expectation['left'] . '%' ) && false !== strpos( $style, 'width:20%' )
-	);
-	check(
-		"DIRECTION_STRENGTH EXACT ZONE: $strength renders its exact label, never Moderate/Strong confusion",
-		false !== strpos( $html_zone, '<strong>' . $expectation['label'] . '</strong>' )
-	);
-	check(
-		"DIRECTION_STRENGTH EXACT ZONE: $strength marker is always precise, the removed wide-band class never appears",
-		marker_has_classes( $html_zone, array( 'bm-bi__spectrum-marker--precise' ) ) && false === strpos( $html_zone, 'bm-bi__spectrum-marker--wide' )
-	);
-}
-check( 'TEMPORARY WIDE-BAND REMOVED: no "segera hadir" copy remains anywhere in the page', false === strpos( $html_wired, 'segera hadir' ) );
-check( 'TEMPORARY WIDE-BAND REMOVED: bm-bi__spectrum-marker--wide class no longer exists in the CSS', false === strpos( $css, 'spectrum-marker--wide' ) );
-
-/* -------------------------------------------------------------------
- * CONFIDENCE CANNOT MOVE ZONE -- same bias+strength, high vs low
- * confidence: marker position (left/width) must be byte-identical;
- * only the confidence class/badge may differ.
- * ------------------------------------------------------------------ */
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'bullish', 'bullish', 82, 'high' );
-$html_hi = render_fresh( $reflection );
-$style_hi = spectrum_marker_style( $html_hi );
-
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'bullish', 'bullish', 12, 'low' );
-$html_lo = render_fresh( $reflection );
-$style_lo = spectrum_marker_style( $html_lo );
-
-check( 'CONFIDENCE CANNOT MOVE ZONE: marker left/width is IDENTICAL for the same bias+strength regardless of Confidence (82 vs 12)', null !== $style_hi && $style_hi === $style_lo );
-check( 'CONFIDENCE CANNOT MOVE ZONE: high confidence (82/high) renders the "tinggi" confidence class', marker_has_classes( $html_hi, array( 'is-confidence-tinggi' ) ) );
-check( 'CONFIDENCE CANNOT MOVE ZONE: low confidence (12/low) renders the "rendah" confidence class', marker_has_classes( $html_lo, array( 'is-confidence-rendah' ) ) );
-check( 'CONFIDENCE CANNOT MOVE ZONE: direction label stays Moderate Bullish at low confidence too', false !== strpos( $html_lo, '<strong>Moderate Bullish</strong>' ) );
-check( 'Confidence semantics note is present in the hero snapshot, concisely (not a repeated paragraph block)', false !== strpos( $html_hi, 'bm-bi__confidence-note' ) && substr_count( $html_hi, 'Confidence bukan probabilitas keberhasilan.' ) <= 2 );
-
-/* -------------------------------------------------------------------
- * UNKNOWN FAILS HONESTLY -- adapter present but returns null, or an
- * unrecognized direction_strength / directional_bias -- the WHOLE
- * section falls back to the honest unavailable state (the previous
- * partial "wide band" state no longer exists; the adapter's own
- * fail-closed contract means this page never sees a partial shape).
- * ------------------------------------------------------------------ */
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = null;
-$html_null = render_fresh( $reflection );
-check( 'UNKNOWN FAILS HONESTLY: adapter snapshot() returning null renders the honest unavailable state', false !== strpos( $html_null, 'Update BTC terbaru belum tersedia.' ) );
-check( 'UNKNOWN FAILS HONESTLY: no spectrum instrument rendered when snapshot() is null', false === strpos( $html_null, 'bm-bi__spectrum-track' ) );
-check( 'UNKNOWN FAILS HONESTLY: never silently defaults to Neutral when snapshot() is null', false === strpos( $html_null, '>Neutral<' ) );
-
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'bullish', 'extremely_bullish_v2', 75, 'high' );
-$html_bad = render_fresh( $reflection );
-check( 'UNKNOWN FAILS HONESTLY: an unrecognized direction_strength value renders the honest unavailable state, never a fabricated zone', false !== strpos( $html_bad, 'Update BTC terbaru belum tersedia.' ) && false === strpos( $html_bad, 'bm-bi__spectrum-track' ) );
-
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'sideways', 'neutral', 50, 'medium' );
-$html_bad_bias = render_fresh( $reflection );
-check( 'UNKNOWN FAILS HONESTLY: an unrecognized directional_bias value renders the honest unavailable state', false !== strpos( $html_bad_bias, 'Update BTC terbaru belum tersedia.' ) );
-
-check( 'No canvas/chart element was added for a fabricated price series', false === strpos( $html_wired, '<canvas' ) );
-
-/* -------------------------------------------------------------------
- * EVALUATION SUMMARY -- single version: real numbers rendered with the
- * backend's own sample_status label, never recomputed.
- * ------------------------------------------------------------------ */
-Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture = make_snapshot( 'bullish', 'bullish', 70, 'high' );
-Bitmomo_Public_Intelligence_Adapter::$evaluation_summary_fixture = array(
-	'provenance'      => 'canonical_evaluation_scorecard',
-	'version_policy'  => 'SINGLE_VERSION',
-	'sample_rules'    => array( 'minimum' => 10, 'strong' => 30 ),
+$insufficient_metric = array( 'n' => 8, 'conclusive_n' => 6, 'correct' => 5, 'incorrect' => 1, 'inconclusive' => 2, 'accuracy_pct' => 83.3, 'sample_status' => 'INSUFFICIENT SAMPLE' );
+Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
 	'directional_evaluation' => array(
-		'engine-v1 | classifier-v1' => array(
-			'all'         => array( 'n' => 40, 'conclusive_n' => 38, 'correct' => 25, 'accuracy_pct' => 65.8, 'sample_status' => 'ADEQUATE' ),
-			'rolling_30'  => array( 'n' => 30, 'accuracy_pct' => 67.9, 'sample_status' => 'ADEQUATE' ),
-			'by_direction' => array(
-				'bullish' => array( 'n' => 18, 'accuracy_pct' => 70.0, 'sample_status' => 'EARLY SAMPLE' ),
-				'bearish' => array( 'n' => 15, 'accuracy_pct' => 60.0, 'sample_status' => 'EARLY SAMPLE' ),
-				'neutral' => array( 'n' => 7, 'accuracy_pct' => null, 'sample_status' => 'INSUFFICIENT SAMPLE' ),
-			),
-			'confidence_buckets' => array(
-				array( 'n' => 12, 'accuracy_pct' => 58.3, 'sample_status' => 'EARLY SAMPLE', 'range' => '0–49' ),
-				array( 'n' => 15, 'accuracy_pct' => 66.7, 'sample_status' => 'EARLY SAMPLE', 'range' => '50–69' ),
-				array( 'n' => 13, 'accuracy_pct' => 76.9, 'sample_status' => 'EARLY SAMPLE', 'range' => '70–100' ),
-			),
+		'engine-v2 | classifier-v2 | observed-close-24h-v2' => array(
+			'all' => $insufficient_metric,
+			'rolling_30' => $insufficient_metric,
+			'by_direction' => array( 'bullish' => $insufficient_metric, 'bearish' => $insufficient_metric ),
 		),
 	),
-	'expected_range_evaluation' => array(
-		'policy'         => 'FROZEN_ORIGINAL_ONLY',
-		'version_policy' => 'SINGLE_VERSION',
-		'versions'       => array(
-			'model-v1' => array( 'n' => 20, 'range_hit_pct' => 72.5, 'low_breach_pct' => 12.5, 'high_breach_pct' => 15.0, 'sample_status' => 'EARLY SAMPLE' ),
-		),
-	),
-	'regime_performance' => array(
-		'append_only_n'             => 55,
-		'transition_n'              => 6,
-		'transition_frequency_pct'  => 10.9,
-		'versions'                  => array(
-			'classifier-v1' => array(
-				'expansion'    => array( 'n' => 20, 'average_forward_return_pct' => -1.25, 'average_forward_volatility_pct' => 2.75, 'sample_status' => 'EARLY SAMPLE' ),
-				'accumulation' => array( 'n' => 15, 'average_forward_return_pct' => 0.0, 'average_forward_volatility_pct' => null, 'sample_status' => 'EARLY SAMPLE' ),
-			),
-		),
-	),
-	'data_quality' => array( 'n' => 40, 'stale_rate_pct' => 2.5, 'blocked_degraded_rate_pct' => 0.0, 'missing_data_rate_pct' => 1.2, 'settlement_n' => 38, 'settlement_completeness_pct' => 95.0, 'sample_status' => 'ADEQUATE' ),
 );
-$html_eval = render_fresh( $reflection );
+$insufficient_instance = $reflection->newInstanceWithoutConstructor();
+$insufficient_html = $method->invoke( $insufficient_instance, array() );
+check( 'Insufficient sample does not advertise a seductive accuracy percentage', false !== strpos( $insufficient_html, 'Akurasi ditahan sampai sampel minimum terpenuhi.' ) && false === strpos( $insufficient_html, 'Akurasi 83.3%' ) );
 
-check( 'EVALUATION SECTIONS USE BACKEND SAMPLE STATUS: Track Record shows a real accuracy number', false !== strpos( $html_eval, '65.8%' ) );
-check( 'EVALUATION SECTIONS USE BACKEND SAMPLE STATUS: ADEQUATE maps to its Indonesian label verbatim', false !== strpos( $html_eval, 'Sampel Memadai' ) );
-check( 'EVALUATION SECTIONS USE BACKEND SAMPLE STATUS: EARLY SAMPLE maps to its Indonesian label verbatim', false !== strpos( $html_eval, 'Sampel Awal' ) );
-check( 'EVALUATION SECTIONS USE BACKEND SAMPLE STATUS: INSUFFICIENT SAMPLE maps to its Indonesian label verbatim', false !== strpos( $html_eval, 'Sampel Belum Cukup' ) );
-check( 'EVALUATION SECTIONS USE BACKEND SAMPLE STATUS: a null accuracy_pct renders "Belum ada hasil", never a fabricated 0%', false !== strpos( $html_eval, 'Belum ada hasil' ) );
-check( 'EVALUATION SECTIONS USE BACKEND SAMPLE STATUS: backend n is shown verbatim (n=7 for the insufficient neutral bucket)', false !== strpos( $html_eval, 'n=7' ) );
-check( 'Confidence Evaluation renders the backend\'s own dynamic bucket ranges, not a hardcoded Rendah/Sedang/Tinggi split', false !== strpos( $html_eval, '0–49' ) && false !== strpos( $html_eval, '50–69' ) && false !== strpos( $html_eval, '70–100' ) );
-check( 'Expected Range Performance renders the real range_hit_pct', false !== strpos( $html_eval, '72.5%' ) );
-check( 'Expected Range Performance never shows a live Rp range number even once real evaluation data exists', 0 === preg_match( '/Rp[\d.,]+\s*[-–]\s*Rp[\d.,]+/', $html_eval ) );
-check( 'Regime Performance renders genuine return and volatility, not accuracy', false !== strpos( $html_eval, '-1.3%' ) && false !== strpos( $html_eval, '2.8%' ) && false !== strpos( $html_eval, 'Akumulasi · Return rata-rata' ) );
-check( 'Regime Performance renders the backend\'s real append-only/transition summary line', false !== strpos( $html_eval, '55' ) && false !== strpos( $html_eval, '10.9' ) );
-check( 'Data Quality renders the real stale/blocked/missing/settlement figures', false !== strpos( $html_eval, '2.5%' ) && false !== strpos( $html_eval, '1.2%' ) && false !== strpos( $html_eval, '95.0%' ) );
-// Deliberately excludes 'axes'/'axis' (this page's own legitimate product
-// vocabulary -- "Lima Intelligence Axes", axis-card markup) and 'evidence'
-// (part of the locked Confidence disclaimer copy, "...kualitas evidence
-// yang mendukungnya") -- neither is a scorecard leak on this page, they're
-// approved customer-facing words. This checks only identifiers that could
-// never legitimately appear as honest public copy here.
-check( 'NO PRO DATA LEAKS: private-only scorecard fields never reach the rendered page', 0 === preg_match( '/\b(baselines|source_record_id|private_note|entry_price|momentum_direction|trend_direction)\b/', $html_eval ) );
-
-/* -------------------------------------------------------------------
- * VERSION GROUPS NOT SILENTLY MERGED -- two incompatible versions in
- * the same section must render as two separate groups with their own
- * distinct figures, never averaged/combined into one number.
- * ------------------------------------------------------------------ */
-Bitmomo_Public_Intelligence_Adapter::$evaluation_summary_fixture['version_policy'] = 'SEPARATED_INCOMPATIBLE_VERSIONS';
-Bitmomo_Public_Intelligence_Adapter::$evaluation_summary_fixture['directional_evaluation']['engine-v2 | classifier-v2'] = array(
-	'all'                => array( 'n' => 14, 'accuracy_pct' => 40.0, 'sample_status' => 'EARLY SAMPLE' ),
-	'rolling_30'         => array( 'n' => 14, 'accuracy_pct' => 40.0, 'sample_status' => 'EARLY SAMPLE' ),
-	'by_direction'       => array(),
-	'confidence_buckets' => array(),
+Bitmomo_Public_Intelligence_Adapter::$evaluation_fixture = array(
+	'directional_evaluation' => array(
+		'engine-v2 | classifier-v2 | observed-close-24h-v2' => array(
+			'outcome_methodology' => 'observed-close-24h-v2', 'all' => $current_metric, 'rolling_30' => $rolling_metric,
+			'by_direction' => array( 'bullish' => $current_metric, 'bearish' => array_merge( $current_metric, array( 'accuracy_pct' => 57.1 ) ), 'neutral' => $current_metric ),
+		),
+	),
 );
-$html_versions = render_fresh( $reflection );
-check( 'VERSION GROUPS NOT SILENTLY MERGED: both incompatible versions render their own distinct accuracy figures', false !== strpos( $html_versions, '65.8%' ) && false !== strpos( $html_versions, '40.0%' ) );
-check( 'VERSION GROUPS NOT SILENTLY MERGED: no averaged/combined figure between the two versions appears (e.g. ~52.9%)', false === strpos( $html_versions, '52.9%' ) );
-check( 'VERSION GROUPS NOT SILENTLY MERGED: both version tags are shown, labelled separately', substr_count( $html_versions, 'bm-bi__version-tag' ) >= 2 );
-check( 'VERSION GROUPS NOT SILENTLY MERGED: the on-page separation note appears when more than one version exists', false !== strpos( $html_versions, 'tidak digabungkan' ) );
+Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['status'] = 'delayed';
+Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['freshness']['state'] = 'delayed';
+$delayed_instance = $reflection->newInstanceWithoutConstructor();
+$delayed_html = $method->invoke( $delayed_instance, array() );
+check( 'Delayed Major Brief is explicitly labelled', false !== strpos( $delayed_html, 'DATA TERTUNDA' ) && false !== strpos( $delayed_html, 'MAJOR BRIEF TERTUNDA' ) );
+check( 'Delayed Major Brief withholds the directional view', false !== strpos( $delayed_html, 'Observasi brief terverifikasi terakhir: 13 Sep 2026 · 03:10 WIB.' ) );
+check( 'Delayed Major Brief labels its reference as historical', false !== strpos( $delayed_html, 'BTC referensi brief terakhir: $65,000.' ) );
+check( 'Delayed Major Brief does not show stale bias confidence or drivers as current', false === strpos( $delayed_html, 'Bullish kuat' ) && false === strpos( $delayed_html, '82/100' ) && false === strpos( $delayed_html, 'Momentum BTC menguat.' ) );
+check( 'Fresh Market Pulse survives a stale Major Brief', false !== strpos( $delayed_html, 'MARKET PULSE · INTRADAY' ) && false !== strpos( $delayed_html, 'Aktivitas pasar berada di atas kondisi normal 14 hari.' ) );
+check( 'Delayed intelligence still preserves public provenance', false !== strpos( $delayed_html, 'Sumber data: Binance + Bybit' ) );
 
-// Reset to the single-version fixture for anything rendered after this point.
-Bitmomo_Public_Intelligence_Adapter::$evaluation_summary_fixture['version_policy'] = 'SINGLE_VERSION';
-unset( Bitmomo_Public_Intelligence_Adapter::$evaluation_summary_fixture['directional_evaluation']['engine-v2 | classifier-v2'] );
-
-/* -------------------------------------------------------------------
- * NO FAKE HISTORY -- section 6 deliberately still defers to the
- * bitmomo-regime shortcode (never adapter_history()) and adapter_
- * history() itself is still a guarded/cached passthrough, never
- * fabricating a shape.
- * ------------------------------------------------------------------ */
-check( 'NO FAKE HISTORY: Historical Market State/Bias still renders via the canonical shortcode path, unchanged', false !== strpos( $html_eval, 'Riwayat Market State' ) );
-
-Bitmomo_Public_Intelligence_Adapter::$history_fixture = array( 'target_days' => 30, 'available_days' => 2, 'days' => array( array( 'date' => '2026-09-01', 'market_state' => 'expansion', 'directional_bias' => 'bullish', 'version_group' => 'classifier-v1' ) ) );
-$history_method = $reflection->getMethod( 'adapter_history' );
-$history_method->setAccessible( true );
-$fresh_for_history = $reflection->newInstanceWithoutConstructor();
-$history_result = $history_method->invoke( $fresh_for_history );
-check( 'NO FAKE HISTORY: adapter_history() accessor returns exactly what the adapter provides, never invented', $history_result === Bitmomo_Public_Intelligence_Adapter::$history_fixture );
-
-/* =========================================================================
- * PART C -- HOMEPAGE 30D + STRENGTH-NOT-FROM-CONFIDENCE (PR #69 fix)
- * The 30D component lives in a different plugin/theme
- * (template-parts/home-hero.php) and is intentionally left unchanged by
- * this branch -- verified separately by a direct git diff audit (see the
- * delivery report) and by rendering that template with Playwright
- * screenshots. What IS testable here, in isolation, is the exact
- * $bm_direction_label closure PR #69 shipped to fix the previous
- * Confidence->Strong/Moderate coupling bug -- reproduced verbatim so a
- * regression back to that bug is caught even without loading the whole
- * theme.
- * ====================================================================== */
-$label_method = $reflection->getMethod( 'regime_display_label' );
-$label_method->setAccessible( true );
-foreach ( array( 'accumulation' => 'Akumulasi', 'expansion' => 'Ekspansi', 'distribution' => 'Distribusi', 'capitulation' => 'Kapitulasi', 'transition' => 'Transisi', 'unknown' => 'Belum tersedia', 'future_enum' => 'Belum tersedia', '' => 'Belum tersedia' ) as $raw => $expected ) {
-	check( 'REGIME safe display: ' . $raw, $expected === $label_method->invoke( $fresh_for_history, $raw ) );
-}
-check( 'REGIME null is unavailable, never Neutral', 'Belum tersedia' === $label_method->invoke( $fresh_for_history, null ) );
-$freshness_method = $reflection->getMethod( 'render_freshness' );
-$freshness_method->setAccessible( true );
-foreach ( array( null, array(), array( 'freshness' => array( 'timestamp_iso' => '2026-09-03T00:10:07' ) ), array( 'freshness' => array( 'timestamp_iso' => 'invalid' ) ) ) as $missing ) {
-	ob_start();
-	$freshness_method->invoke( $fresh_for_history, $missing );
-	$missing_output = ob_get_clean();
-	check( 'FRESHNESS missing/invalid/naive timestamp stays unknown', 'Waktu pembaruan belum tersedia.' === $missing_output );
-}
-$bm_direction_label = static function ( $strength, $bias ) {
-	$labels = array(
-		'strong_bullish' => 'Strong Bullish',
-		'bullish'        => 'Moderate Bullish',
-		'neutral'        => 'Neutral',
-		'bearish'        => 'Moderate Bearish',
-		'strong_bearish' => 'Strong Bearish',
-	);
-	$strength = sanitize_key( (string) $strength );
-	if ( isset( $labels[ $strength ] ) ) {
-		return $labels[ $strength ];
-	}
-	$bias = sanitize_key( (string) $bias );
-	if ( in_array( $bias, array( 'bullish', 'bearish', 'neutral' ), true ) ) {
-		return ucfirst( $bias );
-	}
-	return 'Neutral';
-};
-
-check( 'HOMEPAGE STRENGTH NOT FROM CONFIDENCE: strong_bullish label renders regardless of any confidence value (the closure takes no confidence argument at all)', $bm_direction_label( 'strong_bullish', 'bullish' ) === 'Strong Bullish' );
-$bm_label_params = ( new ReflectionFunction( $bm_direction_label ) )->getParameters();
-check( 'HOMEPAGE STRENGTH NOT FROM CONFIDENCE: the closure has exactly two parameters (strength, bias) -- no confidence parameter exists to couple from, the exact PR #69 fix', 2 === count( $bm_label_params ) );
-check( 'HOMEPAGE STRENGTH NOT FROM CONFIDENCE: the closure\'s first parameter is $strength, not $confidence', 'strength' === $bm_label_params[0]->getName() );
-check( 'HOMEPAGE STRENGTH NOT FROM CONFIDENCE: unresolved strength with a valid bias falls back to Title-Case bias, never a confidence-derived guess', $bm_direction_label( '', 'bearish' ) === 'Bearish' );
-
-echo "\n" . $GLOBALS['__pass'] . '/' . ( $GLOBALS['__pass'] + $GLOBALS['__fail'] ) . " passed.\n";
-if ( $GLOBALS['__fail'] > 0 ) {
-	exit( 1 );
-}
-echo "All checks passed.\n";
+$setup = Bitmomo_Btc_Intelligence_Setup::instance();
+check( 'Setup class instantiates', $setup instanceof Bitmomo_Btc_Intelligence_Setup );
+printf( "\n%d/%d passed.\n", $GLOBALS['__pass'], $GLOBALS['__pass'] + $GLOBALS['__fail'] );
+exit( $GLOBALS['__fail'] === 0 ? 0 : 1 );

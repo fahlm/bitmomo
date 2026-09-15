@@ -29,46 +29,130 @@ trait Bitmomo_Assets_Trait {
     }
 
     public function enqueue_styles() {
-        // Parent (Hello Elementor) style
-        wp_enqueue_style('hello-elementor-style',
-            get_template_directory_uri() . '/style.css', [], null);
+        wp_enqueue_style(
+            'hello-elementor-style',
+            get_template_directory_uri() . '/style.css',
+            [],
+            null
+        );
 
-        // Critical CSS inline (optional)
-        $critical_path = get_stylesheet_directory() . '/critical.css';
-        if (file_exists($critical_path)) {
-            printf("<style>%s</style>\n", @file_get_contents($critical_path));
+        // Frozen legacy layer. It stays first until migrated away, and must not
+        // receive new public-surface ownership.
+        $custom_css_path = get_stylesheet_directory() . '/custom.css';
+        wp_enqueue_style(
+            'bitmomo-child',
+            get_stylesheet_directory_uri() . '/custom.css',
+            ['hello-elementor-style'],
+            $this->get_file_version($custom_css_path)
+        );
+
+        // Canonical cross-surface foundation: tokens, keyboard focus, touch
+        // targets, reduced motion and form defaults. Every modern public layer
+        // depends on this rather than adding more rules to custom.css.
+        $design_system_path = get_stylesheet_directory() . '/assets/css/design-system.css';
+        $public_base_deps = ['bitmomo-child'];
+        if (file_exists($design_system_path)) {
+            wp_enqueue_style(
+                'bitmomo-design-system',
+                get_stylesheet_directory_uri() . '/assets/css/design-system.css',
+                ['bitmomo-child'],
+                $this->get_file_version($design_system_path)
+            );
+            $public_base_deps = ['bitmomo-design-system'];
         }
 
-        // Child custom.css (cache-busting via content hash)
-        $custom_css_path = get_stylesheet_directory() . '/custom.css';
-        $custom_css_uri  = get_stylesheet_directory_uri() . '/custom.css';
-        $version = $this->get_file_version($custom_css_path);
-        wp_enqueue_style('bitmomo-child', $custom_css_uri, ['hello-elementor-style'], $version);
-
-        // Shared public readability contract. This is deliberately separate
-        // from the frozen legacy custom.css: it is the first design-system
-        // migration layer and owns only readable secondary text / CTA contrast.
         $readability_css_path = get_stylesheet_directory() . '/assets/css/public-readability.css';
         if (file_exists($readability_css_path)) {
             wp_enqueue_style(
                 'bitmomo-public-readability',
                 get_stylesheet_directory_uri() . '/assets/css/public-readability.css',
-                ['bitmomo-child'],
+                $public_base_deps,
                 $this->get_file_version($readability_css_path)
             );
+            $public_base_deps = ['bitmomo-public-readability'];
         }
 
-        // Homepage-only Opportunity/intelligence presentation. This used to be
-        // emitted as a large PHP heredoc, which made visual ownership and cache
-        // invalidation harder to reason about. Keep CSS in CSS assets only.
-        if (is_front_page()) {
-            $opportunity_css_path = get_stylesheet_directory() . '/assets/css/home-opportunity.css';
-            if (file_exists($opportunity_css_path)) {
+        $public_surface_deps = $public_base_deps;
+        $public_surfaces_css_path = get_stylesheet_directory() . '/assets/css/public-surfaces.css';
+        if (file_exists($public_surfaces_css_path)) {
+            wp_enqueue_style(
+                'bitmomo-public-surfaces',
+                get_stylesheet_directory_uri() . '/assets/css/public-surfaces.css',
+                $public_base_deps,
+                $this->get_file_version($public_surfaces_css_path)
+            );
+            $public_surface_deps = ['bitmomo-public-surfaces'];
+        }
+
+        $navigation_footer_css_path = get_stylesheet_directory() . '/assets/css/navigation-footer.css';
+        if (file_exists($navigation_footer_css_path)) {
+            wp_enqueue_style(
+                'bitmomo-navigation-footer',
+                get_stylesheet_directory_uri() . '/assets/css/navigation-footer.css',
+                $public_surface_deps,
+                $this->get_file_version($navigation_footer_css_path)
+            );
+            $public_surface_deps = ['bitmomo-navigation-footer'];
+        }
+
+        if (is_single()) {
+            $article_css_path = get_stylesheet_directory() . '/assets/css/article-reading.css';
+            if (file_exists($article_css_path)) {
                 wp_enqueue_style(
-                    'bitmomo-home-opportunity',
-                    get_stylesheet_directory_uri() . '/assets/css/home-opportunity.css',
-                    ['bitmomo-child', 'bitmomo-public-readability'],
-                    $this->get_file_version($opportunity_css_path)
+                    'bitmomo-article-reading',
+                    get_stylesheet_directory_uri() . '/assets/css/article-reading.css',
+                    $public_surface_deps,
+                    $this->get_file_version($article_css_path)
+                );
+            }
+        }
+
+        if (is_front_page()) {
+            // One explicit homepage owner. The old Opportunity stylesheet is no
+            // longer loaded because the canonical front page no longer renders
+            // that standalone component.
+            $home_css_path = get_stylesheet_directory() . '/assets/css/home.css';
+            if (file_exists($home_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-home',
+                    get_stylesheet_directory_uri() . '/assets/css/home.css',
+                    $public_surface_deps,
+                    $this->get_file_version($home_css_path)
+                );
+                $public_surface_deps = ['bitmomo-home'];
+            }
+
+            $conversion_css_path = get_stylesheet_directory() . '/assets/css/home-conversion.css';
+            if (file_exists($conversion_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-home-conversion',
+                    get_stylesheet_directory_uri() . '/assets/css/home-conversion.css',
+                    $public_surface_deps,
+                    $this->get_file_version($conversion_css_path)
+                );
+            }
+        }
+
+        if (is_category('riset')) {
+            $research_css_path = get_stylesheet_directory() . '/assets/css/research.css';
+            if (file_exists($research_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-research',
+                    get_stylesheet_directory_uri() . '/assets/css/research.css',
+                    $public_surface_deps,
+                    $this->get_file_version($research_css_path)
+                );
+            }
+        }
+
+        if (is_page('tentang-kami')) {
+            $about_css_path = get_stylesheet_directory() . '/assets/css/about.css';
+            if (file_exists($about_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-about',
+                    get_stylesheet_directory_uri() . '/assets/css/about.css',
+                    $public_surface_deps,
+                    $this->get_file_version($about_css_path)
                 );
             }
         }
@@ -123,10 +207,8 @@ trait Bitmomo_Assets_Trait {
     }
 
     public function add_resource_hints($urls,$rel) {
-        if ($rel==='preconnect') {
-            $urls[] = ['href'=>'https://fonts.gstatic.com','crossorigin'=>true];
-            $urls[] = ['href'=>'https://cdn.bitmomo.id','crossorigin'=>true];
-        }
+        // No speculative third-party preconnects. Add one only when a public
+        // route actually owns a stable render-critical dependency on it.
         return $urls;
     }
 }

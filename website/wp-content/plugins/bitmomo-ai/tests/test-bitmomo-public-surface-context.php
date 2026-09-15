@@ -44,7 +44,7 @@ $partial = Bitmomo_Public_Intelligence_Adapter::surface_context();
 surface_check( 'Opportunity remains independent of snapshot', ( $partial['opportunity']['state'] ?? '' ) === 'LOW' );
 
 $encoded = json_encode( array( $surface, $unavailable, $partial ) );
-foreach ( array( 'private_note', 'source_diagnostics', 'risk', 'axes', 'pro_projection', 'entitlement' ) as $forbidden ) {
+foreach ( array( 'private_note', 'source_diagnostics', 'record_id', 'risk', 'axes', 'pro_projection', 'entitlement' ) as $forbidden ) {
 	surface_check( "no {$forbidden} leak", false === strpos( $encoded, '"' . $forbidden . '"' ) );
 }
 

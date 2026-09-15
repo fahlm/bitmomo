@@ -1,56 +1,89 @@
-# Konten: Kebijakan Privasi
+# Konten Canonical: Kebijakan Privasi
 
-Status: draft konten, siap ditinjau founder. Belum di-commit/push. Bukan perubahan kode.
-Slug yang dituju oleh footer (sudah dikodekan di PR frontend, belum di-merge): `kebijakan-privasi`
-
-PENTING UNTUK FOUNDER: draft ini disusun berdasarkan apa yang bisa diverifikasi dari kode/konfigurasi yang ada (WordPress, Rank Math, Mailpoet, native CTA click tracking di tema, Site Kit by Google terdeteksi aktif secara plugin), plus jawaban langsung dari founder (2026-08-27): tidak ada cookie consent banner yang tampil saat ini, data subscriber Mailpoet disimpan selama subscriber belum unsubscribe dan tidak dibagikan ke pihak ketiga, serta Site Kit belum benar-benar terhubung ke layanan Google mana pun ("belum ada integrasi"). Catatan: jawaban "belum ada integrasi" ditafsirkan juga mencakup tidak adanya plugin security/logging tambahan di luar bawaan Hostinger -- kalau ini keliru (misalnya ada plugin security terpisah yang tidak terkait Site Kit), koreksi sebelum publikasi.
-
----
+Status: canonical content for release review. The WordPress page at slug `kebijakan-privasi` must match this content before Founding Whitelist is opened publicly.
 
 ## SEO METADATA
 
 - **SEO title**: Kebijakan Privasi | Bitmomo
-- **Meta description**: Kebijakan privasi Bitmomo: data apa yang kami kumpulkan, bagaimana kami menggunakannya, dan layanan pihak ketiga yang kami gunakan.
+- **Meta description**: Kebijakan privasi Bitmomo: data yang dikumpulkan, bagaimana data digunakan, pilihan komunikasi, dan layanan teknis yang mendukung situs.
 - **Suggested slug**: `kebijakan-privasi`
 
 ---
 
-## ISI HALAMAN
-
 # Kebijakan Privasi
 
-Halaman ini menjelaskan data apa yang Bitmomo kumpulkan saat Anda mengunjungi bitmomo.id, bagaimana data tersebut digunakan, dan layanan pihak ketiga yang terlibat.
+Halaman ini menjelaskan informasi yang dapat diproses ketika Anda mengunjungi bitmomo.id, menggunakan produk Bitmomo, atau mendaftar untuk menerima pembaruan.
 
-## Data yang Dikumpulkan Secara Otomatis
+## Data Teknis dan Keamanan
 
-Seperti kebanyakan situs WordPress, server kami dapat mencatat informasi teknis dasar (seperti alamat IP dan jenis peramban) untuk keperluan keamanan dan operasional situs, menggunakan fitur bawaan hosting Hostinger. Saat ini tidak ada plugin keamanan/logging tambahan pihak ketiga yang terpasang.
+Infrastruktur web dapat memproses informasi teknis yang lazim diperlukan untuk mengirimkan dan melindungi situs, seperti alamat IP, jenis peramban, request, dan waktu akses. Bitmomo juga menggunakan pembatasan percobaan pada form publik. Untuk whitelist, alamat IP digunakan untuk membuat kunci rate-limit sementara; implementasi aplikasi tidak menyimpan alamat IP mentah tersebut sebagai profil whitelist jangka panjang.
 
-## Analitik
+## Founding Whitelist dan Komunikasi Produk
 
-Plugin Site Kit by Google terpasang di situs ini, namun saat ini belum terhubung ke layanan Google mana pun (belum ada integrasi aktif ke Google Analytics, Search Console, atau layanan Google lainnya). Bagian ini akan diperbarui apabila salah satu layanan tersebut diaktifkan di kemudian hari.
+Jika Anda mendaftar ke Founding Whitelist Bitmomo Pro, Bitmomo dapat menyimpan:
 
-## Cookie
+- alamat email;
+- nama depan, jika Anda memilih untuk mengisinya;
+- waktu pendaftaran dan waktu persetujuan email;
+- sumber form yang digunakan;
+- halaman pendaftaran;
+- parameter kampanye seperti `utm_source`, `utm_medium`, dan `utm_campaign`, bila ada;
+- halaman perujuk/referrer, bila tersedia;
+- status operasional whitelist, misalnya waiting, invited, atau converted;
+- klasifikasi internal yang digunakan untuk mengelola proses whitelist.
 
-Situs ini dapat menggunakan cookie untuk fungsi dasar (seperti WordPress). Karena belum ada layanan analitik pihak ketiga yang aktif (lihat bagian Analitik di atas), saat ini belum ada banner persetujuan cookie yang ditampilkan kepada pengunjung. Apabila layanan analitik pihak ketiga diaktifkan di kemudian hari, banner persetujuan cookie perlu ditambahkan terlebih dahulu.
+Data tersebut digunakan untuk mengelola akses awal Bitmomo Pro, mengirim pembaruan yang Anda setujui, memahami secara agregat dari mana pendaftar menemukan Bitmomo, mencegah penyalahgunaan form, dan mengoperasikan proses Founding Membership.
 
-## Newsletter
+Mendaftar whitelist tidak otomatis membuat membership berbayar dan tidak menjamin tempat. Akses berbayar hanya aktif melalui proses aktivasi/pembayaran yang secara eksplisit diberitahukan kepada pengguna.
 
-Jika Anda mendaftar newsletter Bitmomo, alamat email Anda disimpan melalui Mailpoet untuk keperluan pengiriman konten yang Anda minta. Data Anda disimpan selama Anda tetap berlangganan dan tidak dibagikan ke layanan pengiriman email pihak ketiga di luar Mailpoet. Anda dapat berhenti berlangganan kapan saja melalui tautan unsubscribe di setiap email, dan data Anda akan dihapus dari daftar aktif setelah itu.
+## WhatsApp Jika Diaktifkan
 
-## Tautan Afiliasi
+Untuk Whitelist V1, form publik Bitmomo tidak meminta nomor WhatsApp secara default. Pendaftaran whitelist cukup menggunakan email, dan Bitmomo tidak mengumpulkan nomor WhatsApp baru melalui alur tersebut selama opsi WhatsApp tidak diaktifkan.
 
-Beberapa halaman Bitmomo, termasuk Analisis Bitcoin Hari Ini, berisi tautan afiliasi/referral ke layanan pihak ketiga (misalnya penyedia kartu/pembayaran crypto). Mengklik tautan ini akan membawa Anda ke situs pihak ketiga tersebut, yang memiliki kebijakan privasinya sendiri di luar kendali Bitmomo. Kami mencatat jumlah klik pada tombol CTA secara agregat (per hari, per tombol) melalui sistem internal kami sendiri — bukan melalui layanan pelacakan pihak ketiga — dan tidak mengaitkan klik tersebut dengan identitas pengunjung mana pun.
+Bitmomo dapat mengaktifkan opsi WhatsApp di kemudian hari setelah kanal notifikasi terkait siap digunakan dan diuji. Jika opsi tersebut ditampilkan dan Anda memilih menggunakannya, persetujuan WhatsApp bersifat terpisah dari persetujuan email. Dalam kondisi tersebut, Bitmomo dapat menyimpan nomor WhatsApp yang dinormalisasi dan waktu persetujuan WhatsApp untuk pemberitahuan penting terkait akses atau operasional Bitmomo Pro sesuai pilihan Anda.
 
-## Layanan Pihak Ketiga Lain
+## Newsletter dan Email
 
-Situs ini menggunakan Rank Math untuk SEO (metadata, sitemap) dan caching tingkat server dari penyedia hosting untuk mempercepat pemuatan halaman. Layanan-layanan ini pada dasarnya bersifat teknis dan tidak secara khusus dirancang untuk mengumpulkan data pribadi pengunjung.
+Jika Anda mendaftar newsletter atau Founding Whitelist, alamat email diproses melalui sistem WordPress/email yang digunakan Bitmomo untuk mengirim komunikasi yang diminta. MailPoet dapat digunakan sebagai backend newsletter. Bitmomo tidak menggunakan alamat email whitelist sebagai izin untuk mengirim komunikasi yang tidak berkaitan dengan persetujuan yang diberikan.
 
-## Hak Anda
+Jika email tertentu menyediakan tautan berhenti berlangganan, Anda dapat menggunakannya untuk menghentikan komunikasi terkait. Anda juga dapat menghubungi Bitmomo untuk meminta peninjauan atau penghapusan data yang berkaitan dengan Anda, dengan mempertimbangkan kewajiban operasional atau hukum yang mungkin berlaku.
 
-Anda dapat meminta informasi mengenai data yang kami simpan terkait Anda (misalnya status langganan newsletter), atau meminta data tersebut dihapus, dengan menghubungi kami melalui halaman [Tentang Kami](/tentang-kami/).
+## Analitik dan Telemetri Produk
+
+Bitmomo memiliki telemetri first-party untuk memahami penggunaan permukaan produk dan konversi secara agregat. Event analytics pada permukaan publik dirancang agar tidak memasukkan email, nama, nomor WhatsApp, user ID, atau identifier persisten ke payload analytics publik.
+
+Source, landing page, UTM, dan referrer yang secara eksplisit disimpan bersama record whitelist digunakan untuk atribusi pendaftaran dan berbeda dari payload analytics publik tersebut.
+
+Jika layanan analitik pihak ketiga diaktifkan di kemudian hari, kebijakan ini dan mekanisme consent yang relevan harus diperbarui sebelum penggunaannya bila diperlukan.
+
+## Cookie dan Penyimpanan Lokal
+
+WordPress dan komponen situs dapat menggunakan cookie atau penyimpanan browser untuk fungsi teknis seperti sesi, keamanan, autentikasi, atau preferensi. Layanan pihak ketiga yang Anda buka melalui tautan eksternal memiliki praktik cookie dan privasi mereka sendiri.
+
+## Tautan Afiliasi dan Situs Pihak Ketiga
+
+Sebagian halaman Bitmomo dapat memuat tautan afiliasi/referral ke layanan pihak ketiga. Jika Anda mengikuti tautan tersebut, Anda meninggalkan Bitmomo dan kebijakan privasi penyedia tujuan berlaku pada situs mereka. Hubungan afiliasi tidak mengubah batas data yang Bitmomo nyatakan di halaman ini.
+
+## Penyedia dan Infrastruktur Teknis
+
+Bitmomo menggunakan WordPress serta layanan hosting, email, caching/CDN, SEO, dan penyedia data pasar yang diperlukan untuk menjalankan situs dan produk. Penyedia tertentu dapat memproses informasi teknis yang diperlukan untuk memberikan layanannya. Bitmomo berupaya membatasi data yang dikirim ke setiap komponen sesuai fungsi yang dibutuhkan.
+
+Market Context BTC Intelligence, misalnya, mengambil data pasar melalui server Bitmomo dan tidak memerlukan browser pengunjung untuk menerima API key penyedia Gold.
+
+## Retensi
+
+Data whitelist disimpan selama diperlukan untuk mengoperasikan Founding Whitelist, komunikasi yang disetujui, pencatatan status akses, keamanan, dan kebutuhan operasional terkait. Retensi tidak boleh dipahami sebagai izin untuk menggunakan data tersebut untuk tujuan baru yang tidak sesuai dengan persetujuan awal.
+
+## Pilihan dan Permintaan Pengguna
+
+Anda dapat meminta informasi mengenai data yang berkaitan dengan Anda, memperbarui pilihan komunikasi, atau meminta penghapusan data yang memenuhi syarat dengan menghubungi Bitmomo melalui kanal kontak resmi yang tersedia di situs.
+
+## Keamanan
+
+Tidak ada sistem internet yang dapat dijamin sepenuhnya bebas risiko. Bitmomo menggunakan pembatasan akses, nonce/session validation, rate limiting, dan pemisahan antara data publik dan data yang dilindungi pada alur produk yang relevan. Jangan mengirimkan password, seed phrase, private key, atau informasi autentikasi wallet melalui form Bitmomo.
 
 ## Perubahan Kebijakan
 
-Kebijakan ini dapat diperbarui dari waktu ke waktu seiring perubahan layanan yang kami gunakan. Versi terbaru selalu tersedia di halaman ini.
+Kebijakan ini dapat diperbarui jika produk, penyedia, atau praktik pemrosesan data berubah. Versi yang berlaku harus dipublikasikan di halaman ini dan tanggal pembaruan dicantumkan pada saat publikasi.
 
-*Terakhir diperbarui: [ISI TANGGAL SAAT PUBLIKASI]*
+**Terakhir diperbarui: 14 September 2026**

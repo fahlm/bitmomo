@@ -37,7 +37,8 @@ final class Bitmomo_AI_Binance {
 
         $funding_ok = !is_wp_error($funding) && is_array($funding) && count($funding) >= 2;
         $premium_ok = !is_wp_error($premium) && is_array($premium);
-        $oi_ok = !is_wp_error($oi) && is_array($oi) && count($oi) >= 2;
+        // A 24H change from hourly observations requires 25 points (24 intervals).
+        $oi_ok = !is_wp_error($oi) && is_array($oi) && count($oi) >= 25;
         if (!$funding_ok) $funding = [];
         if (!$premium_ok) $premium = [];
         if (!$oi_ok) $oi = [];
@@ -82,8 +83,7 @@ final class Bitmomo_AI_Binance {
         $index = (float) ($premium['indexPrice'] ?? $close);
         $funding_values = array_map(function ($row) { return (float) ($row['fundingRate'] ?? 0); }, $funding);
         $oi_values = array_map(function ($row) { return (float) ($row['sumOpenInterestValue'] ?? 0); }, $oi);
-        $oi_first = $oi_ok ? reset($oi_values) : 0;
-        $oi_last = $oi_ok ? end($oi_values) : 0;
+        $oi_change_24h = $oi_ok ? self::percent_change_over_periods($oi_values, 24) : null;
         $long_short_last = $long_short_ok ? end($long_short) : [];
         $taker_last = $taker_ok ? end($taker) : [];
         $last_close_time = isset($last_1h[6]) ? (int) floor(((int) $last_1h[6]) / 1000) : time();
@@ -148,7 +148,7 @@ final class Bitmomo_AI_Binance {
                 'recent_low_1h' => $operational_1h['recent_low'],
             ],
             'crowding' => [
-                'oi_change_24h_pct' => $oi_first > 0 ? (($oi_last - $oi_first) / $oi_first) * 100 : null,
+                'oi_change_24h_pct' => $oi_change_24h,
                 'oi_zscore' => $oi_ok ? self::zscore_last($oi_values) : null,
                 'price_change_24h_pct' => $price_24h > 0 ? (($close - $price_24h) / $price_24h) * 100 : 0,
                 'global_long_short_ratio' => $long_short_ok ? (float) ($long_short_last['longShortRatio'] ?? 1) : null,
@@ -247,7 +247,7 @@ final class Bitmomo_AI_Binance {
         $funding = array_map(function ($row) { return ['fundingRate' => (float) ($row['fundingRate'] ?? 0), 'fundingTime' => (int) ($row['fundingRateTimestamp'] ?? 0)]; }, $funding_raw);
         usort($funding, function ($a, $b) { return $a['fundingTime'] <=> $b['fundingTime']; });
         $ticker = reset($ticker_raw);
-        $premium = ['markPrice' => (float) ($ticker['markPrice'] ?? 0), 'indexPrice' => (float) ($ticker['indexPrice'] ?? 0)];
+        $premium = ['markPrice' => (float) ($ticker['markPrice'] ?? 0), 'indexPrice' => (float) ($ticker['indexPrice'] ?? 0), 'time' => (int) ($ticker['_response_time'] ?? 0)];
         $oi = array_map(function ($row) { return ['sumOpenInterestValue' => (float) ($row['openInterest'] ?? 0), 'timestamp' => (int) ($row['timestamp'] ?? 0)]; }, $oi_raw);
         usort($oi, function ($a, $b) { return $a['timestamp'] <=> $b['timestamp']; });
         $long_short = array_map(function ($row) {
@@ -264,7 +264,16 @@ final class Bitmomo_AI_Binance {
         if ((int) ($response['retCode'] ?? -1) !== 0 || !isset($response['result']['list']) || !is_array($response['result']['list'])) {
             return new WP_Error('bybit_payload', __('Bybit returned invalid derivatives data.', 'bitmomo-ai'));
         }
-        return $response['result']['list'];
+        return self::attach_response_time($response['result']['list'], $response['time'] ?? 0);
+    }
+
+    private static function attach_response_time(array $rows, $timestamp) {
+        $timestamp = (int) $timestamp;
+        if ($timestamp <= 0) return $rows;
+        return array_map(function ($row) use ($timestamp) {
+            if (is_array($row) && !isset($row['_response_time'])) $row['_response_time'] = $timestamp;
+            return $row;
+        }, $rows);
     }
 
     private static function get($path, array $params) {
@@ -414,6 +423,16 @@ final class Bitmomo_AI_Binance {
     private static function volatility_regime(array $rows) {
         $p = self::range_percentile($rows);
         return $p >= 95 ? 'extreme' : ($p >= 75 ? 'high' : ($p <= 25 ? 'low' : 'normal'));
+    }
+
+    /** Exact percent change across N intervals requires N+1 observations. */
+    public static function percent_change_over_periods(array $values, $periods) {
+        $periods = max(1, (int) $periods);
+        if (count($values) < $periods + 1) return null;
+        $window = array_slice(array_values($values), -($periods + 1));
+        $first = (float) reset($window);
+        $last = (float) end($window);
+        return $first > 0 ? (($last - $first) / $first) * 100 : null;
     }
 
     private static function zscore_last(array $values) {

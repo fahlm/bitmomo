@@ -173,6 +173,11 @@ final class Bitmomo_AI_Session_Intelligence {
             'data' => $data,
             'evaluation' => $evaluation,
             'quality' => $evaluation['quality'] ?? [],
+            'quality_gate' => [
+                'status' => sanitize_key((string) ($gate['status'] ?? 'unknown')),
+                'critical_failures' => array_values(array_map('sanitize_key', (array) ($gate['critical_failures'] ?? []))),
+                'hard_blocked' => !empty($gate['hard_blocked']),
+            ],
             'edition' => $context['session_type'],
             'legacy_edition' => self::legacy_edition($context['session_type']),
         ];
@@ -223,6 +228,7 @@ final class Bitmomo_AI_Session_Intelligence {
             'why_it_matters' => array_slice((array) ($session['why_it_matters'] ?? []), 0, 2),
             'known_events' => array_slice((array) ($session['known_events'] ?? []), 0, 2),
             'what_to_watch' => array_slice((array) ($session['what_to_watch'] ?? []), 0, 2),
+            'opportunity' => is_array($session['opportunity'] ?? null) ? $session['opportunity'] : ['status' => 'unavailable'],
             'crypto_context' => is_array($session['crypto_context'] ?? null) ? $session['crypto_context'] : [],
             'tradfi_context' => is_array($session['tradfi_context'] ?? null) ? $session['tradfi_context'] : [],
             'bond_context' => null,
@@ -246,6 +252,7 @@ final class Bitmomo_AI_Session_Intelligence {
     private static function is_valid(array $record) {
         if (($record['canonical_status'] ?? 'valid') !== 'valid') return false;
         if (($record['provenance'] ?? '') !== 'recorded_live') return false;
+        if (class_exists('Bitmomo_AI_Runtime_State')) return Bitmomo_AI_Runtime_State::record_is_valid($record);
         $quality = (string) ($record['evaluation']['quality']['status'] ?? ($record['quality']['status'] ?? ''));
         return in_array($quality, ['complete', 'degraded'], true);
     }

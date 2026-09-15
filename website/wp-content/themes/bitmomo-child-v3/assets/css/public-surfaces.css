@@ -1,0 +1,297 @@
+/*
+ * Bitmomo generic public surfaces.
+ *
+ * Owns only shared container geometry, ordinary WordPress pages, generic
+ * archives and error surfaces. Homepage, article reading, Research Hub,
+ * header/footer chrome and product plugins each have their own named owner.
+ * Never use this file to patch those surfaces.
+ */
+
+html,
+body {
+  max-width: 100%;
+}
+
+img,
+svg,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Canonical public alignment grid. Surface-specific styles may narrow content,
+   but the outer page gutter always resolves through this primitive. */
+.bm-container {
+  box-sizing: border-box;
+  width: min(100%, var(--bm-shell-width));
+  max-width: var(--bm-shell-width);
+  margin-inline: auto;
+  padding-inline: var(--bm-shell-gutter);
+}
+
+.bm-public-main,
+.bm-product-surface,
+.bm-public-page,
+.bm-archive-v2 {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.bm-public-title,
+.bm-public-lead,
+.bm-public-body {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.bm-public-main {
+  min-height: 55vh;
+  background: var(--bm-bg);
+}
+
+.bm-product-surface { margin: 0; padding: 0; }
+
+/* ---------- Canonical ordinary-page / generic-archive heading ---------- */
+.bm-public-head {
+  margin: 0;
+  padding: 0 0 clamp(22px, 3vw, 34px);
+  border-bottom: 1px solid var(--bm-border);
+}
+
+.bm-public-eyebrow {
+  margin: 0 0 10px !important;
+  color: var(--bm-accent) !important;
+  font: 800 11px/1.3 var(--bm-font-mono) !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.bm-public-title {
+  max-width: 900px;
+  margin: 0 !important;
+  color: var(--bm-text) !important;
+  font-family: var(--bm-font-sans);
+  font-size: var(--bm-type-page-title) !important;
+  font-weight: 800 !important;
+  line-height: var(--bm-leading-tight) !important;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+
+.bm-public-lead {
+  max-width: 760px;
+  margin: 16px 0 0 !important;
+  color: var(--bm-text-muted) !important;
+  font-size: clamp(15px, 1.7vw, 18px) !important;
+  line-height: var(--bm-leading-body) !important;
+  text-wrap: pretty;
+}
+
+.bm-public-lead p { margin: 0; }
+
+/* ---------- Ordinary pages: About / Privacy / Disclaimer / Terms ---------- */
+.bm-public-page {
+  padding: clamp(46px, 7vw, 86px) var(--bm-shell-gutter) clamp(64px, 8vw, 104px);
+}
+
+.bm-public-page__inner {
+  width: min(100%, var(--bm-reading-wide));
+  margin: 0 auto;
+}
+
+.bm-public-head--page { padding-top: 0; }
+
+.bm-public-body {
+  padding-top: clamp(26px, 4vw, 42px);
+  color: var(--bm-text-secondary);
+  font-family: var(--bm-font-sans);
+  font-size: var(--bm-type-body);
+  line-height: var(--bm-leading-prose);
+}
+
+.bm-public-body > *:first-child { margin-top: 0; }
+.bm-public-body > *:last-child { margin-bottom: 0; }
+
+.bm-public-body h2,
+.bm-public-body h3,
+.bm-public-body h4 {
+  color: var(--bm-text);
+  font-family: var(--bm-font-sans);
+  line-height: 1.25;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+}
+
+.bm-public-body h2 {
+  margin: 42px 0 14px;
+  font-size: var(--bm-type-section-title);
+}
+
+.bm-public-body h3 {
+  margin: 30px 0 10px;
+  font-size: var(--bm-type-subsection-title);
+}
+
+.bm-public-body p,
+.bm-public-body ul,
+.bm-public-body ol { margin: 0 0 18px; }
+
+.bm-public-body li + li { margin-top: 8px; }
+
+.bm-public-body a {
+  color: var(--bm-link);
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--bm-accent-rgb), .55);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.bm-public-body a:hover,
+.bm-public-body a:focus-visible {
+  color: var(--bm-link-hover);
+  text-decoration-color: currentColor;
+}
+
+.bm-public-body hr {
+  margin: 38px 0;
+  border: 0;
+  border-top: 1px solid var(--bm-border);
+}
+
+.bm-public-body blockquote {
+  margin: 30px 0;
+  padding: 16px 20px;
+  border-left: 3px solid var(--bm-accent);
+  background: rgba(var(--bm-accent-rgb), .06);
+  color: var(--bm-text);
+}
+
+/* ---------- Generic archives (Research Hub has its own research.css) ---------- */
+.bm-archive-v2 {
+  padding: clamp(44px, 6vw, 78px) 0 clamp(68px, 8vw, 104px);
+}
+
+.bm-archive-v2 .bm-container { max-width: var(--bm-shell-width); }
+.bm-public-head--archive { margin-bottom: clamp(30px, 4.5vw, 50px); }
+.bm-cards--research { align-items: stretch; }
+
+.bm-cards--research .bm-card {
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--bm-border);
+  border-radius: var(--bm-radius-lg);
+  background: var(--bm-bg-elevated);
+  transition: border-color .18s ease, transform .18s ease;
+}
+
+.bm-cards--research .bm-card:hover {
+  border-color: rgba(var(--bm-accent-rgb), .34);
+  transform: translateY(-2px);
+}
+
+.bm-cards--research .bm-card-art {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.bm-cards--research .bm-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bm-cards--research .bm-card-title,
+.bm-cards--research .bm-card-text {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.bm-cards--research .bm-card-title { margin-top: 18px; }
+.bm-cards--research .bm-card-text { padding-bottom: 20px; }
+.bm-pagination--v2 { margin-top: clamp(34px, 5vw, 54px); }
+
+.bm-public-empty {
+  max-width: 680px;
+  padding: 28px;
+  border: 1px solid var(--bm-border);
+  border-radius: var(--bm-radius-lg);
+  background: var(--bm-bg-elevated);
+}
+
+.bm-public-empty h2 {
+  margin: 0 0 8px;
+  color: var(--bm-text);
+  font-size: 22px;
+}
+
+.bm-public-empty p { margin: 0; color: var(--bm-text-muted); }
+
+/* Kill giant legacy archive hero spacing if an old generic route survives. */
+.bm-page-head,
+.bm-archive-head {
+  padding: 48px var(--bm-shell-gutter) 30px !important;
+  background: var(--bm-bg) !important;
+}
+
+/* ---------- 404 ---------- */
+.bm-public-page--error .bm-public-head { border-bottom: 0; }
+
+.bm-public-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+/* Generic/product navigation buttons use the product accent. Commercial amber
+   is reserved for Pro/Founding actions owned by their dedicated surfaces. */
+.bm-public-button {
+  display: inline-flex;
+  min-height: var(--bm-touch-target-mobile);
+  align-items: center;
+  padding: 11px 18px;
+  border-radius: var(--bm-radius-md);
+  background: var(--bm-accent);
+  color: #08111a !important;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.bm-public-button:hover,
+.bm-public-button:focus-visible { background: var(--bm-accent-hover); }
+.bm-public-link { font-weight: 700; }
+
+@media (max-width: 900px) {
+  .bm-container { padding-inline: var(--bm-shell-gutter-tablet); }
+  .bm-public-page { padding-inline: var(--bm-shell-gutter-tablet); }
+}
+
+@media (max-width: 640px) {
+  .bm-container { padding-inline: var(--bm-shell-gutter-mobile); }
+  .bm-public-page { padding: 36px var(--bm-shell-gutter-mobile) 64px; }
+  .bm-archive-v2 { padding: 36px 0 64px; }
+  .bm-public-title { font-size: clamp(32px, 10vw, 44px) !important; }
+  .bm-public-head--archive { margin-bottom: 28px; }
+  .bm-public-body { padding-top: 24px; font-size: 16px; }
+}
+
+@media (max-width: 390px) {
+  .bm-public-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .bm-public-button {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-cards--research .bm-card { transition: none; }
+}

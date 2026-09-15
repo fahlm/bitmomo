@@ -12,7 +12,42 @@ Before changing code, read [`docs/ENGINEERING_OPERATING_MODEL.md`](docs/ENGINEER
 4. Branch from `main` unless your change has a real code dependency on an unmerged PR.
 5. Open a **draft PR early** using the repository PR template.
 6. Keep one PR focused on one reviewable outcome.
-7. Mark it Ready for review only when the change is frozen enough to justify CI/reviewer attention.
+7. Run the local source preflight while the PR is still draft.
+8. Mark it Ready for review only when the change is frozen enough to justify CI/reviewer attention.
+
+## Local-first validation
+
+GitHub-hosted CI is an authoritative gate, not the first place to discover routine source failures.
+
+During normal iteration run:
+
+```bash
+bash scripts/preflight-source.sh fast
+```
+
+Before a PR is marked Ready for review run:
+
+```bash
+bash scripts/preflight-source.sh full
+```
+
+`fast` performs deterministic syntax, lint, CI-governance, architecture, copy, UI-source, navigation, research-boundary, institutional design, and CSS-debt checks. `full` adds every supported deterministic PHP test suite for the managed plugins.
+
+The local preflight deliberately does **not** build a production artifact, run staging/browser acceptance, access production, or authorize a release. Those remain separate release gates. Do not mark a draft PR Ready merely to obtain basic lint/test feedback that can be produced locally.
+
+### Hosted-runner budget rule
+
+Draft means **zero intentional GitHub-hosted validation work**. Theme, Authority, Regime and CI Governance jobs must remain draft-guarded; local preflight is the feedback loop while code is moving.
+
+For an ordinary focused PR, run local `full`, freeze the head, then mark Ready once for its path-scoped authoritative confirmation.
+
+For a long-lived canonical release PR, keep it Draft during every mutation **and during candidate validation**. Do not mark it Ready merely to trigger cumulative Theme/Authority/Regime checks before Full Release; Full Release already runs the complete deterministic suites and source contracts against the exact frozen SHA. Record the candidate SHA in the release PR, run Full Release once, then move to exact-artifact staging acceptance. Mark the canonical release PR Ready only when it is genuinely ready for final review/merge, not as a CI trigger.
+
+If any defect appears after a candidate is frozen, revoke that SHA before mutation, keep the release PR Draft, fix through one focused PR, and freeze a new candidate only after the focused fix is complete.
+
+Do not rerun a failed workflow blindly. First classify the failure as source/test, runner/platform, external dependency, or release-identity failure; fix the cause, then spend one deliberate rerun if evidence is still required.
+
+Full Release and browser acceptance are expensive gates. Run Full Release once per exact frozen candidate, and run browser acceptance only against the exact artifact deployed to canonical staging (or an explicitly chosen production audit), never on a timer during pre-production hardening.
 
 ## Branch naming
 
@@ -38,6 +73,8 @@ A PR may target another branch only when it truly requires code that is not yet 
 - keep the stack shallow (normally no more than 2 dependent layers);
 - do not create a release candidate on top of an arbitrary component branch;
 - once the parent merges, promptly rebase/retarget the child to `main`.
+
+A focused repair for an already declared release may target that canonical release branch only when the release ledger explicitly requires it. This does not create a second release authority.
 
 ## PR hygiene
 
