@@ -1,8 +1,82 @@
 <?php
 /** Shared site footer for Bitmomo. @package Bitmomo */
+
 $bm_social_links = function_exists( 'bitmomo_public_social_links' ) ? bitmomo_public_social_links() : array();
 $bm_terms_page   = get_page_by_path( 'syarat-layanan', OBJECT, 'page' );
 $bm_terms_url    = ( $bm_terms_page && 'publish' === $bm_terms_page->post_status ) ? get_permalink( $bm_terms_page ) : '';
+
+/*
+ * Footer information architecture is source-owned and deterministic. Keep
+ * visitor-facing navigation here instead of depending on mutable WordPress menu
+ * state so release review can validate every public destination.
+ */
+$bm_footer_groups = array(
+  array(
+    'label' => __( 'PRODUK', 'bitmomo' ),
+    'aria'  => __( 'Produk', 'bitmomo' ),
+    'links' => array(
+      array(
+        'label' => __( 'BTC Intelligence', 'bitmomo' ),
+        'url'   => home_url( '/btc-intelligence/' ),
+      ),
+      array(
+        'label' => __( 'Bitmomo Pro', 'bitmomo' ),
+        'url'   => home_url( '/pro/' ),
+      ),
+      array(
+        'label' => __( 'Methodology & Track Record', 'bitmomo' ),
+        'url'   => home_url( '/btc-intelligence/#decision-ledger' ),
+      ),
+    ),
+  ),
+  array(
+    'label' => __( 'RESEARCH', 'bitmomo' ),
+    'aria'  => __( 'Research', 'bitmomo' ),
+    'links' => array(
+      array(
+        'label' => __( 'Market Research', 'bitmomo' ),
+        'url'   => home_url( '/category/riset/' ),
+      ),
+      array(
+        'label' => __( 'AI Research', 'bitmomo' ),
+        'url'   => add_query_arg( 'focus', 'systems', home_url( '/category/riset/' ) ),
+      ),
+      array(
+        'label' => __( 'Research Standard', 'bitmomo' ),
+        'url'   => home_url( '/category/riset/#research-standard' ),
+      ),
+    ),
+  ),
+  array(
+    'label' => __( 'BITMOMO', 'bitmomo' ),
+    'aria'  => __( 'Bitmomo', 'bitmomo' ),
+    'links' => array(
+      array(
+        'label' => __( 'Tentang Bitmomo', 'bitmomo' ),
+        'url'   => home_url( '/tentang-kami/' ),
+      ),
+      array(
+        'label' => __( 'Help Center', 'bitmomo' ),
+        'url'   => home_url( '/help/' ),
+      ),
+    ),
+  ),
+);
+
+$bm_footer_principles = array(
+  array(
+    'label' => __( 'EVIDENCE FIRST', 'bitmomo' ),
+    'text'  => __( 'Market context dibangun dari data yang lolos quality gate.', 'bitmomo' ),
+  ),
+  array(
+    'label' => __( 'TESTABLE RESEARCH', 'bitmomo' ),
+    'text'  => __( 'AI systems diperlakukan sebagai sistem yang harus diuji, bukan klaim.', 'bitmomo' ),
+  ),
+  array(
+    'label' => __( 'FAIL CLOSED', 'bitmomo' ),
+    'text'  => __( 'Data stale atau invalid tidak ditampilkan sebagai intelligence terkini.', 'bitmomo' ),
+  ),
+);
 
 /*
  * Newsletter is a free retention surface, independent from the commercial
@@ -19,10 +93,19 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
 ?>
 <footer class="bm-footer">
   <div class="bm-container">
+    <section class="bm-footer-principles" aria-label="<?php esc_attr_e( 'Prinsip operasional Bitmomo', 'bitmomo' ); ?>">
+      <?php foreach ( $bm_footer_principles as $bm_footer_principle ) : ?>
+        <div class="bm-footer-principle">
+          <span><?php echo esc_html( $bm_footer_principle['label'] ); ?></span>
+          <p><?php echo esc_html( $bm_footer_principle['text'] ); ?></p>
+        </div>
+      <?php endforeach; ?>
+    </section>
+
     <div class="bm-footer-grid">
       <div class="bm-footer-brand">
         <?php bitmomo_render_brand(); ?>
-        <p><?php esc_html_e( 'Market intelligence BTC untuk memahami kondisi, skenario, dan rekam jejak keputusan.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Market intelligence BTC dan riset AI untuk memahami kondisi pasar, menguji thesis, dan menilai rekam jejak keputusan.', 'bitmomo' ); ?></p>
 
         <?php if ( $bm_social_links ) : ?>
           <nav class="bm-footer-social" aria-label="<?php esc_attr_e( 'Kanal resmi Bitmomo', 'bitmomo' ); ?>">
@@ -36,32 +119,21 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
         <?php endif; ?>
       </div>
 
-      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Produk', 'bitmomo' ); ?>">
-        <strong><?php esc_html_e( 'PRODUK', 'bitmomo' ); ?></strong>
-        <a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>"><?php esc_html_e( 'BTC Intelligence', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>"><?php esc_html_e( 'Decision Ledger', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Bitmomo Pro', 'bitmomo' ); ?></a>
-      </nav>
-
-      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Research', 'bitmomo' ); ?>">
-        <strong><?php esc_html_e( 'RESEARCH', 'bitmomo' ); ?></strong>
-        <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Market Research', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( add_query_arg( 'focus', 'systems', home_url( '/category/riset/' ) ) ); ?>"><?php esc_html_e( 'Intelligence Systems', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( home_url( '/category/riset/#research-standard' ) ); ?>"><?php esc_html_e( 'Research Standard', 'bitmomo' ); ?></a>
-      </nav>
-
-      <nav class="bm-footer-group" aria-label="<?php esc_attr_e( 'Bitmomo', 'bitmomo' ); ?>">
-        <strong><?php esc_html_e( 'BITMOMO', 'bitmomo' ); ?></strong>
-        <a href="<?php echo esc_url( home_url( '/tentang-kami/' ) ); ?>"><?php esc_html_e( 'Tentang Bitmomo', 'bitmomo' ); ?></a>
-        <a href="<?php echo esc_url( home_url( '/help/' ) ); ?>"><?php esc_html_e( 'Help Center', 'bitmomo' ); ?></a>
-      </nav>
+      <?php foreach ( $bm_footer_groups as $bm_footer_group ) : ?>
+        <nav class="bm-footer-group" aria-label="<?php echo esc_attr( $bm_footer_group['aria'] ); ?>">
+          <strong><?php echo esc_html( $bm_footer_group['label'] ); ?></strong>
+          <?php foreach ( $bm_footer_group['links'] as $bm_footer_link ) : ?>
+            <a href="<?php echo esc_url( $bm_footer_link['url'] ); ?>"><?php echo esc_html( $bm_footer_link['label'] ); ?></a>
+          <?php endforeach; ?>
+        </nav>
+      <?php endforeach; ?>
     </div>
 
     <div id="newsletter" class="bm-footer-newsletter-anchor">
       <section class="bm-footer-newsletter<?php echo $bm_newsletter_available ? '' : ' is-paused'; ?>" aria-labelledby="bm-footer-newsletter-title">
         <div class="bm-footer-newsletter__copy">
-          <span><?php esc_html_e( 'BITMOMO BRIEF', 'bitmomo' ); ?></span>
-          <h2 id="bm-footer-newsletter-title"><?php esc_html_e( 'BTC intelligence dan riset terbaru, langsung ke inbox.', 'bitmomo' ); ?></h2>
+          <span><?php esc_html_e( 'BITMOMO BRIEF · GRATIS', 'bitmomo' ); ?></span>
+          <h2 id="bm-footer-newsletter-title"><?php esc_html_e( 'BTC intelligence dan riset terbaru, tanpa noise yang tidak perlu.', 'bitmomo' ); ?></h2>
           <p><?php esc_html_e( 'Newsletter gratis dan terpisah dari Founding Whitelist. Berhenti berlangganan kapan saja.', 'bitmomo' ); ?></p>
         </div>
         <?php if ( $bm_newsletter_available ) : ?>
@@ -80,7 +152,7 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
     <div class="bm-footer-bottom">
       <div class="bm-footer-bottom__identity">
         <p>&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> Bitmomo.</p>
-        <p><?php esc_html_e( 'Market intelligence; bukan rekomendasi beli/jual atau nasihat keuangan.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Untuk riset dan edukasi; bukan rekomendasi beli/jual atau nasihat keuangan.', 'bitmomo' ); ?></p>
       </div>
 
       <nav class="bm-footer-legal" aria-label="<?php esc_attr_e( 'Legal', 'bitmomo' ); ?>">
@@ -94,7 +166,23 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
   </div>
 </footer>
 
-<?php unset( $bm_social_links, $bm_social_key, $bm_social, $bm_terms_page, $bm_terms_url, $bm_newsletter_default_id, $bm_newsletter_form_id, $bm_newsletter_available ); ?>
+<?php
+unset(
+  $bm_social_links,
+  $bm_social_key,
+  $bm_social,
+  $bm_terms_page,
+  $bm_terms_url,
+  $bm_footer_groups,
+  $bm_footer_group,
+  $bm_footer_link,
+  $bm_footer_principles,
+  $bm_footer_principle,
+  $bm_newsletter_default_id,
+  $bm_newsletter_form_id,
+  $bm_newsletter_available
+);
+?>
 <?php wp_footer(); ?>
 </body>
 </html>
