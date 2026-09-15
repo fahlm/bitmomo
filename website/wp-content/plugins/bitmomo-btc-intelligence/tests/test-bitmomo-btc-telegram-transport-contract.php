@@ -41,6 +41,12 @@ check_telegram_transport_contract(
 	false === Bitmomo_Btc_Telegram_Transport::configured()
 );
 
+$preflight = Bitmomo_Btc_Telegram_Transport::preflight();
+check_telegram_transport_contract(
+	'Preflight fails closed while delivery is disabled',
+	is_array( $preflight ) && false === $preflight['ok'] && 'disabled' === $preflight['status']
+);
+
 $result = Bitmomo_Btc_Telegram_Transport::send_current_brief();
 check_telegram_transport_contract(
 	'Disabled transport fails closed before any HTTP call',
@@ -53,6 +59,12 @@ check_telegram_transport_contract(
 	is_array( $identity ) && false === $identity['ok'] && 'disabled' === $identity['status']
 );
 
+$channel = Bitmomo_Btc_Telegram_Transport::verify_channel_access();
+check_telegram_transport_contract(
+	'Channel access verification fails closed while disabled',
+	is_array( $channel ) && false === $channel['ok'] && 'disabled' === $channel['status']
+);
+
 check_telegram_transport_contract(
 	'Bot token is read only from the runtime constant',
 	false !== strpos( $source, "BITMOMO_TELEGRAM_BOT_TOKEN" )
@@ -61,11 +73,22 @@ check_telegram_transport_contract(
 );
 
 check_telegram_transport_contract(
-	'Every live send verifies token identity before sendMessage',
+	'Live preflight verifies token identity and channel membership before sendMessage',
 	false !== strpos( $source, '/getMe' )
-		&& false !== strpos( $source, 'verify_bot_identity()' )
+		&& false !== strpos( $source, '/getChatMember' )
+		&& false !== strpos( $source, "'can_post_messages'" )
+		&& false !== strpos( $source, 'preflight()' )
 		&& false !== strpos( $source, "'bot_identity_mismatch'" )
-		&& strpos( $source, 'verify_bot_identity()' ) < strrpos( $source, '/sendMessage' )
+		&& false !== strpos( $source, "'channel_post_permission_missing'" )
+		&& strpos( $source, 'preflight()' ) < strrpos( $source, '/sendMessage' )
+);
+
+check_telegram_transport_contract(
+	'Duplicate canonical brief guard is persisted only as a non-secret message hash',
+	'bitmomo_btc_telegram_last_sent_hash' === Bitmomo_Btc_Telegram_Transport::LAST_SENT_HASH_OPTION
+		&& false !== strpos( $source, "hash( 'sha256'" )
+		&& false !== strpos( $source, "'duplicate_brief'" )
+		&& false !== strpos( $source, 'hash_equals' )
 );
 
 check_telegram_transport_contract(
