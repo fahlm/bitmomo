@@ -33,6 +33,7 @@ const single = read('website/wp-content/themes/bitmomo-child-v3/single.php');
 const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/design-system.css');
 const navCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/navigation-footer.css');
 const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
+const homeShowFirst = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home-show-first.css');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
 const aiMain = read('website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php');
 const keyDrivers = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-key-drivers.php');
@@ -65,7 +66,9 @@ check('Institutional homepage layer exists, is loaded, and is runtime-required',
   assets.includes("'bitmomo-home'") &&
   runtime.includes('"assets/css/home.css"') &&
   homeCss.includes('.bm-home-hero') && homeCss.includes('.bm-home-reading') &&
-  homeCss.includes('.bm-home-proof') && homeCss.includes('.bm-home-research')
+  homeCss.includes('.bm-home-proof') && homeCss.includes('.bm-home-research') &&
+  fs.existsSync(path.join(theme, 'assets/css/home-show-first.css')) &&
+  assets.includes('assets/css/home-show-first.css') && homeShowFirst.includes('.bm-home-proof-example')
 );
 
 const customCss = path.join(theme, 'custom.css');
@@ -76,19 +79,23 @@ check('Legacy custom.css is byte-frozen rather than merely size-capped', customG
 const themePhp = walk(theme).filter((file) => file.endsWith('.php'));
 const inlineStyleOwners = themePhp.filter((file) => /<style\b/i.test(fs.readFileSync(file, 'utf8')));
 check('Theme templates contain no ad-hoc inline <style> ownership', inlineStyleOwners.length === 0);
-check('Homepage hero has no private breakpoint/style island', !/<style\b/i.test(hero) && !hero.includes('Decision View'));
-check('Homepage is product-first and exposes accountability proof before commitment',
+check('Homepage hero has no private breakpoint/style island', !/<style\b/i.test(hero));
+check('Homepage is product-first and exposes real delayed proof before commitment',
   hero.includes('Buka BTC Intelligence') &&
-  hero.includes('/btc-intelligence/#decision-ledger') &&
-  hero.includes('PUBLIC LEDGER') &&
-  hero.includes('href="#founding-whitelist"') &&
-  hero.indexOf('/btc-intelligence/#decision-ledger') < hero.indexOf('href="#founding-whitelist"')
+  hero.includes('Bitmomo_Btc_Intelligence_Accountability::delayed_proof( 1 )') &&
+  hero.includes('id="home-proof"') &&
+  hero.includes("$bm_proof_row ? '#home-proof'") &&
+  hero.includes('RECORDED BEFORE OUTCOME') &&
+  hero.includes('Arsip ≥48 jam · bukan guidance saat ini') &&
+  !hero.includes('href="#founding-whitelist"')
 );
-check('Homepage market view exposes finance-grade context without engine internals',
+check('Homepage market view exposes finance-grade decision context without raw engine internals',
   hero.includes('>BTC MARKET VIEW<') && hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') &&
-  hero.includes('>REFERENSI BTC<') && hero.includes('>DIPERBARUI<') && hero.includes('>FAKTOR UTAMA<') &&
-  hero.includes('<strong>SUMBER DATA</strong>') &&
-  !/market_state|market_state_certainty|direction_strength|Bitmomo_Public_Intelligence_Adapter::history/.test(hero)
+  hero.includes('>REFERENSI BTC<') && hero.includes('>MARKET PULSE<') && hero.includes('>DIPERBARUI<') &&
+  hero.includes('>APA YANG BERUBAH<') && hero.includes('>MENGAPA PENTING<') && hero.includes('>PANTAU BERIKUTNYA<') &&
+  hero.includes('>FAKTOR UTAMA<') && hero.includes('<strong>SUMBER DATA</strong>') &&
+  !/\$bm_snapshot\s*\[[^\]]*market_state/.test(hero) &&
+  !/market_state_certainty|Bitmomo_Public_Intelligence_Adapter::history/.test(hero)
 );
 check('Homepage delayed snapshot is transparent but cannot masquerade as current intelligence',
   hero.includes("$bm_snapshot_available = is_array( $bm_snapshot ) && in_array( $bm_status, array( 'fresh', 'delayed' ), true );") &&
@@ -98,12 +105,13 @@ check('Homepage delayed snapshot is transparent but cannot masquerade as current
   hero.includes("$bm_confidence = $bm_current_available") &&
   hero.includes("$bm_price = $bm_current_available") &&
   hero.includes("$bm_drivers = $bm_current_available") &&
-  hero.includes('Observasi terverifikasi terakhir.') &&
+  hero.includes("$bm_status_label = $bm_delayed ? 'DATA TERTUNDA'") &&
   hero.includes('Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.')
 );
-check('Homepage public copy avoids non-institutional legacy language',
+check('Homepage public copy stays concise, institutional and probability-safe',
   !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b/i.test(hero) &&
-  hero.includes('Konsistensi bukti pendukung; bukan probabilitas pergerakan harga.')
+  hero.includes('Bukti pendukung, bukan probabilitas arah harga.') &&
+  hero.includes('BUKAN SINYAL BELI/JUAL')
 );
 check('Dynamic market factors use concise professional market language',
   keyDrivers.includes('Momentum harga menunjukkan tekanan bearish yang kuat.') &&
@@ -111,19 +119,21 @@ check('Dynamic market factors use concise professional market language',
   keyDrivers.includes('Struktur harga mencatat breakdown di bawah level teknikal utama.') &&
   !/cukup kuat ke arah|mendukung arah naik|tekanan ke arah turun|menembus level penting/i.test(keyDrivers)
 );
-check('Homepage product model follows the visitor lifecycle without reverting to pipeline jargon',
-  howItWorks.includes('01 · UNDERSTAND NOW') &&
-  howItWorks.includes('02 · MAP WHAT CHANGES') &&
-  howItWorks.includes('03 · AUDIT THE RESULT') &&
-  howItWorks.includes('BTC Intelligence merangkum kondisi, perubahan material, maknanya, dan satu konteks pantauan') &&
-  howItWorks.includes('Bitmomo Pro menambahkan monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis') &&
-  howItWorks.includes('Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.') &&
-  !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
+check('Homepage product model exposes the full visitor lifecycle without engine jargon',
+  howItWorks.includes('NOW · BTC INTELLIGENCE') &&
+  howItWorks.includes('NEXT · BITMOMO PRO') &&
+  howItWorks.includes('AFTER · ACCOUNTABILITY') &&
+  howItWorks.includes('Bias') && howItWorks.includes('Market Pulse') && howItWorks.includes('What Changed') &&
+  howItWorks.includes('Expected Range') && howItWorks.includes('Base / Bull / Bear') && howItWorks.includes('Invalidation') &&
+  howItWorks.includes('Frozen Thesis') && howItWorks.includes('+24H Outcome') && howItWorks.includes('Track Record') &&
+  !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b/i.test(howItWorks)
 );
 check('Homepage founding surface uses restrained commercial language',
   whitelistHome.includes('Founding Price') &&
   whitelistHome.includes('AKTIFKAN FOUNDING MEMBERSHIP') &&
-  !/Harga Founding|KUNCI HARGA FOUNDING|\binvalidation\b/i.test(whitelistHome)
+  whitelistHome.includes('Tidak ada pembayaran pada tahap whitelist') &&
+  whitelistHome.includes('/pro/#pro-example') &&
+  !/Harga Founding|KUNCI HARGA FOUNDING|lifetime/i.test(whitelistHome)
 );
 check('Research and article surfaces use natural Indonesian explanatory copy',
   researchHub.includes('Judul, tesis, topik…') &&
