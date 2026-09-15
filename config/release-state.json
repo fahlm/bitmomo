@@ -12,7 +12,7 @@
     "id": 10414093076,
     "name": "bitmomo-runtime-c33d128d5681909337ffc8b0811647012532fe9e",
     "zip_sha256": "632a4ea567f0bd1902d5267abeea32b5c8950a909bf4d17333ad662078913b1b",
-    "runtime_tar_sha256": "e0cce650571fe510643bf371eb12d62898b715c6ce3",
+    "runtime_tar_sha256": "e0cce650571fe510643bf371eb12f202e60a282dc26291f12d62898b715c6ce3",
     "managed_runtime_files": 118
   },
   "staging": {
