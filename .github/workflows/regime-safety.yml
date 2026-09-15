@@ -30,13 +30,19 @@ jobs:
       - name: Show PHP version
         run: php --version
 
-      - name: Lint plugin PHP
+      - name: Lint AI and Regime PHP
         shell: bash
         run: |
           set -euo pipefail
-          plugin_dir="website/wp-content/plugins/bitmomo-regime"
-          test -d "${plugin_dir}"
-          find "${plugin_dir}" -type f -name '*.php' -print0 \
+          roots=(
+            website/wp-content/plugins/bitmomo-ai
+            website/wp-content/plugins/bitmomo-regime
+          )
+          for plugin_dir in "${roots[@]}"; do
+            test -d "${plugin_dir}"
+          done
+          find "${roots[@]}" -type f -name '*.php' -print0 \
+            | sort -z \
             | xargs -0 -n1 php -l
 
       - name: Run deterministic classifier suite
@@ -76,6 +82,10 @@ jobs:
       - name: Run public intelligence adapter suite
         working-directory: website/wp-content/plugins/bitmomo-ai
         run: php tests/test-bitmomo-public-intelligence-adapter.php
+
+      - name: Run public clock and trust boundary suite
+        working-directory: website/wp-content/plugins/bitmomo-ai
+        run: php tests/test-bitmomo-public-clock-trust-boundary.php
 
       - name: Run runtime adapter suite
         working-directory: website/wp-content/plugins/bitmomo-regime

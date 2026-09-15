@@ -301,7 +301,9 @@ final class Bitmomo_AI_Plugin {
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_assets']);
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_assets']);
         Bitmomo_AI_Webhook::register();
-        Bitmomo_AI_Opportunity::register();
+        if (defined('BITMOMO_AI_OPPORTUNITY_ENABLED') && BITMOMO_AI_OPPORTUNITY_ENABLED) {
+            Bitmomo_AI_Opportunity::register();
+        }
         Bitmomo_AI_Scheduler::register();
         Bitmomo_AI_Shortcodes::register();
         Bitmomo_AI_Editorial_Gate::register();
