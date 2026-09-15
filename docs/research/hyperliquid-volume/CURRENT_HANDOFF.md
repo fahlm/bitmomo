@@ -3,40 +3,97 @@
 Last updated: 2026-09-15
 
 Canonical branch: `research/hyperliquid-referral-volume-v0`
-Local research project: `~/bitmomo-hl-volume-bot`
+Local research project historically used: `~/bitmomo-hl-volume-bot`
 
-## Objective
+## Canonical mission
 
-With approximately $100 USDC, research a legitimate Hyperliquid execution/trading approach that can reach the $10,000 genuine-volume requirement at the lowest practical expected cost, ideally with positive expectancy. No wash trading, self-trading, spoofing, layering, fake liquidity, or artificial-volume behavior.
+Build a 24/7 autonomous Hyperliquid market-selection and execution-supervision engine.
 
-## Stable conclusions
+The final system must **not** depend on a human choosing coins or repeatedly running per-coin commands. It must continuously:
 
-- HH/HL/BOS/retest directional strategies failed OOS after fees.
-- Fade/opposite-direction variant failed a second untouched holdout.
-- Candle-level order-flow proxy did not produce meaningful fee-adjusted edge.
-- Strongest information feature remains 3/3 microstructure alignment: book imbalance + microprice edge + aggressor trade flow.
-- The dominant unresolved problem is execution economics / adverse selection of passive JOIN fills.
+1. discover the Hyperliquid perpetual universe;
+2. cheaply prefilter liquid markets;
+3. subscribe to live L2/trade data for the current watch set;
+4. screen every watched market using frozen structural + execution-economics rules;
+5. rank only markets that actually qualify;
+6. keep at most one active trading market;
+7. stop new entries when the active market deteriorates;
+8. drain/flatten before a switch once real inventory exists;
+9. switch only to a stably qualified replacement;
+10. remain IDLE when no market is good enough;
+11. repeat discovery/screening/ranking indefinitely.
 
-## Frozen VVV holdout
+Research scripts/captures are a laboratory for finding a valid execution policy. They are **not** the intended operating model.
 
-Earlier frozen unseen 8h VVV policy (IMP1 entry/exit, $100, 3/3 signal) failed:
+## Autonomous Runtime V0 — IMPLEMENTED IN SHADOW MODE
 
-- RT 94
-- fill 16.2%
-- maker 76.1%
-- T10K 4.3h
-- P10K -$6.42
-- max DD $12.07
+Canonical architecture doc:
 
-State-aware exit diagnostics on the now-SEEN data improved only slightly. Exit tuning alone did not solve the problem.
+`docs/research/hyperliquid-volume/AUTONOMOUS_RUNTIME_V0.md`
 
-## Selector architecture
+New implementation:
 
-Deterministic fail-closed stack:
+- `market_selector/universe.py` — dynamic universe discovery, top-volume scan set, retention buffer, pinned active/pending markets;
+- `market_selector/autonomous_runtime.py` — one-process 24/7 dynamic scanner/supervisor using a shared public websocket;
+- `market_selector/runtime_state.py` — atomic status persistence and fail-closed restart semantics;
+- `run_autonomous_shadow.sh` — one-command launcher;
+- `ops/bitmomo-hl-shadow.service.example` — systemd example with automatic restart;
+- `tests/test_universe.py`;
+- `tests/test_runtime_state.py`.
 
-`Market Observer -> Eligibility Engine -> Market Ranker -> Supervisor`
+CI workflow `hyperliquid-research-selector.yml` now runs the complete `research/hyperliquid-volume/tests` suite rather than a partial test list.
 
-Frozen Session 3 research gates included:
+### Runtime behavior
+
+Default autonomous shadow runtime:
+
+- dynamic scan set: top 24 markets by 24h notional volume;
+- cheap minimum-volume gate: current selector threshold ($10M/day);
+- retention buffer: 8 volume ranks to reduce subscription churn;
+- universe rediscovery: every 300 seconds;
+- one shared Hyperliquid public websocket;
+- per-market MarketObserver pool;
+- standardized shadow probe on all watched markets to accumulate execution evidence;
+- fail-closed eligibility + ranker + MarketSupervisor;
+- automatic reconnect on whole-feed stale condition;
+- clean websocket generation replacement when the universe changes;
+- append-only shadow execution JSONL;
+- atomic runtime status JSON.
+
+There is **no Exchange client, wallet, signing key, or order-submission path** in Autonomous Runtime V0.
+
+### Restart safety
+
+A previous process's active market is persisted for diagnostics but **trading authority is never restored**. After restart:
+
+- active/pending authority is cleared;
+- qualification/challenger streaks reset;
+- market-state windows warm up from fresh public data;
+- execution evidence may be rehydrated only when `policy_id` exactly matches the current standardized probe;
+- markets must qualify again through normal hysteresis before becoming active.
+
+This is intentional fail-closed behavior.
+
+## Existing selector architecture
+
+Deterministic stack:
+
+`Dynamic Universe -> Market Observers -> Eligibility Engine -> Ranker -> MarketSupervisor`
+
+The MarketSupervisor already implements the strategic behavior required by the mission:
+
+- no qualified market => IDLE;
+- qualification hysteresis before activation;
+- active-market deterioration => stop new entry;
+- inventory-not-flat => drain before switch;
+- persistent superior challenger required for discretionary rotation;
+- hard fault => HALT/fail-closed.
+
+In shadow runtime `inventory_flat=True` because the process owns no wallet. A future execution authority must supply real reconciled inventory state.
+
+## Frozen research gates
+
+Current research qualification rules remain:
 
 - 24h volume >= $10M
 - spread 1–12 bp
@@ -49,172 +106,135 @@ Frozen Session 3 research gates included:
 - T10K <= 6h
 - P10K >= -$2
 
-No qualified market => IDLE.
-
-## Dual-window + reliability status
-
-Current selector uses:
-
-- market state: rolling 15m;
-- execution evidence: rolling 4h / latest 100 attempts;
-- execution freshness <=30m;
-- resilient websocket reconnect with stale-book watchdog and generation fencing.
-
-Restart-safe throughput/T10K accounting was fixed and verified locally: **34 tests passed**, including dedicated rehydration regression tests.
+These are research thresholds, not mainnet approval.
 
 ## Session 3 — FROZEN
 
-Canonical result: `SESSION3_VERDICT.md`
+Canonical verdict:
 
-Status: **NO QUALIFIED MARKET / IDLE**. Session 3 is now SEEN.
+`docs/research/hyperliquid-volume/SESSION3_VERDICT.md`
 
-Final key economics:
+Result: **NO QUALIFIED MARKET / IDLE**.
 
-- PONS: maker 65%, markout -9.38 bp, P10K -$10.09
-- VVV: maker 70%, markout -9.54 bp, P10K -$8.19
+Final checkpoint showed severe passive-fill adverse selection under standardized JOIN + 3/3:
 
-Conclusion: structurally accessible markets still produced toxic passive fills under the standardized JOIN+3/3 probe.
+- PONS: maker 65%, markout -9.38 bp, P10K -$10.09;
+- VVV: maker 70%, markout -9.54 bp, P10K -$8.19;
+- ETHFI/PUMP/BTC also failed structural and/or economics gates.
+
+Session 3 is SEEN and may not be reused as an unseen holdout for modified policies.
+
+## Dual-window / throughput fixes — COMPLETE
+
+Market-state metrics use 15m. Execution evidence uses 4h/latest 100 with <=30m freshness.
+
+Restart-safe T10K/volume-per-hour accounting was fixed and locally verified with **34 passing tests** before the autonomous-runtime additions. New universe/runtime-state tests were subsequently added to canonical CI.
 
 ## Entry Policy Development Cycle 1 — FROZEN
 
-Canonical files:
+`docs/research/hyperliquid-volume/ENTRY_POLICY_DEV1_RESULT.md`
 
-- `ENTRY_POLICY_DEV_PLAN.md`
-- `ENTRY_POLICY_DEV1_RESULT.md`
+Result: **NO SESSION-4 CANDIDATE**.
 
-Predeclared static entry families:
+P1 1.0s persistence materially improved VVV 8h but failed to generalize in the 30m multi-market sanity check. P2/P3 were inconsistent. P4 queue accessibility looked directionally interesting but sample size was insufficient.
 
-- C0 immediate 3/3 JOIN
-- P1 persistence 0.5s/1s/2s
-- P2 normalized microprice-strength filter
-- P3 aggressor-flow strength filter
-- P4 queue-accessibility guard 2x/5x/10x
+## Development Capture 2 / Cycle 2 — FROZEN
 
-VVV 8h made P1_1.0s look promising, but it did not generalize in the 30m cross-market sanity check. Result: **NO SESSION-4 CANDIDATE**.
+A 6h SEEN capture across BTC, ETHFI, PONS, PUMP, VVV completed successfully with resilient reconnect/recovery.
 
-## Development Capture 2 — ACCEPTED SEEN DATA
+Books were approximately 39.6k–39.8k per market over ~6.02h; individual trades ranged from ~7k to ~91k depending on market.
 
-Capture was labeled DEVELOPMENT/SEEN before collection.
+P4 queue guards were replayed on the full 6h multi-market capture. Result: **NO SESSION-4 CANDIDATE**.
 
-Markets: BTC, ETHFI, PONS, PUMP, VVV.
+Key pattern:
 
-Duration: ~6.02h books per market.
+- PUMP improved materially under P4;
+- PONS improved only modestly at 5x;
+- BTC worsened;
+- VVV worsened;
+- ETHFI sample remained small;
+- cross-market medians were not convincingly positive.
 
-Raw counts:
+Therefore static queue filtering is not a robust universal solution.
 
-- BTC: 39,749 books / 90,796 trades
-- ETHFI: 39,749 / 7,284
-- PONS: 39,750 / 43,536
-- PUMP: 39,749 / 22,465
-- VVV: 39,622 / 14,387
+Canonical result:
 
-Recovery behavior:
+`docs/research/hyperliquid-volume/ENTRY_POLICY_DEV2_RESULT.md`
 
-- BTC/ETHFI/PONS/PUMP: 2 reconnects each
-- VVV: 3 reconnects
-- stale-book watchdog fired around 60–62s and recovery succeeded
-- all recorders reached FINISH
-- no reviewed fatal traceback
+## Development Cycle 3 — execution lifecycle research
 
-Capture is valid for SEEN development replay, not unseen validation.
+Canonical predeclared plan:
 
-## Entry Policy Development Cycle 2 — FROZEN
+`docs/research/hyperliquid-volume/ORDER_LIFECYCLE_DEV3_PLAN.md`
 
-Canonical result: `ENTRY_POLICY_DEV2_RESULT.md`
-
-Status: **NO SESSION-4 CANDIDATE**.
-
-P4 was tested on the 6h x 5-market development capture.
-
-Cross-market aggregate:
-
-| Policy | Valid | +Mark | +P10K | Both+ | Median dMark | Median dP10K | Fills |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| P4_2x | 5 | 2 | 3 | 2 | -0.29 bp | +$0.04 | 318 |
-| P4_5x | 5 | 2 | 2 | 2 | 0.00 bp | $0.00 | 343 |
-| P4_10x | 5 | 1 | 1 | 1 | -0.19 bp | -$0.21 | 344 |
-
-Market pattern:
-
-- BTC: all P4 variants worsened markout/P10K.
-- ETHFI: P4_2x looked better but had only 3 fills.
-- PONS: P4_5x modestly improved markout/P10K but economics remained poor.
-- PUMP: P4 materially improved markout/P10K, but still failed economics and did not generalize.
-- VVV: all P4 variants worsened markout/P10K.
-
-Conclusion: queue accessibility strongly changes fill probability but is not a universal adverse-selection solution. Do not freeze P4.
-
-## Current research cycle — ORDER LIFECYCLE DEV3
-
-Canonical predeclared plan: `ORDER_LIFECYCLE_DEV3_PLAN.md`
-
-Session 4 remains untouched/unseen.
-
-Primary hypothesis:
-
-> A passive JOIN quote becomes toxic when it remains live after the original 3/3 state weakens or flips. Shorter genuine quote exposure and cancel-on-signal-decay may improve post-fill markout more robustly than static entry filters.
+Research hypothesis: standardized JOIN quotes may become toxic because they remain live after the 3/3 state decays or flips.
 
 Predeclared variants:
 
-- L0: current 10s entry lifetime, no decay cancellation
-- L1_2s
-- L1_5s
-- L2_STRICT: cancel unfilled quote when current 3/3 direction is no longer the original direction, including neutral/partial decay
-- L2_FLIP: cancel only on full opposite 3/3 alignment
-- L3_2s_STRICT
-- L3_5s_STRICT
+- L0: 10s current control;
+- L1_2s;
+- L1_5s;
+- L2_STRICT: cancel unfilled quote when original 3/3 direction is no longer valid;
+- L2_FLIP: cancel only on full opposite 3/3;
+- L3_2s_STRICT;
+- L3_5s_STRICT.
 
-Everything else remains fixed: $100 notional, JOIN entry price, queue-ahead accounting, fees, exit policy/lifetime, cooldown, selector gates.
+Exit policy, fees, notional, queue accounting and selector gates remain fixed.
 
-Causality rule: cancellation can use only information available at or before the current replay event. No retroactive cancellation and no cancellation after fill.
+Dev3 is **SEEN research only**. Session 4 remains untouched.
 
-Candidate threshold for consideration on Development Capture 2:
+## Strategic separation: research vs runtime
 
-- markout improves in >=4/5 markets
-- P10K improves in >=4/5 markets
-- both improve in >=3/5 markets
-- median dMark >0
-- median dP10K >0
-- non-trivial aggregate fill sample
-- improvement cannot come merely from suppressing almost all fills
+This distinction is mandatory:
 
-If no lifecycle candidate meets this standard, freeze Dev3 as failed and do not start Session 4.
+### Research layer
 
-## Current next action
+- uses SEEN captures/replays;
+- investigates execution mechanics;
+- proposes at most one candidate;
+- freezes parameters before unseen validation;
+- never tunes runtime rules automatically from recent losses.
 
-Implement a deterministic lifecycle replay harness reusing the canonical `ShadowProbeEngine` fill/exit semantics, then replay L0/L1/L2/L3 on the already-SEEN datasets, primarily Development Capture 2.
+### Runtime layer
 
-Do **not** collect Session 4 yet and do not modify the predeclared lifecycle grid after seeing results.
+- operates continuously;
+- dynamically decides **which market** qualifies under frozen rules;
+- automatically stops/switches/IDLEs as conditions change;
+- never silently changes **what the rules are**.
+
+The autonomous scanner should continue to mature even while execution-policy research is unresolved.
 
 ## Mainnet status
 
-Mainnet trading is NOT approved.
+**NOT APPROVED.**
 
-Still required before live wallet execution:
+Autonomous Runtime V0 is shadow-only by design.
 
-1. one policy frozen in advance;
-2. fresh unseen Session 4 pass on economics/risk;
-3. acceptable P10K/markout/drawdown;
-4. reliable selector/IDLE behavior;
-5. transport reliability characterized;
-6. risk guardian + reconciliation + account/position state + one execution authority;
-7. shadow/paper soak with no silent divergence.
+Before any wallet/order integration:
 
-## Important docs
+1. one execution policy must be frozen and pass fresh unseen Session 4;
+2. economics/risk gates must pass;
+3. real account/position reconciliation must exist;
+4. risk guardian must exist;
+5. exactly one execution authority must exist;
+6. stop/drain/flatten must operate on real inventory;
+7. kill switch must exist;
+8. 24/7 shadow/paper soak must show no silent divergence;
+9. deployment/restart/reconnect behavior must be validated on the actual always-on host.
 
-- `CURRENT_HANDOFF.md` — source of truth
-- `SESSION3_VERDICT.md`
-- `ENTRY_POLICY_DEV_PLAN.md`
-- `ENTRY_POLICY_DEV1_RESULT.md`
-- `ENTRY_POLICY_DEV2_RESULT.md`
-- `ORDER_LIFECYCLE_DEV3_PLAN.md`
-- `DEV2_CAPTURE_PLAN.md`
-- `SESSION3_RUNBOOK.md`
-- `DUAL_WINDOW_SELECTOR_V1.md`
-- `EXECUTION_FEEDBACK_CONTRACT.md`
-- `MARKET_SELECTOR_ARCHITECTURE_V0.md`
-- `RESILIENT_SELECTOR_FEED.md`
+Do not weaken gates merely to force the engine to trade. IDLE is a valid and desirable state when no market is suitable.
+
+## Next engineering priorities
+
+1. Validate Autonomous Runtime V0 test/compile gate in CI.
+2. Run a shadow soak of the autonomous runtime on an always-on host; no manual per-coin processes.
+3. Add operational alerting/heartbeat around `autonomous_state.json` (runtime down, HALT, repeated reconnect, ACTIVE/SWITCH events).
+4. Continue Dev3 lifecycle replay in the research layer in parallel.
+5. If Dev3 produces a robust candidate, freeze exactly one configuration and then run fresh unseen Session 4.
+6. Only after Session 4 success design the live execution authority/risk guardian boundary.
 
 ## New-chat bootstrap
 
-A new chat must read this file first. Correct starting state: Session 3 frozen NO QUALIFIED MARKET / IDLE; restart-safe T10K fixed/34 tests; static entry Development Cycles 1 and 2 both failed to produce a robust Session-4 candidate; Development Capture 2 is accepted SEEN data; current work is predeclared Order Lifecycle Development Cycle 3, not Session 4.
+Read this file first.
+
+Correct starting state is **not** "continue manually running five coin scripts". The canonical mission is now the autonomous 24/7 dynamic-universe scanner/supervisor. Session 3, Dev1 and Dev2 are frozen failures/no-candidate results. Autonomous Runtime V0 exists in shadow mode. Dev3 lifecycle research remains parallel work; Session 4 has not started.
