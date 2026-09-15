@@ -114,6 +114,12 @@ market_context_check(
 	false !== strpos( $js, 'tanggal dasar bersama' )
 );
 market_context_check(
+	'Non-trading-day tooltips use the latest observation at or before the selected date and never look ahead',
+	false !== strpos( $js, 'function pointAtOrBefore' ) &&
+	false !== strpos( $js, 'pointAtOrBefore(series.points, targetT)' ) &&
+	false !== strpos( $js, 'if (points[i].t > targetT) break;')
+);
+market_context_check(
 	'Axis construction uses readable nice ticks and explicitly preserves the 100 baseline',
 	false !== strpos( $js, 'function niceStep' ) &&
 	false !== strpos( $js, 'Math.min(minY, 100)' ) &&
