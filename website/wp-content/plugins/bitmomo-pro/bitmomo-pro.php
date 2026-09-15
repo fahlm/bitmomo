@@ -28,6 +28,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-shortcodes.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-help-center.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-public-copy.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-sales.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-show-first.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-cache.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-setup.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-users-list.php';
@@ -59,6 +60,7 @@ function bitmomo_pro_init() {
 	$pro_sales = Bitmomo_Pro_Sales::instance();
 	remove_filter( 'rank_math/frontend/description', array( $pro_sales, 'filter_meta_description' ), 10 );
 	remove_action( 'wp_head', array( $pro_sales, 'render_meta_description' ), 10 );
+	Bitmomo_Pro_Show_First::instance();
 
 	Bitmomo_Pro_Cache::instance();
 	Bitmomo_Pro_Setup::instance();
