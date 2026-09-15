@@ -43,6 +43,8 @@ check( 'PUBLIC VISUAL: reference and settled +24h observations are both plotted'
 check( 'PUBLIC VISUAL: Base/Bull/Bear are shown as actual scenario lanes', false !== strpos( $enhanced, '>BASE<' ) && false !== strpos( $enhanced, '>BULL<' ) && false !== strpos( $enhanced, '>BEAR<' ) );
 
 $source = file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-show-first.php' );
+$sales_css = file_get_contents( __DIR__ . '/../assets/css/bitmomo-pro-show-first.css' );
+$dashboard_css = file_get_contents( __DIR__ . '/../assets/css/bitmomo-pro-dashboard-show-first.css' );
 check( 'PUBLIC TRUTH: sales visualizer uses delayed frozen public proof', false !== strpos( $source, 'Bitmomo_Btc_Intelligence_Accountability::delayed_proof( 1 )' ) );
 check( 'PUBLIC TRUTH: no current AI Pro projection is queried', false === strpos( $source, 'pro_projection' ) );
 
@@ -52,6 +54,12 @@ $current_read = strpos( $source, 'Bitmomo_Pro_Briefs::get_current_brief_for_disp
 check( 'PROTECTED SAFETY: login gate exists before current paid brief read', false !== $login_gate && false !== $current_read && $login_gate < $current_read );
 check( 'PROTECTED SAFETY: entitlement gate exists before current paid brief read', false !== $access_gate && false !== $current_read && $access_gate < $current_read );
 check( 'PROTECTED VISUAL: current range visualization is distinct from public historical proof', false !== strpos( $source, 'bm-pro__range-visual' ) && false !== strpos( $source, 'BTC REF' ) );
+
+check( 'SALES HIERARCHY: product proof precedes comparison and conversion visually', false !== strpos( $sales_css, '.bm-pro-sales__product-proof') && false !== strpos( $sales_css, 'order: 2') && false !== strpos( $sales_css, '.bm-pro-sales__comparison') && false !== strpos( $sales_css, 'order: 3') && false !== strpos( $sales_css, '.bm-pro-sales__climax { order: 5; }' ) );
+check( 'SALES COGNITION: feature catalogue is removed from default visual flow', false !== strpos( $sales_css, '.bm-pro-sales__today') && false !== strpos( $sales_css, 'display: none' ) );
+check( 'DASHBOARD HIERARCHY: protected Decision View uses wider institutional shell', false !== strpos( $dashboard_css, 'max-width: 980px' ) );
+check( 'DASHBOARD VISUAL: protected Expected Range has a real rail and marker', false !== strpos( $dashboard_css, '.bm-pro__range-track') && false !== strpos( $dashboard_css, '.bm-pro__range-marker') );
+check( 'DASHBOARD MOBILE: scenarios collapse to one column', false !== strpos( $dashboard_css, '@media (max-width: 720px)') && false !== strpos( $dashboard_css, 'grid-template-columns: 1fr' ) );
 
 check( 'SCOPE: unrelated shortcodes are untouched', $base_output === $enhancer->enhance_shortcode( $base_output, 'other_shortcode', array(), array() ) );
 
