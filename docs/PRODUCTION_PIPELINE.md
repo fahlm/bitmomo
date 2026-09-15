@@ -25,6 +25,7 @@ reviewed main
   -> full <exact SHA>
   -> immutable rc-* snapshot
   -> deterministic artifact + manifest/hash
+  -> record exact identity in config/release-state.json
   -> staging deploy of that exact artifact
   -> parity / safety / browser / product acceptance
   -> explicit owner authorization
@@ -39,7 +40,21 @@ An accepted RC is immutable. A blocker is fixed on a focused branch and produces
 
 ## Promotion evidence
 
+`config/release-state.json` is the machine-readable release identity. It records the accepted commit/tree, artifact ID/name/hashes, managed runtime file count, staging state, production authorization state and launch-profile switches. `scripts/check-release-state.mjs` verifies the recorded Git tree and packaging file count and fails when `docs/CURRENT_RELEASE.md` drifts from that identity.
+
 A release is identified by exact commit, tree, artifact ID/hash, runtime file count, staging evidence and rollback point. Terms such as `latest`, `final`, or `should be good` are not release identities.
+
+## Runtime equivalence
+
+When governance/docs/tooling work must be reconciled around an already accepted runtime, do not rely on a broad Git diff or human judgment. Prove that the production package is unchanged:
+
+```bash
+bash scripts/bitmomo-check.sh equivalence <accepted-ref> <candidate-ref>
+```
+
+The equivalence gate loads the accepted `config/production-runtime.json`, requires the candidate packaging definition to be byte-identical, enumerates every packaged file across all runtime components, and compares Git blob identities. Any added, removed or changed packaged runtime byte fails the gate. Changes confined to excluded tests/docs/ops tooling may pass.
+
+This gate is specifically useful for the Whitelist V1 post-production trunk convergence: it can prove that governance reconciliation did not silently alter the already accepted runtime before a new full exact-SHA validation is run.
 
 ## Rollback
 
@@ -65,4 +80,12 @@ These targets reduce coordination and rework without weakening correctness asser
 
 Whitelist V1 predates this model and its accepted release source is materially diverged from current `main`. Do not reconcile it before production promotion because that would invalidate accepted staging evidence.
 
-Immediately after production is verified, reconcile the accepted product source back into `main` while preserving the zero-cost governance/tooling commits already on `main`; validate the reconciled exact SHA locally, then retire `release/whitelist-v1` and temporary RC branches. Future releases should begin from integrated `main`, not a long-lived parallel product trunk.
+Immediately after production is verified:
+
+1. reconcile the accepted product source back into `main` while preserving the zero-cost governance/tooling changes;
+2. run `bash scripts/bitmomo-check.sh equivalence c33d128d5681909337ffc8b0811647012532fe9e <reconciled-sha>` and require PASS;
+3. run one `full <reconciled-sha>` exact-SHA gate;
+4. verify the reconciled product semantics against the just-verified production runtime;
+5. retire `release/whitelist-v1` and temporary RC branches.
+
+Future releases begin from integrated `main`, not a long-lived parallel product trunk.
