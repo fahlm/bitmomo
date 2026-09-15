@@ -165,9 +165,11 @@ check(
 check('/pro sales page is public and does not read entitlement state', /add_shortcode\(\s*'bitmomo_pro_sales'/.test(proSales) && !/bitmomo_user_has_pro_access|get_current_user_id|Bitmomo_Pro_Briefs::get_current_brief_for_display/.test(proSales));
 check('/pro sales page renders one whitelist/purchase path from canonical checkout URL', /bitmomo_pro_get_checkout_url\(\)/.test(proSales) && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(proSales));
 check(
-  '/pro sales path is current-product first and removes speculative roadmap theatre',
-  /Decision View BTC memetakan Expected Range/.test(proSalesOutput)
-    && /Analisis Pro aktif tidak ditampilkan pada halaman publik/.test(proSalesOutput)
+  '/pro sales path is evidence-first and removes speculative roadmap theatre',
+  /ACTUAL PRODUCT PROOF/.test(proSalesOutput)
+    && /HISTORICAL · DELAYED ≥48H/.test(proSalesOutput)
+    && /THESIS INVALIDATION/.test(proSalesOutput)
+    && /Bitmomo_Btc_Intelligence_Accountability::delayed_proof\( 1 \)/.test(proSalesOutput)
     && !/ROADMAP — SEGERA HADIR|Altcoin Intelligence|Daily Alpha Discovery|11 AI Analysts|Watchtower/.test(proSalesOutput)
     && !/24\/7|real-time|real time/.test(proSalesOutput)
 );
@@ -178,16 +180,16 @@ check(
 );
 const proRenderMatch = proSales.match(/public function render_sales[\s\S]*?return ob_get_clean\(\);/);
 const proRender = proRenderMatch ? proRenderMatch[0] : '';
-const todayIndex = proRender.indexOf('render_what_exists_today()');
 const exampleIndex = proRender.indexOf('render_product_proof()');
 const comparisonIndex = proRender.indexOf('render_free_vs_pro()');
 const accountabilityIndex = proRender.indexOf('render_accountability()');
 const conversionIndex = proRender.indexOf('render_founding_economics()');
 const faqIndex = proRender.indexOf('render_buyer_faq()');
 check(
-  '/pro tells the focused buyer journey in canonical order',
-  todayIndex > -1 && exampleIndex > todayIndex && comparisonIndex > exampleIndex
+  '/pro tells the decision-first buyer journey in canonical order',
+  exampleIndex > -1 && comparisonIndex > exampleIndex
     && accountabilityIndex > comparisonIndex && conversionIndex > accountabilityIndex && faqIndex > conversionIndex
+    && !/render_what_exists_today|render_section_nav/.test(proRender)
 );
 check(
   '/pro renderer has no legacy generic problem, pipeline, market-experience or roadmap calls',
@@ -198,6 +200,7 @@ check('/pro pricing terms match M2 founding package', /Rp149\.000/.test(proSales
 check('/pro avoids placeholder preview values', !/XX%|\$XX,XXX|\(placeholder\)|Contoh Tampilan Decision View/.test(proSales));
 check('/pro avoids old public 7-day refund promise', !/7\s*(hari|day)|refund 7|7-day/i.test(proSales + proHelp));
 check('/pro avoids fabricated accuracy percentage', !/\d+%\s*akurat/i.test(proSales + proHelp));
+check('/pro does not route default trust journey into row-ledger anchors', !/#decision-ledger|#pro-archive/.test(proSalesOutput));
 check('Whitelist says joining does not guarantee a seat', /Masuk whitelist tidak menjamin tempat/.test(proWhitelist));
 check('Whitelist submit JS can survive LiteSpeed-localization issues via data attributes', /data-ajax-url/.test(proWhitelist) && /data-nonce/.test(proWhitelist) && /bitmomoProWhitelist/.test(proWhitelistJs));
 check(
