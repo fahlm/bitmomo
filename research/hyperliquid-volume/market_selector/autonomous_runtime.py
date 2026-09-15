@@ -26,6 +26,7 @@ from hyperliquid.utils import constants
 
 from .config import DEFAULT_CONFIG
 from .eligibility import evaluate_market
+from .event_integrity import BoundedEventDeduper, LastBookDeduper
 from .feedback import (
     ExecutionFeedbackEvent,
     ExecutionFeedbackRouter,
@@ -34,6 +35,7 @@ from .feedback import (
 from .live_dry_run import depth, safe_disconnect
 from .observer import BookObservation, MarketObserver, TradeObservation
 from .ranker import rank_markets
+from .raw_capture import RawMultiMarketCapture
 from .runtime_state import (
     RuntimeStateStore,
     export_supervisor_state,
@@ -86,6 +88,41 @@ def load_historical_feedback(
     return grouped, invalid
 
 
+def _book_signature(data: dict) -> tuple:
+    levels = data.get("levels") or []
+    if len(levels) != 2:
+        return ()
+
+    def side_signature(side):
+        return tuple(
+            (
+                str(level.get("px", "")),
+                str(level.get("sz", "")),
+                str(level.get("n", "")),
+            )
+            for level in side[:5]
+        )
+
+    return (
+        int(data.get("time", 0) or 0),
+        side_signature(levels[0]),
+        side_signature(levels[1]),
+    )
+
+
+def _trade_key(trade: dict) -> tuple:
+    identity = trade.get("tid") or trade.get("hash")
+    if identity not in (None, ""):
+        return ("id", str(identity))
+    return (
+        "fallback",
+        int(trade.get("time", 0) or 0),
+        str(trade.get("side", "")),
+        str(trade.get("px", "")),
+        str(trade.get("sz", "")),
+    )
+
+
 class AutonomousShadowRuntime:
     """One-process dynamic universe scanner with fail-closed supervision."""
 
@@ -99,6 +136,7 @@ class AutonomousShadowRuntime:
         transport_stale_seconds: float,
         state_path: str | Path,
         shadow_feedback_path: str | Path,
+        capture_dir: str | Path | None = None,
     ):
         self.cfg = DEFAULT_CONFIG
         self.report_interval_seconds = report_interval_seconds
@@ -140,6 +178,17 @@ class AutonomousShadowRuntime:
         )
         self.hydrated_coins: set[str] = set()
 
+        # Reconnects can replay public events. Dedupe is bounded so the 24/7
+        # process does not grow memory without limit.
+        self.trade_deduper = BoundedEventDeduper(max_keys_per_coin=50_000)
+        self.book_deduper = LastBookDeduper()
+
+        self.capture = (
+            RawMultiMarketCapture(capture_dir)
+            if capture_dir not in (None, "")
+            else None
+        )
+
     def _pinned_markets(self) -> tuple[str, ...]:
         values = [
             self.supervisor.active_market,
@@ -180,21 +229,30 @@ class AutonomousShadowRuntime:
             if not levels or len(levels) != 2 or not levels[0] or not levels[1]:
                 return
             bids, asks = levels
-            obs = BookObservation(
-                timestamp_ms=int(data.get("time", time.time() * 1000)),
-                best_bid=float(bids[0]["px"]),
-                best_ask=float(asks[0]["px"]),
-                bid_size=float(bids[0]["sz"]),
-                ask_size=float(asks[0]["sz"]),
-                bid_depth5=depth(bids),
-                ask_depth5=depth(asks),
-            )
             emitted: list[ExecutionFeedbackEvent] = []
             with self.lock:
                 if coin not in self.active_coins:
                     return
+
+                # Even an exact replayed snapshot proves the replacement socket is
+                # alive, so health is noted before dedupe.
                 if not self.health.note_book(generation, coin):
                     return
+                if not self.book_deduper.accept(coin, _book_signature(data)):
+                    return
+
+                if self.capture is not None:
+                    self.capture.write_book(coin, data)
+
+                obs = BookObservation(
+                    timestamp_ms=int(data.get("time", time.time() * 1000)),
+                    best_bid=float(bids[0]["px"]),
+                    best_ask=float(asks[0]["px"]),
+                    bid_size=float(bids[0]["sz"]),
+                    ask_size=float(asks[0]["sz"]),
+                    bid_depth5=depth(bids),
+                    ask_depth5=depth(asks),
+                )
                 observer = self.observers[coin]
                 observer.on_book(obs)
                 metrics = observer.snapshot(now_ms=obs.timestamp_ms)
@@ -216,6 +274,10 @@ class AutonomousShadowRuntime:
                 observer = self.observers[coin]
                 probe = self.probes[coin]
                 for trade in rows:
+                    if not self.trade_deduper.accept(coin, _trade_key(trade)):
+                        continue
+                    if self.capture is not None:
+                        self.capture.write_trade(coin, trade)
                     obs = TradeObservation(
                         timestamp_ms=int(trade["time"]),
                         side=str(trade["side"]),
@@ -256,7 +318,6 @@ class AutonomousShadowRuntime:
                 )
                 time.sleep(delay)
             else:
-                delay = 0.0
                 print(f"RESUBSCRIBE reason={reason} coins={len(self.active_coins)}")
 
             replacement = None
@@ -320,8 +381,16 @@ class AutonomousShadowRuntime:
                 "data_stale": m.data_stale,
             }
 
+        capture_payload = None
+        if self.capture is not None:
+            capture_payload = {
+                "directory": str(self.capture.directory),
+                "books_written": self.capture.books_written,
+                "trades_written": self.capture.trades_written,
+            }
+
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "updated_at_ms": int(time.time() * 1000),
             "mode": "SHADOW_ONLY",
             "mainnet_order_submission": False,
@@ -332,6 +401,13 @@ class AutonomousShadowRuntime:
                 "reconnects": self.health.reconnects,
                 "max_book_age_seconds": self.health.max_book_age(),
             },
+            "event_integrity": {
+                "book_events_accepted": self.book_deduper.accepted,
+                "book_duplicates": self.book_deduper.duplicates,
+                "trade_events_accepted": self.trade_deduper.accepted,
+                "trade_duplicates": self.trade_deduper.duplicates,
+            },
+            "capture": capture_payload,
             "supervisor": export_supervisor_state(self.supervisor),
             "decision": {
                 "state": decision.state.value,
@@ -392,6 +468,15 @@ class AutonomousShadowRuntime:
             f"action={decision.action} would_allow_entry="
             f"{'YES' if decision.allow_new_entries else 'NO'}"
         )
+        print(
+            f"INTEGRITY book_dup={self.book_deduper.duplicates} "
+            f"trade_dup={self.trade_deduper.duplicates}"
+        )
+        if self.capture is not None:
+            print(
+                f"CAPTURE dir={self.capture.directory} books={self.capture.books_written} "
+                f"trades={self.capture.trades_written}"
+            )
         print("EXECUTION mainnet=DISABLED wallet=NONE shadow_probes=ALL_WATCHED_MARKETS")
         print(
             "Rank Coin       Verdict      Score Spread  Queue/$100 Trades/m ExecN Fill   Maker   Markout5  P10K      T10K"
@@ -428,6 +513,10 @@ class AutonomousShadowRuntime:
             f"Shadow policy={self.probe_cfg.policy_id} "
             f"feedback={self.shadow_feedback_path}"
         )
+        if self.capture is not None:
+            print(f"Raw SEEN capture: ENABLED dir={self.capture.directory}")
+        else:
+            print("Raw SEEN capture: DISABLED")
 
         next_report = time.monotonic()
         try:
@@ -460,6 +549,8 @@ class AutonomousShadowRuntime:
                 time.sleep(min(1.0, self.report_interval_seconds))
         finally:
             safe_disconnect(self.current_info)
+            if self.capture is not None:
+                self.capture.close()
 
 
 def main():
@@ -477,6 +568,14 @@ def main():
         "--shadow-feedback-jsonl",
         default="data/runtime/autonomous_shadow_feedback.jsonl",
     )
+    parser.add_argument(
+        "--capture-dir",
+        default="",
+        help=(
+            "Optional directory for append-only combined raw L2/trade CSV capture. "
+            "Use only for explicitly labeled SEEN development collection."
+        ),
+    )
     args = parser.parse_args()
 
     runtime = AutonomousShadowRuntime(
@@ -487,6 +586,7 @@ def main():
         transport_stale_seconds=args.transport_stale,
         state_path=args.state_json,
         shadow_feedback_path=args.shadow_feedback_jsonl,
+        capture_dir=args.capture_dir or None,
     )
     runtime.run_forever()
 
