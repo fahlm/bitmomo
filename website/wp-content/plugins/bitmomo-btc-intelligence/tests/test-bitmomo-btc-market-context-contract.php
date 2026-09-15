@@ -30,6 +30,13 @@ market_context_check(
 	false !== strpos( $plugin, "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.8'" )
 );
 market_context_check(
+	'Market Context assets use file-hash cache invalidation instead of the static plugin version',
+	false !== strpos( $context, 'private static function asset_version' ) &&
+	false !== strpos( $context, "hash_file( 'sha256'" ) &&
+	false !== strpos( $context, 'self::asset_version( $css_asset )' ) &&
+	false !== strpos( $context, 'self::asset_version( $js_asset )' )
+);
+market_context_check(
 	'Only the agreed V1 comparison universe and ranges are public',
 	false !== strpos( $context, "'btc'" ) && false !== strpos( $context, "'eth'" ) &&
 	false !== strpos( $context, "'sol'" ) && false !== strpos( $context, "'gold'" ) &&

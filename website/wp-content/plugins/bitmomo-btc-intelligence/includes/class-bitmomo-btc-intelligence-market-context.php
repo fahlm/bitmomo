@@ -54,17 +54,20 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 			return;
 		}
 
+		$css_asset = 'assets/css/market-context-explorer.css';
+		$js_asset  = 'assets/js/market-context-explorer.js';
+
 		wp_enqueue_style(
 			'bitmomo-btc-market-context',
-			BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/market-context-explorer.css',
+			BITMOMO_BTC_INTELLIGENCE_URL . $css_asset,
 			array( 'bitmomo-btc-intelligence' ),
-			BITMOMO_BTC_INTELLIGENCE_VERSION
+			self::asset_version( $css_asset )
 		);
 		wp_enqueue_script(
 			'bitmomo-btc-market-context',
-			BITMOMO_BTC_INTELLIGENCE_URL . 'assets/js/market-context-explorer.js',
+			BITMOMO_BTC_INTELLIGENCE_URL . $js_asset,
 			array(),
-			BITMOMO_BTC_INTELLIGENCE_VERSION,
+			self::asset_version( $js_asset ),
 			true
 		);
 		wp_localize_script(
@@ -76,6 +79,17 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 				'ranges'       => self::allowed_ranges(),
 			)
 		);
+	}
+
+	private static function asset_version( $relative_path ) {
+		$path = BITMOMO_BTC_INTELLIGENCE_DIR . ltrim( $relative_path, '/' );
+		if ( is_readable( $path ) ) {
+			$hash = hash_file( 'sha256', $path );
+			if ( is_string( $hash ) && '' !== $hash ) {
+				return substr( $hash, 0, 12 );
+			}
+		}
+		return BITMOMO_BTC_INTELLIGENCE_VERSION;
 	}
 
 	public static function allowed_ranges() {
