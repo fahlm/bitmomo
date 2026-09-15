@@ -6,33 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Front-end rendering for the Pro dashboard: [bitmomo_pro_dashboard]
  *
- * Every branch below decides, server-side, whether Pro content may be
- * included at all — before any output is built. Paid fields are never
- * placed in markup for a visitor who isn't entitled; nothing is hidden
- * with CSS. Does not require any theme modification.
+ * Every branch below decides, server-side, whether Pro content may be included
+ * at all. Paid fields are never placed in markup for a visitor who is not
+ * entitled; nothing is hidden with CSS.
  *
- * As of PR #31: which brief (if any) counts as "current" is decided by
- * Bitmomo_Pro_Briefs::get_current_brief_for_display(), which applies both
- * the release-readiness gate and the freshness gate. This class no longer
- * makes that decision itself — it only renders whatever tier/brief comes
- * back, including the safe "belum tersedia" state and the "delayed, but
- * still shown" state.
- *
- * As of PR #33: render_active() fires 'bitmomo_pro_brief_viewed' exactly
- * once, and only in the branch where a real, current brief is actually
- * about to be rendered for this already-authenticated, already-entitled
- * user (render_dashboard() only reaches render_active() after both the
- * login and entitlement checks). Bitmomo_Pro_Usage listens to that action
- * to record lightweight PMF usage signals — see that class for the full
- * privacy contract (no IP, no cookies, no fingerprinting).
- *
- * Known integration point: if the site later adds full-page HTML caching
- * in front of pages that render this shortcode, that cache must exclude
- * (or bypass for) logged-in/entitled visitors, otherwise a cached
- * anonymous render could be served to everyone. That is a caching-layer
- * concern outside this plugin's file ownership (Codex's production
- * cache/ShortPixel stabilization area) and is called out explicitly in
- * this PR's report rather than being touched here.
+ * The current brief remains owned by Bitmomo_Pro_Briefs::get_current_brief_for_display(),
+ * which applies release-readiness and freshness gates. This renderer consumes
+ * that already-gated object once and never falls back to stale values.
  */
 class Bitmomo_Pro_Shortcodes {
 
@@ -63,12 +43,18 @@ class Bitmomo_Pro_Shortcodes {
 		global $post;
 		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'bitmomo_pro_dashboard' ) ) {
 			wp_enqueue_style( 'bitmomo-pro', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro.css', array(), BITMOMO_PRO_VERSION );
+			wp_enqueue_style(
+				'bitmomo-pro-decision-view',
+				BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-decision-view.css',
+				array( 'bitmomo-pro' ),
+				'2026.09.16-decision-view-v1'
+			);
 		}
 	}
 
 	public function render_dashboard( $atts ) {
 		ob_start();
-		echo '<div class="bm-pro">';
+		echo '<div class="bm-pro bm-pro--decision-first">';
 
 		if ( ! is_user_logged_in() ) {
 			$this->render_logged_out();
@@ -83,14 +69,18 @@ class Bitmomo_Pro_Shortcodes {
 	}
 
 	/**
-	 * Renders the CTA toward checkout, or a graceful manual-activation
-	 * note if no checkout URL is configured yet. Never renders a dead link
-	 * and never hardcodes a payment provider.
+	 * Checkout remains fail-closed. While checkout is not configured, the
+	 * canonical public conversion path is the Founding Whitelist.
 	 */
 	private function checkout_cta( $label ) {
 		$url = bitmomo_pro_get_checkout_url();
 		if ( empty( $url ) ) {
-			echo '<p class="bm-pro__contact-note">' . esc_html__( 'Aktivasi Bitmomo Pro saat ini dilakukan secara manual. Hubungi tim Bitmomo untuk bergabung.', 'bitmomo-pro' ) . '</p>';
+			printf(
+				'<a class="bm-pro__cta" href="%1$s">%2$s</a><p class="bm-pro__contact-note">%3$s</p>',
+				esc_url( home_url( '/pro/#bm-pro-whitelist' ) ),
+				esc_html__( 'Gabung Founding Whitelist', 'bitmomo-pro' ),
+				esc_html__( 'Checkout belum dibuka. Whitelist adalah jalur resmi untuk menerima pemberitahuan saat akses dibuka.', 'bitmomo-pro' )
+			);
 			return;
 		}
 		printf(
@@ -110,7 +100,7 @@ class Bitmomo_Pro_Shortcodes {
 	private function render_logged_out() {
 		echo '<div class="bm-pro__gate">';
 		echo '<h3 class="bm-pro__gate-title">' . esc_html__( 'Masuk untuk membuka Bitmomo Pro', 'bitmomo-pro' ) . '</h3>';
-		echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief keputusan harian Bitmomo Pro hanya tersedia untuk member aktif.', 'bitmomo-pro' ) . '</p>';
+		echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief keputusan Bitmomo Pro hanya tersedia untuk member aktif.', 'bitmomo-pro' ) . '</p>';
 
 		echo '<div class="bm-pro__login-form">';
 		wp_login_form(
@@ -127,17 +117,16 @@ class Bitmomo_Pro_Shortcodes {
 	private function render_inactive() {
 		echo '<div class="bm-pro__gate">';
 		echo '<h3 class="bm-pro__gate-title">' . esc_html__( 'Akses Bitmomo Pro tidak aktif.', 'bitmomo-pro' ) . '</h3>';
-		echo '<p class="bm-pro__gate-text">' . esc_html__( 'Akun kamu sudah login, tapi belum memiliki akses Bitmomo Pro yang aktif.', 'bitmomo-pro' ) . '</p>';
+		echo '<p class="bm-pro__gate-text">' . esc_html__( 'Akun kamu sudah login, tetapi belum memiliki akses Bitmomo Pro yang aktif.', 'bitmomo-pro' ) . '</p>';
 		$this->checkout_cta( __( 'Aktifkan Bitmomo Pro', 'bitmomo-pro' ) );
 		echo '</div>';
 	}
 
 	/**
 	 * The only place "no eligible current brief" is decided is
-	 * Bitmomo_Pro_Briefs::get_current_brief_for_display(). Whatever tier
-	 * it returns — including 'unavailable' for a stale/invalid/never-
-	 * published brief — is rendered as-is. This method never falls back
-	 * to stale numbers and never fabricates a value.
+	 * Bitmomo_Pro_Briefs::get_current_brief_for_display(). Whatever tier it
+	 * returns is rendered as-is. This method never falls back to stale numbers
+	 * and never fabricates a value.
 	 */
 	private function render_active() {
 		$result = Bitmomo_Pro_Briefs::get_current_brief_for_display();
@@ -146,14 +135,11 @@ class Bitmomo_Pro_Shortcodes {
 
 		if ( Bitmomo_Pro_Brief_Readiness::TIER_UNAVAILABLE === $tier || null === $brief ) {
 			echo '<div class="bm-pro__gate">';
-				echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief Bitmomo Pro terbaru belum tersedia.', 'bitmomo-pro' ) . '<br />' . esc_html__( 'Sistem sedang menunggu data yang memenuhi standar kualitas.', 'bitmomo-pro' ) . ' <a class="bm-pro__help-link" href="' . esc_url( Bitmomo_Pro_Help_Center::question_url( 'quality-gate' ) ) . '">' . esc_html__( 'Mengapa?', 'bitmomo-pro' ) . '</a></p>';
+			echo '<p class="bm-pro__gate-text">' . esc_html__( 'Brief Bitmomo Pro terbaru belum tersedia.', 'bitmomo-pro' ) . '<br />' . esc_html__( 'Sistem sedang menunggu data yang memenuhi standar kualitas.', 'bitmomo-pro' ) . ' <a class="bm-pro__help-link" href="' . esc_url( Bitmomo_Pro_Help_Center::question_url( 'quality-gate' ) ) . '">' . esc_html__( 'Mengapa?', 'bitmomo-pro' ) . '</a></p>';
 			echo '</div>';
 			return;
 		}
 
-		// PMF usage signal: fired only here, i.e. only when a real, current
-		// brief is actually about to be shown to an already-authenticated,
-		// already-entitled user. See Bitmomo_Pro_Usage::record_view().
 		if ( isset( $brief['id'] ) ) {
 			do_action( 'bitmomo_pro_brief_viewed', get_current_user_id(), (int) $brief['id'] );
 		}
@@ -168,75 +154,67 @@ class Bitmomo_Pro_Shortcodes {
 			Bitmomo_Pro_Brief_Readiness::TIER_DELAYED => __( 'Data tertunda', 'bitmomo-pro' ),
 		);
 
-		$state = isset( $brief['market_state'] ) ? $brief['market_state'] : '';
+		$state = isset( $brief['market_state'] ) ? sanitize_key( (string) $brief['market_state'] ) : '';
 		?>
 		<div class="bm-pro__dashboard">
-			<div class="bm-pro__header bm-pro__state--<?php echo esc_attr( $state ? $state : 'unknown' ); ?>">
+			<header class="bm-pro__header bm-pro__state--<?php echo esc_attr( $state ? $state : 'unknown' ); ?>">
 				<span class="bm-pro__state-label"><?php echo esc_html( isset( $state_label[ $state ] ) ? $state_label[ $state ] : $state ); ?></span>
-				<?php if ( '' !== $brief['confidence'] ) :
-					// Same Rendah/Sedang/Tinggi strength language as the free
-					// BTC Daily Intelligence card (btc-intelligence-card.php) --
-					// confidence is an internal evidence-strength score, not a
-					// calibrated probability, so it is never presented as a raw
-					// "X% confidence" figure here either. Same >=70/>=40
-					// thresholds, kept in sync on purpose.
+				<?php if ( '' !== (string) $brief['confidence'] ) :
 					$bm_pro_confidence_value = (int) $brief['confidence'];
 					$bm_pro_confidence_label = $bm_pro_confidence_value >= 70 ? __( 'Tinggi', 'bitmomo-pro' ) : ( $bm_pro_confidence_value >= 40 ? __( 'Sedang', 'bitmomo-pro' ) : __( 'Rendah', 'bitmomo-pro' ) );
 				?>
 					<span class="bm-pro__confidence"><?php esc_html_e( 'Confidence', 'bitmomo-pro' ); ?>: <?php echo esc_html( $bm_pro_confidence_label ); ?></span>
 				<?php endif; ?>
-				<?php if ( '' !== $brief['btc_reference_price'] ) : ?>
+				<?php if ( '' !== (string) $brief['btc_reference_price'] ) : ?>
 					<span class="bm-pro__price">$<?php echo esc_html( number_format_i18n( floatval( $brief['btc_reference_price'] ) ) ); ?></span>
 				<?php endif; ?>
-			</div>
+			</header>
 
-			<?php if ( ! empty( $brief['confidence_explanation'] ) ) : ?>
-				<p class="bm-pro__confidence-explain"><?php echo esc_html( $brief['confidence_explanation'] ); ?></p>
-			<?php endif; ?>
+			<?php $this->render_expected_range( $brief ); ?>
 
-			<?php if ( '' !== $brief['expected_range_low'] || '' !== $brief['expected_range_high'] ) : ?>
-				<div class="bm-pro__section">
-					<h4><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?> <a class="bm-pro__help-link" href="<?php echo esc_url( Bitmomo_Pro_Help_Center::question_url( 'apa-itu-expected-range' ) ); ?>" aria-label="<?php esc_attr_e( 'Apa itu Expected Range?', 'bitmomo-pro' ); ?>">?</a></h4>
-					<p class="bm-pro__range">$<?php echo esc_html( number_format_i18n( floatval( $brief['expected_range_low'] ) ) ); ?> &ndash; $<?php echo esc_html( number_format_i18n( floatval( $brief['expected_range_high'] ) ) ); ?></p>
-				</div>
-			<?php endif; ?>
-
-			<div class="bm-pro__scenarios">
+			<div class="bm-pro__scenarios" aria-label="<?php esc_attr_e( 'Scenario Map', 'bitmomo-pro' ); ?>">
 				<?php if ( ! empty( $brief['base_scenario'] ) ) : ?>
-					<div class="bm-pro__scenario bm-pro__scenario--base">
-						<h4><?php esc_html_e( 'Base Scenario', 'bitmomo-pro' ); ?></h4>
+					<section class="bm-pro__scenario bm-pro__scenario--base">
+						<h4><?php esc_html_e( 'Base', 'bitmomo-pro' ); ?></h4>
 						<p><?php echo esc_html( $brief['base_scenario'] ); ?></p>
-					</div>
+					</section>
 				<?php endif; ?>
 				<?php if ( ! empty( $brief['bull_scenario'] ) ) : ?>
-					<div class="bm-pro__scenario bm-pro__scenario--bull">
-						<h4><?php esc_html_e( 'Bull Scenario', 'bitmomo-pro' ); ?></h4>
+					<section class="bm-pro__scenario bm-pro__scenario--bull">
+						<h4><?php esc_html_e( 'Bull', 'bitmomo-pro' ); ?></h4>
 						<p><?php echo esc_html( $brief['bull_scenario'] ); ?></p>
-					</div>
+					</section>
 				<?php endif; ?>
 				<?php if ( ! empty( $brief['bear_scenario'] ) ) : ?>
-					<div class="bm-pro__scenario bm-pro__scenario--bear">
-						<h4><?php esc_html_e( 'Bear Scenario', 'bitmomo-pro' ); ?></h4>
+					<section class="bm-pro__scenario bm-pro__scenario--bear">
+						<h4><?php esc_html_e( 'Bear', 'bitmomo-pro' ); ?></h4>
 						<p><?php echo esc_html( $brief['bear_scenario'] ); ?></p>
-					</div>
+					</section>
 				<?php endif; ?>
 			</div>
 
 			<?php if ( ! empty( $brief['invalidation'] ) ) : ?>
-				<div class="bm-pro__section bm-pro__invalidation">
-					<h4><?php esc_html_e( 'Thesis Invalidation', 'bitmomo-pro' ); ?> <a class="bm-pro__help-link" href="<?php echo esc_url( Bitmomo_Pro_Help_Center::question_url( 'apa-itu-thesis-invalidation' ) ); ?>" aria-label="<?php esc_attr_e( 'Apa itu Thesis Invalidation?', 'bitmomo-pro' ); ?>">?</a></h4>
+				<section class="bm-pro__section bm-pro__invalidation" aria-labelledby="bm-pro-invalidation-title">
+					<h4 id="bm-pro-invalidation-title"><?php esc_html_e( 'Apa yang membuat tesis ini tidak lagi berlaku?', 'bitmomo-pro' ); ?> <a class="bm-pro__help-link" href="<?php echo esc_url( Bitmomo_Pro_Help_Center::question_url( 'apa-itu-thesis-invalidation' ) ); ?>" aria-label="<?php esc_attr_e( 'Apa itu Thesis Invalidation?', 'bitmomo-pro' ); ?>">?</a></h4>
 					<p><?php echo esc_html( $brief['invalidation'] ); ?></p>
-				</div>
+				</section>
 			<?php endif; ?>
 
 			<?php if ( ! empty( $brief['what_changed'] ) ) : ?>
-				<div class="bm-pro__section">
+				<section class="bm-pro__section">
 					<h4><?php esc_html_e( 'What Changed', 'bitmomo-pro' ); ?></h4>
 					<p><?php echo esc_html( $brief['what_changed'] ); ?></p>
-				</div>
+				</section>
 			<?php endif; ?>
 
-			<div class="bm-pro__footer">
+			<?php if ( ! empty( $brief['confidence_explanation'] ) ) : ?>
+				<section class="bm-pro__section bm-pro__confidence-context">
+					<h4><?php esc_html_e( 'Confidence Context', 'bitmomo-pro' ); ?></h4>
+					<p class="bm-pro__confidence-explain"><?php echo esc_html( $brief['confidence_explanation'] ); ?></p>
+				</section>
+			<?php endif; ?>
+
+			<footer class="bm-pro__footer">
 				<span class="bm-pro__freshness bm-pro__freshness--<?php echo esc_attr( $tier ); ?>">
 					<?php echo esc_html( isset( $freshness_label[ $tier ] ) ? $freshness_label[ $tier ] : $tier ); ?>
 				</span>
@@ -245,8 +223,70 @@ class Bitmomo_Pro_Shortcodes {
 				<?php elseif ( ! empty( $brief['data_timestamp'] ) ) : ?>
 					<span class="bm-pro__timestamp"><?php echo esc_html( $brief['data_timestamp'] ); ?></span>
 				<?php endif; ?>
-			</div>
+			</footer>
 		</div>
 		<?php
+	}
+
+	private function render_expected_range( array $brief ) {
+		$low       = $this->positive_number( $brief['expected_range_low'] ?? null );
+		$high      = $this->positive_number( $brief['expected_range_high'] ?? null );
+		$reference = $this->positive_number( $brief['btc_reference_price'] ?? null );
+
+		if ( null === $low || null === $high || $high < $low ) {
+			return;
+		}
+
+		$positions = $this->range_positions( $low, $high, $reference );
+		?>
+		<section class="bm-pro__range-visual" aria-labelledby="bm-pro-range-title">
+			<div class="bm-pro__range-head">
+				<span id="bm-pro-range-title"><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?></span>
+				<strong><?php echo esc_html( $this->format_price( $low ) . ' – ' . $this->format_price( $high ) ); ?></strong>
+			</div>
+			<div class="bm-pro__range-track" role="img" aria-label="<?php echo esc_attr( sprintf( __( 'Expected Range %1$s sampai %2$s', 'bitmomo-pro' ), $this->format_price( $low ), $this->format_price( $high ) ) ); ?>">
+				<span class="bm-pro__range-band" style="--range-left:<?php echo esc_attr( $positions['range_left'] ); ?>%;--range-width:<?php echo esc_attr( $positions['range_width'] ); ?>%;"></span>
+				<?php if ( null !== $reference ) : ?>
+					<span class="bm-pro__range-marker" style="--marker-pos:<?php echo esc_attr( $positions['reference'] ); ?>%;"><i></i><small><?php echo esc_html( 'BTC REF ' . $this->format_price( $reference ) ); ?></small></span>
+				<?php endif; ?>
+			</div>
+		</section>
+		<?php
+	}
+
+	private function range_positions( $low, $high, $reference ) {
+		$points = array( $low, $high );
+		if ( null !== $reference ) {
+			$points[] = $reference;
+		}
+		$min         = min( $points );
+		$max         = max( $points );
+		$span        = max( 1.0, $max - $min );
+		$padding     = $span * 0.12;
+		$floor       = max( 0.0, $min - $padding );
+		$ceiling     = $max + $padding;
+		$visual_span = max( 1.0, $ceiling - $floor );
+		$position    = static function ( $value ) use ( $floor, $visual_span ) {
+			if ( null === $value ) {
+				return null;
+			}
+			return round( max( 0, min( 100, ( ( $value - $floor ) / $visual_span ) * 100 ) ), 2 );
+		};
+		$range_left  = $position( $low );
+		$range_right = $position( $high );
+
+		return array(
+			'range_left'  => $range_left,
+			'range_width' => round( max( 1, $range_right - $range_left ), 2 ),
+			'reference'   => $position( $reference ),
+		);
+	}
+
+	private function positive_number( $value ) {
+		return is_numeric( $value ) && (float) $value > 0 ? (float) $value : null;
+	}
+
+	private function format_price( $value ) {
+		return null !== $value ? '$' . number_format( (float) $value, 0, '.', ',' ) : '—';
 	}
 }
