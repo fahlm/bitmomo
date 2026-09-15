@@ -17,13 +17,18 @@ function check_telegram_transport_contract( $label, $condition ) {
 
 require dirname( __DIR__ ) . '/includes/class-bitmomo-btc-telegram-transport.php';
 
-$reflection = new ReflectionClass( 'Bitmomo_Btc_Telegram_Transport' );
 $source = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-btc-telegram-transport.php' );
 
 check_telegram_transport_contract(
 	'Canonical public Telegram destination is @bitmomodaily',
 	'@bitmomodaily' === Bitmomo_Btc_Telegram_Transport::CHANNEL_USERNAME
 		&& 'https://t.me/bitmomodaily' === Bitmomo_Btc_Telegram_Transport::CHANNEL_URL
+);
+
+check_telegram_transport_contract(
+	'Canonical Telegram posting bot is @Bitmomo_id_bot',
+	'Bitmomo_id_bot' === Bitmomo_Btc_Telegram_Transport::BOT_USERNAME
+		&& 'https://t.me/Bitmomo_id_bot' === Bitmomo_Btc_Telegram_Transport::BOT_URL
 );
 
 check_telegram_transport_contract(
@@ -42,11 +47,25 @@ check_telegram_transport_contract(
 	is_array( $result ) && false === $result['ok'] && 'disabled' === $result['status']
 );
 
+$identity = Bitmomo_Btc_Telegram_Transport::verify_bot_identity();
+check_telegram_transport_contract(
+	'Bot identity verification also fails closed while disabled',
+	is_array( $identity ) && false === $identity['ok'] && 'disabled' === $identity['status']
+);
+
 check_telegram_transport_contract(
 	'Bot token is read only from the runtime constant',
 	false !== strpos( $source, "BITMOMO_TELEGRAM_BOT_TOKEN" )
 		&& false === strpos( $source, "define( 'BITMOMO_TELEGRAM_BOT_TOKEN'" )
 		&& false === strpos( $source, 'get_option( \'bitmomo_telegram_bot_token\'' )
+);
+
+check_telegram_transport_contract(
+	'Every live send verifies token identity before sendMessage',
+	false !== strpos( $source, '/getMe' )
+		&& false !== strpos( $source, 'verify_bot_identity()' )
+		&& false !== strpos( $source, "'bot_identity_mismatch'" )
+		&& strpos( $source, 'verify_bot_identity()' ) < strrpos( $source, '/sendMessage' )
 );
 
 check_telegram_transport_contract(
