@@ -8,6 +8,16 @@ $bm_archive_title = sprintf( __( 'Hasil untuk “%s”', 'bitmomo' ), get_search
 $bm_archive_description = __( 'Publikasi Bitmomo yang paling relevan dengan pencarian Anda.', 'bitmomo' );
 ?>
 <main id="primary" class="bm-public-main">
-  <?php get_template_part( 'template-parts/archive', 'index' ); ?>
+  <?php
+  get_template_part(
+    'template-parts/archive',
+    'index',
+    array(
+      'eyebrow'     => $bm_archive_eyebrow,
+      'title'       => $bm_archive_title,
+      'description' => $bm_archive_description,
+    )
+  );
+  ?>
 </main>
 <?php get_footer(); ?>

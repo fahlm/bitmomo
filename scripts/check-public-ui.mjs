@@ -11,7 +11,7 @@ fs.mkdirSync(outputDir, { recursive: true });
 
 const surfaces = [
   { name: 'home', path: '/', marker: 'BTC Intelligence', expectedStatus: 200 },
-  { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Pahami kondisi BTC sekarang', active: 'BTC Intelligence', expectedStatus: 200 },
+  { name: 'btc-intelligence', path: '/btc-intelligence/', marker: 'Market Pulse menunjukkan aktivitas intraday', active: 'BTC Intelligence', expectedStatus: 200 },
   { name: 'pro', path: '/pro/', marker: 'FOUNDING MEMBERSHIP', active: 'BITMOMO PRO', expectedStatus: 200 },
   { name: 'help', path: '/help/', marker: 'Help Center', expectedStatus: 200 },
   { name: 'research', path: '/category/riset/', marker: 'BITMOMO RESEARCH', active: 'Riset', expectedStatus: 200 },
@@ -335,14 +335,17 @@ try {
         } else addFailure(surface, viewport, 'mobile hamburger control missing');
       }
 
-      for (const error of consoleErrors) addFailure(surface, viewport, `console error: ${error}`);
+      const filteredConsoleErrors = surface.expectedStatus === 404
+        ? consoleErrors.filter((error) => !/Failed to load resource: the server responded with a status of 404/i.test(error))
+        : consoleErrors;
+      for (const error of filteredConsoleErrors) addFailure(surface, viewport, `console error: ${error}`);
       for (const error of pageErrors) addFailure(surface, viewport, `uncaught page error: ${error}`);
 
       const screenshotPath = path.join(outputDir, `${surface.name}-${viewport.width}x${viewport.height}.png`);
       await page.screenshot({ path: screenshotPath, fullPage: true });
       const axeViolations = await auditAxe(page, surface, viewport);
 
-      report.push({ surface: surface.name, url, viewport, status, releaseProfile, metrics, consoleErrors, pageErrors, axeViolations: axeViolations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodeCount: v.nodes.length })) });
+      report.push({ surface: surface.name, url, viewport, status, releaseProfile, metrics, consoleErrors: filteredConsoleErrors, pageErrors, axeViolations: axeViolations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodeCount: v.nodes.length })) });
       console.log(`PASS ${surface.name} ${viewport.width}x${viewport.height} HTTP ${status} overflow=${Math.max(0, overflow)}px H1=${metrics.h1Count}`);
       await context.close();
     }

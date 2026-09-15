@@ -9,9 +9,9 @@
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$bm_archive_eyebrow = isset( $bm_archive_eyebrow ) ? (string) $bm_archive_eyebrow : __( 'BITMOMO RESEARCH', 'bitmomo' );
-$bm_archive_title = isset( $bm_archive_title ) ? (string) $bm_archive_title : __( 'Riset & Analisis', 'bitmomo' );
-$bm_archive_description = isset( $bm_archive_description ) ? (string) $bm_archive_description : '';
+$bm_archive_eyebrow = isset( $args['eyebrow'] ) ? (string) $args['eyebrow'] : ( isset( $bm_archive_eyebrow ) ? (string) $bm_archive_eyebrow : __( 'BITMOMO RESEARCH', 'bitmomo' ) );
+$bm_archive_title = isset( $args['title'] ) ? (string) $args['title'] : ( isset( $bm_archive_title ) ? (string) $bm_archive_title : __( 'Riset & Analisis', 'bitmomo' ) );
+$bm_archive_description = isset( $args['description'] ) ? (string) $args['description'] : ( isset( $bm_archive_description ) ? (string) $bm_archive_description : '' );
 ?>
 <section class="bm-archive-v2" aria-labelledby="bm-archive-title">
   <div class="bm-container">
