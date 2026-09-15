@@ -1,60 +1,16 @@
-name: UI browser safety
+name: UI browser safety [HOSTED RUNNERS LOCKED]
 
+# Zero-cost mode: no weekly browser runner and no hosted browser install.
+# Engineers validate source locally and run browser acceptance only on a deployed candidate.
 on:
   workflow_dispatch:
-    inputs:
-      base_url:
-        description: Optional base URL (production by default; staging URL allowed)
-        required: false
-        default: "https://bitmomo.id"
-  schedule:
-    - cron: "17 18 * * 1"
 
 permissions:
   contents: read
 
-concurrency:
-  group: ui-browser-safety
-  cancel-in-progress: true
-
 jobs:
-  browser-contract:
-    name: Responsive and accessibility contract
+  hosted-actions-locked:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-
-      - name: Resolve audit target
-        id: version_gate
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "run_audit=true" >> "${GITHUB_OUTPUT}"
-          echo "Browser audit enabled for ${{ github.event_name }}."
-
-      - name: Install browser audit dependencies
-        if: steps.version_gate.outputs.run_audit == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm install --no-save --no-package-lock playwright@1.63.0 @axe-core/playwright@4.13.0
-          npx playwright install --with-deps chromium
-
-      - name: Audit public UI across breakpoints
-        if: steps.version_gate.outputs.run_audit == 'true'
-        env:
-          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url || 'https://bitmomo.id' }}
-          BITMOMO_UI_OUTPUT_DIR: ui-artifacts
-        run: node scripts/check-public-ui.mjs
-
-      - name: Upload screenshots and audit report
-        if: always() && steps.version_gate.outputs.run_audit == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: bitmomo-ui-browser-audit-${{ github.run_id }}
-          path: ui-artifacts/
-          if-no-files-found: warn
-          retention-days: 14
+      - run: echo 'Hosted GitHub Actions are locked. Browser acceptance belongs on the deployed candidate.'
