@@ -3,7 +3,6 @@
 Status: PREPARED / POST-WHITELIST-V1
 Owner: Bitmomo
 Primary goal: acquire the first 149 paid Founding Members with one acquisition motion.
-Canonical public Telegram channel: `@bitmomodaily`
 
 ## 1. One-jurus decision
 
@@ -12,6 +11,11 @@ Bitmomo will not scale a multi-channel marketing stack for Founding 149.
 V1 uses one acquisition motion only:
 
 **targeted Telegram crypto-trader attention -> @bitmomodaily -> Bitmomo BTC Decision Brief -> Founding Whitelist -> paid Founding Member**
+
+Canonical Bitmomo Telegram identities:
+
+- public channel: `@bitmomodaily` (`https://t.me/bitmomodaily`);
+- posting bot: `@Bitmomo_id_bot` (`https://t.me/Bitmomo_id_bot`).
 
 The first paid placement is intentionally narrow: one Indonesian crypto trading/intelligence channel at a time. The first planned placement is The Liquidity Waves. No second placement is added until the first placement has enough data to judge.
 
@@ -75,6 +79,14 @@ Telegram must never expose or infer protected Pro fields such as:
 
 If the canonical snapshot is delayed, unavailable, malformed, or missing a required public-safe field, Telegram fails closed. It does not invent a brief.
 
+### Telegram transport
+
+`@Bitmomo_id_bot` is transport only. It must never calculate, rewrite, summarize, enrich, or infer intelligence.
+
+A live send must verify the runtime bot token with Telegram `getMe`. If Telegram returns a username other than `Bitmomo_id_bot`, delivery fails closed before `sendMessage`.
+
+The token is runtime-only and must never be committed to Git or saved as a WordPress option.
+
 ### Acquisition record
 
 The existing `Bitmomo_Pro_Whitelist` record is canonical. It already owns:
@@ -95,15 +107,11 @@ First-placement campaign id:
 
 `founding149_tlw_v1`
 
-Canonical Telegram destination:
-
-`https://t.me/bitmomodaily`
-
 Canonical CTA URL from the Telegram brief:
 
 `https://bitmomo.id/pro/?utm_source=telegram&utm_medium=channel&utm_campaign=founding149_tlw_v1#bm-pro-whitelist`
 
-The sponsored-message destination itself is `@bitmomodaily`. The website URL above is used inside Bitmomo BTC Decision Briefs so the existing whitelist captures campaign attribution.
+The sponsored-message destination itself is `@bitmomodaily`. The website URL above is used inside the Bitmomo channel brief so the existing whitelist captures the campaign attribution.
 
 Do not add a second campaign id until V1 has enough evidence to make a keep/change/stop decision.
 
@@ -134,7 +142,7 @@ Bukan sinyal beli/jual.
 Founding 149: <attributed URL>
 ```
 
-A formatter implementation lives in the BTC Intelligence plugin and is intentionally transport-agnostic. A Telegram bot sender is a separate transport concern and must not be allowed to alter the intelligence content.
+A formatter implementation lives in the BTC Intelligence plugin and is intentionally transport-agnostic. `@Bitmomo_id_bot` may deliver the text but cannot alter the intelligence content.
 
 ## 7. Measurement
 
@@ -170,18 +178,17 @@ The >=40 threshold is an internal operating hypothesis for V1, not an industry b
 
 The repository must never contain Telegram credentials.
 
-Canonical public channel is confirmed as:
+Before live transport is enabled, an operator must confirm:
 
-- handle: `@bitmomodaily`;
-- public URL: `https://t.me/bitmomodaily`.
+1. `@bitmomodaily` is public and controlled by Bitmomo;
+2. `@Bitmomo_id_bot` is controlled by Bitmomo;
+3. `@Bitmomo_id_bot` is an administrator of `@bitmomodaily` with only the permissions required to post;
+4. bot token is stored only in the approved secret/runtime environment;
+5. runtime token passes the canonical `getMe` identity check;
+6. a Telegram Ads account/campaign is targeted to the first selected placement;
+7. the canonical Founding CTA URL above is used.
 
-Before live transport is enabled, an operator must complete only the remaining runtime prerequisites:
-
-1. confirm `@bitmomodaily` is public, branded, and controlled by Bitmomo;
-2. create a Telegram bot with permission to post to `@bitmomodaily`, if automated posting is used;
-3. store bot token and destination chat/channel id only in the approved secret/runtime environment;
-4. create the Telegram Ads account/campaign targeted to the first selected placement;
-5. use the canonical Founding CTA URL above in channel briefs.
+Runtime configuration details live in `docs/acquisition/BITMOMODAILY_RUNTIME_CONFIG.md`.
 
 No bot token, phone number, personal Telegram account session, or payment credential may be committed to Git.
 
@@ -194,7 +201,9 @@ Before any merge/deploy:
 - rebase or recreate the feature from the post-release canonical head;
 - run existing BTC Intelligence and launch-surface tests;
 - run the Telegram brief contract test;
+- run the Telegram transport contract test;
 - verify no public Pro-only fields appear in generated Telegram text;
+- verify runtime token identity resolves to `Bitmomo_id_bot`;
 - keep checkout state unchanged unless a separate release explicitly enables it.
 
 ## 10. Acceptance criteria
@@ -205,9 +214,12 @@ P0 infrastructure is ready when:
 - [ ] delayed/unavailable public snapshot fails closed;
 - [ ] Pro-only fields cannot leak into Telegram output;
 - [ ] one attributed Founding CTA is embedded in the brief;
+- [ ] canonical public channel is `@bitmomodaily`;
+- [ ] canonical posting bot is `@Bitmomo_id_bot`;
+- [ ] wrong bot identity fails closed before delivery;
 - [ ] no new subscriber/CRM database exists;
 - [ ] no Telegram secret exists in the repository;
 - [ ] campaign-attributed whitelist records can be identified using existing UTM metadata;
-- [ ] transport can be added later without changing intelligence logic.
+- [ ] transport can be enabled later without changing intelligence logic.
 
-Only after these pass should automated Telegram delivery be wired.
+Only after these pass should automated Telegram delivery be scheduled.
