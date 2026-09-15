@@ -37,7 +37,7 @@ $bm_price_label = $bm_delayed ? 'Ditahan' : ( $bm_price > 0 ? '$' . number_forma
 
 $bm_opportunity = $bm_snapshot_available && is_array( $bm_snapshot['opportunity'] ?? null ) ? $bm_snapshot['opportunity'] : array();
 $bm_activity_state = 'available' === sanitize_key( (string) ( $bm_opportunity['status'] ?? '' ) )
-    ? sanitize_key( strtolower( (string) ( $bm_opportunity['state'] ?? '' ) )
+    ? sanitize_key( strtolower( (string) ( $bm_opportunity['state'] ?? '' ) ) )
     : '';
 $bm_activity_label = $bm_activity_labels[ $bm_activity_state ] ?? 'Belum tersedia';
 
