@@ -10,16 +10,34 @@ from .models import MarketHistory, SupervisorState
 
 
 class RuntimeStateStore:
-    """Atomic JSON persistence for the shadow runtime control-plane state.
+    """Atomic current-state persistence plus bounded compact soak history.
 
     Market-state windows are deliberately not restored: after restart they must
     warm up again from fresh public data. Supervisor history and the prior active
     identity are persisted for diagnostics, but stale trading authority is never
     resumed automatically.
+
+    Every save also appends a compact operational record to a JSONL history file.
+    The history excludes per-market metric payloads so a 24/7 soak stays small and
+    bounded. Rotation keeps at most the current history plus one previous segment.
     """
 
-    def __init__(self, path: str | Path):
+    def __init__(
+        self,
+        path: str | Path,
+        *,
+        history_path: str | Path | None = None,
+        history_max_bytes: int = 64 * 1024 * 1024,
+    ):
         self.path = Path(path)
+        self.history_path = (
+            Path(history_path)
+            if history_path is not None
+            else self.path.with_suffix(self.path.suffix + ".history.jsonl")
+        )
+        if history_max_bytes <= 0:
+            raise ValueError("history_max_bytes must be positive")
+        self.history_max_bytes = history_max_bytes
 
     def load(self) -> dict:
         if not self.path.exists():
@@ -51,6 +69,76 @@ class RuntimeStateStore:
                 os.unlink(temp_name)
             except FileNotFoundError:
                 pass
+
+        self._append_history(payload)
+
+    @staticmethod
+    def _compact_history_payload(payload: dict) -> dict:
+        transport = payload.get("transport") or {}
+        integrity = payload.get("event_integrity") or {}
+        decision = payload.get("decision") or {}
+        feedback = payload.get("feedback") or {}
+        return {
+            "schema_version": 1,
+            "updated_at_ms": payload.get("updated_at_ms"),
+            "mode": payload.get("mode"),
+            "mainnet_order_submission": payload.get("mainnet_order_submission"),
+            "universe": list(payload.get("universe") or []),
+            "transport": {
+                "generation": transport.get("generation"),
+                "healthy": transport.get("healthy"),
+                "reconnects": transport.get("reconnects"),
+                "max_book_age_seconds": transport.get("max_book_age_seconds"),
+            },
+            "event_integrity": {
+                "book_events_accepted": integrity.get("book_events_accepted"),
+                "book_duplicates": integrity.get("book_duplicates"),
+                "trade_events_accepted": integrity.get("trade_events_accepted"),
+                "trade_duplicates": integrity.get("trade_duplicates"),
+            },
+            "decision": {
+                "state": decision.get("state"),
+                "active_market": decision.get("active_market"),
+                "candidate_market": decision.get("candidate_market"),
+                "allow_new_entries": decision.get("allow_new_entries"),
+                "action": decision.get("action"),
+                "reason": decision.get("reason"),
+            },
+            "feedback": {
+                "policy_id": feedback.get("policy_id"),
+                "accepted": feedback.get("accepted"),
+                "duplicate": feedback.get("duplicate"),
+                "unknown_coin": feedback.get("unknown_coin"),
+                "invalid_history": feedback.get("invalid_history"),
+            },
+        }
+
+    def _rotate_history_if_needed(self) -> None:
+        try:
+            size = self.history_path.stat().st_size
+        except FileNotFoundError:
+            return
+        if size < self.history_max_bytes:
+            return
+
+        previous = self.history_path.with_suffix(self.history_path.suffix + ".1")
+        try:
+            previous.unlink()
+        except FileNotFoundError:
+            pass
+        os.replace(self.history_path, previous)
+
+    def _append_history(self, payload: dict) -> None:
+        record = self._compact_history_payload(payload)
+        if not isinstance(record.get("updated_at_ms"), int):
+            return
+        self.history_path.parent.mkdir(parents=True, exist_ok=True)
+        self._rotate_history_if_needed()
+        with self.history_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, separators=(",", ":"), sort_keys=True))
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
 
 
 def export_supervisor_state(supervisor) -> dict:
