@@ -1,0 +1,187 @@
+/* Protected Pro Decision View — Show-First hierarchy.
+ * Presentation-only. The canonical shortcode continues to own entitlement,
+ * readiness/freshness gating and all paid values server-side.
+ */
+
+.bitmomo-pro-dashboard-page .page-header {
+  width: calc(100% - 32px);
+  max-width: 980px;
+  padding-bottom: 14px;
+}
+
+.bm-pro {
+  max-width: 980px;
+  margin-bottom: 64px;
+}
+
+.bm-pro__dashboard {
+  padding: clamp(18px, 3vw, 30px);
+  border-radius: 14px;
+}
+
+/* State + reference price should read instantly. */
+.bm-pro__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 18px;
+  align-items: center;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+}
+
+.bm-pro__state-label {
+  justify-self: start;
+  padding: 0;
+  background: transparent !important;
+  border-radius: 0;
+  font-size: clamp(26px, 4vw, 42px);
+  line-height: 1;
+  letter-spacing: -.035em;
+}
+
+.bm-pro__confidence {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.bm-pro__price {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin-left: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing: -.025em;
+}
+
+.bm-pro__confidence-explain {
+  max-width: 780px;
+  margin-bottom: 20px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--bm-pro-teal);
+  background: rgba(45, 212, 191, .035);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* Expected Range is decision context, not a footnote. */
+.bm-pro__section:has(.bm-pro__range) {
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--bm-pro-border);
+  border-radius: 10px;
+  background: var(--bm-pro-bg);
+}
+
+.bm-pro__section:has(.bm-pro__range) h4 {
+  margin-bottom: 9px;
+}
+
+.bm-pro__range {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.1;
+  letter-spacing: -.03em;
+}
+
+/* Three scenarios are one map. Base gets visual priority without hiding
+ * alternatives or implying a probability. */
+.bm-pro__scenarios {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bm-pro__scenario {
+  min-width: 0;
+  padding: 14px 15px;
+  border-left-width: 1px;
+}
+
+.bm-pro__scenario--base {
+  border-color: rgba(45, 212, 191, .42);
+  background: rgba(45, 212, 191, .045);
+  order: 2;
+}
+
+.bm-pro__scenario--bear { order: 1; }
+.bm-pro__scenario--bull { order: 3; }
+
+.bm-pro__scenario h4 {
+  margin-bottom: 7px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.bm-pro__scenario p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Invalidation is the key risk boundary. */
+.bm-pro__invalidation {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(248, 113, 113, .28);
+  border-radius: 10px;
+  background: rgba(248, 113, 113, .035);
+}
+
+.bm-pro__invalidation h4 {
+  color: var(--bm-pro-bear);
+}
+
+.bm-pro__invalidation p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Generic supporting sections stay quiet. */
+.bm-pro__section:not(.bm-pro__invalidation):not(:has(.bm-pro__range)) {
+  padding-top: 2px;
+  margin-bottom: 18px;
+}
+
+.bm-pro__footer {
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+@media (max-width: 720px) {
+  .bitmomo-pro-dashboard-page .page-header,
+  .bm-pro {
+    width: calc(100% - 24px);
+  }
+
+  .bm-pro__dashboard {
+    padding: 16px 14px;
+  }
+
+  .bm-pro__header {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .bm-pro__price {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
+
+  .bm-pro__confidence {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .bm-pro__scenarios {
+    grid-template-columns: 1fr;
+  }
+
+  .bm-pro__scenario--base { order: 1; }
+  .bm-pro__scenario--bull { order: 2; }
+  .bm-pro__scenario--bear { order: 3; }
+}
