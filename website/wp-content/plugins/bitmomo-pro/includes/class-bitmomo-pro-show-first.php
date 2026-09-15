@@ -23,6 +23,20 @@ final class Bitmomo_Pro_Show_First {
 
 	private function __construct() {
 		add_filter( 'do_shortcode_tag', array( $this, 'enhance_shortcode' ), 20, 4 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_dashboard_assets' ), 30 );
+	}
+
+	public function enqueue_dashboard_assets() {
+		global $post;
+		if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_pro_dashboard' ) ) {
+			return;
+		}
+		wp_enqueue_style(
+			'bitmomo-pro-dashboard-show-first',
+			BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-dashboard-show-first.css',
+			array( 'bitmomo-pro' ),
+			BITMOMO_PRO_VERSION . '-dashboard-show-first-v1'
+		);
 	}
 
 	public function enhance_shortcode( $output, $tag, $attr, $match ) {
