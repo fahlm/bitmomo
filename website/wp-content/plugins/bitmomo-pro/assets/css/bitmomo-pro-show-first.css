@@ -40,6 +40,10 @@
 
 .bm-pro-sales__rail { order: 1; }
 
+/* "Produk" points to the feature catalogue that this hierarchy deliberately
+ * removes. Do not leave a navigation control whose visible destination is gone. */
+.bm-pro-sales__rail a[href="#pro-product"] { display: none; }
+
 /* Product proof comes before explanation. */
 .bm-pro-sales__product-proof {
   order: 2;
@@ -144,15 +148,21 @@
   line-height: 1.35;
 }
 
+/* The default BTC page no longer exposes the row ledger. Hide legacy links
+ * to that hidden anchor until a dedicated audit drill-down exists. */
+.bm-pro-sales__accountability > .bm-pro-sales__text-link,
+.bm-pro-sales__trust-links a[href*="#decision-ledger"] {
+  display: none;
+}
+
 /* Conversion follows proof. */
 .bm-pro-sales__climax { order: 5; }
 .bm-pro-sales__buyer-faq { order: 6; }
 .bm-pro-sales__trust-links { order: 8; }
 .bm-pro-sales__disclaimer { order: 9; }
 
-/* The proof link should not visually compete with the whitelist CTA. */
-.bm-pro-sales__product-proof > .bm-pro-sales__text-link,
-.bm-pro-sales__accountability > .bm-pro-sales__text-link {
+/* The historical-proof link should not visually compete with the whitelist CTA. */
+.bm-pro-sales__product-proof > .bm-pro-sales__text-link {
   font-size: 11px;
   opacity: .78;
 }
