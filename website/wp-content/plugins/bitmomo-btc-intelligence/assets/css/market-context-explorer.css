@@ -5,7 +5,7 @@
  --bmc-btc:var(--bm-text,#f1f4f6);
  --bmc-gold:#c6a45f;
  --bmc-eth:#7f91c7;
- --bmc-sol:#b9aff0;
+ --bmc-sol:#d8d2ff;
  --bmc-grid:rgba(143,156,172,.13);
  max-width:var(--bm-shell-width,1180px)
 }
