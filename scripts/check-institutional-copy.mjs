@@ -39,13 +39,14 @@ check('Canonical editorial contract exists and defines the four information leve
   editorial.includes('ACCOUNTABILITY — actual results')
 );
 
-check('Homepage states the restored Free versus Pro boundary before secondary explanation',
-  hero.includes('Pahami kondisi BTC sekarang.') &&
-  hero.includes('Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.') &&
-  hero.includes('BTC Intelligence merangkum kondisi, perubahan material, mengapa perubahan itu penting, dan satu konteks yang layak dipantau.') &&
-  hero.includes('Bitmomo Pro memperluasnya dengan monitoring lengkap, Expected Range, skenario, dan kondisi invalidasi.') &&
-  hero.includes('BTC MARKET VIEW') && hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') &&
-  hero.includes('>FAKTOR UTAMA<') && hero.includes('<strong>SUMBER DATA</strong>')
+check('Homepage makes the Free versus Pro boundary visible through the product itself',
+  hero.includes('BITMOMO · BTC INTELLIGENCE') &&
+  hero.includes('>BTC MARKET VIEW<') &&
+  hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') && hero.includes('>MARKET PULSE<') &&
+  hero.includes('>APA YANG BERUBAH<') && hero.includes('>MENGAPA PENTING<') && hero.includes('>PANTAU BERIKUTNYA<') &&
+  how.includes('NOW · BTC INTELLIGENCE') &&
+  how.includes('NEXT · BITMOMO PRO') &&
+  how.includes('Expected Range') && how.includes('Base / Bull / Bear') && how.includes('Invalidation')
 );
 check('Homepage delayed intelligence fails closed instead of rendering stale current market values',
   hero.includes("$bm_current_available = $bm_snapshot_available && 'fresh' === $bm_status;") &&
@@ -54,23 +55,26 @@ check('Homepage delayed intelligence fails closed instead of rendering stale cur
   hero.includes("$bm_confidence = $bm_current_available") &&
   hero.includes("$bm_price = $bm_current_available") &&
   hero.includes("$bm_drivers = $bm_current_available") &&
-  hero.includes("$bm_delayed ? 'Ditahan'") &&
-  hero.includes('Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.') &&
-  hero.includes('Observasi terverifikasi terakhir.')
+  hero.includes("$bm_status_label = $bm_delayed ? 'DATA TERTUNDA'") &&
+  hero.includes('Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.')
 );
 check('Homepage avoids casual or translation-artifact market copy',
-  !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b|Buka pembacaan lengkap/i.test(hero)
+  !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b|Buka pembacaan lengkap/i.test(hero) &&
+  hero.includes('Bukti pendukung, bukan probabilitas arah harga.')
 );
 check('Homepage mechanism follows the canonical visitor lifecycle rather than internal pipeline language',
-  how.includes('01 · UNDERSTAND NOW') &&
-  how.includes('02 · MAP WHAT CHANGES') &&
-  how.includes('03 · AUDIT THE RESULT') &&
-  how.includes('Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.') &&
-  !/Data compression|quality gate|six-stage|11 AI Analysts/i.test(how)
+  how.includes('NOW · BTC INTELLIGENCE') &&
+  how.includes('NEXT · BITMOMO PRO') &&
+  how.includes('AFTER · ACCOUNTABILITY') &&
+  how.includes('Pahami kondisi pasar tanpa membuka lima dashboard.') &&
+  how.includes('Ubah pembacaan pasar menjadi peta keputusan yang bisa dipantau.') &&
+  how.includes('Nilai analisis setelah pasar bergerak, bukan setelah narasinya diedit.') &&
+  !/Data compression|quality gate|six-stage|11 AI Analysts|logic deterministik|classifier|\baxis\b/i.test(how)
 );
 check('Homepage founding copy avoids urgency theater and raw product jargon',
   whitelistHome.includes('Founding Price') && whitelistHome.includes('AKTIFKAN FOUNDING MEMBERSHIP') &&
-  !/KUNCI HARGA FOUNDING|Harga Founding|\binvalidation\b/i.test(whitelistHome)
+  whitelistHome.includes('Tidak ada pembayaran pada tahap whitelist') &&
+  !/KUNCI HARGA FOUNDING|Harga Founding|lifetime/i.test(whitelistHome)
 );
 check('Homepage Research metadata is localized',
   researchHome.includes('%d menit baca') && !researchHome.includes('%d min read')
