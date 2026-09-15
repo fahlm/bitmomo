@@ -37,7 +37,7 @@ $bm_price_label = $bm_delayed ? 'Ditahan' : ( $bm_price > 0 ? '$' . number_forma
 
 $bm_opportunity = $bm_snapshot_available && is_array( $bm_snapshot['opportunity'] ?? null ) ? $bm_snapshot['opportunity'] : array();
 $bm_activity_state = 'available' === sanitize_key( (string) ( $bm_opportunity['status'] ?? '' ) )
-    ? sanitize_key( strtolower( (string) ( $bm_opportunity['state'] ?? '' ) ) )
+    ? sanitize_key( strtolower( (string) ( $bm_opportunity['state'] ?? '' ) )
     : '';
 $bm_activity_label = $bm_activity_labels[ $bm_activity_state ] ?? 'Belum tersedia';
 
@@ -138,19 +138,23 @@ if ( $bm_proof_row && ! empty( $bm_proof_row['published_at'] ) && strtotime( (st
         <p class="bm-home-hero__lead">Lihat pembacaan BTC aktual, apa yang berubah, mengapa penting, dan apa yang layak dipantau. Analisis dicatat sebelum outcome diketahui sehingga hasilnya dapat diuji, bukan sekadar dipercaya.</p>
         <div class="bm-home-hero__actions">
           <a class="bm-home-hero__primary" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_primary">Buka BTC Intelligence</a>
-          <a class="bm-home-hero__secondary" href="#founding-whitelist" data-bm-event="homepage_whitelist_jump" data-bm-placement="hero_secondary">Lihat Founding Access ↓</a>
+          <a class="bm-home-hero__secondary" href="<?php echo esc_url( $bm_proof_row ? '#home-proof' : home_url( '/pro/#pro-example' ) ); ?>" data-bm-event="homepage_proof_click" data-bm-placement="hero_secondary">Lihat bukti historis ↓</a>
         </div>
         <p class="bm-home-hero__notes" aria-label="Karakteristik Bitmomo"><span>BTC ONLY</span><span>RECORDED BEFORE OUTCOME</span><span>BUKAN SINYAL BELI/JUAL</span></p>
       </div>
 
       <article class="bm-home-reading" aria-label="BTC Intelligence saat ini">
         <header class="bm-home-reading__head">
-          <span class="bm-home-reading__label"><?php echo esc_html( $bm_session_label ? 'MAJOR BRIEF · ' . $bm_session_label : 'CURRENT BTC VIEW' ); ?></span>
-          <strong class="bm-home-reading__status<?php echo esc_attr( $bm_status_class ); ?>"><?php echo esc_html( $bm_status_label ); ?> · <?php echo esc_html( $bm_updated_label ); ?></strong>
+          <span class="bm-home-reading__label">BTC MARKET VIEW</span>
+          <div class="bm-home-reading__status-stack">
+            <?php if ( $bm_session_label ) : ?><span class="bm-home-reading__session"><?php echo esc_html( $bm_session_label ); ?></span><?php endif; ?>
+            <strong class="bm-home-reading__status<?php echo esc_attr( $bm_status_class ); ?>"><?php echo esc_html( $bm_status_label ); ?></strong>
+            <span class="bm-home-reading__updated"><strong>DIPERBARUI</strong> <?php echo esc_html( $bm_updated_label ); ?></span>
+          </div>
         </header>
 
         <div class="bm-home-reading__metrics" role="list">
-          <div class="bm-home-reading__metric" role="listitem"><span class="bm-home-reading__metric-label">BTC</span><strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_price_label ); ?></strong></div>
+          <div class="bm-home-reading__metric" role="listitem"><span class="bm-home-reading__metric-label">REFERENSI BTC</span><strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_price_label ); ?></strong></div>
           <div class="bm-home-reading__metric" role="listitem"><span class="bm-home-reading__metric-label">BIAS</span><strong class="bm-home-reading__metric-value is-<?php echo esc_attr( in_array( $bm_bias, array( 'bullish', 'neutral', 'bearish' ), true ) ? $bm_bias : 'unknown' ); ?>"><?php echo esc_html( $bm_bias_label ); ?></strong></div>
           <div class="bm-home-reading__metric" role="listitem"><span class="bm-home-reading__metric-label">CONFIDENCE</span><strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_confidence_display ); ?></strong><small>Bukti pendukung, bukan probabilitas arah harga.</small></div>
           <div class="bm-home-reading__metric" role="listitem"><span class="bm-home-reading__metric-label">MARKET PULSE</span><strong class="bm-home-reading__metric-value"><?php echo esc_html( $bm_activity_label ); ?></strong><small>Aktivitas relatif terhadap kondisi normal 14 hari.</small></div>
@@ -164,14 +168,14 @@ if ( $bm_proof_row && ! empty( $bm_proof_row['published_at'] ) && strtotime( (st
 
         <div class="bm-home-reading__driver"><span>FAKTOR UTAMA</span><p><?php echo esc_html( $bm_driver_display ); ?></p></div>
         <footer class="bm-home-reading__footer">
-          <p class="bm-home-reading__source"><strong>SUMBER</strong><br><?php echo esc_html( $bm_source_label ); ?></p>
+          <p class="bm-home-reading__source"><strong>SUMBER DATA</strong><br><?php echo esc_html( $bm_source_label ); ?></p>
           <a class="bm-home-reading__link" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_market_card">Buka view lengkap →</a>
         </footer>
       </article>
     </div>
 
     <?php if ( $bm_proof_row ) : ?>
-      <article class="bm-home-proof-example" aria-label="Contoh keputusan Pro historis yang sudah dievaluasi">
+      <article id="home-proof" class="bm-home-proof-example" aria-label="Contoh keputusan Pro historis yang sudah dievaluasi">
         <header>
           <div><span>HISTORICAL PRO DECISION · RECORDED BEFORE OUTCOME</span><strong><?php echo esc_html( $bm_proof_published ?: 'Arsip historis' ); ?></strong></div>
           <span class="bm-home-proof-example__verdict is-<?php echo esc_attr( $bm_proof_verdict_key ); ?>"><?php echo esc_html( $bm_proof_verdict ); ?></span>
