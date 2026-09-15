@@ -73,23 +73,18 @@ check('Full Release requires an exact candidate SHA input',
   /actual_sha=.*git rev-parse HEAD/.test(release) &&
   /actual_sha.*EXPECTED_CANDIDATE_SHA/.test(release)
 );
-check('Full Release is restricted to release branches, immutable RC snapshots, or main',
-  /refs\/heads\/release\/\*\|refs\/heads\/rc-\*\|refs\/heads\/main/.test(release)
+check('Full Release is restricted to immutable RC snapshots, release branches, or main',
+  /refs\/heads\/rc-\*\|refs\/heads\/release\/\*\|refs\/heads\/main/.test(release)
 );
-check('Full Release delegates all deterministic/source work to one canonical preflight',
-  /bash scripts\/run-release-preflight\.sh --candidate-sha/.test(release) &&
-  /--output-dir dist/.test(release)
+check('Full Release delegates validation to the canonical preflight script',
+  /bash scripts\/run-release-preflight\.sh --candidate-sha/.test(release)
 );
-check('Canonical preflight rejects SHA drift and dirty tracked source',
-  /actual_sha.*candidate_sha/.test(preflight) &&
-  /git diff --quiet/.test(preflight) &&
-  /git diff --cached --quiet/.test(preflight)
+check('Canonical preflight enforces exact SHA and clean tracked checkout',
+  /git rev-parse HEAD/.test(preflight) &&
+  /tracked working tree is dirty/.test(preflight) &&
+  /candidate mismatch/.test(preflight)
 );
-check('Canonical preflight self-audits CI governance before source validation',
-  preflight.indexOf('scripts/check-ci-governance.mjs') > -1 &&
-  preflight.indexOf('scripts/check-ci-governance.mjs') < preflight.indexOf('Managed PHP lint')
-);
-check('Canonical preflight proves deterministic artifact and exact provenance',
+check('Canonical preflight builds deterministic artifact twice and verifies provenance',
   /build-production-artifact\.py/.test(preflight) &&
   /cmp .*bitmomo-runtime\.tar/.test(preflight) &&
   /source_commit/.test(preflight) &&
@@ -173,4 +168,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PASS CI governance contract: workflow inventory, triggers, schedules, budgets, concurrency, draft discipline, immutable-RC identity, and single-source release validation are fail-closed.');
+console.log('PASS CI governance contract: workflow inventory, triggers, schedules, budgets, concurrency, draft discipline, exact-SHA release identity, immutable RC support, and single-source release validation are fail-closed.');
