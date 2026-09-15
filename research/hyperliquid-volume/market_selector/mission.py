@@ -152,8 +152,10 @@ class MissionLedger:
         return self.snapshot()
 
     def snapshot(self) -> MissionSnapshot:
-        epoch_loss = max(0.0, -self.epoch_pnl_usd)
-        mission_loss = max(0.0, -self.cumulative_pnl_usd)
+        # Distance from current net PnL to the configured floor. Profit therefore
+        # expands the buffer: e.g. +$2 PnL with a -$10 floor leaves $12 of room.
+        epoch_buffer = self.cfg.epoch_loss_limit_usd + self.epoch_pnl_usd
+        mission_buffer = self.cfg.mission_loss_limit_usd + self.cumulative_pnl_usd
         return MissionSnapshot(
             status=self.status,
             epoch=self.epoch,
@@ -163,12 +165,8 @@ class MissionLedger:
             remaining_volume_usd=max(
                 0.0, self.cfg.target_volume_usd - self.cumulative_volume_usd
             ),
-            remaining_epoch_loss_buffer_usd=max(
-                0.0, self.cfg.epoch_loss_limit_usd - epoch_loss
-            ),
-            remaining_mission_loss_buffer_usd=max(
-                0.0, self.cfg.mission_loss_limit_usd - mission_loss
-            ),
+            remaining_epoch_loss_buffer_usd=max(0.0, epoch_buffer),
+            remaining_mission_loss_buffer_usd=max(0.0, mission_buffer),
             completed_round_trips=self.completed_round_trips,
             winning_round_trips=self.winning_round_trips,
             losing_round_trips=self.losing_round_trips,
@@ -176,14 +174,21 @@ class MissionLedger:
         )
 
     def to_dict(self) -> dict:
-        payload = asdict(self.snapshot())
-        payload["status"] = self.status.value
-        payload["net_cost_usd"] = self.snapshot().net_cost_usd
+        snapshot = self.snapshot()
+        payload = asdict(snapshot)
+        payload["status"] = snapshot.status.value
+        payload["net_cost_usd"] = snapshot.net_cost_usd
         payload["config"] = asdict(self.cfg)
         return payload
 
     def _recompute_status(self) -> None:
-        # Reaching target volume wins immediately at the finalized event boundary.
+        # A trade that overshoots the hard loss floor cannot be rescued by also
+        # crossing the volume target on the same finalized event.
+        if self.cumulative_pnl_usd < -self.cfg.mission_loss_limit_usd:
+            self.status = MissionStatus.HALT
+            return
+
+        # Hitting the target exactly at the allowed loss floor is acceptable.
         if self.cumulative_volume_usd >= self.cfg.target_volume_usd:
             self.status = MissionStatus.SUCCESS
             return
