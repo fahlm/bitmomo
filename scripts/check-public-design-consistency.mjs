@@ -28,6 +28,7 @@ const assets = read(theme, 'inc/trait-bitmomo-assets.php');
 const account = read(pro, 'assets/css/bitmomo-pro-account.css');
 const whitelist = read(pro, 'assets/css/bitmomo-pro-whitelist.css');
 const help = read(pro, 'assets/css/bitmomo-pro-help.css');
+const decisionView = read(pro, 'assets/css/bitmomo-pro-decision-view.css');
 const btcCss = read(btc, 'assets/css/bitmomo-btc-intelligence.css');
 
 check(
@@ -148,6 +149,24 @@ check(
   /max-width:var\(--bm-product-width,1080px\)/.test(btcCss) &&
   /var\(--bm-touch-target-mobile,44px\)/.test(btcCss) &&
   !/#2dd4bf|45\s*,\s*212\s*,\s*191|--bmi-teal|#34d399|#f87171|#e69a18/i.test(btcCss)
+);
+
+check(
+  'Pro Decision View consumes steel-blue product semantics, amber commercial action and restrained market-state colors',
+  /--bms-teal:\s*var\(--bm-accent,\s*#6c8ebf\)/.test(decisionView) &&
+  /--bms-orange:\s*var\(--bm-action,\s*#f4ad32\)/.test(decisionView) &&
+  /--bms-bull:\s*var\(--bm-positive,\s*#63a98a\)/.test(decisionView) &&
+  /--bms-bear:\s*var\(--bm-negative,\s*#c97b77\)/.test(decisionView) &&
+  /\.bm-pro--decision-first \.bm-pro__cta[\s\S]*?background:\s*var\(--bm-action/.test(decisionView) &&
+  /\.bm-pro-sales__range-band,[\s\S]*?background:\s*var\(--bm-accent/.test(decisionView) &&
+  !/#2dd4bf|#34d399|#f87171|45\s*,\s*212\s*,\s*191/i.test(decisionView)
+);
+
+check(
+  'Pro Decision View remains dependency-light and owns responsive/focus behavior without external fonts',
+  /@media \(max-width: 760px\)/.test(decisionView) &&
+  /:focus-visible/.test(decisionView) &&
+  !/@import|fonts\.googleapis\.com|chart\.js/i.test(decisionView)
 );
 
 check(
