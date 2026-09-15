@@ -59,6 +59,7 @@ const authority = read('.github/workflows/authority-surface-safety.yml');
 const regime = read('.github/workflows/regime-safety.yml');
 const browser = read('.github/workflows/ui-browser-safety.yml');
 const governance = read('.github/workflows/ci-governance-safety.yml');
+const preflight = read('scripts/run-release-preflight.sh');
 
 check('Full Release is manual-only',
   hasTopLevelTrigger(release, 'workflow_dispatch') &&
@@ -72,12 +73,28 @@ check('Full Release requires an exact candidate SHA input',
   /actual_sha=.*git rev-parse HEAD/.test(release) &&
   /actual_sha.*EXPECTED_CANDIDATE_SHA/.test(release)
 );
-check('Full Release is restricted to release branches or main',
-  /refs\/heads\/release\/\*\|refs\/heads\/main/.test(release)
+check('Full Release is restricted to release branches, immutable RC snapshots, or main',
+  /refs\/heads\/release\/\*\|refs\/heads\/rc-\*\|refs\/heads\/main/.test(release)
 );
-check('Full Release self-audits governance before expensive release work',
-  release.indexOf('node scripts/check-ci-governance.mjs') > -1 &&
-  release.indexOf('node scripts/check-ci-governance.mjs') < release.indexOf('Lint every managed PHP file')
+check('Full Release delegates all deterministic/source work to one canonical preflight',
+  /bash scripts\/run-release-preflight\.sh --candidate-sha/.test(release) &&
+  /--output-dir dist/.test(release)
+);
+check('Canonical preflight rejects SHA drift and dirty tracked source',
+  /actual_sha.*candidate_sha/.test(preflight) &&
+  /git diff --quiet/.test(preflight) &&
+  /git diff --cached --quiet/.test(preflight)
+);
+check('Canonical preflight self-audits CI governance before source validation',
+  preflight.indexOf('scripts/check-ci-governance.mjs') > -1 &&
+  preflight.indexOf('scripts/check-ci-governance.mjs') < preflight.indexOf('Managed PHP lint')
+);
+check('Canonical preflight proves deterministic artifact and exact provenance',
+  /build-production-artifact\.py/.test(preflight) &&
+  /cmp .*bitmomo-runtime\.tar/.test(preflight) &&
+  /source_commit/.test(preflight) &&
+  /source_tree/.test(preflight) &&
+  /artifact_sha256/.test(preflight)
 );
 check('Full Release cancels superseded work and has a hard timeout <= 12m',
   hasCancelInProgress(release) && maxTimeout(release) <= 12
@@ -120,11 +137,12 @@ check('Browser audit cancels superseded runs and is capped at 20m',
   hasCancelInProgress(browser) && maxTimeout(browser) <= 20
 );
 
-check('CI governance runs only for CI-policy changes or manual audit',
+check('CI governance runs only for CI-policy/preflight changes or manual audit',
   hasTopLevelTrigger(governance, 'pull_request') &&
   hasTopLevelTrigger(governance, 'workflow_dispatch') &&
   /paths:[\s\S]*?\.github\/workflows\/\*\*/.test(governance) &&
   /scripts\/check-ci-governance\.mjs/.test(governance) &&
+  /scripts\/run-release-preflight\.sh/.test(governance) &&
   !hasTopLevelTrigger(governance, 'push') &&
   !hasTopLevelTrigger(governance, 'schedule')
 );
@@ -155,4 +173,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PASS CI governance contract: workflow inventory, triggers, schedules, budgets, concurrency, draft discipline, and release identity are fail-closed.');
+console.log('PASS CI governance contract: workflow inventory, triggers, schedules, budgets, concurrency, draft discipline, immutable-RC identity, and single-source release validation are fail-closed.');
