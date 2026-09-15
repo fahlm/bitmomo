@@ -178,7 +178,7 @@ class Bitmomo_Btc_Intelligence_Page {
 
 	private function activity_display( $opportunity ) {
 		$opportunity = is_array( $opportunity ) ? $opportunity : array();
-		$state = sanitize_key( (string) ( $opportunity['state'] ?? '' ) );
+		$state = sanitize_key( strtolower( (string) ( $opportunity['state'] ?? '' ) ) );
 		if ( 'available' !== sanitize_key( (string) ( $opportunity['status'] ?? '' ) ) || ! in_array( $state, array( 'high', 'normal', 'low' ), true ) ) {
 			return array(
 				'available' => false,
@@ -292,7 +292,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		$freshness = is_array( $snapshot['freshness'] ?? null ) ? $snapshot['freshness'] : array();
 		$iso = trim( (string) ( $freshness['timestamp_iso'] ?? '' ) );
 		$exact = $this->format_wib( $iso );
-		$note = __( 'MAJOR BRIEF TERTUNDA — Bias dan confidence brief ditahan sampai data brief kembali memenuhi standar freshness Bitmomo. Market Pulse tetap ditampilkan terpisah bila data intraday-nya masih fresh.', 'bitmomo-btc-intelligence' );
+		$note = __( 'PEMBACAAN SAAT INI DITAHAN — MAJOR BRIEF TERTUNDA. Bias dan confidence brief ditahan sampai data brief kembali memenuhi standar freshness Bitmomo. Market Pulse tetap ditampilkan terpisah bila data intraday-nya masih fresh.', 'bitmomo-btc-intelligence' );
 		if ( $exact ) {
 			$note .= ' ' . sprintf( __( 'Observasi brief terverifikasi terakhir: %s.', 'bitmomo-btc-intelligence' ), $exact );
 		}
