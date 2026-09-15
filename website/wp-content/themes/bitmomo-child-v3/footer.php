@@ -24,8 +24,8 @@ $bm_footer_groups = array(
         'url'   => home_url( '/pro/' ),
       ),
       array(
-        'label' => __( 'Methodology & Track Record', 'bitmomo' ),
-        'url'   => home_url( '/btc-intelligence/#decision-ledger' ),
+        'label' => __( 'Track Record', 'bitmomo' ),
+        'url'   => home_url( '/btc-intelligence/#bm-bi-track-title' ),
       ),
     ),
   ),
