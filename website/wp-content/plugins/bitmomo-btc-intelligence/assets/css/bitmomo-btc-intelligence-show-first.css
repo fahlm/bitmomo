@@ -1,0 +1,151 @@
+/* Bitmomo BTC Intelligence — Show-First product hierarchy override.
+ * Presentation-only: no engine, adapter, freshness, entitlement, or schema changes.
+ */
+
+.bm-bi {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Keep a real H1 for accessibility/SEO, but stop spending the first viewport
+ * explaining what the product will show. The product itself is the explanation. */
+.bm-bi__hero {
+  order: 0;
+  display: block;
+  padding: 24px 0 14px;
+  border-bottom: 0;
+}
+
+.bm-bi__hero > div {
+  max-width: none;
+}
+
+.bm-bi__hero h1 {
+  font-size: clamp(24px, 3.2vw, 34px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.bm-bi__hero > div > p:not(.bm-bi__eyebrow),
+.bm-bi__hero > small {
+  display: none;
+}
+
+/* The actual intelligence is now the first substantive surface. */
+.bm-bi__snapshot {
+  order: 1;
+  margin-top: 0;
+  border-top: 2px solid var(--bmi-accent);
+}
+
+.bm-bi__rail {
+  order: 2;
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+/* Remaining surfaces follow evidence depth, not marketing narrative. */
+.bm-bi__history { order: 3; }
+.bm-bi__ledger { order: 4; }
+.bm-bi__pro-archive { order: 5; }
+.bm-bi__track-record { order: 6; }
+.bm-bi__pro-cta { order: 7; }
+.bm-bi__methodology { order: 8; }
+
+/* Make the first screen scan like a terminal: state first, prose second. */
+.bm-bi__snapshot .bm-bi__section-head--terminal {
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--bmi-border-soft);
+}
+
+.bm-bi__snapshot .bm-bi__section-head--terminal h2 {
+  font-size: clamp(25px, 3.5vw, 38px);
+}
+
+.bm-bi__snapshot-grid {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.bm-bi__snapshot-grid > div:first-child strong {
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.bm-bi__snapshot-grid > div:nth-child(2) strong {
+  font-family: var(--bmi-mono);
+  font-size: clamp(19px, 2.4vw, 28px);
+}
+
+.bm-bi__brief-grid {
+  margin-top: 14px;
+}
+
+.bm-bi__brief-panel h3 {
+  color: var(--bmi-text);
+}
+
+/* "Show, don't tell" on the Pro bridge: historical product proof is more
+ * prominent than generic commercial explanation. */
+.bm-bi__pro-archive {
+  margin-top: 26px;
+  padding: 24px;
+  border: 1px solid rgba(var(--bmi-accent-rgb), .28);
+  border-radius: 11px;
+  background: linear-gradient(180deg, rgba(var(--bmi-accent-rgb), .045), var(--bmi-bg));
+}
+
+.bm-bi__pro-archive .bm-bi__section-intro {
+  max-width: 760px;
+}
+
+.bm-bi__archive-card:first-child {
+  border-color: rgba(var(--bmi-accent-rgb), .34);
+  box-shadow: 0 18px 48px rgba(0,0,0,.16);
+}
+
+.bm-bi__archive-metrics strong {
+  font-size: 13px;
+}
+
+.bm-bi__archive-thesis > span,
+.bm-bi__archive-metrics span {
+  color: var(--bm-text-secondary, #b7c0ca);
+}
+
+/* CTA should be a compact consequence of visible proof, not another hero. */
+.bm-bi__pro-cta {
+  margin-top: 26px;
+  padding: 18px 20px;
+}
+
+.bm-bi__pro-cta h2 {
+  font-size: clamp(18px, 2.1vw, 23px);
+}
+
+.bm-bi__pro-cta > div > p:not(.bm-bi__eyebrow) {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .bm-bi__hero {
+    padding: 20px 0 10px;
+  }
+
+  .bm-bi__snapshot {
+    padding: 16px 14px;
+  }
+
+  .bm-bi__snapshot .bm-bi__section-head--terminal {
+    gap: 10px;
+  }
+
+  .bm-bi__snapshot-grid > div:first-child strong {
+    font-size: 31px;
+  }
+
+  .bm-bi__pro-archive {
+    padding: 18px 14px;
+  }
+}
