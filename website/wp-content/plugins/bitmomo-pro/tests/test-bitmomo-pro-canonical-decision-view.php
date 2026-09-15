@@ -6,9 +6,9 @@
  * and trust boundaries that can regress during later renderer/CSS refactors.
  */
 
-$root       = dirname( __DIR__ );
-$sales      = file_get_contents( $root . '/includes/class-bitmomo-pro-sales.php' );
-$dashboard  = file_get_contents( $root . '/includes/class-bitmomo-pro-shortcodes.php' );
+$root         = dirname( __DIR__ );
+$sales        = file_get_contents( $root . '/includes/class-bitmomo-pro-sales.php' );
+$dashboard    = file_get_contents( $root . '/includes/class-bitmomo-pro-shortcodes.php' );
 $decision_css = file_get_contents( $root . '/assets/css/bitmomo-pro-decision-view.css' );
 
 $results = array();
@@ -48,8 +48,8 @@ check_contract(
 );
 check_contract(
 	'PUBLIC PROOF: historical reference and settled +24h marker use the same frozen row',
-	false !== strpos( $sales, "'REF ' . $this->format_price( $reference )" ) &&
-	false !== strpos( $sales, "'+24H ' . $this->format_price( $outcome )" )
+	false !== strpos( $sales, "'REF ' . \$this->format_price( \$reference )" ) &&
+	false !== strpos( $sales, "'+24H ' . \$this->format_price( \$outcome )" )
 );
 check_contract(
 	'ACCOUNTABILITY: no unsupported accuracy percentage is rendered',
@@ -96,9 +96,11 @@ check_contract(
 	false !== strpos( $dashboard, 'Apa yang membuat tesis ini tidak lagi berlaku?' ) &&
 	false !== strpos( $dashboard, 'What Changed' )
 );
+$what_changed_pos = strpos( $dashboard, "if ( ! empty( \$brief['what_changed'] ) )" );
+$confidence_pos   = strpos( $dashboard, "if ( ! empty( \$brief['confidence_explanation'] ) )" );
 check_contract(
 	'PROTECTED COGNITION: confidence explanation is supporting context after What Changed',
-	strpos( $dashboard, "if ( ! empty( $brief['what_changed'] ) )" ) < strpos( $dashboard, "if ( ! empty( $brief['confidence_explanation'] ) )" )
+	false !== $what_changed_pos && false !== $confidence_pos && $what_changed_pos < $confidence_pos
 );
 check_contract(
 	'PROTECTED CONVERSION: checkout-off state routes to Founding Whitelist',
