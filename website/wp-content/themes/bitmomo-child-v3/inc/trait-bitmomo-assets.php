@@ -108,9 +108,9 @@ trait Bitmomo_Assets_Trait {
         }
 
         if (is_front_page()) {
-            // One explicit homepage owner. The old Opportunity stylesheet is no
-            // longer loaded because the canonical front page no longer renders
-            // that standalone component.
+            // Canonical homepage owners load first. Show-First remains a narrow,
+            // reversible evaluation layer until browser acceptance proves which
+            // hierarchy decisions should be folded back into canonical CSS.
             $home_css_path = get_stylesheet_directory() . '/assets/css/home.css';
             if (file_exists($home_css_path)) {
                 wp_enqueue_style(
@@ -129,6 +129,17 @@ trait Bitmomo_Assets_Trait {
                     get_stylesheet_directory_uri() . '/assets/css/home-conversion.css',
                     $public_surface_deps,
                     $this->get_file_version($conversion_css_path)
+                );
+                $public_surface_deps = ['bitmomo-home-conversion'];
+            }
+
+            $home_show_first_path = get_stylesheet_directory() . '/assets/css/home-show-first.css';
+            if (file_exists($home_show_first_path)) {
+                wp_enqueue_style(
+                    'bitmomo-home-show-first',
+                    get_stylesheet_directory_uri() . '/assets/css/home-show-first.css',
+                    $public_surface_deps,
+                    $this->get_file_version($home_show_first_path)
                 );
             }
         }
