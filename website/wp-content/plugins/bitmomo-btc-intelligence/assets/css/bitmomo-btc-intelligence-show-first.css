@@ -1,5 +1,6 @@
 /* Bitmomo BTC Intelligence — Show-First product hierarchy override.
- * Presentation-only: no engine, adapter, freshness, entitlement, or schema changes.
+ * Public surface goal: State -> Change -> Meaning -> Watch -> Proof.
+ * Presentation-only: no scoring, freshness, entitlement, or protected Pro changes.
  */
 
 .bm-bi {
@@ -7,8 +8,7 @@
   flex-direction: column;
 }
 
-/* Keep a real H1 for accessibility/SEO, but stop spending the first viewport
- * explaining what the product will show. The product itself is the explanation. */
+/* Compact identity, not a marketing hero. */
 .bm-bi__hero {
   order: 0;
   display: block;
@@ -16,9 +16,7 @@
   border-bottom: 0;
 }
 
-.bm-bi__hero > div {
-  max-width: none;
-}
+.bm-bi__hero > div { max-width: none; }
 
 .bm-bi__hero h1 {
   font-size: clamp(24px, 3.2vw, 34px);
@@ -27,34 +25,31 @@
 }
 
 .bm-bi__hero > div > p:not(.bm-bi__eyebrow),
-.bm-bi__hero > small {
-  display: none;
-}
+.bm-bi__hero > small { display: none; }
 
-/* The actual intelligence is now the first substantive surface. */
+/* Product before navigation/explanation. */
 .bm-bi__snapshot {
   order: 1;
   margin-top: 0;
   border-top: 2px solid var(--bmi-accent);
 }
 
-.bm-bi__rail {
-  order: 2;
-  margin-top: 14px;
-  margin-bottom: 0;
-}
-
-/* Remaining surfaces follow evidence depth, not marketing narrative. */
-.bm-bi__history { order: 3; }
-.bm-bi__ledger { order: 4; }
+.bm-bi__evidence-context { order: 2; }
+.bm-bi__rail { order: 3; margin-top: 12px; margin-bottom: 0; }
+.bm-bi__history { order: 4; }
 .bm-bi__pro-archive { order: 5; }
 .bm-bi__track-record { order: 6; }
 .bm-bi__pro-cta { order: 7; }
 .bm-bi__methodology { order: 8; }
 
-/* Make the first screen scan like a terminal: state first, prose second. */
+/* A raw row ledger is an audit instrument, not a primary investor/user surface.
+ * Accountability remains in the underlying data boundary and aggregate proof. */
+.bm-bi__ledger,
+.bm-bi__rail a[href="#decision-ledger"] { display: none; }
+
+/* First screen: State -> Change -> Meaning -> Watch. */
 .bm-bi__snapshot .bm-bi__section-head--terminal {
-  padding-bottom: 15px;
+  padding-bottom: 13px;
   border-bottom: 1px solid var(--bmi-border-soft);
 }
 
@@ -62,10 +57,49 @@
   font-size: clamp(25px, 3.5vw, 38px);
 }
 
+/* Market Pulse already has freshness in the terminal header. Remove the
+ * duplicate Clock & Freshness card and make activity one compact strip. */
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type {
+  grid-template-columns: 1fr;
+  margin-top: 12px;
+}
+
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel:nth-child(2) {
+  display: none;
+}
+
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px 12px;
+  padding: 10px 12px;
+}
+
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel h3,
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel span,
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel p {
+  margin: 0;
+}
+
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel h3 {
+  font-size: 9px;
+}
+
+.bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel span {
+  color: var(--bmi-subtle);
+  font: 800 8px/1.3 var(--bmi-mono);
+  letter-spacing: .09em;
+}
+
 .bm-bi__snapshot-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 0;
   border-top: 0;
 }
+
+/* Session identity is already in the section header; don't repeat it as a metric. */
+.bm-bi__snapshot-grid > div:nth-child(3) { display: none; }
 
 .bm-bi__snapshot-grid > div:first-child strong {
   font-size: clamp(28px, 4vw, 46px);
@@ -78,74 +112,144 @@
   font-size: clamp(19px, 2.4vw, 28px);
 }
 
-.bm-bi__brief-grid {
+/* The current-setup panel repeats State/driver information. Keep only the
+ * three decision questions: what changed, why it matters, what to watch. */
+.bm-bi__snapshot-grid + .bm-bi__brief-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 14px;
 }
 
-.bm-bi__brief-panel h3 {
-  color: var(--bmi-text);
+.bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child {
+  display: none;
 }
 
-/* "Show, don't tell" on the Pro bridge: historical product proof is more
- * prominent than generic commercial explanation. */
+.bm-bi__brief-panel h3 { color: var(--bmi-text); }
+
+/* Compact evidence context sourced from the public-safe adapter. */
+.bm-bi__evidence-context {
+  display: grid;
+  grid-template-columns: minmax(150px, .34fr) minmax(0, 1fr);
+  gap: 1px;
+  margin-top: 10px;
+  border: 1px solid var(--bmi-border-soft);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--bmi-border-soft);
+}
+
+.bm-bi__evidence-context > div {
+  min-width: 0;
+  padding: 12px 14px;
+  background: var(--bmi-surface);
+}
+
+.bm-bi__evidence-context span {
+  display: block;
+  color: var(--bmi-subtle);
+  font: 800 8px/1.3 var(--bmi-mono);
+  letter-spacing: .11em;
+}
+
+.bm-bi__evidence-regime strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.bm-bi__evidence-regime small {
+  display: block;
+  margin-top: 4px;
+  color: var(--bmi-subtle);
+  font: 650 9px/1.35 var(--bmi-mono);
+}
+
+.bm-bi__evidence-drivers ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin: 7px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bm-bi__evidence-drivers li {
+  position: relative;
+  padding-left: 11px;
+  color: var(--bm-text-secondary, #b7c0ca);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.bm-bi__evidence-drivers li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .58em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--bmi-accent);
+}
+
+/* The visitor needs one concrete Pro example, not a catalogue. */
 .bm-bi__pro-archive {
   margin-top: 26px;
-  padding: 24px;
+  padding: 22px;
   border: 1px solid rgba(var(--bmi-accent-rgb), .28);
   border-radius: 11px;
   background: linear-gradient(180deg, rgba(var(--bmi-accent-rgb), .045), var(--bmi-bg));
 }
 
-.bm-bi__pro-archive .bm-bi__section-intro {
-  max-width: 760px;
-}
+.bm-bi__pro-archive .bm-bi__section-intro { max-width: 760px; }
+.bm-bi__archive-card:nth-child(n+2) { display: none; }
 
 .bm-bi__archive-card:first-child {
   border-color: rgba(var(--bmi-accent-rgb), .34);
   box-shadow: 0 18px 48px rgba(0,0,0,.16);
 }
 
-.bm-bi__archive-metrics strong {
-  font-size: 13px;
-}
+.bm-bi__archive-metrics strong { font-size: 13px; }
 
 .bm-bi__archive-thesis > span,
-.bm-bi__archive-metrics span {
-  color: var(--bm-text-secondary, #b7c0ca);
-}
+.bm-bi__archive-metrics span { color: var(--bm-text-secondary, #b7c0ca); }
 
-/* CTA should be a compact consequence of visible proof, not another hero. */
+/* Aggregate proof should answer "is there evidence?", not expose an analyst
+ * scorecard breakdown by every direction. Keep overall + rolling 30 only. */
+.bm-bi__track-record .bm-bi__proof-metric:nth-child(n+3) { display: none; }
+.bm-bi__track-record .bm-bi__proof-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* CTA is a consequence of visible proof, not another hero. */
 .bm-bi__pro-cta {
   margin-top: 26px;
   padding: 18px 20px;
 }
 
-.bm-bi__pro-cta h2 {
-  font-size: clamp(18px, 2.1vw, 23px);
-}
-
-.bm-bi__pro-cta > div > p:not(.bm-bi__eyebrow) {
-  display: none;
-}
+.bm-bi__pro-cta h2 { font-size: clamp(18px, 2.1vw, 23px); }
+.bm-bi__pro-cta > div > p:not(.bm-bi__eyebrow) { display: none; }
 
 @media (max-width: 720px) {
-  .bm-bi__hero {
-    padding: 20px 0 10px;
+  .bm-bi__hero { padding: 20px 0 10px; }
+  .bm-bi__snapshot { padding: 16px 14px; }
+  .bm-bi__snapshot .bm-bi__section-head--terminal { gap: 10px; }
+  .bm-bi__snapshot-grid { grid-template-columns: 1fr 1fr; }
+  .bm-bi__snapshot-grid > div { padding: 12px 10px; border-top: 0; border-left: 1px solid var(--bmi-border); }
+  .bm-bi__snapshot-grid > div:first-child { padding-left: 0; border-left: 0; }
+  .bm-bi__snapshot-grid > div:nth-child(2) { padding-right: 0; }
+  .bm-bi__snapshot-grid > div:first-child strong { font-size: 29px; }
+  .bm-bi__snapshot-grid > div:nth-child(2) strong { font-size: 18px; }
+  .bm-bi__snapshot > .bm-bi__brief-grid:first-of-type .bm-bi__brief-panel {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
+  .bm-bi__snapshot-grid + .bm-bi__brief-grid { grid-template-columns: 1fr; }
+  .bm-bi__evidence-context { grid-template-columns: 1fr; }
+  .bm-bi__evidence-drivers ul { grid-template-columns: 1fr; }
+  .bm-bi__pro-archive { padding: 18px 14px; }
+}
 
-  .bm-bi__snapshot {
-    padding: 16px 14px;
-  }
-
-  .bm-bi__snapshot .bm-bi__section-head--terminal {
-    gap: 10px;
-  }
-
-  .bm-bi__snapshot-grid > div:first-child strong {
-    font-size: 31px;
-  }
-
-  .bm-bi__pro-archive {
-    padding: 18px 14px;
-  }
+@media (max-width: 430px) {
+  .bm-bi__snapshot-grid > div:first-child strong { font-size: 26px; }
+  .bm-bi__snapshot-grid > div:nth-child(2) strong { font-size: 16px; }
+  .bm-bi__track-record .bm-bi__proof-grid { grid-template-columns: 1fr; }
 }
