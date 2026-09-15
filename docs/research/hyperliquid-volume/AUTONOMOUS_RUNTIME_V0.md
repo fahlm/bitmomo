@@ -32,6 +32,8 @@ Dynamic Universe Manager
         ↓ top liquid set + retention buffer + pinned active market
 Shared public websocket
         ↓ L2 top-5 + trades
+Generation fence + bounded event dedupe
+        ↓
 Per-market MarketObserver pool
         ↓
 Standardized shadow execution probes
@@ -110,19 +112,47 @@ Observer objects are retained in a process-level pool when a coin rotates out of
 
 Market-state windows are intentionally not restored after a process restart. They must warm up from fresh public data.
 
+## Public-event integrity
+
+`market_selector/event_integrity.py`
+
+Reconnects may replay events. V0 now protects the scanner from double-counting:
+
+- trade events use a bounded per-coin key set (trade ID/hash when available, deterministic fallback otherwise);
+- exact consecutive L2 snapshots are suppressed;
+- duplicate counters are exposed in `autonomous_state.json`;
+- book heartbeat is recorded before duplicate suppression so a legitimate replayed initial snapshot can still prove that a replacement websocket is alive.
+
+This protects aggressor-flow metrics and standardized shadow fill accounting from reconnect replay bias.
+
+## Optional autonomous raw research capture
+
+`market_selector/raw_capture.py`
+
+The same 24/7 process can optionally write combined, replay-compatible SEEN research data:
+
+- `ALL_books.csv` — coin + top-5 L2 levels + receive/exchange timestamps;
+- `ALL_trades.csv` — coin + individual trades + receive/exchange timestamps + ID/hash.
+
+Enable only for explicitly labeled SEEN development collection using `--capture-dir` or `HL_CAPTURE_DIR`. It is disabled by default.
+
+This replaces the operational need to launch one manual recorder per coin for future development captures.
+
 ## Fail-closed restart behavior
 
 `runtime_state.py` atomically writes a JSON control-plane snapshot containing:
 
 - dynamic universe;
 - transport generation/health/reconnects;
+- event-integrity counters;
+- optional raw-capture counters;
 - supervisor state and histories;
 - decision/action;
 - ranking;
 - compact per-market metrics;
 - feedback statistics.
 
-An active market remembered from a previous process is restored only as control-plane identity. Its qualification streak is reset and its degradation state is forced fail-closed, so a restart cannot immediately grant new-entry authority from stale data.
+A previous active/pending market is remembered only for diagnostics. Runtime authority is cleared after restart: qualification/challenger streaks reset and every market must qualify from fresh public market-state data again.
 
 ## Transport
 
@@ -150,6 +180,8 @@ Default runtime artifacts:
 
 - `data/runtime/autonomous_state.json`
 - `data/runtime/autonomous_shadow_feedback.jsonl`
+
+Optional development capture can be enabled by setting `HL_CAPTURE_DIR` before launching.
 
 ## Mainnet boundary
 
