@@ -14,7 +14,7 @@ $html = $page->render_page( array() );
 check( 'Page renders without public adapter', strlen( $html ) > 400 );
 check( 'Page has canonical wrapper', false !== strpos( $html, 'class="bm-bi"' ) );
 check( 'Hero explains the two-clock visitor model', false !== strpos( $html, 'Market Pulse menunjukkan aktivitas intraday' ) && false !== strpos( $html, 'Major Brief menunjukkan bias' ) );
-check( 'Unavailable Major Brief fails closed', false !== strpos( $html, 'Major Brief belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.' ) );
+check( 'Unavailable Major Brief fails closed', false !== strpos( $html, 'Pembacaan arah sedang ditahan karena Major Brief belum memenuhi standar kualitas Bitmomo.' ) );
 check( 'No fabricated BTC reference without adapter', false === strpos( $html, '$65,000' ) && false === strpos( $html, '$65.000' ) );
 check( 'Only one Pro conversion action is rendered', 1 === substr_count( $html, 'Lihat Bitmomo Pro' ) );
 check( 'Page still renders accountability boundaries without data', false !== strpos( $html, 'Decision Ledger' ) && false !== strpos( $html, 'Arsip Pro' ) );

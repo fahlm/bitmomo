@@ -9,7 +9,7 @@
 
 > **SOURCE CONVERGING AFTER FULL RELEASE FINDING — DO NOT DEPLOY**
 >
-> PR #168, #169, and #170 have been reconciled into the canonical release line with semantic conflict review. Full Release run `34931625847` for candidate `1c410ba9555af561eff54b5b62352a48920998a8` passed exact identity, CI governance, and managed PHP lint, then failed in the deterministic BTC Intelligence surface-context suite. That candidate is revoked for promotion. The next SHA after this source fix and ledger update must be frozen as the new exact candidate.
+> PR #168, #169, and #170 have been reconciled into the canonical release line with semantic conflict review. Full Release run `34931625847` for candidate `1c410ba9555af561eff54b5b62352a48920998a8` passed exact identity, CI governance, and managed PHP lint, then failed in the deterministic BTC Intelligence surface-context suite. Follow-up run `34931913433` for candidate `80dd5ca9a5e6afb6bdff5e85b844299e227e8252` proved that suite fixed, then found the companion BTC Intelligence page contract still expected the old fail-closed copy. Both candidates are revoked for promotion. The next SHA after this contract sync and ledger update must be frozen as the new exact candidate.
 
 This file is the fast entry point for engineers. It records the actual release topology and acceptance state; it is not a roadmap and it must not be treated as deployment authorization.
 
@@ -88,10 +88,13 @@ Local source checks available in the release-integrator environment passed for d
 
 Full Release run `34931625847` for exact candidate `1c410ba9555af561eff54b5b62352a48920998a8` is **FAILED / REVOKED FOR PROMOTION**. Passing portions: exact candidate identity, CI governance, managed PHP lint. Failing portion: deterministic BTC Intelligence surface-context suite expected explicit visitor-language Market Pulse activity and explicit fail-closed directional copy.
 
+Full Release run `34931913433` for exact candidate `80dd5ca9a5e6afb6bdff5e85b844299e227e8252` is **FAILED / REVOKED FOR PROMOTION**. Passing portions before failure: exact candidate identity, CI governance, managed PHP lint, and deterministic BTC Intelligence surface-context suite. Failing portion: deterministic BTC Intelligence page contract still expected the superseded unavailable-brief copy.
+
 ## Artifact state
 
 - Historical artifact `10350132727` remains **REVOKED / SUPERSEDED FOR PROMOTION**.
 - Candidate `1c410ba9555af561eff54b5b62352a48920998a8` is **REVOKED** after failed Full Release run `34931625847`.
+- Candidate `80dd5ca9a5e6afb6bdff5e85b844299e227e8252` is **REVOKED** after failed Full Release run `34931913433`.
 - No current artifact is authorized.
 - No staging deployment is authorized from historical evidence.
 - Run Full Release once from the exact frozen release-head SHA after this ledger update is pushed.
@@ -102,7 +105,7 @@ Full Release run `34931625847` for exact candidate `1c410ba9555af561eff54b5b6235
 
 | Gate | State | Meaning |
 |---|---|---|
-| SOURCE | **FIXING FULL RELEASE FINDING / FREEZE AFTER LEDGER COMMIT** | PR #168/#169/#170 remain reconciled; candidate `1c410ba9555af561eff54b5b62352a48920998a8` is revoked and the next post-fix SHA must be frozen. |
+| SOURCE | **FIXING FULL RELEASE FINDING / FREEZE AFTER LEDGER COMMIT** | PR #168/#169/#170 remain reconciled; candidates `1c410ba9555af561eff54b5b62352a48920998a8` and `80dd5ca9a5e6afb6bdff5e85b844299e227e8252` are revoked and the next post-fix SHA must be frozen. |
 | SCOPED CI | **SUPERSEDED BY FULL RELEASE FOR CANDIDATE** | Prior focused evidence was useful; release-wide validation now belongs to one exact-candidate Full Release. |
 | RELEASE-WIDE CI | **READY AFTER NEW SHA FREEZE** | Run once after this source fix and ledger update are committed, pushed, and frozen as a new exact SHA. |
 | ARTIFACT | **NONE AUTHORIZED** | Historical artifacts are revoked. |
