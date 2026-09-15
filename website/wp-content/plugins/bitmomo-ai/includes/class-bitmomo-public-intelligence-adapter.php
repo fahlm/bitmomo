@@ -52,17 +52,27 @@ final class Bitmomo_Public_Intelligence_Adapter {
         if ($is_fresh && is_array($session_intelligence['current_setup'] ?? null)) {
             $session_intelligence['current_setup']['market_state'] = $market_state;
         }
-        $opportunity = $is_fresh
+
+        // Slow-clock lineage stays frozen with the Major Brief. The top-level
+        // Opportunity is a separate fast-clock public state and is only exposed
+        // through the store's own freshness gate. This keeps two clocks honest
+        // without publishing a second timestamp as if it refreshed the brief.
+        $canonical_opportunity = $is_fresh
             ? self::canonical_opportunity($session_intelligence['opportunity'] ?? null)
             : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
         if ($is_fresh) {
-            $session_intelligence['opportunity'] = $opportunity;
+            $session_intelligence['opportunity'] = $canonical_opportunity;
         }
+        $latest_opportunity = class_exists('Bitmomo_AI_Opportunity_Store')
+            ? Bitmomo_AI_Opportunity_Store::public_latest()
+            : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
+        $opportunity = self::surface_opportunity($latest_opportunity);
 
         return [
             'status' => $status,
-            // A delayed snapshot may retain the last validated reference price for
-            // transparency, but every current assessment field below fails closed.
+            // A delayed Major Brief may retain provenance/reference price, while
+            // its directional assessment fails closed. Opportunity is independent
+            // and can remain available only when its own <=30m freshness gate passes.
             'btc_reference_price' => (float) $price,
             'opportunity' => $opportunity,
             'market_state' => $market_state,
@@ -262,7 +272,9 @@ final class Bitmomo_Public_Intelligence_Adapter {
     private static function metric($row) {
         if (!is_array($row)) return ['n' => 0, 'sample_status' => 'INSUFFICIENT SAMPLE'];
         $allowed = ['n', 'conclusive_n', 'correct', 'incorrect', 'inconclusive', 'accuracy_pct', 'range', 'range_hit_pct', 'low_breach_pct', 'high_breach_pct', 'average_width_pct', 'average_forward_return_pct', 'average_forward_volatility_pct', 'stale_rate_pct', 'blocked_degraded_rate_pct', 'missing_data_rate_pct', 'settlement_n', 'settlement_evaluated_n', 'settlement_missed_n', 'settlement_pending_n', 'settlement_completeness_pct', 'sample_status'];
-        return array_intersect_key($row, array_flip($allowed));
+        $metric = array_intersect_key($row, array_flip($allowed));
+        if (($metric['sample_status'] ?? '') === 'INSUFFICIENT SAMPLE') unset($metric['accuracy_pct']);
+        return $metric;
     }
 
     private static function metric_map($rows) {

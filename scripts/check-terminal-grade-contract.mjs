@@ -34,6 +34,7 @@ const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/desig
 const navCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/navigation-footer.css');
 const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
+const aiMain = read('website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php');
 const keyDrivers = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-key-drivers.php');
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
 const proCopy = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php');
@@ -174,7 +175,6 @@ check('One public noindex predicate owns all utility/archive side doors',
 check('Pro runtime detaches its legacy duplicate SEO owner and loads the no-op compatibility shim',
   proMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   proMain.includes("remove_action( 'wp_head'") &&
-  proMain.includes("BITMOMO_PRO_VERSION', '0.12.8'") &&
   proMain.includes('class-bitmomo-pro-public-copy.php') &&
   proMain.includes('Bitmomo_Pro_Public_Copy::init()')
 );
@@ -191,8 +191,12 @@ check('BTC Intelligence runtime owns accountability and market context but not a
   btcMain.includes('class-bitmomo-btc-intelligence-market-context.php') &&
   btcMain.includes('Bitmomo_Btc_Intelligence_Market_Context::init()') &&
   btcMain.includes("remove_filter( 'rank_math/frontend/description'") &&
-  btcMain.includes("remove_action( 'wp_head'") &&
-  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.8'")
+  btcMain.includes("remove_action( 'wp_head'")
+);
+check('Opportunity fast polling is explicit opt-in, not an implicit plugin-load side effect',
+  aiMain.includes("defined('BITMOMO_AI_OPPORTUNITY_ENABLED') && BITMOMO_AI_OPPORTUNITY_ENABLED") &&
+  aiMain.indexOf("defined('BITMOMO_AI_OPPORTUNITY_ENABLED') && BITMOMO_AI_OPPORTUNITY_ENABLED") < aiMain.indexOf('Bitmomo_AI_Opportunity::register();') &&
+  !/define\s*\(\s*[\'\"]BITMOMO_AI_OPPORTUNITY_ENABLED[\'\"]/.test(aiMain)
 );
 check('BTC Intelligence locks the valuable Free session brief and truthful fast-layer cadence',
   btcPage.includes('MAJOR BRIEF') &&
