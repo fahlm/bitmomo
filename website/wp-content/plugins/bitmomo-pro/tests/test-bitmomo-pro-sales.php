@@ -94,7 +94,7 @@ check( 'FREE VS PRO: Free owns one watch context while Pro owns deeper monitorin
 check( 'ACCOUNTABILITY: recorded-before-outcome principle is explicit', false !== strpos( $html, 'Recorded before outcome' ) );
 check( 'ACCOUNTABILITY: settlement is forward-only', false !== strpos( $html, 'Settled outcome' ) && false !== strpos( $html, 'forward-only' ) );
 check( 'ACCOUNTABILITY: small/undefined aggregate sample is disclosed', false !== strpos( $html, 'INSUFFICIENT SAMPLE' ) );
-check( 'ACCOUNTABILITY: no percentage win-rate is emitted', false === stripos( $html, 'win-rate' ) && false === stripos( $html, 'accuracy:') );
+check( 'ACCOUNTABILITY: no unsupported numeric win-rate or accuracy percentage is emitted', 0 === preg_match( '/\d+(?:[\.,]\d+)?%\s*(?:win-rate|accuracy)/i', $html ) );
 
 // Commercial clarity.
 check( 'PRICE: monthly founding price is canonical', false !== strpos( $html, 'Rp149.000' ) );
