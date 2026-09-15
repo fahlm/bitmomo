@@ -41,30 +41,26 @@ The autonomous runtime is read-only and owns no wallet/private key.
 
 Canonical read-only smoke workflow: `.github/workflows/hyperliquid-shadow-smoke.yml`.
 
-Latest verified smoke after fixing the runtime-directory setup and adding compact state history:
+Verified against actual public Hyperliquid mainnet data:
 
 - official `hyperliquid-python-sdk==0.24.0` installed successfully;
 - dynamic universe discovery succeeded;
 - observed universe included BTC, ETH, HYPE, LIT, PONS, SOL, XRP, ZEC;
 - public websocket connected (`generation=1`);
-- final transport healthy, sub-second max book age;
-- reconnects 0 in the short smoke;
-- duplicate book/trade events 0 in the observed sample;
+- final transport healthy with sub-second book age;
 - shadow feedback accumulated;
-- supervisor correctly remained IDLE/WARMUP with no stable qualified market;
+- supervisor correctly stayed IDLE/WARMUP without a stable qualified market;
 - `mode=SHADOW_ONLY`;
 - `mainnet_order_submission=false`;
 - wallet not used.
 
-This proves the autonomous scanner can run against real public Hyperliquid mainnet data without order authority. It is not a substitute for the required >=12h actual-host soak.
+A second smoke after adding compact state history also passed, confirming the persistence layer did not break real public-data operation.
 
 ## Operational soak observability — implemented
 
 Canonical gate: `docs/research/hyperliquid-volume/SHADOW_SOAK_GATE_V0.md`.
 
-`RuntimeStateStore` now appends compact bounded history on every status save. Rotation prevents unbounded history-file growth.
-
-`market_selector.soak_assessor` evaluates the history using predeclared defaults:
+`RuntimeStateStore` appends compact bounded history on every state save. `market_selector.soak_assessor` evaluates the history using predeclared defaults:
 
 - duration >= 12h;
 - healthy samples >= 99%;
@@ -75,7 +71,16 @@ Canonical gate: `docs/research/hyperliquid-volume/SHADOW_SOAK_GATE_V0.md`.
 - mainnet submission false in every sample;
 - non-empty universe in every sample.
 
-Reconnects, universe changes, supervisor transitions, HALT samples and suppressed duplicates are reported diagnostically rather than failed merely for existing.
+`market_selector.runtime_healthcheck` provides an external fail-closed health probe for missing/stale/unhealthy state, unexpected mode, accidental mainnet flag, or empty universe.
+
+Systemd watchdog examples were added:
+
+- `ops/bitmomo-hl-shadow-watchdog.service.example`;
+- `ops/bitmomo-hl-shadow-watchdog.timer.example`.
+
+The watchdog runs every minute and can restart the shadow service when the process is alive but runtime state is stale/unhealthy. This complements `Restart=always`, which only handles process exit.
+
+Reconnects, universe changes, supervisor transitions, HALT samples and suppressed duplicates remain diagnostic soak outputs rather than automatic failures merely for existing.
 
 ## Mission accounting / risk guardian — implemented
 
@@ -130,9 +135,9 @@ A low-level SDK order/controller scaffold exists only for integration review. It
 
 ## CI state
 
-Core selector/control-plane suite is green at **71 tests passed** after adding soak-history/assessor coverage.
+Core selector/control-plane suite is green at **75 tests passed** after adding soak-history, soak-assessor and external runtime-healthcheck coverage.
 
-Public network smoke also passes after the operational-history change, so the added persistence did not break real public-data runtime behavior.
+Public-network smoke is also green with the operational-history persistence enabled.
 
 ## Frozen research evidence
 
@@ -156,13 +161,15 @@ Raw local research datasets are still required to execute the numeric audit. Do 
 
 Before a real $1,000 canary:
 
-1. deploy canonical shadow runtime to one actual always-on host;
+1. deploy canonical shadow runtime to one actual always-on Linux host;
 2. collect >=12h soak history and pass `soak_assessor`;
 3. complete/review the controlled order lifecycle end-to-end, especially partial fills, cancel acknowledgement, restart recovery and flatten confirmation;
 4. wire exchange-native position/open-order/fill/fee/funding reads into the future controller loop;
 5. verify restart cannot duplicate entry or orphan order;
 6. keep one execution authority and external default-OFF operator control;
 7. only after those operational gates pass consider the $1,000 canary.
+
+The connected Hostinger capability available in this environment is Horizons website creation, not a Linux/VPS runtime, so it is not suitable for this Python daemon soak. No compatible always-on host is currently connected to this chat.
 
 ## Mainnet status
 
@@ -172,4 +179,4 @@ Current canonical production-like activity is public-data shadow scanning plus r
 
 ## New-chat bootstrap
 
-Read this file first. Correct state: autonomous dynamic-universe shadow runtime implemented; public Hyperliquid network smoke PASS; mission/risk/reconciliation/operator controls implemented; exchange-native read/accounting implemented; compact soak history + deterministic assessor implemented; core CI 71 tests green; actual-host >=12h soak still pending; Direction Alpha Audit pending raw datasets; Session 4 untouched; mainnet order submission not approved.
+Read this file first. Correct state: autonomous dynamic-universe shadow runtime implemented; public Hyperliquid network smoke PASS; mission/risk/reconciliation/operator controls implemented; exchange-native read/accounting implemented; compact soak history + deterministic assessor + external healthcheck/watchdog implemented; core CI 75 tests green; actual-host >=12h soak still pending; Direction Alpha Audit pending raw datasets; Session 4 untouched; mainnet order submission not approved.
