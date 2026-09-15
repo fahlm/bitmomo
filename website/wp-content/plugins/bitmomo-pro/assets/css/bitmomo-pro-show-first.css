@@ -1,0 +1,201 @@
+/* Bitmomo Pro — Show-First sales hierarchy.
+ * Goal: product proof before feature explanation; evidence density without overload.
+ * Presentation-only. No entitlement, payment, intelligence, or protected-data changes.
+ */
+
+.bm-pro-sales {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Compact membership header. The historical Decision View is the real hero. */
+.bm-pro-sales__hero {
+  order: 0;
+  padding-top: 28px;
+  padding-bottom: 18px;
+}
+
+.bm-pro-sales__hero-title {
+  max-width: 780px;
+  font-size: clamp(30px, 4vw, 50px);
+  line-height: 1.02;
+}
+
+.bm-pro-sales__hero-sub,
+.bm-pro-sales__hero-status,
+.bm-pro-sales__hero-offer,
+.bm-pro-sales__hero-facts {
+  display: none;
+}
+
+.bm-pro-sales__hero-actions {
+  margin-top: 18px;
+}
+
+.bm-pro-sales__hero-micro {
+  max-width: 680px;
+  margin-top: 10px;
+  font-size: 11px;
+}
+
+.bm-pro-sales__rail { order: 1; }
+
+/* Product proof comes before explanation. */
+.bm-pro-sales__product-proof {
+  order: 2;
+  margin-top: 18px;
+  padding: 28px;
+  border: 1px solid rgba(var(--bm-accent-rgb, 244, 173, 50), .28);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(var(--bm-accent-rgb, 244, 173, 50), .045), transparent 58%);
+}
+
+.bm-pro-sales__proof-head {
+  align-items: flex-start;
+}
+
+.bm-pro-sales__product-proof .bm-pro-sales__section-title {
+  max-width: 720px;
+  font-size: clamp(24px, 3vw, 36px);
+}
+
+.bm-pro-sales__product-proof .bm-pro-sales__section-intro {
+  max-width: 720px;
+  margin-bottom: 18px;
+}
+
+.bm-pro-sales__decision-card {
+  border-color: rgba(var(--bm-accent-rgb, 244, 173, 50), .30);
+  box-shadow: 0 22px 56px rgba(0, 0, 0, .16);
+}
+
+.bm-pro-sales__decision-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.bm-pro-sales__decision-metrics > div {
+  min-width: 0;
+}
+
+.bm-pro-sales__decision-metrics strong {
+  font-size: clamp(15px, 1.7vw, 20px);
+  overflow-wrap: anywhere;
+}
+
+.bm-pro-sales__decision-copy {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Explain the product only after the visitor has seen it. Five feature cards
+ * repeat information already visible in the Decision View, so remove them from
+ * the default conversion journey. */
+.bm-pro-sales__today {
+  order: 7;
+  display: none;
+}
+
+/* Free -> Pro remains useful, but it should read as a compact boundary map. */
+.bm-pro-sales__comparison {
+  order: 3;
+  margin-top: 30px;
+}
+
+.bm-pro-sales__comparison .bm-pro-sales__section-title {
+  max-width: 760px;
+}
+
+.bm-pro-sales__comparison-row {
+  min-height: 42px;
+}
+
+.bm-pro-sales__comparison-row:nth-child(2),
+.bm-pro-sales__comparison-row:nth-child(3),
+.bm-pro-sales__comparison-row:nth-child(4),
+.bm-pro-sales__comparison-row:nth-child(5) {
+  display: none;
+}
+
+/* Accountability becomes a trust strip, not another wall of prose. */
+.bm-pro-sales__accountability {
+  order: 4;
+  margin-top: 28px;
+  padding-top: 22px;
+  padding-bottom: 22px;
+}
+
+.bm-pro-sales__accountability .bm-pro-sales__section-title {
+  font-size: clamp(20px, 2.4vw, 28px);
+}
+
+.bm-pro-sales__accountability-grid {
+  gap: 10px;
+}
+
+.bm-pro-sales__accountability-grid > div {
+  padding: 12px 14px;
+}
+
+.bm-pro-sales__accountability-grid p {
+  display: none;
+}
+
+.bm-pro-sales__accountability-grid strong {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* Conversion follows proof. */
+.bm-pro-sales__climax { order: 5; }
+.bm-pro-sales__buyer-faq { order: 6; }
+.bm-pro-sales__trust-links { order: 8; }
+.bm-pro-sales__disclaimer { order: 9; }
+
+/* The proof link should not visually compete with the whitelist CTA. */
+.bm-pro-sales__product-proof > .bm-pro-sales__text-link,
+.bm-pro-sales__accountability > .bm-pro-sales__text-link {
+  font-size: 11px;
+  opacity: .78;
+}
+
+@media (max-width: 760px) {
+  .bm-pro-sales__hero {
+    padding-top: 20px;
+    padding-bottom: 14px;
+  }
+
+  .bm-pro-sales__hero-title {
+    font-size: clamp(28px, 9vw, 38px);
+  }
+
+  .bm-pro-sales__hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .bm-pro-sales__product-proof {
+    padding: 18px 14px;
+  }
+
+  .bm-pro-sales__decision-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bm-pro-sales__decision-copy {
+    grid-template-columns: 1fr;
+  }
+
+  .bm-pro-sales__accountability-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 430px) {
+  .bm-pro-sales__decision-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bm-pro-sales__decision-metrics strong {
+    font-size: 14px;
+  }
+}
