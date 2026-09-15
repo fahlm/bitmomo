@@ -713,7 +713,7 @@
 
   function tooltipHtml(targetT, normalized) {
     const rows = normalized.map((series) => {
-      const point = nearestPoint(series.points, targetT);
+      const point = pointAtOrBefore(series.points, targetT);
       if (!point) return '';
       const change = point.index - 100;
       const dateNote = point.t === targetT ? '' : ` · data ${formatDate(point.t, '1y')}`;
@@ -751,7 +751,7 @@
 
   function keyboardSummary(targetT, normalized) {
     const values = normalized.map((series) => {
-      const point = nearestPoint(series.points, targetT);
+      const point = pointAtOrBefore(series.points, targetT);
       if (!point) return '';
       return `${series.label} ${formatSigned(point.index - 100)} persen`;
     }).filter(Boolean).join(', ');
@@ -800,6 +800,16 @@
       }
     }
     return best;
+  }
+
+  function pointAtOrBefore(points, targetT) {
+    if (!points || !points.length) return null;
+    let candidate = null;
+    for (let i = 0; i < points.length; i += 1) {
+      if (points[i].t > targetT) break;
+      candidate = points[i];
+    }
+    return candidate;
   }
 
   function markerTitle(marker) {
