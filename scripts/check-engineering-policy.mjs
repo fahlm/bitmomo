@@ -4,24 +4,18 @@ import path from 'node:path';
 const root = process.cwd();
 const failures = [];
 const warnings = [];
-const policyPath = path.join(root, 'config/engineering-policy.json');
-const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
+const policy = JSON.parse(fs.readFileSync(path.join(root, 'config/engineering-policy.json'), 'utf8'));
 
-function read(rel) {
-  return fs.readFileSync(path.join(root, rel), 'utf8');
-}
-function exists(rel) {
-  return fs.existsSync(path.join(root, rel));
-}
+const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
+const exists = (rel) => fs.existsSync(path.join(root, rel));
 function check(label, ok) {
   console.log(`[${ok ? 'PASS' : 'FAIL'}] ${label}`);
   if (!ok) failures.push(label);
 }
 function warn(label, condition) {
-  if (condition) {
-    console.log(`[WARN] ${label}`);
-    warnings.push(label);
-  }
+  if (!condition) return;
+  warnings.push(label);
+  console.log(`[WARN] ${label}`);
 }
 
 check('Engineering policy schema is supported', policy.schema === 1);
@@ -36,13 +30,14 @@ const required = [
   'scripts/bitmomo-check.sh',
   'scripts/production-monitor-local.sh',
   'scripts/check-engineering-policy.mjs',
+  'scripts/audit-frontend-debt.mjs',
   'config/engineering-policy.json',
 ];
 for (const rel of required) check(`Required engineering contract exists: ${rel}`, exists(rel));
 
 const workflowDir = path.join(root, '.github/workflows');
 const workflows = fs.readdirSync(workflowDir).filter((name) => /\.ya?ml$/.test(name)).sort();
-check('At least one workflow stub exists for explicit visibility', workflows.length > 0);
+check('Workflow stubs remain visible', workflows.length > 0);
 for (const name of workflows) {
   const source = fs.readFileSync(path.join(workflowDir, name), 'utf8');
   check(`${name}: no automatic pull_request trigger`, !/^\s{2}pull_request\s*:/m.test(source));
@@ -50,16 +45,16 @@ for (const name of workflows) {
   check(`${name}: no scheduled trigger`, !/^\s{2}schedule\s*:/m.test(source));
   check(`${name}: manual entry remains visible`, /^\s{2}workflow_dispatch\s*:/m.test(source));
 
-  const jobs = source.split(/^jobs:\s*$/m)[1] || '';
-  const runnableJobHeaders = [...jobs.matchAll(/^  ([A-Za-z0-9_-]+):\s*$([\s\S]*?)(?=^  [A-Za-z0-9_-]+:\s*$|\z)/gm)];
-  if (runnableJobHeaders.length === 0) {
-    check(`${name}: contains a hard-lock marker`, /^\s{4}if:\s*false\s*$/m.test(source));
-  } else {
-    for (const match of runnableJobHeaders) {
-      if (!/runs-on\s*:/.test(match[2])) continue;
-      check(`${name}/${match[1]}: hosted runner is hard-locked`, /^\s{4}if:\s*false\s*$/m.test(match[2]));
-    }
+  const jobsPart = source.split(/^jobs:\s*$/m)[1] || '';
+  const blocks = jobsPart.split(/\n(?=  [A-Za-z0-9_-]+:\s*\n)/).filter(Boolean);
+  let runnableJobs = 0;
+  for (const block of blocks) {
+    if (!/\bruns-on\s*:/.test(block)) continue;
+    runnableJobs += 1;
+    const header = block.match(/^  ([A-Za-z0-9_-]+):/m)?.[1] || 'job';
+    check(`${name}/${header}: hosted runner is hard-locked`, /^\s{4}if:\s*false\s*$/m.test(block));
   }
+  if (runnableJobs === 0) check(`${name}: contains a hard-lock marker`, /^\s{4}if:\s*false\s*$/m.test(source));
 }
 
 const customCss = 'website/wp-content/themes/bitmomo-child-v3/custom.css';

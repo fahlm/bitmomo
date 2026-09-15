@@ -1,58 +1,55 @@
 # Contributing to Bitmomo
 
-Bitmomo uses a **local-first, zero-hosted-runner** engineering loop. GitHub is the source/review record; normal validation happens on the engineer's machine or on the deployed staging candidate.
+Bitmomo uses a local-first, trunk-oriented engineering workflow. The objective is fast feedback, exact releases, and zero routine GitHub-hosted runner spend.
 
-Before code changes, read `docs/CURRENT_RELEASE.md` and `docs/ENGINEERING_OPERATING_MODEL.md`.
-
-## Daily engineer loop
-
-1. Pull current `main`.
-2. Check open PRs for overlapping owner/files.
-3. Create one focused branch from `main`.
-4. While coding:
+## One-time setup
 
 ```bash
-bash scripts/bitmomo-check.sh quick
+git checkout main
+git pull --ff-only
+bash scripts/setup-engineer.sh
 ```
 
-5. Before marking the PR Ready:
+This enables the repository pre-push guard, fast-forward-only pulls, remote-branch pruning and Git rerere for repeated conflict resolution.
+
+## Daily loop
 
 ```bash
+git checkout main
+git pull --ff-only
+git checkout -b feature/<scope>   # or fix/, refactor/, docs/, ops/
+
+# while coding
+bash scripts/bitmomo-check.sh quick
+
+# once before review
 bash scripts/bitmomo-check.sh test
 ```
 
-6. Paste meaningful local evidence/failures fixed into the PR. Do **not** wait for or rerun GitHub-hosted Actions.
-7. Prefer one PR = one outcome. Stack only for a real code dependency and normally no deeper than 2 layers.
-8. Squash ordinary work into `main`; retarget dependent work immediately and delete obsolete branches when possible.
+Open a Draft PR early. Normal work targets `main`. Keep one PR to one reviewable outcome and avoid stacks deeper than two layers.
 
-## Release engineer loop
+Do not use GitHub-hosted Actions as the development loop. A skipped workflow is not test evidence; local command output and deployed staging evidence are.
 
-A real candidate is an exact SHA, not “latest”. From a clean checkout:
+## Release loop
+
+Normal development merges to `main` first. When a real release candidate exists, the release authority runs:
 
 ```bash
 bash scripts/bitmomo-check.sh full <exact-40-char-sha>
 ```
 
-Then deploy that exact artifact to staging and perform runtime/browser/product acceptance. Cheap route smoke can be run locally:
+The accepted candidate is then frozen as an immutable `rc-*` snapshot. Build one deterministic artifact, deploy that exact artifact to staging, perform runtime/browser/product acceptance, obtain explicit production authorization, and promote the same artifact without rebuilding.
 
-```bash
-bash scripts/bitmomo-check.sh smoke https://seagreen-snail-158456.hostingersite.com
-```
+A blocker creates a focused fix and a new RC. Never patch an accepted RC in place.
 
-An accepted candidate becomes an immutable `rc-*` snapshot. A blocker gets a focused fix and a **new RC**; never patch an accepted RC in place.
+## Local safety guard
 
-## Branch naming
+The repository pre-push hook blocks ordinary direct pushes from `main`, `release/*`, and `rc-*`. Work on a purpose-named branch and use a PR. The environment override `BITMOMO_ALLOW_PROTECTED_PUSH=1` exists only for explicit release authority/emergency operations; it is not a normal workflow.
 
-Use `feature/`, `fix/`, `refactor/`, `ci/`, `docs/`, `hotfix/`, `release/`, and immutable `rc-*` candidate names. Branch names describe the work, not the engineer/tool.
+Server-side branch protection remains the final enforcement layer once repository administration is configured.
 
-## Cost rule
+## Ownership
 
-Normal development must consume **zero GitHub-hosted runner minutes**. PR/push/scheduled hosted Actions remain locked. Continuous monitoring belongs outside GitHub Actions. Re-enabling paid hosted checks requires an explicit owner decision, not engineer convenience.
+Before editing a shared surface, read `docs/ARCHITECTURE_OWNERSHIP.md`. Business/scoring logic belongs to its canonical plugin/adapter owner; frontend code must not reimplement intelligence semantics merely to render them.
 
-## Production rule
-
-A source merge is not a deployment. Release state remains:
-
-`SOURCE → ARTIFACT → STAGING → RUNTIME → BROWSER → PRODUCT READY → PRODUCTION AUTHORIZED → PRODUCTION VERIFIED`
-
-Always preserve an exact artifact identity and rollback point.
+For the full release state machine and operational model, read `docs/PRODUCTION_PIPELINE.md` and `docs/ENGINEERING_OPERATING_MODEL.md`.
