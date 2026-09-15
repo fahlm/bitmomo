@@ -39,6 +39,7 @@ const keyDrivers = read('website/wp-content/plugins/bitmomo-ai/includes/class-bi
 const proMain = read('website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php');
 const proCopy = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php');
 const proSales = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php');
+const proDecisionCss = read('website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-decision-view.css');
 const proHelp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-help-center.php');
 const whitelistPhp = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-whitelist.php');
 const whitelistJs = read('website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js');
@@ -198,8 +199,9 @@ check('Pro runtime detaches its legacy duplicate SEO owner and loads the no-op c
 check('Pro public copy is source-owned; the compatibility shim performs no post-render mutation',
   proCopy.includes('Intentionally empty. Public copy must be source-owned.') &&
   !/strtr\s*\(|do_shortcode_tag|add_filter\s*\(\s*[\'\"]gettext/.test(proCopy) &&
-  proSales.includes('Founding Price berlaku selama membership tetap aktif.') &&
-  proSales.includes('Analisis Pro aktif tidak ditampilkan pada halaman publik.') &&
+  proSales.includes('BTC Intelligence Free menjelaskan apa yang terjadi sekarang.') &&
+  proSales.includes('HISTORICAL · DELAYED ≥48H') &&
+  proSales.includes('Brief Pro aktif tidak dibaca atau ditampilkan di halaman ini.') &&
   proHelp.includes('Bitmomo tidak melakukan backfill retrospektif hanya untuk melengkapi visualisasi.') &&
   proHelp.includes('Mengapa riwayat Market State belum selalu berisi 30 hari?')
 );
@@ -241,15 +243,16 @@ check('BTC market-context shell is server-stable and series are not color-only',
   btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
 );
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes integrated public runtime and 118 managed files',
-  runtime.includes('"expected_file_count": 118') &&
+check('Runtime manifest includes integrated public runtime and 119 managed files',
+  runtime.includes('"expected_file_count": 119') &&
   runtime.includes('"expected_file_count": 46') &&
   runtime.includes('"expected_file_count": 8') &&
-  runtime.includes('"expected_file_count": 28') &&
+  runtime.includes('"expected_file_count": 29') &&
   runtime.includes('"assets/css/home.css"') &&
   runtime.includes('class-bitmomo-btc-intelligence-accountability.php') &&
   runtime.includes('class-bitmomo-btc-intelligence-market-context.php') &&
   runtime.includes('class-bitmomo-pro-public-copy.php') &&
+  runtime.includes('assets/css/bitmomo-pro-decision-view.css') &&
   runtime.includes('assets/js/market-context-explorer.js') &&
   runtime.includes('assets/css/market-context-explorer.css')
 );
@@ -292,16 +295,23 @@ check('Canonical Privacy copy matches Whitelist V1 channel behavior',
   privacyDoc.includes('Terakhir diperbarui: 14 September 2026')
 );
 check('Pro public claims cannot contradict a fail-closed current intelligence state',
-  proSales.includes('Decision View · produk inti Pro') &&
-  proSales.includes('Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.') &&
+  proSales.includes('ACTUAL PRODUCT PROOF') &&
+  proSales.includes('HISTORICAL · DELAYED ≥48H') &&
+  proSales.includes('Bitmomo memilih ruang kosong daripada membuat range, skenario, confidence, atau outcome palsu.') &&
   !proSales.includes('Decision View aktif hari ini') &&
   !proSales.includes('Decision View BTC, aktif setiap hari.')
 );
-check('Pro founding copy avoids lifetime and guaranteed-future-price overclaims',
-  proSales.includes('Harga untuk member baru dapat berubah') &&
-  proSales.includes('selama membership tersebut tetap aktif') &&
+check('Pro founding copy avoids lifetime and fake-scarcity overclaims',
+  proSales.includes('Founding Members yang menjaga membership tetap aktif mempertahankan Founding Price selama membership tersebut tetap aktif.') &&
+  proSales.includes('Tidak ada remaining-seat counter sampai sistem memiliki data kursi aktual yang dapat diverifikasi.') &&
   !proSales.includes('Founding Price selamanya') &&
-  !proSales.includes('Harga membership baru akan berubah')
+  !/kursi tersisa|remaining seats/i.test(proSales)
+);
+check('Pro Decision View uses canonical steel-blue product semantics and amber only for commercial actions',
+  proDecisionCss.includes('--bms-teal: var(--bm-accent, #6c8ebf)') &&
+  proDecisionCss.includes('--bms-orange: var(--bm-action, #f4ad32)') &&
+  proDecisionCss.includes('.bm-pro--decision-first .bm-pro__cta') &&
+  !/#2dd4bf|#34d399|#f87171/i.test(proDecisionCss)
 );
 check('Help Center uses one BTC product identity and no legacy Tren AI escape hatch',
   proHelp.includes("'title' => 'BTC Intelligence'") &&
