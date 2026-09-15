@@ -1,0 +1,29 @@
+[Unit]
+Description=Bitmomo Hyperliquid Autonomous Shadow Supervisor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bitmomo
+Group=bitmomo
+WorkingDirectory=/opt/bitmomo/research/hyperliquid-volume
+Environment=PYTHONUNBUFFERED=1
+Environment=HL_SCAN_TOP=24
+Environment=HL_RETAIN_BUFFER=8
+Environment=HL_UNIVERSE_REFRESH_SECONDS=300
+Environment=HL_REPORT_INTERVAL_SECONDS=30
+Environment=HL_TRANSPORT_STALE_SECONDS=60
+ExecStart=/opt/bitmomo/.venv/bin/python -u -m market_selector.autonomous_runtime --state-json /var/lib/bitmomo-hl/autonomous_state.json --shadow-feedback-jsonl /var/lib/bitmomo-hl/autonomous_shadow_feedback.jsonl
+Restart=always
+RestartSec=5
+TimeoutStopSec=15
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/bitmomo-hl
+
+[Install]
+WantedBy=multi-user.target
