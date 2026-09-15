@@ -11,6 +11,7 @@
     "quick": "bash scripts/bitmomo-check.sh quick",
     "test": "bash scripts/bitmomo-check.sh test",
     "full": "bash scripts/bitmomo-check.sh full <exact-40-char-sha>",
+    "equivalence": "bash scripts/bitmomo-check.sh equivalence <accepted-ref> <candidate-ref>",
     "smoke": "bash scripts/bitmomo-check.sh smoke <base-url>"
   },
   "release": {
