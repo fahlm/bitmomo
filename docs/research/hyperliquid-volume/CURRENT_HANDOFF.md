@@ -1,239 +1,149 @@
-# Bitmomo Hyperliquid Referral-Volume Research — Current Handoff
+# Bitmomo Hyperliquid — Current Handoff
 
 Last updated: 2026-09-16
-
 Canonical branch: `research/hyperliquid-referral-volume-v0`
-Local research project historically used: `~/bitmomo-hl-volume-bot`
 
-## Canonical mission
+## Mission
 
-Build a 24/7 autonomous Hyperliquid market-selection and execution-supervision engine.
+Build a 24/7 autonomous Hyperliquid engine that continuously discovers the perp universe, screens/ranks markets, trades at most one active market, stops when conditions deteriorate, drains/flat before switching, and remains IDLE when no market qualifies.
 
-The final system must **not** depend on a human choosing coins or repeatedly running per-coin commands. It must continuously:
+Business objective for launch beta is cumulative **$10,000 genuine trading volume** with bounded net cost, not necessarily positive trading PnL.
 
-1. discover the Hyperliquid perpetual universe;
-2. cheaply prefilter liquid markets;
-3. subscribe to live L2/trade data for the current watch set;
-4. screen every watched market using frozen structural + execution-economics rules;
-5. rank only markets that actually qualify;
-6. keep at most one active trading market;
-7. stop new entries when the active market deteriorates;
-8. drain/flatten before a switch once real inventory exists;
-9. switch only to a stably qualified replacement;
-10. remain IDLE when no market is good enough;
-11. repeat discovery/screening/ranking indefinitely.
+## Launch philosophy
 
-Research scripts/captures are a laboratory for finding a valid execution policy. They are **not** the intended operating model.
+Do not wait for one component to become 100% perfect while other layers are missing. Target roughly 70–80% maturity across direction, execution, screening, switching and observability while keeping safety/accounting/reconciliation fail-closed.
 
-## Autonomous Runtime V0 — IMPLEMENTED IN SHADOW MODE
+Launch progression remains:
 
-Canonical architecture doc:
+`autonomous shadow -> 12–24h actual-host soak -> $1,000 controlled canary -> $10,000 beta mission`
 
-`docs/research/hyperliquid-volume/AUTONOMOUS_RUNTIME_V0.md`
+No mainnet order submission is approved yet.
 
-Implementation includes:
+## Autonomous Runtime V0 — implemented / shadow only
 
-- `market_selector/universe.py` — dynamic universe discovery, top-volume scan set, retention buffer, pinned active/pending markets;
-- `market_selector/autonomous_runtime.py` — one-process 24/7 dynamic scanner/supervisor using a shared public websocket;
-- `market_selector/runtime_state.py` — atomic status persistence and fail-closed restart semantics;
-- `market_selector/event_integrity.py` — reconnect replay dedupe;
-- `market_selector/raw_capture.py` — optional combined multi-market SEEN capture;
-- `run_autonomous_shadow.sh` — one-command launcher;
-- `ops/bitmomo-hl-shadow.service.example` — systemd example with automatic restart.
+Canonical runtime:
 
-Canonical CI runs the complete selector/research control-plane suite. Latest verified run after launch-week safety additions: **58 tests passed**.
+- dynamic Hyperliquid universe discovery;
+- top-volume watch set with retention buffer;
+- one shared public websocket;
+- per-market rolling observers;
+- standardized shadow execution evidence;
+- deterministic eligibility/ranking;
+- `MarketSupervisor` with IDLE / ACTIVE / STOP_NEW_ENTRY / DRAIN / SWITCH / HALT behavior;
+- websocket reconnect/generation safety;
+- duplicate-event suppression;
+- atomic runtime status JSON;
+- optional combined raw multi-market capture;
+- fail-closed restart (old trading authority is never restored).
 
-There is **no Exchange client, wallet, signing key, or order-submission path** in Autonomous Runtime V0.
+`Autonomous Runtime V0` itself remains read-only and owns no wallet/private key.
 
-## Launch-week strategy — broad coverage, controlled exposure
-
-The project is no longer blocked on finding perfect alpha before completing the rest of the system.
-
-Target: reach roughly 70–80% maturity across every critical layer while keeping safety invariants strict. Direction/execution research continues in parallel, but operational safety is not allowed to be partial.
-
-Canonical runbook:
-
-`docs/research/hyperliquid-volume/CONTROLLED_CANARY_V0.md`
-
-Launch progression:
-
-`12–24h actual-host shadow soak -> $1,000 controlled canary -> $10,000 full beta mission`
-
-The canary stage is still gated because the repository intentionally has no approved live Hyperliquid order adapter yet.
-
-## Mission accounting / risk guardian — IMPLEMENTED
+## Mission accounting / risk guardian — implemented
 
 `market_selector/mission.py`
 
-Full beta mission:
+Full beta:
 
-- cumulative genuine-volume target: $10,000;
-- epoch net-PnL floor: -$5;
-- cumulative mission net-PnL floor: -$10;
+- target volume $10,000;
+- epoch net-PnL floor -$5;
+- mission hard floor -$10;
 - maximum two sequential risk epochs.
 
-Canary mission:
+Canary:
 
-- cumulative target: $1,000;
-- epoch floor: -$1;
-- cumulative floor: -$2;
+- target volume $1,000;
+- epoch floor -$1;
+- mission floor -$2;
 - maximum two sequential epochs.
 
-Profit is part of the risk buffer. Example: if realized cumulative PnL is +$2, distance to the -$10 full-mission floor is $12.
+Profit is a real buffer. Example: realized mission PnL +$2 means $12 distance to the -$10 hard floor. Cumulative volume and PnL never reset between epochs.
 
-Cumulative volume and cumulative PnL do not reset between epochs. Epoch 2 may begin only after an epoch stop and flat inventory.
+Hard-loss precedence is conservative: if one fill both crosses target volume and overshoots the mission hard floor, result is HALT, not success.
 
-A completed trade that overshoots the hard loss floor cannot be treated as success merely because the same trade crosses the volume target.
+## Exchange-native read/accounting — implemented and CI-covered
 
-`market_selector/mission_replay.py` can replay finalized shadow/paper execution JSONL through the same mission state machine for canary/full-budget diagnostics.
+New read-side normalization:
 
-## Execution boundary — IMPLEMENTED, NO ORDER ADAPTER
+- `market_selector/hyperliquid_adapter.py` reads real positions, open order IDs and fill economics through an injected official Hyperliquid `Info` object;
+- no key is accepted/stored by the read adapter;
+- reconciliation uses expected-vs-exchange positions/orders and fails closed on unexpected state;
+- actual fill notional is used for volume accounting;
+- actual `fee` is deducted from `closedPnl` rather than trusting closed PnL as fee-net.
 
-`market_selector/execution_boundary.py`
+New mission accounting:
+
+- `market_selector/live_accounting.py` reads actual Hyperliquid fills and user funding history;
+- cumulative genuine fill notional is the mission volume;
+- mission PnL = gross closed PnL - actual fill fees + funding cashflow;
+- entry fees count even when `closedPnl=0`;
+- profit expands both epoch and mission buffers;
+- the same $1k/$10k epoch state rules are evaluated from exchange-native history.
+
+This closes the previous gap where mission accounting depended only on simulated round-trip outcomes.
+
+## Execution safety boundary — implemented primitives
 
 Implemented:
 
-- deterministic expected-vs-exchange position reconciliation contract;
-- deterministic expected-vs-exchange open-order reconciliation contract;
-- unexpected/missing order => reconciliation failure;
-- position mismatch => reconciliation failure;
-- host-local exclusive execution-authority lock using `flock`;
-- authority lock automatically releases on process death;
-- risk guardian blocks new entries on mission stop/halt, feed fault, reconciliation failure, disabled authority, or supervisor denial;
-- flatten/reduce exposure remains the required action when risk must be removed.
+- deterministic account/order reconciliation contract;
+- host-local `flock` exclusive execution-authority lock;
+- default-OFF external operator control / kill primitive;
+- risk guardian blocks new entries on mission stop/halt, feed fault, reconciliation failure, disabled authority or supervisor denial;
+- reduce/flatten is conceptually separated from new-risk creation.
 
-The lock is single-host only. Multi-host active/active execution is prohibited until a distributed lease exists.
+A low-level injected SDK adapter/controller scaffold exists for integration review, but there is still **no approved executable signer/bootstrap and no enabled mainnet service**. Do not treat the presence of adapter classes as mainnet approval.
 
-## Existing selector architecture
+## CI / validation state
 
-Deterministic stack:
+Core selector/control-plane CI is green at **66 tests passed** after adding exchange-native accounting and read-adapter tests.
 
-`Dynamic Universe -> Market Observers -> Eligibility Engine -> Ranker -> MarketSupervisor`
+A separate `Hyperliquid Shadow Network Smoke` workflow has been added. It installs the official `hyperliquid-python-sdk==0.24.0`, connects only to public mainnet data in SHADOW_ONLY mode, discovers a dynamic universe, runs the autonomous scanner briefly, and asserts:
 
-The MarketSupervisor implements:
+- runtime state was produced;
+- mode remains `SHADOW_ONLY`;
+- `mainnet_order_submission == false`;
+- universe is non-empty;
+- transport generation is live/recent.
 
-- no qualified market => IDLE;
-- qualification hysteresis before activation;
-- active-market deterioration => stop new entry;
-- inventory-not-flat => drain before switch;
-- persistent superior challenger required for discretionary rotation;
-- hard fault => HALT/fail-closed.
+This workflow uses no wallet or secret.
 
-In shadow runtime `inventory_flat=True` because the process owns no wallet. A future execution adapter must supply reconciled real inventory state.
+## Frozen research evidence
 
-## Frozen research gates
+Session 3: **NO QUALIFIED MARKET / IDLE**. Standard JOIN+3/3 showed strong negative maker-fill markout (PONS/VVV roughly -9 bp) and poor P10K.
 
-Current qualification rules remain research parameters, not production truth:
+Entry Policy Dev1: **NO SESSION-4 CANDIDATE**. Persistence helped VVV but did not generalize.
 
-- 24h volume >= $10M
-- spread 1–12 bp
-- BBO queue / $100 <= 20x
-- trade rate >= 3/min
-- execution samples >= 30
-- fill >= 5%
-- maker >= 75%
-- 5s markout >= 0 bp
-- T10K <= 6h
-- P10K >= -$2
+Entry Policy Dev2: **NO SESSION-4 CANDIDATE**. Queue filters helped PUMP/PONS selectively but worsened BTC/VVV.
 
-These parameters still require calibration/sensitivity/walk-forward validation before production freeze. Do not silently loosen them inside the existing research selector merely to force trading.
+Do not weaken old research gates merely to force a market through.
 
-## Session 3 — FROZEN
+## Direction Alpha Audit — parallel research priority
 
-Canonical verdict: `SESSION3_VERDICT.md`
+Predeclared plan: `DIRECTION_ALPHA_AUDIT_PLAN.md`.
 
-Result: **NO QUALIFIED MARKET / IDLE**.
+Goal: separate standalone 3/3 signal quality from maker-fill adverse selection by measuring sign-adjusted future mid returns at +1s/+2s/+5s/+10s/+30s/+60s for all signals vs maker-filled/unfilled and matched baselines.
 
-Key execution-economics evidence under standardized JOIN + 3/3:
-
-- PONS: maker 65%, markout -9.38 bp, P10K -$10.09;
-- VVV: maker 70%, markout -9.54 bp, P10K -$8.19.
-
-This is strong evidence that passive filled observations are toxic, but it does **not** by itself prove that the underlying 3/3 directional signal has standalone alpha.
-
-## Entry Policy Development Cycles 1 and 2 — FROZEN
-
-`ENTRY_POLICY_DEV1_RESULT.md`
-
-Result: **NO SESSION-4 CANDIDATE**. P1 1.0s persistence materially improved VVV 8h but did not generalize consistently.
-
-`ENTRY_POLICY_DEV2_RESULT.md`
-
-Development Capture 2: ~6.02h each across BTC, ETHFI, PONS, PUMP, VVV.
-
-Result: **NO SESSION-4 CANDIDATE**. P4 queue filtering improved PUMP materially and PONS modestly, but worsened BTC/VVV and did not produce a robust positive cross-market effect.
-
-## Direction Alpha Audit — PREDECLARED / PARALLEL RESEARCH
-
-Canonical plan:
-
-`docs/research/hyperliquid-volume/DIRECTION_ALPHA_AUDIT_PLAN.md`
-
-Primary question:
-
-> Does current 3/3 microstructure alignment predict future midprice direction across all signals, or are negative outcomes mainly caused by passive JOIN fills selecting a toxic subset?
-
-The audit keeps current thresholds frozen and measures sign-adjusted future returns at +1s/+2s/+5s/+10s/+30s/+60s for all signals versus maker-filled/unfilled/baselines.
-
-Possible frozen conclusions:
-
-- `SIGNAL_SUPPORTED / EXECUTION_TOXIC`
-- `SIGNAL_NOT_SUPPORTED`
-- `SIGNAL_CONDITIONAL / NEW PREDECLARED CYCLE REQUIRED`
-- `SIGNAL_SUPPORTED / EXECUTION_NOT_PRIMARY_CAUSE`
-
-Order Lifecycle Dev3 remains paused until this causal diagnosis is available, but launch-week control-plane/reliability work proceeds in parallel.
-
-Session 4 remains untouched/unseen.
-
-## Volume-budget objective
-
-Canonical objective:
-
-`docs/research/hyperliquid-volume/VOLUME_BUDGET_OBJECTIVE_V1.md`
-
-Business target is cumulative **$10,000 genuine Hyperliquid volume**, not necessarily positive trading PnL.
-
-Two explicit cost tiers remain useful for research:
-
-- Tier A: reach $10K within $5 net cost;
-- Tier B: reach $10K within $10 net cost.
-
-The user's previous "run it 2x" concept is implemented as two **sequential risk epochs under one execution authority**, never two simultaneous bots.
+Order Lifecycle Dev3 remains paused until this causal diagnosis is known. Session 4 remains untouched.
 
 ## Launch-week remaining blockers
 
-Before any real order can be submitted, all of the following still need implementation/verification:
+Before any real canary exposure:
 
-1. reviewed Hyperliquid account/order adapter with no secret committed to GitHub;
-2. exchange-native position/open-order/fee/PnL reads wired to reconciliation;
-3. bounded real order lifecycle with deterministic submit/cancel/fill state transitions;
-4. external/operator kill switch defaulting OFF;
-5. actual-host 12–24h shadow soak evidence;
-6. real flatten path validated under canary exposure;
-7. restart recovery must not duplicate an entry or orphan an order;
-8. canary promotion evidence from the $1K stage.
-
-These are execution/operations blockers, not reasons to pause Direction Alpha research.
-
-## Current next action
-
-Run two tracks in parallel:
-
-**Launch track:** deploy current shadow runtime to the actual always-on host, complete 12–24h soak, and implement/review the thin Hyperliquid account/order adapter behind the already-tested mission + reconciliation + single-authority boundary. Do not enable it by default.
-
-**Research track:** execute the predeclared Direction Alpha + Fill Selection Audit on existing SEEN raw data, then use the diagnosis to improve direction/execution economics without rebuilding the operational foundation.
-
-After the shadow soak and adapter/reconciliation path are green, the next exposure step is the `$1,000 / -$1 epoch / -$2 mission` controlled canary from `CONTROLLED_CANARY_V0.md`, not an immediate $10K run.
+1. complete/read the public-network smoke result;
+2. deploy shadow runtime to one actual always-on host and collect 12–24h soak evidence;
+3. review the low-level account/order integration boundary end-to-end;
+4. wire exchange-native position/open-order/fill/fee/funding reads into the future controller loop;
+5. demonstrate restart recovery cannot duplicate an entry or leave an orphan order;
+6. demonstrate real flatten/reconciliation behavior in a controlled environment before promotion;
+7. retain one execution authority and external default-OFF operator control;
+8. only then consider the $1,000 canary.
 
 ## Mainnet status
 
-**ORDER SUBMISSION NOT APPROVED / STILL DISABLED.**
+**NOT APPROVED / NOT ENABLED.**
 
-The repository now has the accounting and safety boundary needed to make a controlled canary possible, but it deliberately does not contain an enabled mainnet order path.
+Current canonical production-like activity is public-data shadow scanning and read-only accounting/reconciliation. No secret should be committed to GitHub.
 
 ## New-chat bootstrap
 
-Read this file first.
-
-Correct state: Autonomous Runtime V0 exists and CI is green at 58 tests; mission ledger/profit buffer/two-epoch limits, risk guardian, reconciliation contract, single-host execution-authority lock, mission replay evaluator, and controlled canary runbook are implemented. Mainnet order submission remains disabled pending the actual-host shadow soak and a reviewed exchange adapter. Direction Alpha Audit continues in parallel; Session 4 has not started.
+Read this file first. Correct state is: autonomous dynamic-universe shadow runtime implemented; mission/risk/reconciliation/operator controls implemented; exchange-native read/accounting implemented; 66 tests green; public network smoke workflow added; Direction Alpha Audit still pending; Session 4 untouched; mainnet order submission not approved.
