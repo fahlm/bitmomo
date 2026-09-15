@@ -79,7 +79,8 @@ if ( ! $bm_research_items ) {
     <header class="bm-home-research__head">
       <div>
         <span class="bm-home-research__eyebrow"><?php esc_html_e( 'RESEARCH DESK', 'bitmomo' ); ?></span>
-        <h2 id="bm-home-research-title"><?php esc_html_e( 'Riset pasar terbaru', 'bitmomo' ); ?></h2>
+        <h2 id="bm-home-research-title"><?php esc_html_e( 'Konteks yang membangun intelligence.', 'bitmomo' ); ?></h2>
+        <p class="bm-home-research__intro"><?php esc_html_e( 'Riset BTC, makro, struktur pasar, likuiditas, dan derivatives yang membantu menjelaskan mengapa kondisi pasar berubah.', 'bitmomo' ); ?></p>
       </div>
       <a class="bm-home-research__all" href="<?php echo esc_url( $bm_riset_url ); ?>"><?php esc_html_e( 'Buka Research Hub →', 'bitmomo' ); ?></a>
     </header>
