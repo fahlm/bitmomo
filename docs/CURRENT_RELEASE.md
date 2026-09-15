@@ -9,7 +9,7 @@
 
 > **SOURCE CONVERGING AFTER FULL RELEASE FINDING — DO NOT DEPLOY**
 >
-> PR #168, #169, and #170 have been reconciled into the canonical release line with semantic conflict review. Full Release run `34931625847` for candidate `1c410ba9555af561eff54b5b62352a48920998a8` passed exact identity, CI governance, and managed PHP lint, then failed in the deterministic BTC Intelligence surface-context suite. Follow-up run `34931913433` for candidate `80dd5ca9a5e6afb6bdff5e85b844299e227e8252` proved that suite fixed, then found the companion BTC Intelligence page contract still expected the old fail-closed copy. Follow-up run `34932103930` for candidate `300ba044ca42db3d2106b984adfa8b3af7eaa852` proved those BTC content contracts fixed, then found the layout contract still expected literal rail offsets instead of the canonical header tokens. Follow-up run `34932342048` for candidate `f1cfb859983e3c9100d3aeac50e79fbd420ba186` proved the layout contract fixed, then found BTC Intelligence cache version still needed a deterministic bump. Follow-up run `34932575375` for candidate `66fb31a753ead09aabbd92633c8367147bbeec7d` proved the version bump fixed, then found session-brief runtime needed case-robust Opportunity normalization and explicit delayed-current copy. All five candidates are revoked for promotion. The next SHA after this runtime fix, version bump, and ledger update must be frozen as the new exact candidate.
+> PR #168, #169, and #170 have been reconciled into the canonical release line with semantic conflict review. Full Release run `34931625847` for candidate `1c410ba9555af561eff54b5b62352a48920998a8` passed exact identity, CI governance, and managed PHP lint, then failed in the deterministic BTC Intelligence surface-context suite. Follow-up run `34931913433` for candidate `80dd5ca9a5e6afb6bdff5e85b844299e227e8252` proved that suite fixed, then found the companion BTC Intelligence page contract still expected the old fail-closed copy. Follow-up run `34932103930` for candidate `300ba044ca42db3d2106b984adfa8b3af7eaa852` proved those BTC content contracts fixed, then found the layout contract still expected literal rail offsets instead of the canonical header tokens. Follow-up run `34932342048` for candidate `f1cfb859983e3c9100d3aeac50e79fbd420ba186` proved the layout contract fixed, then found BTC Intelligence cache version still needed a deterministic bump. Follow-up run `34932575375` for candidate `66fb31a753ead09aabbd92633c8367147bbeec7d` proved the version bump fixed, then found session-brief runtime needed case-robust Opportunity normalization and explicit delayed-current copy. Follow-up run `34932852380` for candidate `4d8c8620ccc2b17da28e3b0441c6974e753a7616` proved BTC session-brief contracts fixed, then found dormant checkout rendering still used the wrong enabled-checkout CTA label. All six candidates are revoked for promotion. The next SHA after this checkout-boundary fix and ledger update must be frozen as the new exact candidate.
 
 This file is the fast entry point for engineers. It records the actual release topology and acceptance state; it is not a roadmap and it must not be treated as deployment authorization.
 
@@ -96,6 +96,8 @@ Full Release run `34932342048` for exact candidate `f1cfb859983e3c9100d3aeac50e7
 
 Full Release run `34932575375` for exact candidate `66fb31a753ead09aabbd92633c8367147bbeec7d` is **FAILED / REVOKED FOR PROMOTION**. Passing portions before failure: exact candidate identity, CI governance, managed PHP lint, deterministic BTC Intelligence content/layout contracts, and market-context asset-version contract. Failing portion: BTC Intelligence session-brief contract required case-robust Opportunity activity rendering and explicit delayed-current fail-closed copy.
 
+Full Release run `34932852380` for exact candidate `4d8c8620ccc2b17da28e3b0441c6974e753a7616` is **FAILED / REVOKED FOR PROMOTION**. Passing portions before failure: exact candidate identity, CI governance, managed PHP lint, and deterministic BTC Intelligence suites through session brief. Failing portion: Pro whitelist checkout-priority contract required the enabled-checkout CTA to replace whitelist/WhatsApp acquisition with the contracted Founding purchase label.
+
 ## Artifact state
 
 - Historical artifact `10350132727` remains **REVOKED / SUPERSEDED FOR PROMOTION**.
@@ -104,6 +106,7 @@ Full Release run `34932575375` for exact candidate `66fb31a753ead09aabbd92633c83
 - Candidate `300ba044ca42db3d2106b984adfa8b3af7eaa852` is **REVOKED** after failed Full Release run `34932103930`.
 - Candidate `f1cfb859983e3c9100d3aeac50e79fbd420ba186` is **REVOKED** after failed Full Release run `34932342048`.
 - Candidate `66fb31a753ead09aabbd92633c8367147bbeec7d` is **REVOKED** after failed Full Release run `34932575375`.
+- Candidate `4d8c8620ccc2b17da28e3b0441c6974e753a7616` is **REVOKED** after failed Full Release run `34932852380`.
 - No current artifact is authorized.
 - No staging deployment is authorized from historical evidence.
 - Run Full Release once from the exact frozen release-head SHA after this ledger update is pushed.
@@ -114,7 +117,7 @@ Full Release run `34932575375` for exact candidate `66fb31a753ead09aabbd92633c83
 
 | Gate | State | Meaning |
 |---|---|---|
-| SOURCE | **FIXING FULL RELEASE FINDING / FREEZE AFTER LEDGER COMMIT** | PR #168/#169/#170 remain reconciled; candidates `1c410ba9555af561eff54b5b62352a48920998a8`, `80dd5ca9a5e6afb6bdff5e85b844299e227e8252`, `300ba044ca42db3d2106b984adfa8b3af7eaa852`, `f1cfb859983e3c9100d3aeac50e79fbd420ba186`, and `66fb31a753ead09aabbd92633c8367147bbeec7d` are revoked and the next post-fix SHA must be frozen. |
+| SOURCE | **FIXING FULL RELEASE FINDING / FREEZE AFTER LEDGER COMMIT** | PR #168/#169/#170 remain reconciled; candidates `1c410ba9555af561eff54b5b62352a48920998a8`, `80dd5ca9a5e6afb6bdff5e85b844299e227e8252`, `300ba044ca42db3d2106b984adfa8b3af7eaa852`, `f1cfb859983e3c9100d3aeac50e79fbd420ba186`, `66fb31a753ead09aabbd92633c8367147bbeec7d`, and `4d8c8620ccc2b17da28e3b0441c6974e753a7616` are revoked and the next post-fix SHA must be frozen. |
 | SCOPED CI | **SUPERSEDED BY FULL RELEASE FOR CANDIDATE** | Prior focused evidence was useful; release-wide validation now belongs to one exact-candidate Full Release. |
 | RELEASE-WIDE CI | **READY AFTER NEW SHA FREEZE** | Run once after this source fix and ledger update are committed, pushed, and frozen as a new exact SHA. |
 | ARTIFACT | **NONE AUTHORIZED** | Historical artifacts are revoked. |
