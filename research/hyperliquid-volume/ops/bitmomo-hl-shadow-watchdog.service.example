@@ -1,0 +1,14 @@
+[Unit]
+Description=Bitmomo Hyperliquid Shadow Runtime Health Watchdog
+After=bitmomo-hl-shadow.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/bin/bash -c '/opt/bitmomo/.venv/bin/python -m market_selector.runtime_healthcheck /var/lib/bitmomo-hl/autonomous_state.json --max-age 120 || /bin/systemctl restart bitmomo-hl-shadow.service'
+WorkingDirectory=/opt/bitmomo/research/hyperliquid-volume
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadOnlyPaths=/var/lib/bitmomo-hl
