@@ -191,6 +191,33 @@ function bitmomo_research_rank_math_canonical($canonical) {
 }
 add_filter('rank_math/frontend/canonical', 'bitmomo_research_rank_math_canonical', 20);
 
+/** Canonical social-preview contract for launch-critical public surfaces. */
+function bitmomo_public_social_preview_url() {
+    if (is_front_page()) return home_url('/');
+    if (is_page(['pro', 'btc-intelligence', 'tentang-kami']) || bitmomo_is_pro_account_page()) return get_permalink((int) get_queried_object_id());
+    if (is_category('riset')) {
+        $term = get_category_by_slug('riset');
+        return $term ? get_category_link((int) $term->term_id) : home_url('/category/riset/');
+    }
+    if (bitmomo_is_qualified_research_post()) return get_permalink((int) get_queried_object_id());
+    return '';
+}
+
+function bitmomo_public_social_preview_image_url() {
+    return home_url('/wp-content/uploads/2025/08/cropped-ChatGPT-Image-Aug-22-2025-11_21_04-PM.png');
+}
+
+function bitmomo_render_public_social_preview_fallback() {
+    $canonical = bitmomo_public_social_preview_url();
+    if ('' === trim((string) $canonical)) return;
+
+    $image = bitmomo_public_social_preview_image_url();
+    echo '<link rel="canonical" href="' . esc_url($canonical) . '" />' . "\n";
+    echo '<meta property="og:image" content="' . esc_url($image) . '" />' . "\n";
+    echo '<meta name="twitter:image" content="' . esc_url($image) . '" />' . "\n";
+}
+add_action('wp_head', 'bitmomo_render_public_social_preview_fallback', 2);
+
 /** Meta-description fallback for canonical launch/single surfaces when Rank Math is inactive. */
 function bitmomo_render_public_meta_description_fallback() {
     if (defined('RANK_MATH_VERSION')) return;

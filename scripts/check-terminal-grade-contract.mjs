@@ -172,6 +172,15 @@ check('Qualified Research posts remain indexable with canonical URLs while legac
   functions.includes('return get_permalink((int) get_queried_object_id());') &&
   functions.includes('bitmomo_is_unclassified_legacy_research_post()')
 );
+check('Launch social preview contract owns canonical URL and OG/X image fallbacks',
+  functions.includes('function bitmomo_public_social_preview_url()') &&
+  functions.includes('function bitmomo_public_social_preview_image_url()') &&
+  functions.includes('function bitmomo_render_public_social_preview_fallback()') &&
+  functions.includes('<link rel="canonical"') &&
+  functions.includes('<meta property="og:image"') &&
+  functions.includes('<meta name="twitter:image"') &&
+  functions.includes("add_action('wp_head', 'bitmomo_render_public_social_preview_fallback', 2)")
+);
 check('One public noindex predicate owns all utility/archive side doors',
   functions.includes('bitmomo_should_noindex_public_view') &&
   functions.includes('bitmomo_is_pro_account_page() || is_search()') &&
