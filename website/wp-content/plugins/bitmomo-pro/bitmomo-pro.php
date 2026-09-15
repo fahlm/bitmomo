@@ -74,6 +74,28 @@ function bitmomo_pro_init() {
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 
+/**
+ * Show-First V1 is a reversible presentation layer for the public Pro sales
+ * shortcode. It intentionally loads after the canonical sales stylesheet and
+ * changes only visual hierarchy/cognitive density; protected data, product
+ * contracts, pricing, entitlement, whitelist and checkout behavior stay owned
+ * by their canonical classes.
+ */
+function bitmomo_pro_show_first_assets() {
+	global $post;
+	if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_pro_sales' ) ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'bitmomo-pro-show-first',
+		BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-show-first.css',
+		array( 'bitmomo-pro-sales' ),
+		BITMOMO_PRO_VERSION . '-show-first-v1'
+	);
+}
+add_action( 'wp_enqueue_scripts', 'bitmomo_pro_show_first_assets', 30 );
+
 function bitmomo_pro_activate() {
 	Bitmomo_Pro_Briefs::instance()->register_post_type();
 	flush_rewrite_rules();
