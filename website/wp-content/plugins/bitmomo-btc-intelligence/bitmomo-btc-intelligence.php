@@ -22,7 +22,6 @@ require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intellig
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-page.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-setup.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-market-context.php';
-require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-show-first.php';
 
 /**
  * One renderer owns the public product surface. Public SEO metadata remains
@@ -35,7 +34,6 @@ function bitmomo_btc_intelligence_init() {
 	remove_action( 'wp_head', array( $page, 'render_meta_description' ), 10 );
 	Bitmomo_Btc_Intelligence_Setup::instance();
 	Bitmomo_Btc_Intelligence_Market_Context::init();
-	Bitmomo_Btc_Intelligence_Show_First::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_btc_intelligence_init' );
 
