@@ -70,8 +70,8 @@ def restore_supervisor_state(supervisor, payload: dict) -> None:
 
     An old ACTIVE state must never immediately grant new-entry authority after a
     process restart. We remember which market had been active, reset qualification
-    and challenger streaks, and move the supervisor to STOP_NEW_ENTRY until fresh
-    market-state windows requalify it through the normal decision loop.
+    and challenger streaks, and pre-load the active market's degradation streak so
+    the first decision is fail-closed until fresh qualification occurs.
     """
 
     if not isinstance(payload, dict):
@@ -95,6 +95,16 @@ def restore_supervisor_state(supervisor, payload: dict) -> None:
             )
 
     if supervisor.active_market:
+        active_history = supervisor.histories.setdefault(
+            supervisor.active_market,
+            MarketHistory(),
+        )
+        active_history.qualify_streak = 0
+        active_history.challenger_streaks = {}
+        active_history.degrade_streak = max(
+            active_history.degrade_streak,
+            supervisor.cfg.degradation_windows,
+        )
         supervisor.state = SupervisorState.STOP_NEW_ENTRY
     else:
         supervisor.state = SupervisorState.IDLE
