@@ -122,6 +122,19 @@ function bitmomo_is_unclassified_legacy_research_post() {
     return 'unclassified' === $classification;
 }
 
+function bitmomo_is_qualified_research_post() {
+    if (!is_single()) return false;
+
+    $post_id = (int) get_queried_object_id();
+    if (!$post_id || !has_category('riset', $post_id)) return false;
+
+    $classification = function_exists('bitmomo_post_research_classification')
+        ? bitmomo_post_research_classification($post_id)
+        : 'unclassified';
+
+    return in_array($classification, ['market', 'ai-systems'], true);
+}
+
 /**
  * Single public indexability policy.
  *
@@ -139,6 +152,12 @@ function bitmomo_should_noindex_public_view() {
 }
 
 function bitmomo_research_filter_robots($robots) {
+    if (bitmomo_is_qualified_research_post()) {
+        unset($robots['noindex'], $robots['nofollow']);
+        $robots['index'] = true;
+        $robots['follow'] = true;
+        return $robots;
+    }
     if (!bitmomo_should_noindex_public_view()) return $robots;
     unset($robots['index']);
     $robots['noindex'] = true;
@@ -149,6 +168,12 @@ add_filter('wp_robots', 'bitmomo_research_filter_robots', 20);
 
 /** Mirror exactly the same indexing boundary through Rank Math. */
 function bitmomo_rank_math_research_robots($robots) {
+    if (bitmomo_is_qualified_research_post()) {
+        unset($robots['noindex'], $robots['nofollow']);
+        $robots['index'] = 'index';
+        $robots['follow'] = 'follow';
+        return $robots;
+    }
     if (!bitmomo_should_noindex_public_view()) return $robots;
 
     unset($robots['index']);
@@ -159,6 +184,7 @@ function bitmomo_rank_math_research_robots($robots) {
 add_filter('rank_math/frontend/robots', 'bitmomo_rank_math_research_robots', 20);
 
 function bitmomo_research_rank_math_canonical($canonical) {
+    if (bitmomo_is_qualified_research_post()) return get_permalink((int) get_queried_object_id());
     if (!bitmomo_is_filtered_research_view()) return $canonical;
     $term = get_category_by_slug('riset');
     return $term ? get_category_link((int) $term->term_id) : home_url('/category/riset/');

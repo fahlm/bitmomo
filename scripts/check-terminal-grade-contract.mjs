@@ -164,6 +164,14 @@ check('Signed-in navigation can identify account state instead of always saying 
 check('Posts index is explicitly neutral and cannot call itself institutional Research',
   home.includes('Arsip Publikasi') && home.includes('intentionally noindex') && !home.includes('BITMOMO RESEARCH')
 );
+check('Qualified Research posts remain indexable with canonical URLs while legacy Riset stays noindex',
+  functions.includes('function bitmomo_is_qualified_research_post()') &&
+  functions.includes("in_array($classification, ['market', 'ai-systems'], true)") &&
+  functions.includes('if (bitmomo_is_qualified_research_post())') &&
+  functions.includes("unset($robots['noindex'], $robots['nofollow']);") &&
+  functions.includes('return get_permalink((int) get_queried_object_id());') &&
+  functions.includes('bitmomo_is_unclassified_legacy_research_post()')
+);
 check('One public noindex predicate owns all utility/archive side doors',
   functions.includes('bitmomo_should_noindex_public_view') &&
   functions.includes('bitmomo_is_pro_account_page() || is_search()') &&
