@@ -16,7 +16,7 @@ def test_runtime_state_store_round_trip(tmp_path):
     assert store.load() == payload
 
 
-def test_restore_active_market_is_fail_closed_until_requalified():
+def test_restore_active_market_revokes_stale_authority():
     cfg = SelectorConfig(degradation_windows=2)
     source = MarketSupervisor(cfg)
     source.active_market = "PONS"
@@ -33,12 +33,14 @@ def test_restore_active_market_is_fail_closed_until_requalified():
     restored = MarketSupervisor(cfg)
     restore_supervisor_state(restored, payload)
 
-    assert restored.active_market == "PONS"
-    assert restored.pending_market == "VVV"
-    assert restored.state == SupervisorState.STOP_NEW_ENTRY
+    assert restored.active_market is None
+    assert restored.pending_market is None
+    assert restored.state == SupervisorState.IDLE
+    assert restored.last_restored_active_market == "PONS"
+    assert restored.last_restored_pending_market == "VVV"
     assert restored.histories["PONS"].qualify_streak == 0
     assert restored.histories["PONS"].challenger_streaks == {}
-    assert restored.histories["PONS"].degrade_streak >= cfg.degradation_windows
+    assert restored.histories["PONS"].degrade_streak == 0
 
 
 def test_restore_without_active_market_starts_idle():
