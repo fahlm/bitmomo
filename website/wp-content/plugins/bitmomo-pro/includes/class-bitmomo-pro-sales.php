@@ -6,17 +6,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Public Bitmomo Pro sales surface: [bitmomo_pro_sales].
  *
- * The buyer journey is deliberately narrow: explain the current Decision View,
- * show delayed historical proof, make Free vs Pro explicit, establish
- * accountability, then present Founding terms and the conversion path.
+ * Decision-first contract: show a real delayed/frozen product artifact before
+ * explaining the offer. Public rendering never reads the current protected Pro
+ * brief and never fabricates a scenario, range, outcome, or scarcity signal.
  */
 class Bitmomo_Pro_Sales {
 
 	const PRICE_LABEL = 'Rp149.000 / bulan atau Rp1.490.000 / tahun';
 	const SEAT_CAP    = 149;
 	const BATCH_ONE   = 25;
-	const METHODOLOGY_PAGE_LIVE = true;
-	const SALES_ASSET_VERSION = '2026.09.14-pro-cognition-v2';
+	const SALES_ASSET_VERSION = '2026.09.16-pro-decision-first-v1';
 
 	private static $instance = null;
 
@@ -32,15 +31,14 @@ class Bitmomo_Pro_Sales {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
 
-		// Kept for backwards compatibility with installs where the public theme
-		// is absent. The canonical Bitmomo runtime detaches these two hooks at
-		// plugin boot so one public SEO layer owns metadata in production.
+		// Backwards-compatible fallback only. Canonical Bitmomo runtime detaches
+		// these hooks so the public theme remains the single SEO metadata owner.
 		add_filter( 'rank_math/frontend/description', array( $this, 'filter_meta_description' ) );
 		add_action( 'wp_head', array( $this, 'render_meta_description' ) );
 	}
 
 	public function filter_meta_description( $description ) {
-		return is_page( 'pro' ) ? __( 'Bitmomo Pro membantu memahami skenario BTC berikutnya, kondisi invalidasi, perubahan penting, dan rekam evaluasi hasil.', 'bitmomo-pro' ) : $description;
+		return is_page( 'pro' ) ? __( 'Bitmomo Pro memetakan Expected Range, Scenario Map, Thesis Invalidation, perubahan penting, dan bukti hasil historis BTC.', 'bitmomo-pro' ) : $description;
 	}
 
 	public function render_meta_description() {
@@ -61,16 +59,20 @@ class Bitmomo_Pro_Sales {
 		global $post;
 		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ) {
 			wp_enqueue_style( 'bitmomo-pro-sales', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-sales.css', array(), self::SALES_ASSET_VERSION );
+			wp_enqueue_style(
+				'bitmomo-pro-decision-view',
+				BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-decision-view.css',
+				array( 'bitmomo-pro-sales' ),
+				'2026.09.16-decision-view-v1'
+			);
 		}
 	}
 
 	public function render_sales( $atts ) {
 		ob_start();
-		echo '<div class="bm-pro-sales">';
+		echo '<div class="bm-pro-sales bm-pro-sales--decision-first">';
 
 		$this->render_hero();
-		$this->render_section_nav();
-		$this->render_what_exists_today();
 		$this->render_product_proof();
 		$this->render_free_vs_pro();
 		$this->render_accountability();
@@ -91,41 +93,19 @@ class Bitmomo_Pro_Sales {
 	private function render_hero() {
 		?>
 		<section id="pro-overview" class="bm-pro-sales__hero" aria-labelledby="bm-pro-hero-title">
-			<p class="bm-pro-sales__hero-eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP — BITMOMO PRO', 'bitmomo-pro' ); ?></p>
-			<h1 id="bm-pro-hero-title" class="bm-pro-sales__hero-title"><?php esc_html_e( 'Pahami skenario berikutnya — dan kapan tesis BTC berubah.', 'bitmomo-pro' ); ?></h1>
-			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'Decision View BTC memetakan Expected Range, skenario Base/Bull/Bear, kondisi invalidasi, dan perubahan penting sejak analisis sebelumnya.', 'bitmomo-pro' ); ?></p>
-			<div class="bm-pro-sales__hero-status" aria-label="Karakter produk">
-				<span><?php esc_html_e( 'Decision View · produk inti Pro', 'bitmomo-pro' ); ?></span>
-				<span><?php esc_html_e( 'Bukan sinyal beli/jual', 'bitmomo-pro' ); ?></span>
-				<span><?php esc_html_e( 'Evidence before narrative', 'bitmomo-pro' ); ?></span>
-			</div>
+			<p class="bm-pro-sales__hero-eyebrow"><?php esc_html_e( 'BITMOMO PRO · FOUNDING MEMBERSHIP', 'bitmomo-pro' ); ?></p>
+			<h1 id="bm-pro-hero-title" class="bm-pro-sales__hero-title"><?php esc_html_e( 'Dari kondisi BTC sekarang ke skenario yang perlu dipantau berikutnya.', 'bitmomo-pro' ); ?></h1>
+			<p class="bm-pro-sales__hero-sub"><?php esc_html_e( 'BTC Intelligence Free menjelaskan apa yang terjadi sekarang. Pro menambahkan Expected Range, Scenario Map, Thesis Invalidation, dan konteks perubahan untuk membantu menilai apa yang terjadi berikutnya.', 'bitmomo-pro' ); ?></p>
 			<div class="bm-pro-sales__hero-offer">
 				<div><p class="bm-pro-sales__hero-price"><?php esc_html_e( 'Founding Price Rp149.000/bulan', 'bitmomo-pro' ); ?></p><p class="bm-pro-sales__hero-price-sub"><?php esc_html_e( 'Rp1.490.000/tahun · hemat Rp298.000 dibanding 12× paket bulanan.', 'bitmomo-pro' ); ?></p></div>
-				<p class="bm-pro-sales__hero-lock"><?php esc_html_e( 'Founding Price berlaku selama membership tetap aktif.', 'bitmomo-pro' ); ?></p>
-			</div>
-			<div class="bm-pro-sales__hero-facts">
-				<div><strong><?php esc_html_e( 'Rp149.000', 'bitmomo-pro' ); ?></strong><span><?php esc_html_e( 'per bulan', 'bitmomo-pro' ); ?></span></div>
-				<div><strong><?php echo esc_html( self::SEAT_CAP ); ?></strong><span><?php esc_html_e( 'Founding Members', 'bitmomo-pro' ); ?></span></div>
-				<div><strong><?php echo esc_html( self::BATCH_ONE ); ?></strong><span><?php esc_html_e( 'Batch pertama', 'bitmomo-pro' ); ?></span></div>
+				<p class="bm-pro-sales__hero-lock"><?php echo esc_html( sprintf( __( 'Maksimum %d Founding Members.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
 			</div>
 			<div class="bm-pro-sales__hero-actions">
 				<?php $this->render_cta_link( 'bm-pro-sales__hero-cta' ); ?>
-				<a class="bm-pro-sales__secondary-cta" href="#pro-example"><?php esc_html_e( 'Lihat contoh Pro', 'bitmomo-pro' ); ?></a>
+				<a class="bm-pro-sales__secondary-cta" href="#pro-example"><?php esc_html_e( 'Lihat Decision View historis', 'bitmomo-pro' ); ?></a>
 			</div>
-			<p class="bm-pro-sales__hero-micro"><?php esc_html_e( 'Whitelist tidak membutuhkan pembayaran dan tidak menjamin tempat. Membership aktif setelah pembayaran berhasil.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__hero-micro"><?php esc_html_e( 'Whitelist tidak membutuhkan pembayaran dan tidak menjamin tempat. Checkout belum dibuka.', 'bitmomo-pro' ); ?></p>
 		</section>
-		<?php
-	}
-
-	private function render_section_nav() {
-		?>
-		<nav class="bm-pro-sales__rail" aria-label="<?php esc_attr_e( 'Navigasi Bitmomo Pro', 'bitmomo-pro' ); ?>">
-			<a href="#pro-product"><?php esc_html_e( 'Produk', 'bitmomo-pro' ); ?></a>
-			<a href="#pro-example"><?php esc_html_e( 'Contoh', 'bitmomo-pro' ); ?></a>
-			<a href="#pro-proof"><?php esc_html_e( 'Bukti', 'bitmomo-pro' ); ?></a>
-			<a href="#pro-pricing"><?php esc_html_e( 'Harga', 'bitmomo-pro' ); ?></a>
-			<a href="#pro-faq">FAQ</a>
-		</nav>
 		<?php
 	}
 
@@ -134,26 +114,9 @@ class Bitmomo_Pro_Sales {
 		$class = trim( 'bm-pro-sales__cta ' . $extra_class );
 		if ( empty( $url ) ) {
 			printf( '<a class="%1$s" href="#bm-pro-whitelist">%2$s</a>', esc_attr( $class ), esc_html__( 'GABUNG FOUNDING WHITELIST', 'bitmomo-pro' ) );
-		} else {
-			printf( '<a class="%1$s" href="%2$s">%3$s</a>', esc_attr( $class ), esc_url( $url ), esc_html__( 'Kunci Harga Founding', 'bitmomo-pro' ) );
+			return;
 		}
-	}
-
-	private function render_what_exists_today() {
-		?>
-		<section id="pro-product" class="bm-pro-sales__section--editorial bm-pro-sales__today" aria-labelledby="bm-pro-today-title">
-			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'YANG SUDAH TERSEDIA SEKARANG', 'bitmomo-pro' ); ?></p>
-			<h2 id="bm-pro-today-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Decision View BTC adalah produk inti Bitmomo Pro.', 'bitmomo-pro' ); ?></h2>
-			<p class="bm-pro-sales__lead"><?php esc_html_e( 'BTC Intelligence gratis sudah menjelaskan kondisi saat ini, perubahan material, maknanya, dan satu konteks pantauan. Pro memperluasnya menjadi monitoring lengkap, Expected Range, skenario, dan kondisi invalidasi. Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.', 'bitmomo-pro' ); ?></p>
-			<div class="bm-pro-sales__deliverables">
-				<div><span>01</span><strong><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Rentang harga acuan berdasarkan kondisi pasar ketika analisis dibuat.', 'bitmomo-pro' ); ?></p></div>
-				<div><span>02</span><strong><?php esc_html_e( 'Scenario Map', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Base, Bull, dan Bear beserta kondisi yang mendukung masing-masing jalur.', 'bitmomo-pro' ); ?></p></div>
-				<div><span>03</span><strong><?php esc_html_e( 'Invalidasi Tesis', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Kondisi yang membuat tesis utama tidak lagi berlaku.', 'bitmomo-pro' ); ?></p></div>
-				<div><span>04</span><strong><?php esc_html_e( 'Full Monitoring', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Seluruh kondisi yang perlu dipantau setelah brief, bukan hanya satu konteks publik.', 'bitmomo-pro' ); ?></p></div>
-				<div><span>05</span><strong><?php esc_html_e( 'Confidence Context', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Penjelasan lebih dalam tentang kekuatan bukti di balik tesis; bukan probabilitas arah harga atau hasil investasi.', 'bitmomo-pro' ); ?></p></div>
-			</div>
-		</section>
-		<?php
+		printf( '<a class="%1$s" href="%2$s">%3$s</a>', esc_attr( $class ), esc_url( $url ), esc_html__( 'Kunci Harga Founding', 'bitmomo-pro' ) );
 	}
 
 	private function delayed_public_proof() {
@@ -161,7 +124,7 @@ class Bitmomo_Pro_Sales {
 			return null;
 		}
 		$contract = Bitmomo_Btc_Intelligence_Accountability::delayed_proof( 1 );
-		$rows = is_array( $contract['rows'] ?? null ) ? $contract['rows'] : array();
+		$rows     = is_array( $contract['rows'] ?? null ) ? $contract['rows'] : array();
 		return ! empty( $rows[0] ) && is_array( $rows[0] ) ? $rows[0] : null;
 	}
 
@@ -170,71 +133,127 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section id="pro-example" class="bm-pro-sales__product-proof" aria-labelledby="bm-pro-example-title">
 			<div class="bm-pro-sales__proof-head">
-				<div><p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'PRODUCT PROOF', 'bitmomo-pro' ); ?></p><h2 id="bm-pro-example-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Lihat bentuk decision support-nya, bukan sekadar daftar fitur.', 'bitmomo-pro' ); ?></h2></div>
-				<span class="bm-pro-sales__proof-badge"><?php esc_html_e( 'ARSIP ≥ 48 JAM', 'bitmomo-pro' ); ?></span>
+				<div>
+					<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'ACTUAL PRODUCT PROOF', 'bitmomo-pro' ); ?></p>
+					<h2 id="bm-pro-example-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Ini bentuk Decision View yang benar-benar diterima member.', 'bitmomo-pro' ); ?></h2>
+				</div>
+				<span class="bm-pro-sales__historical-label"><?php esc_html_e( 'HISTORICAL · DELAYED ≥48H', 'bitmomo-pro' ); ?></span>
 			</div>
-			<p class="bm-pro-sales__section-intro"><?php esc_html_e( 'Contoh di bawah hanya menggunakan analisis Pro historis yang telah melewati periode publikasi tertunda dan evaluasi hasil. Analisis Pro aktif tidak ditampilkan pada halaman publik.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__section-intro"><?php esc_html_e( 'Contoh publik hanya berasal dari brief Pro yang sudah dibekukan saat publikasi, melewati delay minimum 48 jam, dan mencapai jendela evaluasi. Brief Pro aktif tidak dibaca atau ditampilkan di halaman ini.', 'bitmomo-pro' ); ?></p>
 			<?php if ( $row ) :
-				$published = $this->format_wib( $row['published_at'] ?? '' );
-				$state = sanitize_key( (string) ( $row['market_state'] ?? '' ) );
-				$verdict = sanitize_key( (string) ( $row['verdict'] ?? 'unscored' ) );
-				?>
-				<article class="bm-pro-sales__decision-card">
-					<header><div><span><?php echo esc_html( $published ); ?></span><strong class="is-<?php echo esc_attr( $state ); ?>"><?php echo esc_html( strtoupper( $state ?: '—' ) ); ?></strong></div><span class="bm-pro-sales__verdict is-<?php echo esc_attr( $verdict ); ?>"><?php echo esc_html( $this->verdict_label( $verdict ) ); ?></span></header>
-					<div class="bm-pro-sales__decision-metrics">
-						<div><span>BTC REFERENSI</span><strong><?php echo esc_html( $this->format_price( $row['reference_price'] ?? null ) ); ?></strong></div>
-						<div><span>EXPECTED RANGE</span><strong><?php echo esc_html( $this->format_price( $row['expected_range_low'] ?? null ) . ' – ' . $this->format_price( $row['expected_range_high'] ?? null ) ); ?></strong></div>
-						<div><span>CONFIDENCE</span><strong><?php echo esc_html( isset( $row['confidence'] ) ? (int) $row['confidence'] . '/100' : '—' ); ?></strong></div>
-						<div><span>HASIL +24H</span><strong><?php echo esc_html( $this->format_return( $row['outcome_return_pct'] ?? null ) ); ?></strong></div>
-					</div>
-					<div class="bm-pro-sales__decision-copy"><div><span>BASE CASE</span><p><?php echo esc_html( (string) ( $row['base_scenario'] ?? '' ) ); ?></p></div><div><span>INVALIDASI</span><p><?php echo esc_html( (string) ( $row['invalidation'] ?? '' ) ); ?></p></div><?php if ( ! empty( $row['what_changed'] ) ) : ?><div><span>WHAT CHANGED</span><p><?php echo esc_html( (string) $row['what_changed'] ); ?></p></div><?php endif; ?></div>
-					<footer><span><?php echo esc_html( 'Rentang tercapai: ' . ( 'yes' === ( $row['range_hit'] ?? '' ) ? 'YA' : ( 'no' === ( $row['range_hit'] ?? '' ) ? 'TIDAK' : '—' ) ) ); ?></span><span><?php esc_html_e( 'Arsip historis · bukan guidance saat ini', 'bitmomo-pro' ); ?></span></footer>
-				</article>
-			<?php else : ?>
-				<div class="bm-pro-sales__proof-pending" role="status"><strong><?php esc_html_e( 'Belum ada analisis historis yang memenuhi syarat publikasi dan evaluasi.', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Bitmomo tidak membuat harga, confidence, atau hasil contoh untuk mengisi ruang ini.', 'bitmomo-pro' ); ?></p></div>
+				$this->render_historical_decision_view( $row );
+			else : ?>
+				<div class="bm-pro-sales__proof-pending" role="status">
+					<strong><?php esc_html_e( 'Belum ada contoh historis yang memenuhi seluruh syarat publikasi.', 'bitmomo-pro' ); ?></strong>
+					<p><?php esc_html_e( 'Bitmomo memilih ruang kosong daripada membuat range, skenario, confidence, atau outcome palsu.', 'bitmomo-pro' ); ?></p>
+				</div>
 			<?php endif; ?>
-			<a class="bm-pro-sales__text-link" href="<?php echo esc_url( home_url( '/btc-intelligence/#pro-archive' ) ); ?>"><?php esc_html_e( 'Buka Decision Ledger & arsip Pro publik →', 'bitmomo-pro' ); ?></a>
 		</section>
+		<?php
+	}
+
+	private function render_historical_decision_view( array $row ) {
+		$published = $this->format_wib( $row['published_at'] ?? '' );
+		$state     = sanitize_key( (string) ( $row['market_state'] ?? '' ) );
+		$verdict   = sanitize_key( (string) ( $row['verdict'] ?? 'unscored' ) );
+		$low       = $this->positive_number( $row['expected_range_low'] ?? null );
+		$high      = $this->positive_number( $row['expected_range_high'] ?? null );
+		$reference = $this->positive_number( $row['reference_price'] ?? null );
+		$outcome   = $this->positive_number( $row['outcome_price_24h'] ?? null );
+		$base      = sanitize_textarea_field( (string) ( $row['base_scenario'] ?? '' ) );
+		$bull      = sanitize_textarea_field( (string) ( $row['bull_scenario'] ?? '' ) );
+		$bear      = sanitize_textarea_field( (string) ( $row['bear_scenario'] ?? '' ) );
+		$settled   = 'evaluated' === sanitize_key( (string) ( $row['evaluation_status'] ?? '' ) );
+		?>
+		<article class="bm-pro-sales__decision-card">
+			<header>
+				<div><span><?php echo esc_html( $published ); ?></span><strong class="is-<?php echo esc_attr( $state ); ?>"><?php echo esc_html( strtoupper( $state ?: '—' ) ); ?></strong></div>
+				<span class="bm-pro-sales__verdict is-<?php echo esc_attr( $verdict ); ?>"><?php echo esc_html( $this->verdict_label( $verdict ) ); ?></span>
+			</header>
+
+			<div class="bm-pro-sales__decision-metrics bm-pro-sales__decision-metrics--primary">
+				<div><span>BTC REFERENSI</span><strong><?php echo esc_html( $this->format_price( $reference ) ); ?></strong></div>
+				<div><span>CONFIDENCE</span><strong><?php echo esc_html( isset( $row['confidence'] ) ? (int) $row['confidence'] . '/100' : '—' ); ?></strong></div>
+				<div><span>HASIL +24H</span><strong><?php echo esc_html( $settled ? $this->format_return( $row['outcome_return_pct'] ?? null ) : '—' ); ?></strong></div>
+				<div><span>STATUS</span><strong><?php echo esc_html( $settled ? __( 'SETTLED', 'bitmomo-pro' ) : __( 'WINDOW MISSED', 'bitmomo-pro' ) ); ?></strong></div>
+			</div>
+
+			<?php if ( null !== $low && null !== $high && $high >= $low ) :
+				$positions = $this->range_positions( $low, $high, $reference, $outcome ); ?>
+				<div class="bm-pro-sales__decision-visual">
+					<div class="bm-pro-sales__range-head"><span>EXPECTED RANGE</span><strong><?php echo esc_html( $this->format_price( $low ) . ' – ' . $this->format_price( $high ) ); ?></strong></div>
+					<div class="bm-pro-sales__range-track" role="img" aria-label="<?php echo esc_attr( sprintf( __( 'Expected Range historis %1$s sampai %2$s', 'bitmomo-pro' ), $this->format_price( $low ), $this->format_price( $high ) ) ); ?>">
+						<span class="bm-pro-sales__range-band" style="--range-left:<?php echo esc_attr( $positions['range_left'] ); ?>%;--range-width:<?php echo esc_attr( $positions['range_width'] ); ?>%;"></span>
+						<?php if ( null !== $reference ) : ?><span class="bm-pro-sales__range-marker is-reference" style="--marker-pos:<?php echo esc_attr( $positions['reference'] ); ?>%;"><i></i><small><?php echo esc_html( 'REF ' . $this->format_price( $reference ) ); ?></small></span><?php endif; ?>
+						<?php if ( $settled && null !== $outcome ) : ?><span class="bm-pro-sales__range-marker is-outcome" style="--marker-pos:<?php echo esc_attr( $positions['outcome'] ); ?>%;"><i></i><small><?php echo esc_html( '+24H ' . $this->format_price( $outcome ) ); ?></small></span><?php endif; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( '' !== $base || '' !== $bull || '' !== $bear ) : ?>
+				<div class="bm-pro-sales__scenario-map" aria-label="<?php esc_attr_e( 'Scenario Map historis', 'bitmomo-pro' ); ?>">
+					<?php if ( '' !== $bear ) : ?><section class="is-bear"><h3>BEAR</h3><p><?php echo esc_html( $bear ); ?></p></section><?php endif; ?>
+					<?php if ( '' !== $base ) : ?><section class="is-base"><h3>BASE · WORKING THESIS</h3><p><?php echo esc_html( $base ); ?></p></section><?php endif; ?>
+					<?php if ( '' !== $bull ) : ?><section class="is-bull"><h3>BULL</h3><p><?php echo esc_html( $bull ); ?></p></section><?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $row['invalidation'] ) ) : ?>
+				<div class="bm-pro-sales__risk-boundary"><span>THESIS INVALIDATION</span><p><?php echo esc_html( (string) $row['invalidation'] ); ?></p></div>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $row['what_changed'] ) ) : ?>
+				<div class="bm-pro-sales__change-block"><span>WHAT CHANGED</span><p><?php echo esc_html( (string) $row['what_changed'] ); ?></p></div>
+			<?php endif; ?>
+
+			<footer>
+				<span><?php echo esc_html( 'Rentang tercapai: ' . ( 'yes' === ( $row['range_hit'] ?? '' ) ? 'YA' : ( 'no' === ( $row['range_hit'] ?? '' ) ? 'TIDAK' : '—' ) ) ); ?></span>
+				<span><?php esc_html_e( 'Contoh historis tertunda · bukan guidance saat ini', 'bitmomo-pro' ); ?></span>
+			</footer>
+		</article>
 		<?php
 	}
 
 	private function render_free_vs_pro() {
 		$rows = array(
 			array( 'Kondisi BTC sekarang', 'Ya', 'Ya' ),
-			array( 'Bias & Confidence', 'Ya', 'Ya' ),
-			array( 'What Changed · ringkas', 'Ya', 'Ya' ),
-			array( 'Why It Matters', 'Ya', 'Ya' ),
-			array( '1 konteks What to Watch', 'Ya', 'Ya' ),
-			array( 'Full monitoring / watch set', '—', 'Ya' ),
+			array( 'What Changed', 'Ringkas', 'Lebih dalam' ),
 			array( 'Expected Range', '—', 'Ya' ),
-			array( 'Base / Bull / Bear', '—', 'Ya' ),
-			array( 'Kondisi invalidasi tesis', '—', 'Ya' ),
-			array( 'Public Decision Ledger', 'Ya', 'Ya' ),
+			array( 'Scenario Map Base / Bull / Bear', '—', 'Ya' ),
+			array( 'Thesis Invalidation', '—', 'Ya' ),
+			array( 'What to Watch', '1 konteks utama', 'Monitoring lebih lengkap' ),
+			array( 'Accountability hasil', 'Ya', 'Ya' ),
 		);
 		?>
-		<section class="bm-pro-sales__comparison" aria-labelledby="bm-pro-comparison-title">
+		<section class="bm-pro-sales__comparison bm-pro-sales__comparison--compact" aria-labelledby="bm-pro-comparison-title">
 			<p class="bm-pro-sales__eyebrow">FREE → PRO</p>
-			<h2 id="bm-pro-comparison-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Bedanya bukan lebih banyak data. Bedanya adalah kedalaman keputusan.', 'bitmomo-pro' ); ?></h2>
-			<div class="bm-pro-sales__comparison-table" role="table" aria-label="Perbandingan BTC Intelligence gratis dan Bitmomo Pro">
-				<div class="bm-pro-sales__comparison-row is-head" role="row"><span role="columnheader">INTELLIGENCE</span><strong role="columnheader">GRATIS</strong><strong role="columnheader">PRO</strong></div>
-				<?php foreach ( $rows as $item ) : ?><div class="bm-pro-sales__comparison-row" role="row"><span role="cell"><?php echo esc_html( $item[0] ); ?></span><strong role="cell" class="<?php echo 'Ya' === $item[1] ? 'is-yes' : 'is-no'; ?>"><?php echo esc_html( $item[1] ); ?></strong><strong role="cell" class="is-yes"><?php echo esc_html( $item[2] ); ?></strong></div><?php endforeach; ?>
+			<h2 id="bm-pro-comparison-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Free menjawab “apa yang terjadi sekarang”. Pro membantu menilai “apa yang perlu dipantau berikutnya”.', 'bitmomo-pro' ); ?></h2>
+			<div class="bm-pro-sales__comparison-table" role="table" aria-label="Perbandingan BTC Intelligence Free dan Bitmomo Pro">
+				<div class="bm-pro-sales__comparison-row is-head" role="row"><span role="columnheader">DECISION LAYER</span><strong role="columnheader">FREE</strong><strong role="columnheader">PRO</strong></div>
+				<?php foreach ( $rows as $item ) : ?>
+					<div class="bm-pro-sales__comparison-row" role="row"><span role="cell"><?php echo esc_html( $item[0] ); ?></span><strong role="cell"><?php echo esc_html( $item[1] ); ?></strong><strong role="cell" class="is-yes"><?php echo esc_html( $item[2] ); ?></strong></div>
+				<?php endforeach; ?>
 			</div>
-			<p class="bm-pro-sales__micro-note"><?php esc_html_e( 'Gratis sudah cukup untuk memahami kondisi, perubahan, makna, dan satu konteks pantauan. Pro menambahkan monitoring lengkap, skenario, level, dan invalidasi untuk menavigasi apa yang terjadi berikutnya.', 'bitmomo-pro' ); ?></p>
 		</section>
 		<?php
 	}
 
 	private function render_accountability() {
+		$evaluated_n = null;
+		if ( class_exists( 'Bitmomo_Btc_Intelligence_Accountability' ) && method_exists( 'Bitmomo_Btc_Intelligence_Accountability', 'decision_ledger' ) ) {
+			$contract    = Bitmomo_Btc_Intelligence_Accountability::decision_ledger( 20 );
+			$evaluated_n = isset( $contract['evaluated_n'] ) ? (int) $contract['evaluated_n'] : null;
+		}
 		?>
-		<section id="pro-proof" class="bm-pro-sales__accountability" aria-labelledby="bm-pro-accountability-title">
+		<section id="pro-proof" class="bm-pro-sales__accountability bm-pro-sales__accountability--compact" aria-labelledby="bm-pro-accountability-title">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'ACCOUNTABILITY', 'bitmomo-pro' ); ?></p>
-			<h2 id="bm-pro-accountability-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Setiap analisis harus dapat diuji terhadap hasil aktual.', 'bitmomo-pro' ); ?></h2>
+			<h2 id="bm-pro-accountability-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Tesis dicatat sebelum outcome, lalu diuji setelah jendela evaluasi.', 'bitmomo-pro' ); ?></h2>
 			<div class="bm-pro-sales__accountability-grid">
-				<div><strong><?php esc_html_e( 'Dicatat sebelum hasil diketahui', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Tesis dan konteks dibekukan sebelum outcome diketahui, bukan ditulis ulang setelah pasar bergerak.', 'bitmomo-pro' ); ?></p></div>
-				<div><strong><?php esc_html_e( 'Tidak memilih hasil yang bagus saja', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Decision Ledger mempertahankan hasil yang sesuai, tidak sesuai, tidak konklusif, maupun yang belum dapat dinilai.', 'bitmomo-pro' ); ?></p></div>
-				<div><strong><?php esc_html_e( 'Batas metode tetap terlihat', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Confidence, jendela evaluasi, dan keterbatasan sampel dijelaskan agar angka tidak berdiri tanpa konteks.', 'bitmomo-pro' ); ?></p></div>
+				<div><strong><?php esc_html_e( 'Recorded before outcome', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Brief dibekukan saat publikasi; hasil tidak dipakai untuk menulis ulang tesis.', 'bitmomo-pro' ); ?></p></div>
+				<div><strong><?php esc_html_e( 'Settled outcome', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Outcome +24h dievaluasi secara forward-only ketika jendela settlement tersedia.', 'bitmomo-pro' ); ?></p></div>
+				<div><strong><?php esc_html_e( 'No accuracy theatre', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Bitmomo tidak menampilkan win-rate ketika kontrak sampel agregat belum cukup untuk mendukung persentase yang bermakna.', 'bitmomo-pro' ); ?></p></div>
 			</div>
-			<?php if ( self::METHODOLOGY_PAGE_LIVE ) : ?><a class="bm-pro-sales__text-link" href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>"><?php esc_html_e( 'Audit Decision Ledger & track record →', 'bitmomo-pro' ); ?></a><?php endif; ?>
+			<span class="bm-pro-sales__sample-state"><?php echo esc_html( null === $evaluated_n ? __( 'INSUFFICIENT SAMPLE', 'bitmomo-pro' ) : sprintf( __( 'INSUFFICIENT SAMPLE FOR ACCURACY %% · %d evaluasi matang terbaru tersedia', 'bitmomo-pro' ), $evaluated_n ) ); ?></span>
 		</section>
 		<?php
 	}
@@ -243,11 +262,10 @@ class Bitmomo_Pro_Sales {
 		?>
 		<div class="bm-pro-sales__climax-block bm-pro-sales__economics">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'FOUNDING MEMBERSHIP', 'bitmomo-pro' ); ?></p>
-			<h2 id="bm-pro-pricing-title" class="bm-pro-sales__section-title bm-pro-sales__section-title--climax"><?php esc_html_e( 'Akses awal ke produk yang sudah dapat dinilai hari ini.', 'bitmomo-pro' ); ?></h2>
+			<h2 id="bm-pro-pricing-title" class="bm-pro-sales__section-title bm-pro-sales__section-title--climax"><?php esc_html_e( 'Masuk melalui whitelist. Bayar hanya ketika checkout resmi dibuka.', 'bitmomo-pro' ); ?></h2>
 			<p class="bm-pro-sales__economics-anchor"><?php esc_html_e( 'FOUNDING PRICE Rp149.000/bulan', 'bitmomo-pro' ); ?></p>
-			<p><?php esc_html_e( 'Founding Membership mencakup Decision View BTC dan fitur baru yang nantinya ditambahkan ke Bitmomo Pro. Harga untuk member baru dapat berubah seiring pengembangan produk.', 'bitmomo-pro' ); ?></p>
+			<p><?php echo esc_html( sprintf( __( 'Founding Membership dibatasi maksimum %d member. Tidak ada remaining-seat counter sampai sistem memiliki data kursi aktual yang dapat diverifikasi.', 'bitmomo-pro' ), self::SEAT_CAP ) ); ?></p>
 			<p><?php esc_html_e( 'Founding Members yang menjaga membership tetap aktif mempertahankan Founding Price selama membership tersebut tetap aktif.', 'bitmomo-pro' ); ?></p>
-			<p class="bm-pro-sales__economics-boundary"><?php esc_html_e( 'Produk Bitmomo yang terpisah di masa depan dapat memiliki harga tersendiri.', 'bitmomo-pro' ); ?></p>
 		</div>
 		<?php
 	}
@@ -272,7 +290,7 @@ class Bitmomo_Pro_Sales {
 			if ( class_exists( 'Bitmomo_Pro_Whitelist' ) ) {
 				Bitmomo_Pro_Whitelist::instance()->render_widget( array( 'source' => 'pro_page' ) );
 			} else {
-				echo '<span class="bm-pro-sales__cta bm-pro-sales__cta--pending" id="bm-pro-whitelist">' . esc_html__( 'Pendaftaran Founding Membership segera dibuka.', 'bitmomo-pro' ) . '</span>';
+				echo '<span class="bm-pro-sales__cta bm-pro-sales__cta--pending" id="bm-pro-whitelist">' . esc_html__( 'Pendaftaran Founding Whitelist segera dibuka.', 'bitmomo-pro' ) . '</span>';
 			}
 		} else {
 			printf( '<a class="bm-pro-sales__cta" href="%1$s">%2$s</a>', esc_url( $url ), esc_html__( 'Kunci Harga Founding', 'bitmomo-pro' ) );
@@ -286,10 +304,14 @@ class Bitmomo_Pro_Sales {
 
 	private function buyer_faq_items() {
 		$index = array();
-		if ( ! class_exists( 'Bitmomo_Pro_Help_Center' ) || ! method_exists( 'Bitmomo_Pro_Help_Center', 'categories' ) ) return $index;
+		if ( ! class_exists( 'Bitmomo_Pro_Help_Center' ) || ! method_exists( 'Bitmomo_Pro_Help_Center', 'categories' ) ) {
+			return $index;
+		}
 		foreach ( (array) Bitmomo_Pro_Help_Center::categories() as $category ) {
 			foreach ( (array) ( $category['items'] ?? array() ) as $item ) {
-				if ( is_array( $item ) && ! empty( $item['id'] ) ) $index[ $item['id'] ] = $item;
+				if ( is_array( $item ) && ! empty( $item['id'] ) ) {
+					$index[ $item['id'] ] = $item;
+				}
 			}
 		}
 		return $index;
@@ -320,20 +342,47 @@ class Bitmomo_Pro_Sales {
 		$support_email = $this->support_email();
 		?>
 		<nav class="bm-pro-sales__trust-links" aria-label="<?php esc_attr_e( 'Trust dan kebijakan Bitmomo Pro', 'bitmomo-pro' ); ?>">
-			<a href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>"><?php esc_html_e( 'Decision Ledger', 'bitmomo-pro' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/help/' ) ); ?>"><?php esc_html_e( 'Help Center', 'bitmomo-pro' ); ?></a>
 			<?php if ( $support_email ) : ?><a href="mailto:<?php echo esc_attr( $support_email ); ?>"><?php esc_html_e( 'Support', 'bitmomo-pro' ); ?></a><?php endif; ?>
 			<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>"><?php esc_html_e( 'Kebijakan Privasi', 'bitmomo-pro' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>"><?php esc_html_e( 'Disclaimer', 'bitmomo-pro' ); ?></a>
 		</nav>
 		<?php
-		unset( $support_email );
 	}
 
 	private function render_disclaimer() {
 		?>
 		<section class="bm-pro-sales__disclaimer"><p><?php esc_html_e( 'Bitmomo Pro adalah alat bantu analisis, bukan nasihat keuangan. Pergerakan harga BTC dan aset kripto memiliki risiko; keputusan trading sepenuhnya tanggung jawab pengguna.', 'bitmomo-pro' ); ?></p></section>
 		<?php
+	}
+
+	private function range_positions( $low, $high, $reference, $outcome ) {
+		$points = array( $low, $high );
+		if ( null !== $reference ) $points[] = $reference;
+		if ( null !== $outcome ) $points[] = $outcome;
+		$min         = min( $points );
+		$max         = max( $points );
+		$span        = max( 1.0, $max - $min );
+		$padding     = $span * 0.12;
+		$floor       = max( 0.0, $min - $padding );
+		$ceiling     = $max + $padding;
+		$visual_span = max( 1.0, $ceiling - $floor );
+		$position    = static function ( $value ) use ( $floor, $visual_span ) {
+			if ( null === $value ) return null;
+			return round( max( 0, min( 100, ( ( $value - $floor ) / $visual_span ) * 100 ) ), 2 );
+		};
+		$range_left  = $position( $low );
+		$range_right = $position( $high );
+		return array(
+			'range_left'  => $range_left,
+			'range_width' => round( max( 1, $range_right - $range_left ), 2 ),
+			'reference'   => $position( $reference ),
+			'outcome'     => $position( $outcome ),
+		);
+	}
+
+	private function positive_number( $value ) {
+		return is_numeric( $value ) && (float) $value > 0 ? (float) $value : null;
 	}
 
 	private function format_wib( $value ) {
@@ -355,7 +404,7 @@ class Bitmomo_Pro_Sales {
 
 	private function verdict_label( $verdict ) {
 		$labels = array( 'aligned' => 'SESUAI', 'missed' => 'TIDAK SESUAI', 'inconclusive' => 'TIDAK KONKLUSIF', 'unscored' => 'BELUM DINILAI' );
-		$key = sanitize_key( (string) $verdict );
+		$key    = sanitize_key( (string) $verdict );
 		return isset( $labels[ $key ] ) ? $labels[ $key ] : $labels['unscored'];
 	}
 }
