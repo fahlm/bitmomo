@@ -39,11 +39,7 @@ jobs:
       - name: Compile selector package
         run: python -m compileall -q market_selector
 
-      - name: Run selector research tests
+      - name: Run complete selector research tests
         env:
           PYTHONPATH: .
-        run: >-
-          pytest -q
-          tests/test_market_selector.py
-          tests/test_execution_feedback.py
-          tests/test_shadow_probe.py
+        run: pytest -q tests
