@@ -1,0 +1,529 @@
+/*
+ * Bitmomo Pro — canonical Decision View component.
+ *
+ * Shared presentation for the public delayed/historical proof and the protected
+ * member dashboard. This is not an override experiment: canonical renderers
+ * emit these classes directly. No entitlement, market methodology, payment,
+ * whitelist, or data-fetch behavior lives here.
+ */
+
+/* ---------- Public /pro/ decision-first hierarchy ---------- */
+.bm-pro-sales--decision-first .bm-pro-sales__hero {
+	max-width: 900px;
+	padding: 34px 0 22px;
+}
+
+.bm-pro-sales--decision-first .bm-pro-sales__hero-title {
+	max-width: 800px;
+	font-size: clamp(32px, 4.6vw, 52px);
+	line-height: 1.03;
+}
+
+.bm-pro-sales--decision-first .bm-pro-sales__hero-sub {
+	max-width: 720px;
+	font-size: clamp(15px, 1.6vw, 18px);
+}
+
+.bm-pro-sales--decision-first .bm-pro-sales__hero-actions {
+	margin-top: 20px;
+}
+
+.bm-pro-sales--decision-first .bm-pro-sales__product-proof {
+	margin-top: 10px;
+	padding: 30px;
+	border: 1px solid rgba(244, 173, 50, .30);
+	border-radius: 14px;
+	background: linear-gradient(180deg, rgba(244, 173, 50, .045), rgba(13, 23, 38, .92) 46%, rgba(13, 23, 38, .98));
+	box-shadow: 0 22px 64px -48px rgba(0, 0, 0, .82);
+}
+
+.bm-pro-sales--decision-first .bm-pro-sales__product-proof .bm-pro-sales__section-title {
+	max-width: 760px;
+	font-size: clamp(24px, 3vw, 36px);
+}
+
+.bm-pro-sales__historical-label {
+	display: inline-flex;
+	align-items: center;
+	min-height: 30px;
+	padding: 0 9px;
+	border: 1px solid rgba(244, 173, 50, .36);
+	border-radius: 5px;
+	color: var(--bms-orange, #f4ad32);
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: .08em;
+	white-space: nowrap;
+}
+
+.bm-pro-sales__decision-metrics--primary {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.bm-pro-sales__decision-metrics--primary > div {
+	min-width: 0;
+}
+
+.bm-pro-sales__decision-metrics--primary strong {
+	font-size: clamp(15px, 1.7vw, 20px);
+	overflow-wrap: anywhere;
+}
+
+.bm-pro-sales__decision-visual {
+	padding: 18px 16px 4px;
+	border-bottom: 1px solid var(--bms-border, #1e2c42);
+}
+
+.bm-pro-sales__range-head,
+.bm-pro__range-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 14px;
+	margin-bottom: 12px;
+}
+
+.bm-pro-sales__range-head span,
+.bm-pro__range-head span,
+.bm-pro-sales__scenario-map h3 {
+	margin: 0;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: .10em;
+	text-transform: uppercase;
+}
+
+.bm-pro-sales__range-head span {
+	color: var(--bms-subtle, #788aa3);
+}
+
+.bm-pro-sales__range-head strong,
+.bm-pro__range-head strong {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 13px;
+	font-variant-numeric: tabular-nums;
+}
+
+.bm-pro-sales__range-track,
+.bm-pro__range-track {
+	position: relative;
+	height: 62px;
+	margin: 0 8px 18px;
+	border-top: 1px solid rgba(148, 163, 184, .36);
+}
+
+.bm-pro-sales__range-band,
+.bm-pro__range-band {
+	position: absolute;
+	top: -4px;
+	left: var(--range-left);
+	width: var(--range-width);
+	height: 7px;
+	border-radius: 999px;
+}
+
+.bm-pro-sales__range-band {
+	background: var(--bms-teal, #2dd4bf);
+}
+
+.bm-pro__range-band {
+	background: var(--bm-pro-teal, #2dd4bf);
+}
+
+.bm-pro-sales__range-marker,
+.bm-pro__range-marker {
+	position: absolute;
+	top: -8px;
+	left: var(--marker-pos);
+	transform: translateX(-50%);
+	min-width: 82px;
+	text-align: center;
+}
+
+.bm-pro-sales__range-marker i,
+.bm-pro__range-marker i {
+	display: block;
+	width: 2px;
+	height: 18px;
+	margin: 0 auto 4px;
+	background: currentColor;
+}
+
+.bm-pro-sales__range-marker small,
+.bm-pro__range-marker small {
+	display: inline-block;
+	font: 700 9px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.bm-pro-sales__range-marker.is-reference {
+	color: var(--bms-text, #e6edf5);
+}
+
+.bm-pro-sales__range-marker.is-outcome {
+	top: 18px;
+	color: var(--bms-muted, #9aabc1);
+}
+
+.bm-pro-sales__range-marker.is-outcome i {
+	height: 12px;
+}
+
+.bm-pro-sales__scenario-map {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+	padding: 0 16px 18px;
+}
+
+.bm-pro-sales__scenario-map > section {
+	min-width: 0;
+	padding: 13px 14px;
+	border: 1px solid var(--bms-border, #1e2c42);
+	border-radius: 9px;
+	background: rgba(255, 255, 255, .018);
+}
+
+.bm-pro-sales__scenario-map > section.is-base {
+	border-color: rgba(45, 212, 191, .40);
+	background: rgba(45, 212, 191, .045);
+}
+
+.bm-pro-sales__scenario-map > section.is-bear h3 {
+	color: var(--bms-bear, #f87171);
+}
+
+.bm-pro-sales__scenario-map > section.is-bull h3 {
+	color: var(--bms-bull, #34d399);
+}
+
+.bm-pro-sales__scenario-map > section.is-base h3 {
+	color: var(--bms-teal, #2dd4bf);
+}
+
+.bm-pro-sales__scenario-map p {
+	margin: 7px 0 0;
+	color: #c4cfdd;
+	font-size: 12px;
+	line-height: 1.55;
+}
+
+.bm-pro-sales__risk-boundary {
+	margin: 0 16px 16px;
+	padding: 14px 16px;
+	border: 1px solid rgba(248, 113, 113, .28);
+	border-radius: 9px;
+	background: rgba(248, 113, 113, .035);
+}
+
+.bm-pro-sales__risk-boundary span,
+.bm-pro-sales__change-block span {
+	display: block;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: .09em;
+	text-transform: uppercase;
+}
+
+.bm-pro-sales__risk-boundary span {
+	color: var(--bms-bear, #f87171);
+}
+
+.bm-pro-sales__risk-boundary p,
+.bm-pro-sales__change-block p {
+	margin: 7px 0 0;
+	font-size: 12px;
+	line-height: 1.55;
+}
+
+.bm-pro-sales__change-block {
+	margin: 0 16px 16px;
+	padding: 13px 0 0;
+	border-top: 1px solid var(--bms-border, #1e2c42);
+}
+
+.bm-pro-sales__change-block span {
+	color: var(--bms-subtle, #788aa3);
+}
+
+.bm-pro-sales__comparison--compact .bm-pro-sales__comparison-row {
+	min-height: 44px;
+}
+
+.bm-pro-sales__accountability--compact .bm-pro-sales__accountability-grid > div {
+	padding: 14px;
+}
+
+.bm-pro-sales__sample-state {
+	display: inline-flex;
+	align-items: center;
+	min-height: 30px;
+	margin-top: 14px;
+	padding: 0 10px;
+	border: 1px solid var(--bms-border-strong, #2b3c55);
+	border-radius: 5px;
+	color: var(--bms-muted, #9aabc1);
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: .06em;
+}
+
+/* ---------- Protected member dashboard ---------- */
+.bitmomo-pro-dashboard-page .page-header {
+	width: calc(100% - 32px);
+	max-width: 980px;
+	padding-bottom: 14px;
+}
+
+.bm-pro--decision-first {
+	width: calc(100% - 32px);
+	max-width: 980px;
+	margin-bottom: 64px;
+}
+
+.bm-pro--decision-first .bm-pro__dashboard {
+	padding: clamp(18px, 3vw, 30px);
+	border-radius: 14px;
+}
+
+.bm-pro--decision-first .bm-pro__header {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 8px 18px;
+	align-items: center;
+	padding-bottom: 18px;
+	margin-bottom: 20px;
+}
+
+.bm-pro--decision-first .bm-pro__state-label {
+	justify-self: start;
+	padding: 0;
+	background: transparent;
+	border-radius: 0;
+	font-size: clamp(26px, 4vw, 42px);
+	line-height: 1;
+	letter-spacing: -.035em;
+}
+
+.bm-pro--decision-first .bm-pro__confidence {
+	grid-column: 1;
+	grid-row: 2;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+}
+
+.bm-pro--decision-first .bm-pro__price {
+	grid-column: 2;
+	grid-row: 1 / span 2;
+	margin-left: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: clamp(22px, 3vw, 34px);
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -.025em;
+}
+
+.bm-pro__range-visual {
+	margin-bottom: 20px;
+	padding: 16px 18px 8px;
+	border: 1px solid var(--bm-pro-border, #1e2c42);
+	border-radius: 10px;
+	background: var(--bm-pro-bg, #0b1220);
+}
+
+.bm-pro__range-head span {
+	color: var(--bm-pro-text-muted, #93a4bd);
+}
+
+.bm-pro__range-head strong {
+	font-size: clamp(17px, 2.5vw, 24px);
+}
+
+.bm-pro__range-marker {
+	color: var(--bm-pro-text, #e6edf5);
+}
+
+.bm-pro--decision-first .bm-pro__scenarios {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.bm-pro--decision-first .bm-pro__scenario {
+	min-width: 0;
+	padding: 14px 15px;
+	border-left-width: 1px;
+}
+
+.bm-pro--decision-first .bm-pro__scenario--base {
+	border-color: rgba(45, 212, 191, .42);
+	background: rgba(45, 212, 191, .045);
+	order: 1;
+}
+
+.bm-pro--decision-first .bm-pro__scenario--bull {
+	order: 2;
+}
+
+.bm-pro--decision-first .bm-pro__scenario--bear {
+	order: 3;
+}
+
+.bm-pro--decision-first .bm-pro__scenario h4 {
+	margin-bottom: 7px;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: .09em;
+}
+
+.bm-pro--decision-first .bm-pro__scenario p {
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.bm-pro--decision-first .bm-pro__invalidation {
+	margin: 0 0 20px;
+	padding: 14px 16px;
+	border: 1px solid rgba(248, 113, 113, .28);
+	border-radius: 10px;
+	background: rgba(248, 113, 113, .035);
+}
+
+.bm-pro--decision-first .bm-pro__invalidation h4 {
+	color: var(--bm-pro-bear, #f87171);
+}
+
+.bm-pro--decision-first .bm-pro__invalidation p {
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.bm-pro--decision-first .bm-pro__confidence-explain {
+	max-width: 780px;
+	margin: 0 0 20px;
+	padding: 11px 13px;
+	border-left: 2px solid var(--bm-pro-teal, #2dd4bf);
+	background: rgba(45, 212, 191, .035);
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.bm-pro--decision-first .bm-pro__section:not(.bm-pro__invalidation) {
+	margin-bottom: 20px;
+}
+
+.bm-pro--decision-first .bm-pro__footer {
+	margin-top: 4px;
+	padding-top: 12px;
+}
+
+.bm-pro-sales--decision-first a:focus-visible,
+.bm-pro--decision-first a:focus-visible,
+.bm-pro--decision-first button:focus-visible,
+.bm-pro--decision-first input:focus-visible,
+.bm-pro--decision-first summary:focus-visible {
+	outline: 2px solid #f4ad32;
+	outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+	.bm-pro-sales--decision-first .bm-pro-sales__hero {
+		padding-top: 22px;
+		padding-bottom: 16px;
+	}
+
+	.bm-pro-sales--decision-first .bm-pro-sales__hero-title {
+		font-size: clamp(28px, 9vw, 38px);
+	}
+
+	.bm-pro-sales--decision-first .bm-pro-sales__hero-actions {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+
+	.bm-pro-sales--decision-first .bm-pro-sales__hero-actions a {
+		width: 100%;
+		min-height: 48px;
+	}
+
+	.bm-pro-sales--decision-first .bm-pro-sales__product-proof {
+		padding: 18px 14px;
+	}
+
+	.bm-pro-sales__decision-metrics--primary {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.bm-pro-sales__scenario-map {
+		grid-template-columns: 1fr;
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.bm-pro-sales__risk-boundary,
+	.bm-pro-sales__change-block {
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	.bm-pro-sales__range-head,
+	.bm-pro__range-head {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.bm-pro-sales__range-marker,
+	.bm-pro__range-marker {
+		min-width: 66px;
+	}
+
+	.bm-pro-sales__range-marker small,
+	.bm-pro__range-marker small {
+		font-size: 8px;
+	}
+
+	.bitmomo-pro-dashboard-page .page-header,
+	.bm-pro--decision-first {
+		width: calc(100% - 24px);
+	}
+
+	.bm-pro--decision-first .bm-pro__dashboard {
+		padding: 16px 14px;
+	}
+
+	.bm-pro--decision-first .bm-pro__header {
+		grid-template-columns: 1fr;
+		gap: 7px;
+	}
+
+	.bm-pro--decision-first .bm-pro__price,
+	.bm-pro--decision-first .bm-pro__confidence {
+		grid-column: 1;
+		grid-row: auto;
+		justify-self: start;
+	}
+
+	.bm-pro__range-visual {
+		padding: 14px 12px 8px;
+	}
+
+	.bm-pro--decision-first .bm-pro__scenarios {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 430px) {
+	.bm-pro-sales__decision-metrics--primary strong {
+		font-size: 14px;
+	}
+
+	.bm-pro-sales__range-track,
+	.bm-pro__range-track {
+		margin-left: 4px;
+		margin-right: 4px;
+	}
+}
