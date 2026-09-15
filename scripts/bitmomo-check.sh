@@ -63,6 +63,7 @@ doctor() {
   echo "node=$($NODE_BIN --version 2>/dev/null || echo unknown)"
   echo "python=$($PYTHON_BIN --version 2>&1 || echo unknown)"
   "$NODE_BIN" scripts/check-engineering-policy.mjs
+  "$NODE_BIN" scripts/check-release-state.mjs
   "$NODE_BIN" scripts/audit-frontend-debt.mjs
 
   local branch="$(git symbolic-ref --quiet --short HEAD || true)"
@@ -90,17 +91,19 @@ quick() {
   local list="$(mktemp)"; changed_files_to "$list"
   local count="$(wc -l < "$list" | tr -d ' ')"; echo "Changed files: $count"
   if [ "$count" -eq 0 ]; then rm -f "$list"; echo "PASS no local/source delta to verify"; return 0; fi
-  local theme_changed=0 launch_changed=0 css_changed=0 file
+  local theme_changed=0 launch_changed=0 css_changed=0 release_state_changed=0 file
   while IFS= read -r file; do
     test -f "$file" || continue
     case "$file" in website/wp-content/*|scripts/*) lint_file "$file" ;; esac
     case "$file" in website/wp-content/themes/bitmomo-child-v3/*|scripts/check-ui-architecture.mjs|scripts/audit-css-debt.mjs|scripts/audit-frontend-debt.mjs) theme_changed=1 ;; esac
     case "$file" in *.css) css_changed=1 ;; esac
     case "$file" in website/wp-content/*|config/production-runtime.json|scripts/build-production-artifact.py|scripts/check-m2-launch-surfaces.mjs) launch_changed=1 ;; esac
+    case "$file" in config/release-state.json|docs/CURRENT_RELEASE.md|scripts/check-release-state.mjs) release_state_changed=1 ;; esac
   done < "$list"
   if [ "$theme_changed" -eq 1 ]; then node_if_present scripts/check-ui-architecture.mjs; node_if_present scripts/audit-css-debt.mjs; fi
   if [ "$css_changed" -eq 1 ]; then "$NODE_BIN" scripts/audit-frontend-debt.mjs; fi
   if [ "$launch_changed" -eq 1 ]; then node_if_present scripts/check-m2-launch-surfaces.mjs; fi
+  if [ "$release_state_changed" -eq 1 ]; then "$NODE_BIN" scripts/check-release-state.mjs; fi
   rm -f "$list"; echo "PASS quick local checks"
 }
 
@@ -120,6 +123,7 @@ full() {
   git diff --quiet && git diff --cached --quiet || { echo "ERROR full release verification requires a clean tracked checkout" >&2; exit 1; }
   echo "Candidate commit=$actual_sha tree=$actual_tree"
   "$NODE_BIN" scripts/check-engineering-policy.mjs
+  "$NODE_BIN" scripts/check-release-state.mjs
 
   find "${runtime_roots[@]}" -type f -name '*.php' -print0 | while IFS= read -r -d '' file; do "$PHP_BIN" -l "$file" >/dev/null; done
   local plugin; for plugin in bitmomo-ai bitmomo-btc-intelligence bitmomo-pro bitmomo-regime; do run_plugin_tests "$plugin"; done
@@ -157,6 +161,12 @@ PY
   echo "PASS full exact-SHA local release verification"
 }
 
+equivalence() {
+  local accepted="${2:-}" candidate="${3:-}"
+  test -n "$accepted" && test -n "$candidate" || { echo "Usage: bash scripts/bitmomo-check.sh equivalence <accepted-ref> <candidate-ref>" >&2; exit 2; }
+  "$PYTHON_BIN" scripts/check-runtime-equivalence.py "$accepted" "$candidate"
+}
+
 smoke() { local base="${2:-https://bitmomo.id}"; test -f scripts/production-monitor-local.sh || { echo "ERROR production monitor script missing" >&2; exit 2; }; bash scripts/production-monitor-local.sh "$base"; }
 
 case "$MODE" in
@@ -164,6 +174,7 @@ case "$MODE" in
   quick) quick ;;
   test) test_touched ;;
   full) full "$@" ;;
+  equivalence) equivalence "$@" ;;
   smoke) smoke "$@" ;;
-  *) echo "Usage: bash scripts/bitmomo-check.sh {doctor|quick|test|full <sha>|smoke [base_url]}" >&2; exit 2 ;;
+  *) echo "Usage: bash scripts/bitmomo-check.sh {doctor|quick|test|full <sha>|equivalence <accepted-ref> <candidate-ref>|smoke [base_url]}" >&2; exit 2 ;;
 esac
