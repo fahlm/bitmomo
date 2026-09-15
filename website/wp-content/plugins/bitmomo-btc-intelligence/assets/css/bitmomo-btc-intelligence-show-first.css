@@ -1,6 +1,7 @@
 /* Bitmomo BTC Intelligence — Show-First product hierarchy override.
  * Public surface goal: State -> Change -> Meaning -> Watch -> Proof.
- * Presentation-only: no scoring, freshness, entitlement, or protected Pro changes.
+ * Presentation-only: no scoring, adapter schema, freshness, entitlement,
+ * or protected Pro changes.
  */
 
 .bm-bi {
@@ -34,16 +35,15 @@
   border-top: 2px solid var(--bmi-accent);
 }
 
-.bm-bi__evidence-context { order: 2; }
-.bm-bi__rail { order: 3; margin-top: 12px; margin-bottom: 0; }
-.bm-bi__history { order: 4; }
-.bm-bi__pro-archive { order: 5; }
-.bm-bi__track-record { order: 6; }
-.bm-bi__pro-cta { order: 7; }
-.bm-bi__methodology { order: 8; }
+.bm-bi__rail { order: 2; margin-top: 12px; margin-bottom: 0; }
+.bm-bi__history { order: 3; }
+.bm-bi__pro-archive { order: 4; }
+.bm-bi__track-record { order: 5; }
+.bm-bi__pro-cta { order: 6; }
+.bm-bi__methodology { order: 7; }
 
-/* A raw row ledger is an audit instrument, not a primary investor/user surface.
- * Accountability remains in the underlying data boundary and aggregate proof. */
+/* A row-by-row ledger is an audit instrument, not a primary visitor surface.
+ * Accountability remains in the canonical store and aggregate/historical proof. */
 .bm-bi__ledger,
 .bm-bi__rail a[href="#decision-ledger"] { display: none; }
 
@@ -92,13 +92,14 @@
   letter-spacing: .09em;
 }
 
+/* Bias and Confidence are the only headline metrics. Session identity is
+ * already in the header and should not become a third competing metric. */
 .bm-bi__snapshot-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 0;
   border-top: 0;
 }
 
-/* Session identity is already in the section header; don't repeat it as a metric. */
 .bm-bi__snapshot-grid > div:nth-child(3) { display: none; }
 
 .bm-bi__snapshot-grid > div:first-child strong {
@@ -112,85 +113,39 @@
   font-size: clamp(19px, 2.4vw, 28px);
 }
 
-/* The current-setup panel repeats State/driver information. Keep only the
- * three decision questions: what changed, why it matters, what to watch. */
+/* Put the three decision questions first. The existing Current Setup / What
+ * Happened panel still carries the two public-safe strongest drivers, but is
+ * demoted to one compact evidence/context strip below them. */
 .bm-bi__snapshot-grid + .bm-bi__brief-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 14px;
 }
 
 .bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child {
-  display: none;
+  grid-column: 1 / -1;
+  order: 4;
+  padding: 11px 13px;
+  border-top: 1px solid var(--bmi-border-soft);
+}
+
+.bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child h3 {
+  margin-bottom: 6px;
+  color: var(--bmi-subtle);
+  font-size: 8px;
+}
+
+.bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child p,
+.bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child li {
+  font-size: 11px;
+  line-height: 1.42;
+}
+
+.bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child ul {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 18px;
 }
 
 .bm-bi__brief-panel h3 { color: var(--bmi-text); }
-
-/* Compact evidence context sourced from the public-safe adapter. */
-.bm-bi__evidence-context {
-  display: grid;
-  grid-template-columns: minmax(150px, .34fr) minmax(0, 1fr);
-  gap: 1px;
-  margin-top: 10px;
-  border: 1px solid var(--bmi-border-soft);
-  border-radius: 9px;
-  overflow: hidden;
-  background: var(--bmi-border-soft);
-}
-
-.bm-bi__evidence-context > div {
-  min-width: 0;
-  padding: 12px 14px;
-  background: var(--bmi-surface);
-}
-
-.bm-bi__evidence-context span {
-  display: block;
-  color: var(--bmi-subtle);
-  font: 800 8px/1.3 var(--bmi-mono);
-  letter-spacing: .11em;
-}
-
-.bm-bi__evidence-regime strong {
-  display: block;
-  margin-top: 5px;
-  font-size: 17px;
-  line-height: 1.2;
-}
-
-.bm-bi__evidence-regime small {
-  display: block;
-  margin-top: 4px;
-  color: var(--bmi-subtle);
-  font: 650 9px/1.35 var(--bmi-mono);
-}
-
-.bm-bi__evidence-drivers ul {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 14px;
-  margin: 7px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.bm-bi__evidence-drivers li {
-  position: relative;
-  padding-left: 11px;
-  color: var(--bm-text-secondary, #b7c0ca);
-  font-size: 11px;
-  line-height: 1.45;
-}
-
-.bm-bi__evidence-drivers li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: .58em;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--bmi-accent);
-}
 
 /* The visitor needs one concrete Pro example, not a catalogue. */
 .bm-bi__pro-archive {
@@ -214,8 +169,8 @@
 .bm-bi__archive-thesis > span,
 .bm-bi__archive-metrics span { color: var(--bm-text-secondary, #b7c0ca); }
 
-/* Aggregate proof should answer "is there evidence?", not expose an analyst
- * scorecard breakdown by every direction. Keep overall + rolling 30 only. */
+/* Aggregate proof answers "is there evidence?"; directional drill-down belongs
+ * in audit/methodology rather than the default visitor flow. */
 .bm-bi__track-record .bm-bi__proof-metric:nth-child(n+3) { display: none; }
 .bm-bi__track-record .bm-bi__proof-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -243,8 +198,12 @@
     gap: 4px;
   }
   .bm-bi__snapshot-grid + .bm-bi__brief-grid { grid-template-columns: 1fr; }
-  .bm-bi__evidence-context { grid-template-columns: 1fr; }
-  .bm-bi__evidence-drivers ul { grid-template-columns: 1fr; }
+  .bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child {
+    grid-column: auto;
+  }
+  .bm-bi__snapshot-grid + .bm-bi__brief-grid .bm-bi__brief-panel:first-child ul {
+    grid-template-columns: 1fr;
+  }
   .bm-bi__pro-archive { padding: 18px 14px; }
 }
 
