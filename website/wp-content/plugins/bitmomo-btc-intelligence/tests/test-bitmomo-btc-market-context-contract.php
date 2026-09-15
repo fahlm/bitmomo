@@ -27,7 +27,7 @@ market_context_check(
 );
 market_context_check(
 	'BTC asset version is bumped for deterministic cache invalidation',
-	false !== strpos( $plugin, "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.4'" )
+	false !== strpos( $plugin, "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.7'" )
 );
 market_context_check(
 	'Only the agreed V1 comparison universe and ranges are public',
