@@ -46,12 +46,13 @@ check(
 );
 check('Homepage does not let AI Lab compete with the launch funnel', !/template-parts\/ai[^\n]*lab/.test(frontPage));
 check(
-  'Homepage journey is value/proof -> mechanism -> conversion -> research while Pro conversion remains provider-neutral',
+  'Homepage journey is current value -> real proof -> product map -> conversion -> research while Pro conversion remains provider-neutral',
   heroIndex > -1 && howIndex > heroIndex && proConversionIndex > howIndex && researchIndex > proConversionIndex
     && /home_url\(\s*'\/btc-intelligence\/'\s*\)/.test(homeHero)
-    && /href="#founding-whitelist"/.test(homeHero)
-    && /\/btc-intelligence\/#decision-ledger/.test(homeHero)
-    && homeHero.indexOf('/btc-intelligence/#decision-ledger') < homeHero.indexOf('href="#founding-whitelist"')
+    && /Bitmomo_Btc_Intelligence_Accountability::delayed_proof\( 1 \)/.test(homeHero)
+    && /id="home-proof"/.test(homeHero)
+    && /\$bm_proof_row \? '#home-proof'/.test(homeHero)
+    && !/href="#founding-whitelist"/.test(homeHero)
     && /bitmomo_pro_get_checkout_url\(\)/.test(homeWhitelist)
     && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(homeWhitelist)
     && /home_url\(\s*'\/pro\/'\s*\)/.test(homeWhitelist)
@@ -70,28 +71,32 @@ check(
 check('Primary nav exposes /pro/ as the public Pro destination', /home_url\(\s*'\/pro\/'\s*\)/.test(header));
 
 check(
-  'Homepage current reading consumes only the public-safe snapshot adapter',
+  'Homepage current reading consumes only the public-safe snapshot adapter while historical proof uses the read-only accountability boundary',
   /Bitmomo_Public_Intelligence_Adapter::snapshot\(\)/.test(homeHero)
+    && /Bitmomo_Btc_Intelligence_Accountability::delayed_proof\( 1 \)/.test(homeHero)
     && !/Bitmomo_Public_Intelligence_Adapter::history\(\)/.test(homeHero)
     && !/Bitmomo_AI_Intelligence::free_projection\(\)/.test(homeHero)
-    && !/Bitmomo_Regime_State_Store|Bitmomo_Pro_/.test(homeHero)
+    && !/Bitmomo_Regime_State_Store|Bitmomo_Pro_[A-Za-z]+::/.test(homeHero)
 );
 check(
-  'Homepage market view is concise but finance-grade: bias, confidence, reference, factor, time and safe source only',
+  'Homepage market view is concise but finance-grade: current state, change, meaning, watch, time and safe source only',
   />BTC MARKET VIEW</.test(homeHero) && />BIAS</.test(homeHero) && />CONFIDENCE</.test(homeHero)
-    && />REFERENSI BTC</.test(homeHero) && />FAKTOR UTAMA</.test(homeHero) && />DIPERBARUI</.test(homeHero)
+    && />REFERENSI BTC</.test(homeHero) && />MARKET PULSE</.test(homeHero)
+    && />APA YANG BERUBAH</.test(homeHero) && />MENGAPA PENTING</.test(homeHero) && />PANTAU BERIKUTNYA</.test(homeHero)
+    && />FAKTOR UTAMA</.test(homeHero) && />DIPERBARUI</.test(homeHero)
     && /<strong>SUMBER DATA<\/strong>/.test(homeHero)
     && /\$bm_drivers\[0\]/.test(homeHero) && /\['provenance'\]\['source'\]/.test(homeHero)
     && !/>OPPORTUNITY</.test(homeHero) && !/>STATE</.test(homeHero)
-    && !/market_state|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
+    && !/\$bm_snapshot\s*\[[^\]]*market_state/.test(homeHero)
+    && !/market_state_certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
 );
 check(
-  'Homepage explanation uses the canonical visitor lifecycle instead of engine vocabulary',
-  /01 · UNDERSTAND NOW/.test(howItWorks)
-    && /02 · MAP WHAT CHANGES/.test(howItWorks)
-    && /03 · AUDIT THE RESULT/.test(howItWorks)
-    && /Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis/.test(howItWorks)
-    && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b|Data bermasalah ditahan/i.test(howItWorks)
+  'Homepage explanation uses the canonical Now -> Next -> After visitor lifecycle instead of engine vocabulary',
+  /NOW · BTC INTELLIGENCE/.test(howItWorks)
+    && /NEXT · BITMOMO PRO/.test(howItWorks)
+    && /AFTER · ACCOUNTABILITY/.test(howItWorks)
+    && /Expected Range/.test(howItWorks) && /Base \/ Bull \/ Bear/.test(howItWorks) && /Track Record/.test(howItWorks)
+    && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|Data bermasalah ditahan/i.test(howItWorks)
 );
 check(
   'Synthetic HTML contract mirrors public facts only',
