@@ -1,0 +1,78 @@
+name: Hyperliquid Shadow Network Smoke
+
+on:
+  push:
+    branches:
+      - research/hyperliquid-referral-volume-v0
+    paths:
+      - 'research/hyperliquid-volume/market_selector/**'
+      - 'research/hyperliquid-volume/run_autonomous_shadow.sh'
+      - '.github/workflows/hyperliquid-shadow-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-network-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: research/hyperliquid-volume
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install official Hyperliquid SDK
+        run: python -m pip install 'hyperliquid-python-sdk==0.24.0'
+
+      - name: Run read-only autonomous shadow smoke
+        shell: bash
+        run: |
+          set +e
+          timeout 90s python -m market_selector.autonomous_runtime \
+            --scan-top 8 \
+            --retain-buffer 2 \
+            --universe-refresh 300 \
+            --report-interval 15 \
+            --transport-stale 60 \
+            --state-json data/runtime/smoke_state.json \
+            --shadow-feedback-jsonl data/runtime/smoke_feedback.jsonl \
+            > data/runtime/smoke.log 2>&1
+          code=$?
+          set -e
+          cat data/runtime/smoke.log
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            exit "$code"
+          fi
+
+      - name: Validate fail-closed shadow state
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          from pathlib import Path
+
+          path = Path('data/runtime/smoke_state.json')
+          if not path.exists():
+              raise SystemExit('smoke state was not created')
+          state = json.loads(path.read_text())
+          assert state['mode'] == 'SHADOW_ONLY', state
+          assert state['mainnet_order_submission'] is False, state
+          assert len(state['universe']) > 0, state
+          assert state['transport']['generation'] >= 1, state
+          age_s = (time.time() * 1000 - state['updated_at_ms']) / 1000
+          assert age_s < 120, age_s
+          print(json.dumps({
+              'universe_count': len(state['universe']),
+              'transport': state['transport'],
+              'decision': state['decision'],
+              'feedback': state['feedback'],
+          }, indent=2, sort_keys=True))
+          PY
