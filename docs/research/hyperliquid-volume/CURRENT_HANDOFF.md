@@ -41,9 +41,68 @@ Implementation includes:
 - `run_autonomous_shadow.sh` — one-command launcher;
 - `ops/bitmomo-hl-shadow.service.example` — systemd example with automatic restart.
 
-Canonical CI now runs the complete selector research suite. Latest verified run after Autonomous Runtime V0 additions: **45 tests passed**.
+Canonical CI runs the complete selector/research control-plane suite. Latest verified run after launch-week safety additions: **58 tests passed**.
 
 There is **no Exchange client, wallet, signing key, or order-submission path** in Autonomous Runtime V0.
+
+## Launch-week strategy — broad coverage, controlled exposure
+
+The project is no longer blocked on finding perfect alpha before completing the rest of the system.
+
+Target: reach roughly 70–80% maturity across every critical layer while keeping safety invariants strict. Direction/execution research continues in parallel, but operational safety is not allowed to be partial.
+
+Canonical runbook:
+
+`docs/research/hyperliquid-volume/CONTROLLED_CANARY_V0.md`
+
+Launch progression:
+
+`12–24h actual-host shadow soak -> $1,000 controlled canary -> $10,000 full beta mission`
+
+The canary stage is still gated because the repository intentionally has no approved live Hyperliquid order adapter yet.
+
+## Mission accounting / risk guardian — IMPLEMENTED
+
+`market_selector/mission.py`
+
+Full beta mission:
+
+- cumulative genuine-volume target: $10,000;
+- epoch net-PnL floor: -$5;
+- cumulative mission net-PnL floor: -$10;
+- maximum two sequential risk epochs.
+
+Canary mission:
+
+- cumulative target: $1,000;
+- epoch floor: -$1;
+- cumulative floor: -$2;
+- maximum two sequential epochs.
+
+Profit is part of the risk buffer. Example: if realized cumulative PnL is +$2, distance to the -$10 full-mission floor is $12.
+
+Cumulative volume and cumulative PnL do not reset between epochs. Epoch 2 may begin only after an epoch stop and flat inventory.
+
+A completed trade that overshoots the hard loss floor cannot be treated as success merely because the same trade crosses the volume target.
+
+`market_selector/mission_replay.py` can replay finalized shadow/paper execution JSONL through the same mission state machine for canary/full-budget diagnostics.
+
+## Execution boundary — IMPLEMENTED, NO ORDER ADAPTER
+
+`market_selector/execution_boundary.py`
+
+Implemented:
+
+- deterministic expected-vs-exchange position reconciliation contract;
+- deterministic expected-vs-exchange open-order reconciliation contract;
+- unexpected/missing order => reconciliation failure;
+- position mismatch => reconciliation failure;
+- host-local exclusive execution-authority lock using `flock`;
+- authority lock automatically releases on process death;
+- risk guardian blocks new entries on mission stop/halt, feed fault, reconciliation failure, disabled authority, or supervisor denial;
+- flatten/reduce exposure remains the required action when risk must be removed.
+
+The lock is single-host only. Multi-host active/active execution is prohibited until a distributed lease exists.
 
 ## Existing selector architecture
 
@@ -60,7 +119,7 @@ The MarketSupervisor implements:
 - persistent superior challenger required for discretionary rotation;
 - hard fault => HALT/fail-closed.
 
-In shadow runtime `inventory_flat=True` because the process owns no wallet. A future execution authority must supply real reconciled inventory state.
+In shadow runtime `inventory_flat=True` because the process owns no wallet. A future execution adapter must supply reconciled real inventory state.
 
 ## Frozen research gates
 
@@ -77,7 +136,7 @@ Current qualification rules remain research parameters, not production truth:
 - T10K <= 6h
 - P10K >= -$2
 
-These parameters still require calibration/sensitivity/walk-forward validation before production freeze.
+These parameters still require calibration/sensitivity/walk-forward validation before production freeze. Do not silently loosen them inside the existing research selector merely to force trading.
 
 ## Session 3 — FROZEN
 
@@ -92,144 +151,89 @@ Key execution-economics evidence under standardized JOIN + 3/3:
 
 This is strong evidence that passive filled observations are toxic, but it does **not** by itself prove that the underlying 3/3 directional signal has standalone alpha.
 
-## Entry Policy Development Cycle 1 — FROZEN
+## Entry Policy Development Cycles 1 and 2 — FROZEN
 
 `ENTRY_POLICY_DEV1_RESULT.md`
 
-Result: **NO SESSION-4 CANDIDATE**.
-
-P1 1.0s persistence materially improved VVV 8h but did not generalize consistently in the short multi-market check.
-
-## Development Capture 2 / Entry Policy Cycle 2 — FROZEN
-
-Development Capture 2: ~6.02h each across BTC, ETHFI, PONS, PUMP, VVV.
+Result: **NO SESSION-4 CANDIDATE**. P1 1.0s persistence materially improved VVV 8h but did not generalize consistently.
 
 `ENTRY_POLICY_DEV2_RESULT.md`
 
-Result: **NO SESSION-4 CANDIDATE**.
+Development Capture 2: ~6.02h each across BTC, ETHFI, PONS, PUMP, VVV.
 
-P4 queue filtering improved PUMP materially and PONS modestly, but worsened BTC/VVV and did not produce a robust positive cross-market effect.
+Result: **NO SESSION-4 CANDIDATE**. P4 queue filtering improved PUMP materially and PONS modestly, but worsened BTC/VVV and did not produce a robust positive cross-market effect.
 
-## Research priority change — DIRECTION ALPHA AUDIT FIRST
+## Direction Alpha Audit — PREDECLARED / PARALLEL RESEARCH
 
-Before further lifecycle tuning, separate signal quality from fill/execution quality.
-
-Canonical predeclared plan:
+Canonical plan:
 
 `docs/research/hyperliquid-volume/DIRECTION_ALPHA_AUDIT_PLAN.md`
 
 Primary question:
 
-> Does the current 3/3 microstructure alignment predict future midprice direction on all signal events, or do negative outcomes arise mainly because passive JOIN fills select a toxic subset?
+> Does current 3/3 microstructure alignment predict future midprice direction across all signals, or are negative outcomes mainly caused by passive JOIN fills selecting a toxic subset?
 
-The audit freezes the existing 3/3 thresholds and measures sign-adjusted future returns at +1s/+2s/+5s/+10s/+30s/+60s for:
+The audit keeps current thresholds frozen and measures sign-adjusted future returns at +1s/+2s/+5s/+10s/+30s/+60s for all signals versus maker-filled/unfilled/baselines.
 
-- all 3/3 signal episodes;
-- maker-filled subset;
-- unfilled subset;
-- matched baselines / 2-of-3 / shuffled-direction controls.
-
-Outcomes must lead to one frozen conclusion:
+Possible frozen conclusions:
 
 - `SIGNAL_SUPPORTED / EXECUTION_TOXIC`
 - `SIGNAL_NOT_SUPPORTED`
 - `SIGNAL_CONDITIONAL / NEW PREDECLARED CYCLE REQUIRED`
 - `SIGNAL_SUPPORTED / EXECUTION_NOT_PRIMARY_CAUSE`
 
-**Order Lifecycle Dev3 is paused until this audit is complete.** Its existing predeclared plan remains valid but must not be interpreted as the current top priority.
+Order Lifecycle Dev3 remains paused until this causal diagnosis is available, but launch-week control-plane/reliability work proceeds in parallel.
 
 Session 4 remains untouched/unseen.
 
-## Volume-budget objective — $5 primary, $10 fallback
+## Volume-budget objective
 
 Canonical objective:
 
 `docs/research/hyperliquid-volume/VOLUME_BUDGET_OBJECTIVE_V1.md`
 
-The business target is cumulative **$10,000 genuine Hyperliquid volume**, not necessarily positive trading PnL.
+Business target is cumulative **$10,000 genuine Hyperliquid volume**, not necessarily positive trading PnL.
 
-Evaluate two explicit cost tiers:
+Two explicit cost tiers remain useful for research:
 
-- Tier A: reach $10K cumulative volume within $5 net loss;
-- Tier B fallback: reach $10K cumulative volume within $10 net loss.
+- Tier A: reach $10K within $5 net cost;
+- Tier B: reach $10K within $10 net cost.
 
-The user's 'run it 2x' concept is represented as **two sequential risk epochs under one execution authority**, not two simultaneous bots:
+The user's previous "run it 2x" concept is implemented as two **sequential risk epochs under one execution authority**, never two simultaneous bots.
 
-- Epoch 1: stop new entries at -$5 if target incomplete;
-- flatten/reassess through normal selector rules;
-- Epoch 2: may resume only in a qualified market;
-- cumulative volume carries forward;
-- cumulative -$10 => hard HALT.
+## Launch-week remaining blockers
 
-Running two independent order-authority bots is rejected because it can create duplicated exposure, conflicting state, queue cannibalization, and accidental self-interaction.
+Before any real order can be submitted, all of the following still need implementation/verification:
 
-Tier B is not validated merely because a point-estimate P10K is above -$10. Required research metrics include:
+1. reviewed Hyperliquid account/order adapter with no secret committed to GitHub;
+2. exchange-native position/open-order/fee/PnL reads wired to reconciliation;
+3. bounded real order lifecycle with deterministic submit/cancel/fill state transitions;
+4. external/operator kill switch defaulting OFF;
+5. actual-host 12–24h shadow soak evidence;
+6. real flatten path validated under canary exposure;
+7. restart recovery must not duplicate an entry or orphan an order;
+8. canary promotion evidence from the $1K stage.
 
-- distribution of CostTo10K;
-- P(reach 10K before -$5);
-- P(reach 10K before -$10);
-- P50/P75/P90/P95 CostTo10K;
-- CVaR95;
-- maximum drawdown before target;
-- TimeTo10K;
-- volume accumulated before each risk boundary;
-- number of risk epochs required.
-
-Predeclared Tier-B research target before future unseen validation:
-
-- expected CostTo10K <= $7.50;
-- P90 CostTo10K <= $10;
-- >=90% probability of reaching $10K before cumulative -$10;
-- each epoch individually capped at -$5;
-- cumulative -$10 hard HALT.
-
-## Strategic separation: research vs runtime
-
-### Research layer
-
-- uses SEEN captures/replays;
-- audits direction alpha independently from execution;
-- investigates execution only after signal diagnosis;
-- evaluates volume-budget distributions and tail risk;
-- freezes parameters before unseen validation;
-- never tunes runtime rules automatically from recent losses.
-
-### Runtime layer
-
-- operates continuously;
-- dynamically decides which market qualifies under frozen rules;
-- automatically stops/switches/IDLEs as conditions change;
-- never silently changes what the rules are.
+These are execution/operations blockers, not reasons to pause Direction Alpha research.
 
 ## Current next action
 
-1. Run the predeclared Direction Alpha Audit on existing SEEN raw datasets.
-2. Run the Fill Selection Audit on the same signal episodes.
-3. Freeze the causal diagnosis before resuming/replacing Order Lifecycle Dev3.
-4. Evaluate CostTo10K distribution under $5 and $10 budgets; do not rely only on mean P10K.
-5. Continue autonomous-runtime reliability soak separately; shadow only.
-6. Keep Session 4 untouched until one full policy/configuration and its budget objective are frozen.
+Run two tracks in parallel:
+
+**Launch track:** deploy current shadow runtime to the actual always-on host, complete 12–24h soak, and implement/review the thin Hyperliquid account/order adapter behind the already-tested mission + reconciliation + single-authority boundary. Do not enable it by default.
+
+**Research track:** execute the predeclared Direction Alpha + Fill Selection Audit on existing SEEN raw data, then use the diagnosis to improve direction/execution economics without rebuilding the operational foundation.
+
+After the shadow soak and adapter/reconciliation path are green, the next exposure step is the `$1,000 / -$1 epoch / -$2 mission` controlled canary from `CONTROLLED_CANARY_V0.md`, not an immediate $10K run.
 
 ## Mainnet status
 
-**NOT APPROVED.**
+**ORDER SUBMISSION NOT APPROVED / STILL DISABLED.**
 
-Before any wallet/order integration:
-
-1. Direction Alpha Audit result frozen;
-2. one execution policy frozen;
-3. selector parameters calibrated/frozen;
-4. volume-budget objective frozen;
-5. fresh unseen Session 4 passes economics + tail-risk gates;
-6. real account/position reconciliation exists;
-7. risk guardian implements per-epoch and cumulative hard loss budgets;
-8. exactly one execution authority exists;
-9. stop/drain/flatten works on real inventory;
-10. kill switch exists;
-11. 24/7 shadow/paper soak passes operational reliability gates.
+The repository now has the accounting and safety boundary needed to make a controlled canary possible, but it deliberately does not contain an enabled mainnet order path.
 
 ## New-chat bootstrap
 
 Read this file first.
 
-Correct state: Autonomous Runtime V0 exists in shadow mode; Session 3, Dev1 and Dev2 are frozen failures/no-candidate results; Order Lifecycle Dev3 is paused; current top research priority is the predeclared standalone Direction Alpha + Fill Selection Audit, followed by CostTo10K risk-distribution analysis under the $5 primary and $10 two-epoch fallback budgets. Session 4 has not started.
+Correct state: Autonomous Runtime V0 exists and CI is green at 58 tests; mission ledger/profit buffer/two-epoch limits, risk guardian, reconciliation contract, single-host execution-authority lock, mission replay evaluator, and controlled canary runbook are implemented. Mainnet order submission remains disabled pending the actual-host shadow soak and a reviewed exchange adapter. Direction Alpha Audit continues in parallel; Session 4 has not started.
