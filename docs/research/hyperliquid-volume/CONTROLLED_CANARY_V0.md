@@ -63,7 +63,8 @@ Implemented safety primitives:
 - deterministic comparison of expected versus exchange open-order IDs;
 - unexpected/missing order => reconciliation failure;
 - position mismatch => reconciliation failure;
-- reconciliation failure blocks new entries and requires flattening if inventory exists.
+- reconciliation failure blocks new entries and requires flattening if inventory exists;
+- `market_selector/operator_control.py` — external operator enable/kill primitive that defaults OFF and requires an exact enable token; kill presence always overrides enablement.
 
 The host-local lock is sufficient only for a single-host deployment. A future multi-host active/active design requires a distributed lease before order submission is permitted.
 
@@ -72,7 +73,7 @@ The host-local lock is sufficient only for a single-host deployment. A future mu
 Before every NEW entry, all must be green:
 
 1. mission status RUNNING;
-2. execution authority explicitly enabled;
+2. operator control explicitly enabled and kill switch absent;
 3. exclusive authority lock held;
 4. public market feed healthy;
 5. account/order reconciliation OK;
@@ -115,7 +116,8 @@ When the adapter exists, launch only with:
 - approximately $100 target notional per entry;
 - canary mission limits above;
 - reconciliation before first order and continuously thereafter;
-- kill switch available outside the trading loop;
+- operator-control enable file managed outside the trading loop;
+- external kill file available outside the trading loop;
 - no manual second bot against the same account;
 - no gate relaxation during the canary.
 
@@ -178,7 +180,7 @@ These improve economics after launch but must not bypass safety invariants.
 
 ## Current implementation status
 
-Implemented and CI-covered:
+Implemented and CI-covered or compile-gated:
 
 - autonomous dynamic-universe shadow scanner;
 - selector / ranker / supervisor;
@@ -188,15 +190,17 @@ Implemented and CI-covered:
 - epoch and hard mission loss states;
 - execution risk guardian;
 - deterministic reconciliation contract;
-- single-host exclusive execution authority lock.
+- single-host exclusive execution authority lock;
+- default-off operator enable / kill-switch primitive;
+- mission replay evaluator for finalized shadow/paper outcomes.
 
 Still required before Stage 1 live order submission:
 
 - reviewed Hyperliquid account/order adapter;
-- exchange-native fee/PnL reconciliation;
+- exchange-native fee/PnL reconciliation wired to the reconciliation contract;
 - real order lifecycle implementation and cancel acknowledgements;
-- external kill switch;
+- wire `operator_control.py` into that adapter/controller;
 - actual host shadow-soak evidence;
-- explicit operator enable flag that defaults OFF.
+- real flatten/restart behavior validated before promotion.
 
 Until those are present, mainnet order submission remains disabled.
