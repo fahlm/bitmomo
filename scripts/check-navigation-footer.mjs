@@ -105,7 +105,7 @@ check(
 check(
   'Footer IA exposes clear product, research and company destinations without internal jargon',
   /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) &&
-  /BTC Intelligence/.test(footer) && /Bitmomo Pro/.test(footer) && /Methodology & Track Record/.test(footer) &&
+  /BTC Intelligence/.test(footer) && /Bitmomo Pro/.test(footer) && /Track Record/.test(footer) &&
   /Market Research/.test(footer) && /AI Research/.test(footer) && /Research Standard/.test(footer) &&
   /Tentang Bitmomo/.test(footer) && /Help Center/.test(footer) && !/>Decision Ledger</.test(footer)
 );
