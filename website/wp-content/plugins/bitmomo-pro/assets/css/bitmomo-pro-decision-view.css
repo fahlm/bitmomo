@@ -1,13 +1,27 @@
 /*
  * Bitmomo Pro — canonical Decision View component.
  *
- * Shared presentation for the public delayed/historical proof and the protected
- * member dashboard. This is not an override experiment: canonical renderers
- * emit these classes directly. No entitlement, market methodology, payment,
- * whitelist, or data-fetch behavior lives here.
+ * One shared owner for the public historical Decision View and the protected
+ * member Decision View. Canonical renderers emit this markup directly; there is
+ * no shortcode post-processing or experimental override layer.
  */
 
-/* ---------- Public /pro/ decision-first hierarchy ---------- */
+.bm-pro-sales--decision-first {
+	--bms-teal: var(--bm-accent, #6c8ebf);
+	--bms-orange: var(--bm-action, #f4ad32);
+	--bms-orange-hover: var(--bm-action-hover, #ffc15a);
+	--bms-bull: var(--bm-positive, #63a98a);
+	--bms-bear: var(--bm-negative, #c97b77);
+}
+
+.bm-pro--decision-first {
+	--bm-pro-teal: var(--bm-accent, #6c8ebf);
+	--bm-pro-teal-dark: var(--bm-accent-hover, #88a6cf);
+	--bm-pro-bull: var(--bm-positive, #63a98a);
+	--bm-pro-bear: var(--bm-negative, #c97b77);
+}
+
+/* ---------- Public /pro/ ---------- */
 .bm-pro-sales--decision-first .bm-pro-sales__hero {
 	max-width: 900px;
 	padding: 34px 0 22px;
@@ -24,6 +38,11 @@
 	font-size: clamp(15px, 1.6vw, 18px);
 }
 
+.bm-pro-sales--decision-first .bm-pro-sales__hero-offer {
+	border-color: var(--bm-action, #f4ad32);
+	border-left-color: var(--bm-action, #f4ad32);
+}
+
 .bm-pro-sales--decision-first .bm-pro-sales__hero-actions {
 	margin-top: 20px;
 }
@@ -31,9 +50,9 @@
 .bm-pro-sales--decision-first .bm-pro-sales__product-proof {
 	margin-top: 10px;
 	padding: 30px;
-	border: 1px solid rgba(244, 173, 50, .30);
+	border: 1px solid var(--bm-accent, #6c8ebf);
 	border-radius: 14px;
-	background: linear-gradient(180deg, rgba(244, 173, 50, .045), rgba(13, 23, 38, .92) 46%, rgba(13, 23, 38, .98));
+	background: var(--bms-surface-2, #0d1726);
 	box-shadow: 0 22px 64px -48px rgba(0, 0, 0, .82);
 }
 
@@ -47,9 +66,9 @@
 	align-items: center;
 	min-height: 30px;
 	padding: 0 9px;
-	border: 1px solid rgba(244, 173, 50, .36);
+	border: 1px solid var(--bm-accent, #6c8ebf);
 	border-radius: 5px;
-	color: var(--bms-orange, #f4ad32);
+	color: var(--bm-accent-hover, #88a6cf);
 	font-size: 9px;
 	font-weight: 800;
 	letter-spacing: .08em;
@@ -109,7 +128,7 @@
 	position: relative;
 	height: 62px;
 	margin: 0 8px 18px;
-	border-top: 1px solid rgba(148, 163, 184, .36);
+	border-top: 1px solid var(--bms-border-strong, #2b3c55);
 }
 
 .bm-pro-sales__range-band,
@@ -120,14 +139,7 @@
 	width: var(--range-width);
 	height: 7px;
 	border-radius: 999px;
-}
-
-.bm-pro-sales__range-band {
-	background: var(--bms-teal, #2dd4bf);
-}
-
-.bm-pro__range-band {
-	background: var(--bm-pro-teal, #2dd4bf);
+	background: var(--bm-accent, #6c8ebf);
 }
 
 .bm-pro-sales__range-marker,
@@ -157,7 +169,8 @@
 	white-space: nowrap;
 }
 
-.bm-pro-sales__range-marker.is-reference {
+.bm-pro-sales__range-marker.is-reference,
+.bm-pro__range-marker {
 	color: var(--bms-text, #e6edf5);
 }
 
@@ -182,24 +195,23 @@
 	padding: 13px 14px;
 	border: 1px solid var(--bms-border, #1e2c42);
 	border-radius: 9px;
-	background: rgba(255, 255, 255, .018);
+	background: var(--bms-surface-2, #0d1726);
 }
 
 .bm-pro-sales__scenario-map > section.is-base {
-	border-color: rgba(45, 212, 191, .40);
-	background: rgba(45, 212, 191, .045);
-}
-
-.bm-pro-sales__scenario-map > section.is-bear h3 {
-	color: var(--bms-bear, #f87171);
-}
-
-.bm-pro-sales__scenario-map > section.is-bull h3 {
-	color: var(--bms-bull, #34d399);
+	border-color: var(--bm-accent, #6c8ebf);
 }
 
 .bm-pro-sales__scenario-map > section.is-base h3 {
-	color: var(--bms-teal, #2dd4bf);
+	color: var(--bm-accent-hover, #88a6cf);
+}
+
+.bm-pro-sales__scenario-map > section.is-bull h3 {
+	color: var(--bm-positive, #63a98a);
+}
+
+.bm-pro-sales__scenario-map > section.is-bear h3 {
+	color: var(--bm-negative, #c97b77);
 }
 
 .bm-pro-sales__scenario-map p {
@@ -212,9 +224,9 @@
 .bm-pro-sales__risk-boundary {
 	margin: 0 16px 16px;
 	padding: 14px 16px;
-	border: 1px solid rgba(248, 113, 113, .28);
+	border: 1px solid var(--bm-negative, #c97b77);
 	border-radius: 9px;
-	background: rgba(248, 113, 113, .035);
+	background: var(--bms-surface-2, #0d1726);
 }
 
 .bm-pro-sales__risk-boundary span,
@@ -227,7 +239,7 @@
 }
 
 .bm-pro-sales__risk-boundary span {
-	color: var(--bms-bear, #f87171);
+	color: var(--bm-negative, #c97b77);
 }
 
 .bm-pro-sales__risk-boundary p,
@@ -239,7 +251,7 @@
 
 .bm-pro-sales__change-block {
 	margin: 0 16px 16px;
-	padding: 13px 0 0;
+	padding-top: 13px;
 	border-top: 1px solid var(--bms-border, #1e2c42);
 }
 
@@ -253,6 +265,7 @@
 
 .bm-pro-sales__accountability--compact .bm-pro-sales__accountability-grid > div {
 	padding: 14px;
+	border-top-color: var(--bm-accent, #6c8ebf);
 }
 
 .bm-pro-sales__sample-state {
@@ -269,7 +282,7 @@
 	letter-spacing: .06em;
 }
 
-/* ---------- Protected member dashboard ---------- */
+/* ---------- Protected member Decision View ---------- */
 .bitmomo-pro-dashboard-page .page-header {
 	width: calc(100% - 32px);
 	max-width: 980px;
@@ -325,6 +338,18 @@
 	letter-spacing: -.025em;
 }
 
+.bm-pro--decision-first .bm-pro__cta {
+	min-height: 48px;
+	background: var(--bm-action, #f4ad32);
+	color: #0b1620;
+}
+
+.bm-pro--decision-first .bm-pro__cta:hover,
+.bm-pro--decision-first .bm-pro__cta:focus-visible {
+	background: var(--bm-action-hover, #ffc15a);
+	color: #07111b;
+}
+
 .bm-pro__range-visual {
 	margin-bottom: 20px;
 	padding: 16px 18px 8px;
@@ -341,10 +366,6 @@
 	font-size: clamp(17px, 2.5vw, 24px);
 }
 
-.bm-pro__range-marker {
-	color: var(--bm-pro-text, #e6edf5);
-}
-
 .bm-pro--decision-first .bm-pro__scenarios {
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 10px;
@@ -358,18 +379,16 @@
 }
 
 .bm-pro--decision-first .bm-pro__scenario--base {
-	border-color: rgba(45, 212, 191, .42);
-	background: rgba(45, 212, 191, .045);
 	order: 1;
+	border-color: var(--bm-accent, #6c8ebf);
 }
 
-.bm-pro--decision-first .bm-pro__scenario--bull {
-	order: 2;
+.bm-pro--decision-first .bm-pro__scenario--base h4 {
+	color: var(--bm-accent-hover, #88a6cf);
 }
 
-.bm-pro--decision-first .bm-pro__scenario--bear {
-	order: 3;
-}
+.bm-pro--decision-first .bm-pro__scenario--bull { order: 2; }
+.bm-pro--decision-first .bm-pro__scenario--bear { order: 3; }
 
 .bm-pro--decision-first .bm-pro__scenario h4 {
 	margin-bottom: 7px;
@@ -386,13 +405,13 @@
 .bm-pro--decision-first .bm-pro__invalidation {
 	margin: 0 0 20px;
 	padding: 14px 16px;
-	border: 1px solid rgba(248, 113, 113, .28);
+	border: 1px solid var(--bm-negative, #c97b77);
 	border-radius: 10px;
-	background: rgba(248, 113, 113, .035);
+	background: var(--bm-pro-bg, #0b1220);
 }
 
 .bm-pro--decision-first .bm-pro__invalidation h4 {
-	color: var(--bm-pro-bear, #f87171);
+	color: var(--bm-negative, #c97b77);
 }
 
 .bm-pro--decision-first .bm-pro__invalidation p {
@@ -402,10 +421,10 @@
 
 .bm-pro--decision-first .bm-pro__confidence-explain {
 	max-width: 780px;
-	margin: 0 0 20px;
+	margin: 0;
 	padding: 11px 13px;
-	border-left: 2px solid var(--bm-pro-teal, #2dd4bf);
-	background: rgba(45, 212, 191, .035);
+	border-left: 2px solid var(--bm-accent, #6c8ebf);
+	background: var(--bm-pro-bg, #0b1220);
 	font-size: 13px;
 	line-height: 1.55;
 }
@@ -424,7 +443,7 @@
 .bm-pro--decision-first button:focus-visible,
 .bm-pro--decision-first input:focus-visible,
 .bm-pro--decision-first summary:focus-visible {
-	outline: 2px solid #f4ad32;
+	outline: 2px solid var(--bm-focus-ring, #f4ad32);
 	outline-offset: 3px;
 }
 
@@ -462,6 +481,10 @@
 		padding-left: 0;
 		padding-right: 0;
 	}
+
+	.bm-pro-sales__scenario-map > section.is-base { order: 1; }
+	.bm-pro-sales__scenario-map > section.is-bull { order: 2; }
+	.bm-pro-sales__scenario-map > section.is-bear { order: 3; }
 
 	.bm-pro-sales__risk-boundary,
 	.bm-pro-sales__change-block {
