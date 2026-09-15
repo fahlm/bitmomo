@@ -3,6 +3,7 @@
 Status: PREPARED / POST-WHITELIST-V1
 Owner: Bitmomo
 Primary goal: acquire the first 149 paid Founding Members with one acquisition motion.
+Canonical public Telegram channel: `@bitmomodaily`
 
 ## 1. One-jurus decision
 
@@ -10,7 +11,7 @@ Bitmomo will not scale a multi-channel marketing stack for Founding 149.
 
 V1 uses one acquisition motion only:
 
-**targeted Telegram crypto-trader attention -> Bitmomo BTC Decision Brief -> Founding Whitelist -> paid Founding Member**
+**targeted Telegram crypto-trader attention -> @bitmomodaily -> Bitmomo BTC Decision Brief -> Founding Whitelist -> paid Founding Member**
 
 The first paid placement is intentionally narrow: one Indonesian crypto trading/intelligence channel at a time. The first planned placement is The Liquidity Waves. No second placement is added until the first placement has enough data to judge.
 
@@ -35,7 +36,7 @@ Founding 149 is explicitly not optimized for first-time crypto users, guaranteed
 The canonical V1 funnel is:
 
 1. Telegram Sponsored Message is shown inside one selected crypto trading/intelligence channel.
-2. The sponsored destination is the public Bitmomo BTC Intelligence Telegram channel, in accordance with Telegram Ads destination rules.
+2. The sponsored destination is the public Bitmomo BTC Intelligence Telegram channel `@bitmomodaily`, in accordance with Telegram Ads destination rules.
 3. The visitor sees useful BTC Decision Briefs before being asked to buy anything.
 4. Each brief is generated from Bitmomo's existing public-safe intelligence boundary. Telegram never calculates a second opinion.
 5. The Founding CTA points directly to the canonical Bitmomo Pro whitelist with campaign attribution.
@@ -94,11 +95,15 @@ First-placement campaign id:
 
 `founding149_tlw_v1`
 
+Canonical Telegram destination:
+
+`https://t.me/bitmomodaily`
+
 Canonical CTA URL from the Telegram brief:
 
 `https://bitmomo.id/pro/?utm_source=telegram&utm_medium=channel&utm_campaign=founding149_tlw_v1#bm-pro-whitelist`
 
-The sponsored-message destination itself is the Bitmomo public Telegram channel. The website URL above is used inside the Bitmomo channel brief so the existing whitelist captures the campaign attribution.
+The sponsored-message destination itself is `@bitmomodaily`. The website URL above is used inside Bitmomo BTC Decision Briefs so the existing whitelist captures campaign attribution.
 
 Do not add a second campaign id until V1 has enough evidence to make a keep/change/stop decision.
 
@@ -165,13 +170,18 @@ The >=40 threshold is an internal operating hypothesis for V1, not an industry b
 
 The repository must never contain Telegram credentials.
 
-Before live transport is enabled, an operator must create/confirm:
+Canonical public channel is confirmed as:
 
-1. a public Bitmomo BTC Intelligence Telegram channel;
-2. a Telegram bot with permission to post to that channel, if automated posting is used;
-3. bot token and destination chat/channel id stored only in the approved secret/runtime environment;
-4. a Telegram Ads account/campaign targeted to the first selected placement;
-5. the canonical Founding CTA URL above.
+- handle: `@bitmomodaily`;
+- public URL: `https://t.me/bitmomodaily`.
+
+Before live transport is enabled, an operator must complete only the remaining runtime prerequisites:
+
+1. confirm `@bitmomodaily` is public, branded, and controlled by Bitmomo;
+2. create a Telegram bot with permission to post to `@bitmomodaily`, if automated posting is used;
+3. store bot token and destination chat/channel id only in the approved secret/runtime environment;
+4. create the Telegram Ads account/campaign targeted to the first selected placement;
+5. use the canonical Founding CTA URL above in channel briefs.
 
 No bot token, phone number, personal Telegram account session, or payment credential may be committed to Git.
 
