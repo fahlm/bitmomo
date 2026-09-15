@@ -1,81 +1,16 @@
-name: Theme safety checks
+name: Theme safety checks [HOSTED RUNNERS LOCKED]
 
+# Zero-cost mode. Normal engineering validation runs locally:
+#   bash scripts/bitmomo-check.sh test
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "website/wp-content/themes/bitmomo-child-v3/**"
-      - "scripts/check-ui-architecture.mjs"
-      - "scripts/audit-css-debt.mjs"
-      - ".github/workflows/theme-safety.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: theme-safety-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  php-syntax:
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
-    name: PHP syntax and UI architecture
+  hosted-actions-locked:
+    if: ${{ false }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-
-      - name: Show PHP version
-        run: php --version
-
-      - name: Verify production baseline file set
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          theme_dir="website/wp-content/themes/bitmomo-child-v3"
-          expected=(
-            "functions.php"
-            "custom.css"
-            "front-page.php"
-            "single.php"
-            "home.php"
-            "category.php"
-            "tag.php"
-            "style.css"
-            "assets/css/home-opportunity.css"
-            "assets/css/public-readability.css"
-          )
-
-          for file in "${expected[@]}"; do
-            test -f "${theme_dir}/${file}" || {
-              echo "::error file=${theme_dir}/${file}::Required baseline file is missing"
-              exit 1
-            }
-          done
-
-      - name: Lint theme PHP
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          theme_dir="website/wp-content/themes/bitmomo-child-v3"
-          mapfile -d '' php_files < <(find "${theme_dir}" -type f -name '*.php' -print0)
-
-          if [ "${#php_files[@]}" -eq 0 ]; then
-            echo "::error::No PHP files found in ${theme_dir}"
-            exit 1
-          fi
-
-          for file in "${php_files[@]}"; do
-            php -l "${file}"
-          done
-
-      - name: Enforce UI architecture and WCAG source contracts
-        run: node scripts/check-ui-architecture.mjs
-
-      - name: Report CSS debt baseline
-        run: node scripts/audit-css-debt.mjs
+      - run: echo 'Hosted GitHub Actions are locked. Run local UI/source checks instead.'
