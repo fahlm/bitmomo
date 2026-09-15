@@ -155,10 +155,13 @@ check('BTC Intelligence renderer owns final institutional terminology and valuab
   !/do_shortcode_tag/.test(btcMain)
 );
 
-check('Pro sales renderer owns final visitor language and current-product buying path',
-  proSales.includes('Pahami skenario berikutnya — dan kapan tesis BTC berubah.') &&
-  proSales.includes('Decision View BTC memetakan Expected Range') &&
-  proSales.includes('Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.') &&
+check('Pro sales renderer owns final visitor language and evidence-first buying path',
+  proSales.includes('BTC Intelligence Free menjelaskan apa yang terjadi sekarang.') &&
+  proSales.includes('ACTUAL PRODUCT PROOF') &&
+  proSales.includes('HISTORICAL · DELAYED ≥48H') &&
+  proSales.includes('THESIS INVALIDATION') &&
+  proSales.includes('INSUFFICIENT SAMPLE FOR ACCURACY %%') &&
+  !proSales.includes('$this->render_what_exists_today();') &&
   !proSales.includes('$this->render_context_problem();') &&
   !proSales.includes('$this->render_intelligence_flow();') &&
   !proSales.includes('$this->render_market_experience();') &&
