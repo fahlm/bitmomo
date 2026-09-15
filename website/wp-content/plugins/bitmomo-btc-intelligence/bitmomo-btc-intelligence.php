@@ -22,7 +22,6 @@ require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intellig
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-page.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-setup.php';
 require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'includes/class-bitmomo-btc-intelligence-market-context.php';
-require_once BITMOMO_BTC_INTELLIGENCE_DIR . 'show-first-loader.php';
 
 /**
  * One renderer owns the public product surface. Public SEO metadata remains
@@ -37,3 +36,23 @@ function bitmomo_btc_intelligence_init() {
 	Bitmomo_Btc_Intelligence_Market_Context::init();
 }
 add_action( 'plugins_loaded', 'bitmomo_btc_intelligence_init' );
+
+/**
+ * Show-First V1 is intentionally presentation-only. Load the hierarchy
+ * override after the canonical BTC Intelligence stylesheet and only on the
+ * shortcode-owned public surface. No engine or adapter logic is duplicated.
+ */
+function bitmomo_btc_intelligence_show_first_assets() {
+	global $post;
+	if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( (string) $post->post_content, 'bitmomo_btc_intelligence' ) ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'bitmomo-btc-intelligence-show-first',
+		BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/bitmomo-btc-intelligence-show-first.css',
+		array( 'bitmomo-btc-intelligence' ),
+		BITMOMO_BTC_INTELLIGENCE_VERSION . '-show-first-v1'
+	);
+}
+add_action( 'wp_enqueue_scripts', 'bitmomo_btc_intelligence_show_first_assets', 30 );
