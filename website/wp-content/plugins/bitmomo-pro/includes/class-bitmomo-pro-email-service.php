@@ -451,7 +451,7 @@ class Bitmomo_Pro_Email_Service {
 		$lines   = array();
 		$lines[] = $first_name ? sprintf( __( 'Halo %s,', 'bitmomo-pro' ), $first_name ) : __( 'Halo,', 'bitmomo-pro' );
 		$lines[] = '';
-		$lines[] = __( 'Whitelist berhasil. Kamu akan jadi salah satu yang pertama tahu saat akses dibuka.', 'bitmomo-pro' );
+		$lines[] = __( 'Whitelist berhasil. Pemberitahuan akses akan dikirim saat akses dibuka.', 'bitmomo-pro' );
 		$lines[] = '';
 		$lines[] = __( 'Kamu sudah masuk Founding Membership Whitelist Bitmomo Pro.', 'bitmomo-pro' );
 		$lines[] = '';

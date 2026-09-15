@@ -134,7 +134,7 @@ check( 'CONVERSION REGRESSION: Pro activation hook still marks matching whitelis
 reset_regression_state();
 update_option( 'bitmomo_pro_checkout_url', '' );
 $html = Bitmomo_Pro_Sales::instance()->render_sales( array() );
-check( 'COPY REGRESSION: whitelist success headline remains present', false !== strpos( $html, 'Whitelist berhasil. Kamu akan jadi salah satu yang pertama tahu saat akses dibuka.' ) );
+check( 'COPY REGRESSION: whitelist success headline remains present', false !== strpos( $html, 'Whitelist berhasil. Pemberitahuan akses akan dikirim saat akses dibuka.' ) );
 check( 'COPY REGRESSION: default success state remains email-only', false === strpos( $html, 'TAMBAHKAN WHATSAPP' ) && false === strpos( $html, 'bm-wl-whatsapp-number' ) );
 $email_entry = $whitelist->submit_entry( signup_args( array( 'email' => 'security-copy@example.com' ) ) );
 $mail_body = $GLOBALS['__wp_stub_mail_log'][0]['body'];

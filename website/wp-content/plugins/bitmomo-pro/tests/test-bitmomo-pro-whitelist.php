@@ -144,7 +144,7 @@ $email_entry = $whitelist->submit_entry( base_signup_args( array( 'email' => 'em
 $mail = $GLOBALS['__wp_stub_mail_log'][0];
 $sent_body = $mail['body'];
 check( 'EMAIL: canonical subject preserved', 'Kamu sudah masuk whitelist Bitmomo Pro' === $mail['subject'] );
-check( 'EMAIL: opening mirrors success state', false !== strpos( $sent_body, 'Whitelist berhasil. Kamu akan jadi salah satu yang pertama tahu saat akses dibuka.' ) );
+check( 'EMAIL: opening mirrors success state', false !== strpos( $sent_body, 'Whitelist berhasil. Pemberitahuan akses akan dikirim saat akses dibuka.' ) );
 check( 'EMAIL: Founding price and cap are explicit', false !== strpos( $sent_body, 'Rp149.000 / bulan' ) && false !== strpos( $sent_body, 'Rp1.490.000 / tahun' ) && false !== strpos( $sent_body, '149 Founding Members' ) && false !== strpos( $sent_body, 'Batch pertama: 25 anggota' ) );
 check( 'EMAIL: default notification promise is email-only', false !== strpos( $sent_body, 'Kami akan mengirim pemberitahuan melalui email ini saat akses dibuka.' ) );
 check( 'EMAIL: default message does not invite WhatsApp enrollment', false === strpos( $sent_body, 'Tambahkan nomor WhatsApp' ) && false === strpos( $sent_body, 'jika kamu memilih menambahkan nomor WhatsApp' ) );
