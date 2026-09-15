@@ -64,7 +64,7 @@ if ( 'compared' === ( $bm_comparison['status'] ?? '' ) ) {
             $bm_change_line = sprintf( 'Confidence: %d → %d', max( 0, min( 100, (int) ( $bm_change['from'] ?? 0 ) ) ), max( 0, min( 100, (int) ( $bm_change['to'] ?? 0 ) ) ) );
         } elseif ( 'opportunity_state' === $bm_field ) {
             $bm_from = $bm_activity_labels[ sanitize_key( strtolower( (string) ( $bm_change['from'] ?? '' ) ) ) ] ?? '';
-            $bm_to = $bm_activity_labels[ sanitize_key( strtolower( (string) ( $bm_change['to'] ?? '' ) ) ] ?? '';
+            $bm_to = $bm_activity_labels[ sanitize_key( strtolower( (string) ( $bm_change['to'] ?? '' ) ) ) ] ?? '';
             if ( $bm_from && $bm_to ) $bm_change_line = sprintf( 'Aktivitas: %s → %s', $bm_from, $bm_to );
         }
         if ( $bm_change_line ) break;
