@@ -1,5 +1,5 @@
 <?php
-/** Standalone regression test for the delayed public Pro Decision View visualizer. */
+/** Standalone regression test for Bitmomo Pro Show-First presentation logic. */
 
 define( 'ABSPATH', '/tmp/' );
 require __DIR__ . '/wp-stubs.php';
@@ -22,8 +22,8 @@ $enhancer = Bitmomo_Pro_Show_First::instance();
 $base_output = '<section><article class="bm-pro-sales__decision-card"><div class="bm-pro-sales__decision-copy"><div>BASE OLD</div><div>INVALIDATION</div></div></article></section>';
 
 Bitmomo_Btc_Intelligence_Accountability::$rows = array();
-$unchanged = $enhancer->enhance_sales_shortcode( $base_output, 'bitmomo_pro_sales', array(), array() );
-check( 'FAIL CLOSED: no matured delayed proof leaves sales markup unchanged', $unchanged === $base_output );
+$unchanged = $enhancer->enhance_shortcode( $base_output, 'bitmomo_pro_sales', array(), array() );
+check( 'PUBLIC FAIL CLOSED: no matured delayed proof leaves sales markup unchanged', $unchanged === $base_output );
 
 Bitmomo_Btc_Intelligence_Accountability::$rows = array(
 	array(
@@ -36,14 +36,24 @@ Bitmomo_Btc_Intelligence_Accountability::$rows = array(
 		'bear_scenario'       => 'Kehilangan support menggeser fokus ke downside.',
 	)
 );
-$enhanced = $enhancer->enhance_sales_shortcode( $base_output, 'bitmomo_pro_sales', array(), array() );
-check( 'VISUAL: Decision card is explicitly enhanced', false !== strpos( $enhanced, 'is-show-first-enhanced' ) );
-check( 'VISUAL: real Expected Range becomes a range rail', false !== strpos( $enhanced, 'bm-pro-sales__range-track' ) && false !== strpos( $enhanced, '$62,000 – $65,000' ) );
-check( 'VISUAL: reference and settled +24h observations are both plotted', false !== strpos( $enhanced, 'REF $63,000' ) && false !== strpos( $enhanced, '+24H $64,600' ) );
-check( 'VISUAL: Base/Bull/Bear are shown as actual scenario lanes', false !== strpos( $enhanced, '>BASE<' ) && false !== strpos( $enhanced, '>BULL<' ) && false !== strpos( $enhanced, '>BEAR<' ) );
-check( 'TRUTH: visualizer reads delayed public proof only', false !== strpos( file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-show-first.php' ), 'delayed_proof( 1 )' ) );
-check( 'TRUTH: visualizer never calls current protected Pro projection', false === strpos( file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-show-first.php' ), 'pro_projection' ) && false === strpos( file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-show-first.php' ), 'get_current_brief_for_display' ) );
-check( 'SCOPE: unrelated shortcodes are untouched', $base_output === $enhancer->enhance_sales_shortcode( $base_output, 'other_shortcode', array(), array() ) );
+$enhanced = $enhancer->enhance_shortcode( $base_output, 'bitmomo_pro_sales', array(), array() );
+check( 'PUBLIC VISUAL: Decision card is explicitly enhanced', false !== strpos( $enhanced, 'is-show-first-enhanced' ) );
+check( 'PUBLIC VISUAL: real Expected Range becomes a range rail', false !== strpos( $enhanced, 'bm-pro-sales__range-track' ) && false !== strpos( $enhanced, '$62,000 – $65,000' ) );
+check( 'PUBLIC VISUAL: reference and settled +24h observations are both plotted', false !== strpos( $enhanced, 'REF $63,000' ) && false !== strpos( $enhanced, '+24H $64,600' ) );
+check( 'PUBLIC VISUAL: Base/Bull/Bear are shown as actual scenario lanes', false !== strpos( $enhanced, '>BASE<' ) && false !== strpos( $enhanced, '>BULL<' ) && false !== strpos( $enhanced, '>BEAR<' ) );
+
+$source = file_get_contents( __DIR__ . '/../includes/class-bitmomo-pro-show-first.php' );
+check( 'PUBLIC TRUTH: sales visualizer uses delayed frozen public proof', false !== strpos( $source, 'Bitmomo_Btc_Intelligence_Accountability::delayed_proof( 1 )' ) );
+check( 'PUBLIC TRUTH: no current AI Pro projection is queried', false === strpos( $source, 'pro_projection' ) );
+
+$login_gate = strpos( $source, 'is_user_logged_in()' );
+$access_gate = strpos( $source, 'bitmomo_user_has_pro_access( $user_id )' );
+$current_read = strpos( $source, 'Bitmomo_Pro_Briefs::get_current_brief_for_display()' );
+check( 'PROTECTED SAFETY: login gate exists before current paid brief read', false !== $login_gate && false !== $current_read && $login_gate < $current_read );
+check( 'PROTECTED SAFETY: entitlement gate exists before current paid brief read', false !== $access_gate && false !== $current_read && $access_gate < $current_read );
+check( 'PROTECTED VISUAL: current range visualization is distinct from public historical proof', false !== strpos( $source, 'bm-pro__range-visual' ) && false !== strpos( $source, 'BTC REF' ) );
+
+check( 'SCOPE: unrelated shortcodes are untouched', $base_output === $enhancer->enhance_shortcode( $base_output, 'other_shortcode', array(), array() ) );
 
 $failed = array_filter( $results, static function ( $result ) { return ! $result['pass']; } );
 foreach ( $results as $result ) {
