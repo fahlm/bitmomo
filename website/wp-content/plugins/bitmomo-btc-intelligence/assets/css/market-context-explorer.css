@@ -30,6 +30,7 @@
 .bm-bi--market-context .bm-bi__brief-panel:first-child{background:#0c1219}
 
 .bm-mc{position:relative}
+.bm-mc .is-sol>span,.bm-mc .is-sol>small{color:#f4f2ff!important;-webkit-text-fill-color:#f4f2ff!important}
 .bm-mc__heading{display:flex;align-items:flex-start;justify-content:space-between;gap:28px}
 .bm-mc__heading h2{margin:0;font-size:clamp(24px,3vw,34px);line-height:1.1;letter-spacing:-.03em}
 .bm-mc__heading>div:first-child>p:last-child{max-width:680px;margin:9px 0 0;color:#9fb0c4;font-size:13px;line-height:1.55}
