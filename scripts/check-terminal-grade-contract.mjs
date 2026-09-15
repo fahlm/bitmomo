@@ -192,7 +192,7 @@ check('BTC Intelligence runtime owns accountability and market context but not a
   btcMain.includes('Bitmomo_Btc_Intelligence_Market_Context::init()') &&
   btcMain.includes("remove_filter( 'rank_math/frontend/description'") &&
   btcMain.includes("remove_action( 'wp_head'") &&
-  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.6'")
+  btcMain.includes("BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.8'")
 );
 check('BTC Intelligence locks the valuable Free session brief and truthful fast-layer cadence',
   btcPage.includes('MAJOR BRIEF') &&
