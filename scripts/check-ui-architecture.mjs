@@ -44,7 +44,7 @@ const requiredFiles = [
   'functions.php', 'custom.css', 'front-page.php', 'page.php', 'single.php', 'footer.php',
   'inc/template-functions.php', 'inc/trait-bitmomo-assets.php', 'inc/trait-bitmomo-frontend.php',
   'assets/css/design-system.css', 'assets/css/public-readability.css', 'assets/css/public-surfaces.css',
-  'assets/css/navigation-footer.css', 'assets/css/home.css', 'assets/css/home-conversion.css',
+  'assets/css/navigation-footer.css', 'assets/css/home.css', 'assets/css/home-conversion.css', 'assets/css/home-show-first.css',
   'assets/css/article-reading.css', 'assets/css/research.css', 'assets/css/about.css',
   'assets/js/bitmomo-frontend.js',
 ];
@@ -118,6 +118,7 @@ const navCss = read(themeDir, 'assets/css/navigation-footer.css');
 const articleCss = read(themeDir, 'assets/css/article-reading.css');
 const homeCss = read(themeDir, 'assets/css/home.css');
 const homeConversionCss = read(themeDir, 'assets/css/home-conversion.css');
+const homeShowFirstCss = read(themeDir, 'assets/css/home-show-first.css');
 
 for (const marker of ['.bm-skip-link', 'prefers-reduced-motion: reduce', '--bm-focus-ring', '--bm-touch-target-mobile: 44px', '--bm-font-sans:', '--bm-shell-width: 1180px']) {
   if (!designCss.includes(marker)) fail(`canonical design foundation missing primitive: ${marker}`);
@@ -142,29 +143,48 @@ if (!readabilityCss.includes('--bmi-text: var(--bm-text)') || !readabilityCss.in
 
 const homeHero = read(themeDir, 'template-parts/home-hero.php');
 const homeWhitelist = read(themeDir, 'template-parts/whitelist.php');
+const howItWorks = read(themeDir, 'template-parts/how-it-works.php');
 for (const marker of ['.bm-home-hero', '.bm-home-reading', '.bm-home-proof', '.bm-howworks', '.bm-home-research']) {
   if (!homeCss.includes(marker)) fail(`homepage stylesheet lost institutional primitive: ${marker}`);
 }
-for (const marker of ['>BTC MARKET VIEW<', '>BIAS<', '>CONFIDENCE<', '>REFERENSI BTC<', '>DIPERBARUI<', '>FAKTOR UTAMA<', '<strong>SUMBER DATA</strong>']) {
+for (const marker of ['>BTC MARKET VIEW<', '>BIAS<', '>CONFIDENCE<', '>REFERENSI BTC<', '>MARKET PULSE<', '>DIPERBARUI<', '>FAKTOR UTAMA<', '<strong>SUMBER DATA</strong>', '>APA YANG BERUBAH<', '>MENGAPA PENTING<', '>PANTAU BERIKUTNYA<']) {
   if (!homeHero.includes(marker)) fail(`homepage market view lost visitor-facing information: ${marker}`);
 }
-for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()', '<style', 'Decision View']) {
-  if (homeHero.includes(forbidden)) fail(`homepage leaked retired/internal detail: ${forbidden}`);
+for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()', '<style']) {
+  if (homeHero.includes(forbidden)) fail(`homepage leaked retired/internal current detail: ${forbidden}`);
+}
+if (/\$bm_snapshot\s*\[[^\]]*market_state/.test(homeHero)) {
+  fail('homepage current intelligence must not expose public Market State classifier detail');
 }
 if (!/class="bm-home-hero__primary"[^>]+\/btc-intelligence\//.test(homeHero) || !homeHero.includes('Buka BTC Intelligence')) {
   fail('homepage primary action must open product before asking for commitment');
 }
-if (!homeHero.includes('/btc-intelligence/#decision-ledger') || !homeHero.includes('href="#founding-whitelist"') || homeHero.indexOf('/btc-intelligence/#decision-ledger') > homeHero.indexOf('href="#founding-whitelist"')) {
-  fail('homepage proof path must precede Founding commitment');
+if (!homeHero.includes('Bitmomo_Btc_Intelligence_Accountability::delayed_proof( 1 )') || !homeHero.includes('id="home-proof"') || !homeHero.includes("$bm_proof_row ? '#home-proof'")) {
+  fail('homepage must show real delayed/frozen proof before any Founding commitment');
 }
-if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitelist.includes('Tidak ada pembayaran pada tahap whitelist')) {
-  fail('homepage whitelist must expose proof and remove payment ambiguity');
+if (homeHero.includes('href="#founding-whitelist"')) {
+  fail('homepage hero must not ask for Founding commitment before product proof');
+}
+if (!homeHero.includes('Arsip ≥48 jam · bukan guidance saat ini') || !homeHero.includes('RECORDED LIVE') || !homeHero.includes('NO CHERRY PICKING') || !homeHero.includes('FAIL CLOSED')) {
+  fail('homepage proof layer must communicate historical boundary and accountability principles');
+}
+if (!homeWhitelist.includes('/pro/#pro-example') || !homeWhitelist.includes('Tidak ada pembayaran pada tahap whitelist')) {
+  fail('homepage whitelist must expose real product proof and remove payment ambiguity');
+}
+if (!howItWorks.includes('NOW · BTC INTELLIGENCE') || !howItWorks.includes('NEXT · BITMOMO PRO') || !howItWorks.includes('AFTER · ACCOUNTABILITY')) {
+  fail('homepage whole-product value map must expose Now -> Next -> After at a glance');
+}
+if (!assetsTrait.includes('home-show-first.css') || !assetsTrait.includes("'bitmomo-home-show-first'")) {
+  fail('homepage Show-First evaluation layer must load explicitly after canonical homepage owners');
+}
+for (const marker of ['.bm-home-reading__decisions', '.bm-home-proof-example', '.bm-home-value-map__grid', '@media (max-width: 430px)']) {
+  if (!homeShowFirstCss.includes(marker)) fail(`homepage Show-First visual contract missing marker: ${marker}`);
 }
 if (!homeConversionCss.includes('input[name="first_name"]') || !homeConversionCss.includes('.bm-wl__continuation')) {
   fail('homepage conversion owner must support email-first acquisition and post-signup continuation');
 }
 for (const lowContrast of ['#71839f', '#667993']) {
-  if (homeCss.toLowerCase().includes(lowContrast)) fail(`homepage reintroduced known sub-AA micro-text: ${lowContrast}`);
+  if ((homeCss + homeShowFirstCss).toLowerCase().includes(lowContrast)) fail(`homepage reintroduced known sub-AA micro-text: ${lowContrast}`);
 }
 
 const btcPage = read(btcPluginDir, 'includes/class-bitmomo-btc-intelligence-page.php');
