@@ -90,6 +90,117 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* Enhanced historical proof uses a real range rail and a real three-lane
+ * scenario map. The old Base Case prose becomes redundant once the map exists. */
+.bm-pro-sales__decision-card.is-show-first-enhanced .bm-pro-sales__decision-copy > div:first-child {
+  display: none;
+}
+
+.bm-pro-sales__decision-visual {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, .18);
+}
+
+.bm-pro-sales__range-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.bm-pro-sales__range-head span,
+.bm-pro-sales__scenario-map span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .11em;
+}
+
+.bm-pro-sales__range-head strong {
+  font-family: var(--bm-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 13px;
+}
+
+.bm-pro-sales__range-track {
+  position: relative;
+  height: 56px;
+  margin: 0 4px 18px;
+  border-top: 1px solid rgba(148, 163, 184, .34);
+}
+
+.bm-pro-sales__range-band {
+  position: absolute;
+  top: -4px;
+  left: var(--range-left);
+  width: var(--range-width);
+  height: 7px;
+  border-radius: 999px;
+  background: var(--bm-action, #f4ad32);
+  opacity: .72;
+}
+
+.bm-pro-sales__range-marker {
+  position: absolute;
+  top: -8px;
+  left: var(--marker-pos);
+  transform: translateX(-50%);
+  min-width: 76px;
+  text-align: center;
+}
+
+.bm-pro-sales__range-marker i {
+  display: block;
+  width: 2px;
+  height: 18px;
+  margin: 0 auto 4px;
+  background: currentColor;
+}
+
+.bm-pro-sales__range-marker small {
+  display: inline-block;
+  font: 700 9px/1.2 var(--bm-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  white-space: nowrap;
+}
+
+.bm-pro-sales__range-marker.is-reference {
+  color: var(--bm-text-primary, #eef2f6);
+}
+
+.bm-pro-sales__range-marker.is-outcome {
+  top: 14px;
+  color: var(--bm-text-secondary, #aeb8c4);
+}
+
+.bm-pro-sales__range-marker.is-outcome i {
+  height: 12px;
+}
+
+.bm-pro-sales__scenario-map {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bm-pro-sales__scenario-map > div {
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .018);
+}
+
+.bm-pro-sales__scenario-map .is-base {
+  border-color: rgba(var(--bm-accent-rgb, 244, 173, 50), .30);
+  background: rgba(var(--bm-accent-rgb, 244, 173, 50), .045);
+}
+
+.bm-pro-sales__scenario-map p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 /* Explain the product only after the visitor has seen it. Five feature cards
  * repeat information already visible in the Decision View, so remove them from
  * the default conversion journey. */
@@ -191,8 +302,24 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .bm-pro-sales__decision-copy {
+  .bm-pro-sales__decision-copy,
+  .bm-pro-sales__scenario-map {
     grid-template-columns: 1fr;
+  }
+
+  .bm-pro-sales__range-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .bm-pro-sales__range-track {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
+  .bm-pro-sales__range-marker small {
+    font-size: 8px;
   }
 
   .bm-pro-sales__accountability-grid {
@@ -207,5 +334,9 @@
 
   .bm-pro-sales__decision-metrics strong {
     font-size: 14px;
+  }
+
+  .bm-pro-sales__range-marker {
+    min-width: 62px;
   }
 }
