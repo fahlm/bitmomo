@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const failures = [];
@@ -63,6 +64,15 @@ if (exists(customCss)) {
   check(`Legacy custom.css does not grow past ${policy.legacy_custom_css_max_bytes} bytes`, bytes <= policy.legacy_custom_css_max_bytes);
   warn(`Legacy custom.css is at ${bytes}/${policy.legacy_custom_css_max_bytes} bytes; new styles belong to canonical modules`, bytes >= policy.legacy_custom_css_max_bytes * 0.95);
 }
+
+const tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
+const secretLike = tracked.filter((file) => {
+  const base = path.basename(file);
+  if (base === '.env.example') return false;
+  return base === '.env' || base.startsWith('.env.') || /\.(?:pem|key)$/i.test(base);
+});
+check('No secret/private-key filename is tracked', secretLike.length === 0);
+if (secretLike.length) for (const file of secretLike) console.error(`  tracked sensitive filename: ${file}`);
 
 const prTemplate = read('.github/pull_request_template.md');
 check('PR template requires local test command', prTemplate.includes('bash scripts/bitmomo-check.sh test'));
