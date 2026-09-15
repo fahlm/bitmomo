@@ -4,11 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Presentation-only enhancer for the public Pro sales shortcode.
+ * Presentation-only enhancer for Bitmomo Pro surfaces.
  *
- * It visualizes only the same delayed/frozen public proof already consumed by
- * Bitmomo_Pro_Sales. It never queries current protected Pro content, never
- * recomputes intelligence, and never changes payment/entitlement behavior.
+ * Public sales visualization reads only delayed/frozen public proof. Protected
+ * dashboard visualization may read the current brief only after reproducing the
+ * canonical login + entitlement gate. This class never recomputes intelligence
+ * or changes payment, entitlement, readiness, or freshness behavior.
  */
 final class Bitmomo_Pro_Show_First {
 	private static $instance = null;
@@ -21,13 +22,23 @@ final class Bitmomo_Pro_Show_First {
 	}
 
 	private function __construct() {
-		add_filter( 'do_shortcode_tag', array( $this, 'enhance_sales_shortcode' ), 20, 4 );
+		add_filter( 'do_shortcode_tag', array( $this, 'enhance_shortcode' ), 20, 4 );
 	}
 
-	public function enhance_sales_shortcode( $output, $tag, $attr, $match ) {
-		if ( 'bitmomo_pro_sales' !== $tag || ! is_string( $output ) || '' === $output ) {
+	public function enhance_shortcode( $output, $tag, $attr, $match ) {
+		if ( ! is_string( $output ) || '' === $output ) {
 			return $output;
 		}
+		if ( 'bitmomo_pro_sales' === $tag ) {
+			return $this->enhance_sales_shortcode( $output );
+		}
+		if ( 'bitmomo_pro_dashboard' === $tag ) {
+			return $this->enhance_dashboard_shortcode( $output );
+		}
+		return $output;
+	}
+
+	private function enhance_sales_shortcode( $output ) {
 		if ( ! class_exists( 'Bitmomo_Btc_Intelligence_Accountability' ) || ! method_exists( 'Bitmomo_Btc_Intelligence_Accountability', 'delayed_proof' ) ) {
 			return $output;
 		}
@@ -39,7 +50,7 @@ final class Bitmomo_Pro_Show_First {
 			return $output;
 		}
 
-		$visual = $this->render_decision_visual( $row );
+		$visual = $this->render_historical_decision_visual( $row );
 		if ( '' === $visual ) {
 			return $output;
 		}
@@ -65,7 +76,51 @@ final class Bitmomo_Pro_Show_First {
 		return substr( $output, 0, $article_end ) . $visual . substr( $output, $article_end );
 	}
 
-	private function render_decision_visual( array $row ) {
+	private function enhance_dashboard_shortcode( $output ) {
+		// Canonical shortcode performs these gates before paid markup exists.
+		// Repeat them before any additional paid read.
+		if ( ! function_exists( 'is_user_logged_in' ) || ! is_user_logged_in() ) {
+			return $output;
+		}
+		if ( ! function_exists( 'get_current_user_id' ) || ! function_exists( 'bitmomo_user_has_pro_access' ) ) {
+			return $output;
+		}
+		$user_id = get_current_user_id();
+		if ( ! $user_id || ! bitmomo_user_has_pro_access( $user_id ) ) {
+			return $output;
+		}
+		if ( false === strpos( $output, 'bm-pro__dashboard' ) || ! class_exists( 'Bitmomo_Pro_Briefs' ) ) {
+			return $output;
+		}
+
+		$result = Bitmomo_Pro_Briefs::get_current_brief_for_display();
+		$brief = is_array( $result ) && is_array( $result['brief'] ?? null ) ? $result['brief'] : null;
+		if ( ! $brief ) {
+			return $output;
+		}
+
+		$low = $this->positive_number( $brief['expected_range_low'] ?? null );
+		$high = $this->positive_number( $brief['expected_range_high'] ?? null );
+		$reference = $this->positive_number( $brief['btc_reference_price'] ?? null );
+		if ( null === $low || null === $high || $high < $low ) {
+			return $output;
+		}
+
+		$visual = $this->render_current_range_visual( $low, $high, $reference );
+		if ( '' === $visual ) {
+			return $output;
+		}
+
+		$output = preg_replace( '/<div class="bm-pro__dashboard">/', '<div class="bm-pro__dashboard is-show-first-enhanced">', $output, 1 );
+		$scenario_marker = '<div class="bm-pro__scenarios">';
+		$position = strpos( $output, $scenario_marker );
+		if ( false === $position ) {
+			return $output;
+		}
+		return substr( $output, 0, $position ) . $visual . substr( $output, $position );
+	}
+
+	private function render_historical_decision_visual( array $row ) {
 		$low = $this->positive_number( $row['expected_range_low'] ?? null );
 		$high = $this->positive_number( $row['expected_range_high'] ?? null );
 		$reference = $this->positive_number( $row['reference_price'] ?? null );
@@ -102,6 +157,21 @@ final class Bitmomo_Pro_Show_First {
 					<?php if ( '' !== $bull ) : ?><div class="is-bull"><span>BULL</span><p><?php echo esc_html( $bull ); ?></p></div><?php endif; ?>
 				</div>
 			<?php endif; ?>
+		</div>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	private function render_current_range_visual( $low, $high, $reference ) {
+		$positions = $this->range_positions( $low, $high, $reference, null );
+		ob_start();
+		?>
+		<div class="bm-pro__range-visual" aria-label="<?php esc_attr_e( 'Expected Range saat ini', 'bitmomo-pro' ); ?>">
+			<div class="bm-pro__range-visual-head"><span>EXPECTED RANGE</span><strong><?php echo esc_html( $this->format_price( $low ) . ' – ' . $this->format_price( $high ) ); ?></strong></div>
+			<div class="bm-pro__range-track" role="img" aria-label="<?php echo esc_attr( sprintf( 'Expected range %s sampai %s', $this->format_price( $low ), $this->format_price( $high ) ) ); ?>">
+				<span class="bm-pro__range-band" style="--range-left:<?php echo esc_attr( $positions['range_left'] ); ?>%;--range-width:<?php echo esc_attr( $positions['range_width'] ); ?>%;"></span>
+				<?php if ( null !== $reference ) : ?><span class="bm-pro__range-marker" style="--marker-pos:<?php echo esc_attr( $positions['reference'] ); ?>%;"><i></i><small>BTC REF <?php echo esc_html( $this->format_price( $reference ) ); ?></small></span><?php endif; ?>
+			</div>
 		</div>
 		<?php
 		return (string) ob_get_clean();
