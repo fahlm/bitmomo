@@ -1,7 +1,7 @@
 # Bitmomo Engineering Operating Model
 
-**Status:** Canonical engineering workflow once merged to `main`  
-**Purpose:** Make Bitmomo fast to change, easy to understand, and difficult to release incorrectly.
+**Status:** Canonical engineering workflow on `main`  
+**Purpose:** Make Bitmomo fast to change, easy to understand, difficult to release incorrectly, and cheap to operate.
 
 ## 1. Source-of-truth hierarchy
 
@@ -58,7 +58,9 @@ main
   └─ release/whitelist-v1
         ├─ intentionally reconciled launch changes
         ├─ release-only fixes
-        └─ staging acceptance
+        └─ immutable rc-* snapshot
+              ↓
+        staging acceptance
               ↓
         production authorization
               ↓
@@ -68,7 +70,8 @@ main
 Rules:
 
 - release branch must be named explicitly in `docs/CURRENT_RELEASE.md` and the active release issue;
-- release engineering may not create another candidate because the current one is inconvenient;
+- an accepted candidate is an immutable `rc-*` snapshot at an exact SHA/tree;
+- a blocker is fixed on a focused branch and produces a new RC; accepted RCs are never patched in place;
 - component branches feed the release line through deliberate reconciliation, not manual ad-hoc stacking;
 - once production is verified and canonical changes are in `main`, close the release PR and remove the release branch.
 
@@ -77,33 +80,24 @@ Rules:
 ### Draft
 Use while actively iterating. Draft PRs are discoverable collaboration surfaces, not release candidates.
 
-A draft must already state:
-- objective;
-- intended base;
-- dependency (if any);
-- scope/non-goals;
-- production impact.
+A draft must state objective, intended base, real dependency if any, scope/non-goals, and production impact.
 
 ### Ready for review
 Only when:
+
 - scope is stable;
-- obvious local/static checks are complete;
+- `bash scripts/bitmomo-check.sh test` passes locally;
 - unrelated changes are removed;
-- reviewer focus is clear;
-- CI spend/reviewer attention is justified.
+- reviewer focus is clear.
 
 ### Reviewed / accepted
 Acceptance means the **source change** is acceptable. It does not imply staging or production acceptance.
 
 ### Merged
-After merge:
-- dependent PRs retarget/rebase toward `main` immediately;
-- absorbed/superseded PRs close;
-- branch should be deleted when possible;
-- durable decisions are moved into canonical docs if they matter beyond the PR.
+After merge, dependent PRs retarget/rebase to `main`, absorbed/superseded PRs close, and the working branch is deleted when possible.
 
 ### Deferred
-If useful work is intentionally postponed, close the PR with a `DEFERRED / ARCHIVED` note. Reopen only if the old ancestry is still safe; otherwise create a fresh branch from current `main` and port the relevant pieces.
+If useful work is postponed, close it with a `DEFERRED / ARCHIVED` note. Prefer a fresh branch from current `main` later rather than reviving stale ancestry.
 
 ## 6. Branch naming
 
@@ -115,132 +109,88 @@ Use purpose-first names:
 - `ci/<scope>`
 - `docs/<scope>`
 - `release/<objective>`
+- `rc-<objective>-<date>-<sequence>`
 - `hotfix/<scope>`
 
-Avoid making the engineer/tool identity the primary branch taxonomy (`chatgpt/*`, `claude/*`, `codex/*`). Authorship is already recorded by Git/GitHub; branch names should communicate **what the work is**.
+Avoid engineer/tool names as branch taxonomy. Git already records authorship.
 
 ## 7. PR size and ownership
 
-Prefer one PR = one reviewable outcome.
+Prefer one PR = one reviewable outcome. Avoid mixing product work, broad cleanup, release topology changes, and speculative additions unless inseparable.
 
-Good boundaries:
-- one bug and its regression coverage;
-- one user-facing capability;
-- one refactor boundary;
-- one release-governance improvement.
-
-Avoid mixing:
-- unrelated product changes;
-- product feature + broad cleanup;
-- release topology changes + speculative feature additions;
-- infrastructure fixes + UI redesign unless they are inseparable.
-
-When a PR changes a shared contract, explicitly name the canonical owner/file so parallel engineers do not create competing implementations.
+When a PR changes a shared contract, name the canonical owner/file so parallel engineers do not create competing implementations.
 
 ## 8. Merge strategy
 
-Default to **squash merge** for ordinary PRs. This keeps `main` readable as a sequence of outcomes rather than every iterative commit.
-
-Use an explicit merge commit only when preserving branch ancestry materially helps release/integration auditability.
-
-A merge method should not be chosen because it is easier in the moment; it should preserve the clearest long-term history.
+Default to **squash merge** for ordinary PRs. Use an explicit merge commit only when preserving branch ancestry materially helps release/integration auditability.
 
 ## 9. Release state machine
 
-A Bitmomo release progresses through explicit states. These states must never be conflated:
+A Bitmomo release progresses through explicit states:
 
-### SOURCE
-Reviewed source exists. Production may still be untouched.
+**SOURCE → ARTIFACT → STAGING → RUNTIME → BROWSER → PRODUCT READY → PRODUCTION AUTHORIZED → PRODUCTION VERIFIED**
 
-### ARTIFACT
-A deterministic artifact has been generated from an exact source commit/tree. Artifact identity/hash is recorded.
-
-### STAGING
-That exact artifact is deployed to canonical staging.
-
-### RUNTIME
-Staging filesystem/runtime versions, data dependencies, cache/CDN bytes, and expected configuration match the candidate.
-
-### BROWSER
-Responsive, accessibility, interaction, console, and visual acceptance passes on the deployed runtime.
-
-### PRODUCT READY
-Product-specific business/trust gates pass (for example whitelist vs paid profile, legal pages, checkout availability, real data, fail-closed states).
-
-### PRODUCTION AUTHORIZED
-The owner/release authority explicitly approves production promotion of the exact accepted candidate.
-
-### PRODUCTION VERIFIED
-The exact production runtime is deployed, cache is coherent, critical journeys pass, and rollback was not needed (or rollback is documented).
-
-A PR may truthfully be `SOURCE: PASS` while `PRODUCTION: NO-GO`.
+These states must never be conflated. A source PR may be accepted while production remains NO-GO.
 
 ## 10. Release handoff contract
 
-Every release handoff must state:
+Every release handoff states exact branch/SHA/tree, artifact identity/hash if available, checks that actually executed, staging/runtime/browser/product status, production status, blockers, and rollback point.
 
-- canonical branch and exact SHA;
-- source tree/artifact identity when available;
-- what changed;
-- what was intentionally not changed;
-- CI/source checks and whether they actually executed;
-- staging deployment status;
-- runtime/cache/browser/product status;
-- production status;
-- known blockers;
-- rollback point/procedure.
-
-Avoid vague phrases such as “latest version”, “final branch”, “should be fine”, or “all good” without an exact referent.
+Avoid phrases such as “latest version”, “final branch”, or “all good” without an exact referent.
 
 ## 11. Parallel-engineer protocol
 
-Before starting work, every engineer should answer:
+Before starting work, answer:
 
-1. What is the current canonical `main`?
-2. Is there an active release hold/branch in `docs/CURRENT_RELEASE.md`?
+1. What is current `main`?
+2. Is there an active release/RC?
 3. Is another open PR already changing the same owner/files?
-4. Does this task actually depend on unmerged code?
-5. Who owns the final integration/release decision?
+4. Does this task truly depend on unmerged code?
+5. Who owns final integration/release?
 
-If two engineers need the same shared file, agree on ownership or sequencing before both build independent “final” implementations.
-
-A component engineer owns their scoped implementation. The release engineer owns reconciliation/release mechanics. Neither role may silently redefine product behavior outside its scope.
+A component engineer owns scoped implementation. The release engineer owns reconciliation/release mechanics. Neither silently redefines product behavior outside its scope.
 
 ## 12. Current-work visibility
 
-An engineer should be able to understand the repository in minutes by reading:
+An engineer should understand the repository in minutes by reading `README.md`, `docs/CURRENT_RELEASE.md`, the active release issue, then relevant open PRs. Historical PRs are archaeology, not daily workflow.
 
-1. `README.md`
-2. `docs/CURRENT_RELEASE.md`
-3. the active release issue (if any)
-4. relevant open PRs
-5. only then historical PRs if needed
+## 13. Zero-cost validation model
 
-Open PRs must therefore remain a clean actionable set. Historical/superseded/deferred work belongs in closed PR history.
+**GitHub-hosted Actions are not the development loop.** Normal validation runs on the engineer's existing machine or the existing staging host, so runner spend stays at zero during ordinary work.
 
-## 13. CI efficiency
+Canonical commands:
 
-CI should maximize signal per runner-minute:
+```bash
+# seconds: syntax/static checks only for touched files
+bash scripts/bitmomo-check.sh quick
 
-- draft iteration should not trigger expensive duplicate suites unless necessary;
-- avoid running the same source under both push and PR triggers without a reason;
-- one authoritative release suite is preferred over many overlapping “final” suites;
-- heavy browser tests run when a candidate is worth testing, plus an appropriate scheduled production monitor;
-- never weaken a required assertion merely because runner budget is exhausted.
+# normal pre-review gate: quick + deterministic suites for touched plugins
+bash scripts/bitmomo-check.sh test
 
-A CI infrastructure failure must be reported separately from a source/test failure.
+# exact candidate/release gate; clean checkout required
+bash scripts/bitmomo-check.sh full <exact-40-char-sha>
+
+# cheap runtime smoke against staging or production
+bash scripts/bitmomo-check.sh smoke https://example.com
+```
+
+Rules:
+
+- PR, push, and scheduled GitHub-hosted runner triggers stay disabled in zero-cost mode;
+- engineers never rerun hosted Actions to diagnose normal source failures;
+- `quick` is used repeatedly while coding; `test` once before Ready/review;
+- `full` is used only for a real release candidate, not every commit;
+- browser/a11y acceptance runs only against an actually deployed candidate;
+- an external/provider monitor must live outside GitHub-hosted CI if continuous monitoring is needed;
+- never weaken assertions because hosted CI is unavailable.
+
+A skipped GitHub workflow is not validation evidence. Local command output or staging evidence is.
 
 ## 14. Production change discipline
 
-Never deploy an arbitrary branch, local working tree, or superseded artifact.
+Never deploy an arbitrary branch, local working tree, or superseded artifact. Production promotion identifies the exact accepted artifact/source and has a rollback point.
 
-Production promotion must identify the exact accepted artifact/source. After deployment:
-
-- verify production identity/parity;
-- test critical public/product paths;
-- document cache purge/behavior;
-- document rollback if used;
-- update canonical release status.
+After deployment verify parity, critical journeys, cache/CDN behavior, and production-only integrations.
 
 ## 15. Hotfixes
 
@@ -250,7 +200,7 @@ Urgent production fixes use:
 main -> hotfix/<scope> -> focused PR -> production acceptance -> main
 ```
 
-Keep scope minimal. Do not smuggle unrelated refactors into a hotfix. After the incident, add regression coverage and record the root cause separately.
+Keep scope minimal and add regression coverage after the incident.
 
 ## 16. Repository hygiene
 
@@ -258,22 +208,19 @@ At least once per release cycle:
 
 - close superseded/abandoned/deferred PRs;
 - delete merged obsolete branches when safe;
-- ensure no obsolete release candidate is still described as canonical;
-- move durable decisions out of PR-only prose;
+- keep one canonical release authority;
 - reconcile duplicate issues/backlogs;
 - ensure `docs/CURRENT_RELEASE.md` reflects reality.
 
-## 17. Recommended GitHub repository settings
+## 17. Repository settings
 
-Where repository administration permits, use these guardrails on `main`:
+Where repository administration permits:
 
-- require pull requests before merge;
+- require PRs before normal merge to `main`;
 - block force-push/deletion of `main`;
-- require conversations/review threads resolved;
-- require selected release/source checks once CI capacity is available and stable;
-- require branch to be up to date when appropriate for the chosen merge queue/workflow;
-- automatically delete head branches after merge;
-- prefer squash merge as the ordinary default;
-- restrict direct pushes to `main` to emergency/admin use only.
+- require conversations resolved;
+- automatically delete merged head branches;
+- prefer squash merge;
+- restrict direct pushes to emergency/admin use only.
 
-Repository settings are enforcement; this document is the operating contract. Both matter.
+Do **not** make paid hosted checks required while the repository operates in zero-cost mode. Enforcement must not force engineers to spend money to merge correct code.
