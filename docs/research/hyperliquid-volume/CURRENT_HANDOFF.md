@@ -9,19 +9,17 @@ Build a 24/7 autonomous Hyperliquid engine that continuously discovers the perp 
 
 Business objective for launch beta is cumulative **$10,000 genuine trading volume** with bounded net cost, not necessarily positive trading PnL.
 
-## Launch philosophy
+Launch philosophy: target roughly 70–80% maturity across direction, execution, screening, switching and observability while keeping safety/accounting/reconciliation fail-closed.
 
-Do not wait for one component to become 100% perfect while other layers are missing. Target roughly 70–80% maturity across direction, execution, screening, switching and observability while keeping safety/accounting/reconciliation fail-closed.
+Launch progression:
 
-Launch progression remains:
+`autonomous shadow -> >=12h actual-host soak -> $1,000 controlled canary -> $10,000 beta mission`
 
-`autonomous shadow -> 12–24h actual-host soak -> $1,000 controlled canary -> $10,000 beta mission`
-
-No mainnet order submission is approved yet.
+Mainnet order submission is **not approved or enabled**.
 
 ## Autonomous Runtime V0 — implemented / shadow only
 
-Canonical runtime:
+Implemented:
 
 - dynamic Hyperliquid universe discovery;
 - top-volume watch set with retention buffer;
@@ -29,14 +27,55 @@ Canonical runtime:
 - per-market rolling observers;
 - standardized shadow execution evidence;
 - deterministic eligibility/ranking;
-- `MarketSupervisor` with IDLE / ACTIVE / STOP_NEW_ENTRY / DRAIN / SWITCH / HALT behavior;
+- `MarketSupervisor` with IDLE / ACTIVE / STOP_NEW_ENTRY / DRAIN / SWITCH / HALT;
 - websocket reconnect/generation safety;
 - duplicate-event suppression;
-- atomic runtime status JSON;
+- atomic latest-state JSON;
+- compact bounded operational-history JSONL;
 - optional combined raw multi-market capture;
-- fail-closed restart (old trading authority is never restored).
+- fail-closed restart: previous trading authority is never restored.
 
-`Autonomous Runtime V0` itself remains read-only and owns no wallet/private key.
+The autonomous runtime is read-only and owns no wallet/private key.
+
+## Public Hyperliquid network smoke — PASS
+
+Canonical read-only smoke workflow: `.github/workflows/hyperliquid-shadow-smoke.yml`.
+
+Latest verified smoke after fixing the runtime-directory setup and adding compact state history:
+
+- official `hyperliquid-python-sdk==0.24.0` installed successfully;
+- dynamic universe discovery succeeded;
+- observed universe included BTC, ETH, HYPE, LIT, PONS, SOL, XRP, ZEC;
+- public websocket connected (`generation=1`);
+- final transport healthy, sub-second max book age;
+- reconnects 0 in the short smoke;
+- duplicate book/trade events 0 in the observed sample;
+- shadow feedback accumulated;
+- supervisor correctly remained IDLE/WARMUP with no stable qualified market;
+- `mode=SHADOW_ONLY`;
+- `mainnet_order_submission=false`;
+- wallet not used.
+
+This proves the autonomous scanner can run against real public Hyperliquid mainnet data without order authority. It is not a substitute for the required >=12h actual-host soak.
+
+## Operational soak observability — implemented
+
+Canonical gate: `docs/research/hyperliquid-volume/SHADOW_SOAK_GATE_V0.md`.
+
+`RuntimeStateStore` now appends compact bounded history on every status save. Rotation prevents unbounded history-file growth.
+
+`market_selector.soak_assessor` evaluates the history using predeclared defaults:
+
+- duration >= 12h;
+- healthy samples >= 99%;
+- max state-sample gap <= 180s;
+- max continuous unhealthy streak <= 180s;
+- final transport healthy;
+- all samples `SHADOW_ONLY`;
+- mainnet submission false in every sample;
+- non-empty universe in every sample.
+
+Reconnects, universe changes, supervisor transitions, HALT samples and suppressed duplicates are reported diagnostically rather than failed merely for existing.
 
 ## Mission accounting / risk guardian — implemented
 
@@ -47,103 +86,90 @@ Full beta:
 - target volume $10,000;
 - epoch net-PnL floor -$5;
 - mission hard floor -$10;
-- maximum two sequential risk epochs.
+- max two sequential risk epochs.
 
 Canary:
 
 - target volume $1,000;
 - epoch floor -$1;
 - mission floor -$2;
-- maximum two sequential epochs.
+- max two sequential epochs.
 
-Profit is a real buffer. Example: realized mission PnL +$2 means $12 distance to the -$10 hard floor. Cumulative volume and PnL never reset between epochs.
+Profit is a real buffer. Cumulative volume/PnL do not reset between epochs. Hard-loss precedence is conservative: crossing target and overshooting the hard loss floor on the same finalized event results in HALT.
 
-Hard-loss precedence is conservative: if one fill both crosses target volume and overshoots the mission hard floor, result is HALT, not success.
+## Exchange-native read/accounting — implemented / CI-covered
 
-## Exchange-native read/accounting — implemented and CI-covered
+`market_selector/hyperliquid_adapter.py` read side:
 
-New read-side normalization:
+- positions from Hyperliquid account state;
+- open-order IDs;
+- real fill notional;
+- real fill fees and closed PnL;
+- deterministic reconciliation against expected local state;
+- no key accepted/stored by read adapter.
 
-- `market_selector/hyperliquid_adapter.py` reads real positions, open order IDs and fill economics through an injected official Hyperliquid `Info` object;
-- no key is accepted/stored by the read adapter;
-- reconciliation uses expected-vs-exchange positions/orders and fails closed on unexpected state;
-- actual fill notional is used for volume accounting;
-- actual `fee` is deducted from `closedPnl` rather than trusting closed PnL as fee-net.
+`market_selector/live_accounting.py`:
 
-New mission accounting:
-
-- `market_selector/live_accounting.py` reads actual Hyperliquid fills and user funding history;
-- cumulative genuine fill notional is the mission volume;
+- mission volume = actual cumulative fill notional;
 - mission PnL = gross closed PnL - actual fill fees + funding cashflow;
 - entry fees count even when `closedPnl=0`;
-- profit expands both epoch and mission buffers;
-- the same $1k/$10k epoch state rules are evaluated from exchange-native history.
+- profit expands mission/epoch loss buffers;
+- canary/full mission states can be evaluated from exchange-native history.
 
-This closes the previous gap where mission accounting depended only on simulated round-trip outcomes.
+## Execution safety boundary — implemented primitives / live lifecycle not approved
 
-## Execution safety boundary — implemented primitives
+Implemented safety primitives:
 
-Implemented:
+- deterministic position/open-order reconciliation;
+- host-local exclusive `flock` execution-authority lock;
+- default-OFF external operator enable/kill control;
+- mission risk guardian;
+- supervisor/feed/reconciliation failures block new exposure.
 
-- deterministic account/order reconciliation contract;
-- host-local `flock` exclusive execution-authority lock;
-- default-OFF external operator control / kill primitive;
-- risk guardian blocks new entries on mission stop/halt, feed fault, reconciliation failure, disabled authority or supervisor denial;
-- reduce/flatten is conceptually separated from new-risk creation.
+A low-level SDK order/controller scaffold exists only for integration review. It is **not production-ready and must not be treated as an approved order service**. Partial-fill/cancel/restart/flatten behavior still requires complete controlled validation before exposure.
 
-A low-level injected SDK adapter/controller scaffold exists for integration review, but there is still **no approved executable signer/bootstrap and no enabled mainnet service**. Do not treat the presence of adapter classes as mainnet approval.
+## CI state
 
-## CI / validation state
+Core selector/control-plane suite is green at **71 tests passed** after adding soak-history/assessor coverage.
 
-Core selector/control-plane CI is green at **66 tests passed** after adding exchange-native accounting and read-adapter tests.
-
-A separate `Hyperliquid Shadow Network Smoke` workflow has been added. It installs the official `hyperliquid-python-sdk==0.24.0`, connects only to public mainnet data in SHADOW_ONLY mode, discovers a dynamic universe, runs the autonomous scanner briefly, and asserts:
-
-- runtime state was produced;
-- mode remains `SHADOW_ONLY`;
-- `mainnet_order_submission == false`;
-- universe is non-empty;
-- transport generation is live/recent.
-
-This workflow uses no wallet or secret.
+Public network smoke also passes after the operational-history change, so the added persistence did not break real public-data runtime behavior.
 
 ## Frozen research evidence
 
-Session 3: **NO QUALIFIED MARKET / IDLE**. Standard JOIN+3/3 showed strong negative maker-fill markout (PONS/VVV roughly -9 bp) and poor P10K.
+Session 3: **NO QUALIFIED MARKET / IDLE**; standard JOIN+3/3 showed severe negative maker-fill markout in PONS/VVV.
 
-Entry Policy Dev1: **NO SESSION-4 CANDIDATE**. Persistence helped VVV but did not generalize.
+Entry Policy Dev1: **NO SESSION-4 CANDIDATE**; persistence improved VVV but did not generalize.
 
-Entry Policy Dev2: **NO SESSION-4 CANDIDATE**. Queue filters helped PUMP/PONS selectively but worsened BTC/VVV.
+Entry Policy Dev2: **NO SESSION-4 CANDIDATE**; queue filtering helped selected markets but worsened others.
 
-Do not weaken old research gates merely to force a market through.
+Do not loosen frozen research gates merely to force activity.
 
 ## Direction Alpha Audit — parallel research priority
 
 Predeclared plan: `DIRECTION_ALPHA_AUDIT_PLAN.md`.
 
-Goal: separate standalone 3/3 signal quality from maker-fill adverse selection by measuring sign-adjusted future mid returns at +1s/+2s/+5s/+10s/+30s/+60s for all signals vs maker-filled/unfilled and matched baselines.
+Goal: isolate standalone 3/3 directional information from maker-fill adverse selection using future mid returns at +1/+2/+5/+10/+30/+60s and matched baselines.
 
-Order Lifecycle Dev3 remains paused until this causal diagnosis is known. Session 4 remains untouched.
+Raw local research datasets are still required to execute the numeric audit. Do not fabricate a conclusion without them. Session 4 remains untouched.
 
 ## Launch-week remaining blockers
 
-Before any real canary exposure:
+Before a real $1,000 canary:
 
-1. complete/read the public-network smoke result;
-2. deploy shadow runtime to one actual always-on host and collect 12–24h soak evidence;
-3. review the low-level account/order integration boundary end-to-end;
+1. deploy canonical shadow runtime to one actual always-on host;
+2. collect >=12h soak history and pass `soak_assessor`;
+3. complete/review the controlled order lifecycle end-to-end, especially partial fills, cancel acknowledgement, restart recovery and flatten confirmation;
 4. wire exchange-native position/open-order/fill/fee/funding reads into the future controller loop;
-5. demonstrate restart recovery cannot duplicate an entry or leave an orphan order;
-6. demonstrate real flatten/reconciliation behavior in a controlled environment before promotion;
-7. retain one execution authority and external default-OFF operator control;
-8. only then consider the $1,000 canary.
+5. verify restart cannot duplicate entry or orphan order;
+6. keep one execution authority and external default-OFF operator control;
+7. only after those operational gates pass consider the $1,000 canary.
 
 ## Mainnet status
 
 **NOT APPROVED / NOT ENABLED.**
 
-Current canonical production-like activity is public-data shadow scanning and read-only accounting/reconciliation. No secret should be committed to GitHub.
+Current canonical production-like activity is public-data shadow scanning plus read-only account/accounting/reconciliation infrastructure. No secret should be committed to GitHub.
 
 ## New-chat bootstrap
 
-Read this file first. Correct state is: autonomous dynamic-universe shadow runtime implemented; mission/risk/reconciliation/operator controls implemented; exchange-native read/accounting implemented; 66 tests green; public network smoke workflow added; Direction Alpha Audit still pending; Session 4 untouched; mainnet order submission not approved.
+Read this file first. Correct state: autonomous dynamic-universe shadow runtime implemented; public Hyperliquid network smoke PASS; mission/risk/reconciliation/operator controls implemented; exchange-native read/accounting implemented; compact soak history + deterministic assessor implemented; core CI 71 tests green; actual-host >=12h soak still pending; Direction Alpha Audit pending raw datasets; Session 4 untouched; mainnet order submission not approved.
