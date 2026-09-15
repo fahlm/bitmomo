@@ -13,9 +13,9 @@ class RuntimeStateStore:
     """Atomic JSON persistence for the shadow runtime control-plane state.
 
     Market-state windows are deliberately not restored: after restart they must
-    warm up again from fresh public data. Supervisor identity/history and a compact
-    status snapshot are persisted so operators can diagnose what happened before
-    the restart without silently resuming stale trading authority.
+    warm up again from fresh public data. Supervisor history and the prior active
+    identity are persisted for diagnostics, but stale trading authority is never
+    resumed automatically.
     """
 
     def __init__(self, path: str | Path):
@@ -66,21 +66,25 @@ def export_supervisor_state(supervisor) -> dict:
 
 
 def restore_supervisor_state(supervisor, payload: dict) -> None:
-    """Restore identity/history but force fresh requalification after restart.
+    """Restore diagnostic history while revoking stale authority.
 
-    An old ACTIVE state must never immediately grant new-entry authority after a
-    process restart. We remember which market had been active, reset qualification
-    and challenger streaks, and pre-load the active market's degradation streak so
-    the first decision is fail-closed until fresh qualification occurs.
+    A process restart is a hard authority boundary. The prior active/pending market
+    is remembered on diagnostic attributes only; `active_market` and
+    `pending_market` are cleared. Qualification and challenger streaks are also
+    reset, so fresh public market state must pass the normal hysteresis from zero
+    before the supervisor can activate any market again.
     """
 
     if not isinstance(payload, dict):
         return
 
-    active = payload.get("active_market")
-    pending = payload.get("pending_market")
-    supervisor.active_market = str(active) if active else None
-    supervisor.pending_market = str(pending) if pending else None
+    old_active = payload.get("active_market")
+    old_pending = payload.get("pending_market")
+    supervisor.last_restored_active_market = str(old_active) if old_active else None
+    supervisor.last_restored_pending_market = str(old_pending) if old_pending else None
+
+    supervisor.active_market = None
+    supervisor.pending_market = None
     supervisor.histories = {}
 
     histories = payload.get("histories") or {}
@@ -90,21 +94,8 @@ def restore_supervisor_state(supervisor, payload: dict) -> None:
                 continue
             supervisor.histories[str(coin)] = MarketHistory(
                 qualify_streak=0,
-                degrade_streak=max(0, int(raw.get("degrade_streak", 0) or 0)),
+                degrade_streak=0,
                 challenger_streaks={},
             )
 
-    if supervisor.active_market:
-        active_history = supervisor.histories.setdefault(
-            supervisor.active_market,
-            MarketHistory(),
-        )
-        active_history.qualify_streak = 0
-        active_history.challenger_streaks = {}
-        active_history.degrade_streak = max(
-            active_history.degrade_streak,
-            supervisor.cfg.degradation_windows,
-        )
-        supervisor.state = SupervisorState.STOP_NEW_ENTRY
-    else:
-        supervisor.state = SupervisorState.IDLE
+    supervisor.state = SupervisorState.IDLE
