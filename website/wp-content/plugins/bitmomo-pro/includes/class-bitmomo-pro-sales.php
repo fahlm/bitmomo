@@ -29,6 +29,7 @@ class Bitmomo_Pro_Sales {
 	private function __construct() {
 		add_shortcode( 'bitmomo_pro_sales', array( $this, 'render_sales' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_unneeded_help_assets' ), 20 );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
 
 		// Backwards-compatible fallback only. Canonical Bitmomo runtime detaches
@@ -65,6 +66,19 @@ class Bitmomo_Pro_Sales {
 				array( 'bitmomo-pro-sales' ),
 				'2026.09.16-decision-view-v1'
 			);
+		}
+	}
+
+	/**
+	 * Help Center owns its own full-page stylesheet. /pro renders a smaller FAQ
+	 * with sales-owned markup/styles, so carrying bitmomo-pro-help.css here is
+	 * redundant. Run after normal enqueue callbacks to keep the asset boundary
+	 * deterministic without modifying the Help Center itself.
+	 */
+	public function dequeue_unneeded_help_assets() {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ) {
+			wp_dequeue_style( 'bitmomo-pro-help' );
 		}
 	}
 
