@@ -23,16 +23,22 @@ check('Engineering policy schema is supported', policy.schema === 1);
 check('Repository operates in zero-cost local-first mode', policy.mode === 'zero-cost-local-first');
 check('Hosted Actions policy is locked', policy.hosted_actions === 'locked');
 check('Maximum normal PR stack depth is <= 2', Number(policy.max_pr_stack_depth) <= 2);
+check('Runtime equivalence command is canonical', /bitmomo-check\.sh equivalence/.test(policy.canonical_commands?.equivalence || ''));
 
 const required = [
   'docs/CURRENT_RELEASE.md',
   'docs/ENGINEERING_OPERATING_MODEL.md',
+  'docs/ARCHITECTURE_OWNERSHIP.md',
+  'docs/PRODUCTION_PIPELINE.md',
   '.github/pull_request_template.md',
   'scripts/bitmomo-check.sh',
   'scripts/production-monitor-local.sh',
   'scripts/check-engineering-policy.mjs',
+  'scripts/check-release-state.mjs',
+  'scripts/check-runtime-equivalence.py',
   'scripts/audit-frontend-debt.mjs',
   'config/engineering-policy.json',
+  'config/release-state.json',
 ];
 for (const rel of required) check(`Required engineering contract exists: ${rel}`, exists(rel));
 
@@ -78,6 +84,7 @@ const prTemplate = read('.github/pull_request_template.md');
 check('PR template requires local test command', prTemplate.includes('bash scripts/bitmomo-check.sh test'));
 const operating = read('docs/ENGINEERING_OPERATING_MODEL.md');
 check('Operating model defines zero-cost validation', /zero-cost validation model/i.test(operating));
+check('Operating model defines machine-enforced contract', /machine-enforced engineering contract/i.test(operating));
 const currentRelease = read('docs/CURRENT_RELEASE.md');
 check('Current release records exact commit', /- Commit:\s*`[0-9a-f]{40}`/.test(currentRelease));
 check('Current release records artifact identity', /- Artifact ID:\s*`?\d+`?/.test(currentRelease));
