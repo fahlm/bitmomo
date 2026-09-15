@@ -338,6 +338,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		<div class="bm-bi__brief-grid" aria-label="<?php esc_attr_e( 'Market Pulse intraday', 'bitmomo-btc-intelligence' ); ?>">
 			<div class="bm-bi__brief-panel">
 				<h3><?php esc_html_e( 'MARKET PULSE · INTRADAY', 'bitmomo-btc-intelligence' ); ?></h3>
+				<span><?php esc_html_e( 'AKTIVITAS PASAR', 'bitmomo-btc-intelligence' ); ?></span>
 				<p><strong><?php echo esc_html( $activity['label'] ); ?></strong> — <?php echo esc_html( $activity['copy'] ); ?></p>
 			</div>
 			<div class="bm-bi__brief-panel">
@@ -481,7 +482,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<?php if ( $is_delayed ) : ?>
 				<?php $this->render_delayed_current_boundary( $snapshot, $price ); ?>
 			<?php elseif ( ! $available || ! $direction_valid ) : ?>
-				<?php $this->render_blocked_boundary( __( 'Major Brief belum dipublikasikan karena data belum memenuhi standar kualitas Bitmomo.', 'bitmomo-btc-intelligence' ) ); ?>
+				<?php $this->render_blocked_boundary( __( 'Pembacaan arah sedang ditahan karena Major Brief belum memenuhi standar kualitas Bitmomo.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
 				<div class="bm-bi__snapshot-grid">
 					<div><span>BIAS</span><strong class="is-<?php echo esc_attr( $bias ); ?>"><?php echo esc_html( $this->direction_label( $strength ) ); ?></strong><small><?php esc_html_e( 'arah dominan data pasar', 'bitmomo-btc-intelligence' ); ?></small></div>

@@ -7,9 +7,9 @@
 **Canonical release PR:** #135  
 **Canonical release branch:** `release/whitelist-v1`
 
-> **SOURCE CONVERGED FOR EXACT-CANDIDATE FREEZE — DO NOT MUTATE**
+> **SOURCE CONVERGING AFTER FULL RELEASE FINDING — DO NOT DEPLOY**
 >
-> PR #168, #169, and #170 have been reconciled into the canonical release line with semantic conflict review. The source tree is ready to be frozen at the exact post-ledger commit SHA and validated by one Full Release run. Any new source mutation revokes this candidate and requires a fresh SHA.
+> PR #168, #169, and #170 have been reconciled into the canonical release line with semantic conflict review. Full Release run `34931625847` for candidate `1c410ba9555af561eff54b5b62352a48920998a8` passed exact identity, CI governance, and managed PHP lint, then failed in the deterministic BTC Intelligence surface-context suite. That candidate is revoked for promotion. The next SHA after this source fix and ledger update must be frozen as the new exact candidate.
 
 This file is the fast entry point for engineers. It records the actual release topology and acceptance state; it is not a roadmap and it must not be treated as deployment authorization.
 
@@ -50,6 +50,7 @@ Final closure integrated from PR #168/#169/#170:
 - Market Pulse and Opportunity are read from the canonical session snapshot, with point-in-time lineage retained internally and sanitized fail-closed.
 - Delayed public intelligence fails closed at the public adapter contract, not only in visible renderers.
 - The public BTC surface keeps a singular canonical freshness timestamp and does not expose independent Opportunity observation timestamps.
+- BTC Intelligence visitor rendering keeps Market Pulse activity in visitor language and makes missing directional snapshots explicitly fail closed.
 - CI Governance skips Draft so Draft work consumes zero intentional hosted-runner validation.
 - Local preflight owns routine CI-governance/design feedback before GitHub Actions.
 - UI Browser Safety is manual-only during pre-production and runs only against an explicitly selected exact staging/production target.
@@ -85,9 +86,12 @@ The release branch also had green Theme / Authority / Regime / CI Governance evi
 
 Local source checks available in the release-integrator environment passed for design consistency, CI governance, M2 launch-surface contracts, UI architecture, institutional copy, home research boundary, theme source, authority source, and social-preview syntax. PHP is not available in that environment, so deterministic PHP suites must be proven by Full Release.
 
+Full Release run `34931625847` for exact candidate `1c410ba9555af561eff54b5b62352a48920998a8` is **FAILED / REVOKED FOR PROMOTION**. Passing portions: exact candidate identity, CI governance, managed PHP lint. Failing portion: deterministic BTC Intelligence surface-context suite expected explicit visitor-language Market Pulse activity and explicit fail-closed directional copy.
+
 ## Artifact state
 
 - Historical artifact `10350132727` remains **REVOKED / SUPERSEDED FOR PROMOTION**.
+- Candidate `1c410ba9555af561eff54b5b62352a48920998a8` is **REVOKED** after failed Full Release run `34931625847`.
 - No current artifact is authorized.
 - No staging deployment is authorized from historical evidence.
 - Run Full Release once from the exact frozen release-head SHA after this ledger update is pushed.
@@ -98,9 +102,9 @@ Local source checks available in the release-integrator environment passed for d
 
 | Gate | State | Meaning |
 |---|---|---|
-| SOURCE | **CONVERGED / FREEZE AFTER LEDGER COMMIT** | PR #168/#169/#170 have been reconciled into the release line. Any mutation revokes the candidate. |
+| SOURCE | **FIXING FULL RELEASE FINDING / FREEZE AFTER LEDGER COMMIT** | PR #168/#169/#170 remain reconciled; candidate `1c410ba9555af561eff54b5b62352a48920998a8` is revoked and the next post-fix SHA must be frozen. |
 | SCOPED CI | **SUPERSEDED BY FULL RELEASE FOR CANDIDATE** | Prior focused evidence was useful; release-wide validation now belongs to one exact-candidate Full Release. |
-| RELEASE-WIDE CI | **READY FOR ONE EXACT-CANDIDATE RUN** | Run once after this ledger commit SHA is frozen. |
+| RELEASE-WIDE CI | **READY AFTER NEW SHA FREEZE** | Run once after this source fix and ledger update are committed, pushed, and frozen as a new exact SHA. |
 | ARTIFACT | **NONE AUTHORIZED** | Historical artifacts are revoked. |
 | STAGING | **NO-GO** | Wait for the fresh exact-candidate artifact. |
 | RUNTIME | **PENDING EXACT-CANDIDATE VALIDATION** | Full Release must validate all managed runtime suites and provenance for the frozen SHA. |
