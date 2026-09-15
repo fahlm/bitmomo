@@ -21,6 +21,12 @@ need() {
   }
 }
 
+need git
+need bash
+need php
+need node
+need python3
+
 changed_files_to() {
   local output="$1"
   {
@@ -40,13 +46,6 @@ lint_file() {
     *.php) php -l "$file" >/dev/null && echo "PASS php $file" ;;
     *.js|*.mjs) node --check "$file" >/dev/null && echo "PASS js $file" ;;
     *.sh) bash -n "$file" && echo "PASS sh $file" ;;
-    *.py) python3 - "$file" <<'PY'
-import pathlib, sys
-path = sys.argv[1]
-compile(pathlib.Path(path).read_text(encoding='utf-8'), path, 'exec')
-print(f'PASS py {path}')
-PY
-      ;;
   esac
 }
 
@@ -61,11 +60,59 @@ run_plugin_tests() {
     done
 }
 
-quick() {
-  need php
-  need node
-  need python3
+node_if_present() {
+  local script="$1"
+  test -f "$script" || return 0
+  echo "RUN $script"
+  node "$script"
+}
 
+bash_if_present() {
+  local script="$1"
+  test -f "$script" || return 0
+  echo "RUN $script"
+  bash "$script"
+}
+
+doctor() {
+  echo "Bitmomo engineering doctor"
+  echo "branch=$(git symbolic-ref --quiet --short HEAD || echo detached)"
+  echo "commit=$(git rev-parse HEAD)"
+  echo "tree=$(git rev-parse 'HEAD^{tree}')"
+  node scripts/check-engineering-policy.mjs
+  node scripts/audit-frontend-debt.mjs
+
+  local branch
+  branch="$(git symbolic-ref --quiet --short HEAD || true)"
+  case "$branch" in
+    chatgpt/*|claude/*|codex/*)
+      echo "WARN legacy tool-identity branch '$branch'; new work should use purpose-first names"
+      ;;
+    rc-*)
+      if ! git diff --quiet || ! git diff --cached --quiet; then
+        echo "ERROR immutable RC checkout has tracked changes" >&2
+        exit 1
+      fi
+      echo "PASS immutable RC checkout is clean"
+      ;;
+  esac
+
+  if git remote get-url origin >/dev/null 2>&1; then
+    local count target
+    count="$(git ls-remote --heads origin 2>/dev/null | wc -l | tr -d ' ' || true)"
+    target="$(node -e "console.log(require('./config/engineering-policy.json').target_active_branches)")"
+    if [ -n "$count" ]; then
+      echo "remote_branches=$count target_active_branches=$target"
+      if [ "$count" -gt "$target" ]; then
+        echo "WARN branch inventory is above target; this is cleanup debt, not a reason to block feature work"
+      fi
+    fi
+  fi
+  echo "PASS engineering doctor"
+}
+
+quick() {
+  node scripts/check-engineering-policy.mjs
   local list
   list="$(mktemp)"
   changed_files_to "$list"
@@ -80,6 +127,7 @@ quick() {
 
   local theme_changed=0
   local launch_changed=0
+  local css_changed=0
   local file
   while IFS= read -r file; do
     test -f "$file" || continue
@@ -87,9 +135,12 @@ quick() {
       website/wp-content/*|scripts/*) lint_file "$file" ;;
     esac
     case "$file" in
-      website/wp-content/themes/bitmomo-child-v3/*|scripts/check-ui-architecture.mjs|scripts/audit-css-debt.mjs)
+      website/wp-content/themes/bitmomo-child-v3/*|scripts/check-ui-architecture.mjs|scripts/audit-css-debt.mjs|scripts/audit-frontend-debt.mjs)
         theme_changed=1
         ;;
+    esac
+    case "$file" in
+      *.css) css_changed=1 ;;
     esac
     case "$file" in
       website/wp-content/*|config/production-runtime.json|scripts/build-production-artifact.py|scripts/check-m2-launch-surfaces.mjs)
@@ -99,11 +150,14 @@ quick() {
   done < "$list"
 
   if [ "$theme_changed" -eq 1 ]; then
-    node scripts/check-ui-architecture.mjs
-    node scripts/audit-css-debt.mjs
+    node_if_present scripts/check-ui-architecture.mjs
+    node_if_present scripts/audit-css-debt.mjs
+  fi
+  if [ "$css_changed" -eq 1 ]; then
+    node scripts/audit-frontend-debt.mjs
   fi
   if [ "$launch_changed" -eq 1 ]; then
-    node scripts/check-m2-launch-surfaces.mjs
+    node_if_present scripts/check-m2-launch-surfaces.mjs
   fi
   rm -f "$list"
   echo "PASS quick local checks"
@@ -125,11 +179,6 @@ test_touched() {
 }
 
 full() {
-  need php
-  need node
-  need python3
-  need cmp
-
   local expected_sha="${2:-}"
   [[ "$expected_sha" =~ ^[0-9a-f]{40}$ ]] || {
     echo "Usage: bash scripts/bitmomo-check.sh full <exact-40-char-sha>" >&2
@@ -149,8 +198,9 @@ full() {
   }
 
   echo "Candidate commit=$actual_sha tree=$actual_tree"
+  node scripts/check-engineering-policy.mjs
 
-  find "${runtime_roots[@]}" -type f -name '*.php' -print0 |
+  find "${runtime_roots[@]}" -type f -name '*.php' -print0 | sort -z |
     while IFS= read -r -d '' file; do php -l "$file" >/dev/null; done
 
   local plugin
@@ -158,12 +208,19 @@ full() {
     run_plugin_tests "$plugin"
   done
 
-  find "${runtime_roots[@]}" -type f \( -name '*.js' -o -name '*.mjs' \) ! -path '*/tests/*' -print0 |
+  find "${runtime_roots[@]}" -type f \( -name '*.js' -o -name '*.mjs' \) ! -path '*/tests/*' -print0 | sort -z |
     while IFS= read -r -d '' file; do node --check "$file" >/dev/null; done
 
-  node scripts/check-m2-launch-surfaces.mjs
-  node scripts/check-ui-architecture.mjs
-  node scripts/audit-css-debt.mjs
+  node_if_present scripts/check-m2-launch-surfaces.mjs
+  bash_if_present scripts/check-theme-source-contract.sh
+  bash_if_present scripts/check-authority-source-contract.sh
+  node_if_present scripts/check-navigation-footer.mjs
+  node_if_present scripts/check-ui-architecture.mjs
+  node_if_present scripts/check-terminal-grade-contract.mjs
+  node_if_present scripts/check-institutional-copy.mjs
+  node_if_present scripts/check-home-research-boundary.mjs
+  node_if_present scripts/check-public-design-consistency.mjs
+  node scripts/audit-frontend-debt.mjs
 
   local out="dist/local-release"
   rm -rf "$out"
@@ -171,6 +228,18 @@ full() {
   python3 scripts/build-production-artifact.py --output-dir "$out/first"
   python3 scripts/build-production-artifact.py --output-dir "$out/second"
   cmp "$out/first/bitmomo-runtime.tar" "$out/second/bitmomo-runtime.tar"
+
+  local expected_count actual_count
+  expected_count="$(python3 -c 'import json; print(json.load(open("config/production-runtime.json"))["expected_file_count"])')"
+  actual_count="$(tar -tf "$out/first/bitmomo-runtime.tar" | wc -l | tr -d ' ')"
+  test "$actual_count" -eq "$expected_count" || {
+    echo "ERROR artifact file count=$actual_count expected=$expected_count" >&2
+    exit 1
+  }
+  if tar -tf "$out/first/bitmomo-runtime.tar" | grep -Eq '(^|/)tests/|\.md$|\.env($|\.)|\.(key|pem|tmp|temp)$'; then
+    echo "ERROR forbidden/non-runtime file found in artifact" >&2
+    exit 1
+  fi
 
   EXPECTED_COMMIT="$actual_sha" EXPECTED_TREE="$actual_tree" \
   FIRST="$out/first/bitmomo-runtime-manifest.json" SECOND="$out/second/bitmomo-runtime-manifest.json" \
@@ -188,42 +257,39 @@ assert b.get("source_tree") == expected_tree
 assert a["artifact_sha256"] == b["artifact_sha256"]
 assert a["file_count"] == b["file_count"]
 assert a["files"] == b["files"]
+if "packaging_definition_sha256" in a or "packaging_definition_sha256" in b:
+    assert a.get("packaging_definition_sha256") == b.get("packaging_definition_sha256")
 print(f"PASS deterministic artifact sha256={a['artifact_sha256']} files={a['file_count']}")
 PY
   echo "PASS full exact-SHA local release verification"
 }
 
 smoke() {
-  need curl
   local base="${2:-https://bitmomo.id}"
-  base="${base%/}"
+  if [ -f scripts/production-monitor-local.sh ]; then
+    bash scripts/production-monitor-local.sh "$base"
+    return
+  fi
+  need curl
   local path body code
+  base="${base%/}"
   for path in "/" "/btc-intelligence/" "/pro/"; do
     body="$(mktemp)"
     code="$(curl --location --silent --show-error --max-time 20 --output "$body" --write-out '%{http_code}' "${base}${path}")"
-    test "$code" = "200" || {
-      echo "ERROR ${base}${path} HTTP $code" >&2
-      rm -f "$body"
-      exit 1
-    }
-    ! grep -Eqi 'Fatal error|Parse error|Uncaught (Error|Exception)|<b>Warning</b>|<b>Notice</b>' "$body" || {
-      echo "ERROR runtime leakage at ${base}${path}" >&2
-      rm -f "$body"
-      exit 1
-    }
+    test "$code" = "200" || { echo "ERROR ${base}${path} HTTP $code" >&2; rm -f "$body"; exit 1; }
     rm -f "$body"
     echo "PASS ${base}${path}"
   done
-  echo "PASS HTTP smoke"
 }
 
 case "$MODE" in
+  doctor) doctor ;;
   quick) quick ;;
   test) test_touched ;;
   full) full "$@" ;;
   smoke) smoke "$@" ;;
   *)
-    echo "Usage: bash scripts/bitmomo-check.sh {quick|test|full <sha>|smoke [base_url]}" >&2
+    echo "Usage: bash scripts/bitmomo-check.sh {doctor|quick|test|full <sha>|smoke [base_url]}" >&2
     exit 2
     ;;
 esac

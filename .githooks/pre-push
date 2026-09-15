@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+branch="$(git symbolic-ref --quiet --short HEAD || true)"
+
+case "$branch" in
+  main|release/*|rc-*)
+    if [ "${BITMOMO_ALLOW_PROTECTED_PUSH:-0}" != "1" ]; then
+      echo "ERROR direct push from '$branch' is blocked by Bitmomo's local safety hook." >&2
+      echo "Use a focused working branch + PR. Release/RC mutation requires an explicit release-authority override." >&2
+      echo "Emergency/release authority only: BITMOMO_ALLOW_PROTECTED_PUSH=1 git push ..." >&2
+      exit 1
+    fi
+    ;;
+esac
+
+bash scripts/bitmomo-check.sh quick
