@@ -67,24 +67,82 @@
   line-height: 1.55;
 }
 
-/* Expected Range is decision context, not a footnote. */
-.bm-pro__section:has(.bm-pro__range) {
+/* Once the entitled enhancer has produced a real range rail, suppress only the
+ * old text-only range block. If enhancement fails, canonical range stays visible. */
+.bm-pro__dashboard.is-show-first-enhanced > .bm-pro__header + .bm-pro__section,
+.bm-pro__dashboard.is-show-first-enhanced > .bm-pro__confidence-explain + .bm-pro__section {
+  display: none;
+}
+
+.bm-pro__range-visual {
   margin-bottom: 20px;
-  padding: 16px 18px;
+  padding: 16px 18px 10px;
   border: 1px solid var(--bm-pro-border);
   border-radius: 10px;
   background: var(--bm-pro-bg);
 }
 
-.bm-pro__section:has(.bm-pro__range) h4 {
-  margin-bottom: 9px;
+.bm-pro__range-visual-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.bm-pro__range {
+.bm-pro__range-visual-head span {
+  color: var(--bm-pro-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .10em;
+}
+
+.bm-pro__range-visual-head strong {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: clamp(22px, 3vw, 30px);
-  line-height: 1.1;
-  letter-spacing: -.03em;
+  font-size: clamp(17px, 2.5vw, 24px);
+  letter-spacing: -.025em;
+}
+
+.bm-pro__range-track {
+  position: relative;
+  height: 54px;
+  margin: 0 6px;
+  border-top: 1px solid rgba(147, 164, 189, .38);
+}
+
+.bm-pro__range-band {
+  position: absolute;
+  top: -4px;
+  left: var(--range-left);
+  width: var(--range-width);
+  height: 7px;
+  border-radius: 999px;
+  background: var(--bm-pro-teal);
+  opacity: .72;
+}
+
+.bm-pro__range-marker {
+  position: absolute;
+  top: -8px;
+  left: var(--marker-pos);
+  transform: translateX(-50%);
+  min-width: 84px;
+  text-align: center;
+  color: var(--bm-pro-text);
+}
+
+.bm-pro__range-marker i {
+  display: block;
+  width: 2px;
+  height: 18px;
+  margin: 0 auto 4px;
+  background: currentColor;
+}
+
+.bm-pro__range-marker small {
+  display: inline-block;
+  font: 700 9px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: nowrap;
 }
 
 /* Three scenarios are one map. Base gets visual priority without hiding
@@ -141,7 +199,7 @@
 }
 
 /* Generic supporting sections stay quiet. */
-.bm-pro__section:not(.bm-pro__invalidation):not(:has(.bm-pro__range)) {
+.bm-pro__section:not(.bm-pro__invalidation) {
   padding-top: 2px;
   margin-bottom: 18px;
 }
@@ -175,6 +233,24 @@
   .bm-pro__confidence {
     grid-column: 1;
     grid-row: auto;
+  }
+
+  .bm-pro__range-visual {
+    padding: 14px 12px 8px;
+  }
+
+  .bm-pro__range-visual-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .bm-pro__range-marker {
+    min-width: 68px;
+  }
+
+  .bm-pro__range-marker small {
+    font-size: 8px;
   }
 
   .bm-pro__scenarios {
