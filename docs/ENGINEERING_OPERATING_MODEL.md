@@ -65,14 +65,15 @@ Rules:
 - an accepted candidate is an immutable `rc-*` snapshot at an exact SHA/tree;
 - a blocker is fixed on a focused branch and produces a new RC; accepted RCs are never patched in place;
 - feature development does not continue on the release line;
-- once production is verified and canonical changes are in `main`, close the release PR and remove the release/temporary RC refs.
+- verified release commits remain reachable from canonical Git history after temporary release refs are retired;
+- once production is verified and canonical changes are in `main`, close the release PR and remove the temporary release/RC refs only after ancestry/provenance retention is proven.
 
 The Whitelist V1 release branch is a historical exception that must be converged and retired after production verification; it is not the future topology.
 
 ## 5. PR lifecycle
 
 ### Draft
-Use while actively iterating. Draft PRs are discoverable collaboration surfaces, not release candidates. A draft states objective, intended base, real dependency if any, scope/non-goals, and production impact.
+Use while actively iterating. Draft PRs are discoverable collaboration surfaces, not release candidates. A draft states objective, intended base, real dependency if any, scope/non-goals, risk class and production impact.
 
 ### Ready for review
 Only when:
@@ -112,7 +113,9 @@ When a PR changes a shared contract, name the canonical owner/file so parallel e
 
 ## 8. Merge strategy
 
-Default to **squash merge** for ordinary PRs. Use an explicit merge commit only when preserving branch ancestry materially helps release/integration auditability.
+Default to **squash merge** for ordinary feature/fix/docs/ops PRs.
+
+Use an explicit merge commit only when preserving ancestry is itself part of the release/integration contract. The Whitelist V1 post-production reconciliation is such an exception: the accepted `c33d128...` release history must become an ancestor of canonical `main` before the temporary release/RC refs can be retired. Runtime equivalence still has to PASS; a merge commit is not evidence of correctness by itself.
 
 ## 9. Release state machine
 
@@ -165,18 +168,23 @@ bash scripts/bitmomo-check.sh test
 # exact candidate/release gate; clean checkout required
 bash scripts/bitmomo-check.sh full <exact-40-char-sha>
 
+# prove an accepted runtime survived history/governance reconciliation
+bash scripts/bitmomo-check.sh equivalence <accepted-ref> <candidate-ref>
+
 # read-only runtime smoke/operational contract
 bash scripts/bitmomo-check.sh smoke https://example.com
 ```
 
 Rules:
-- PR, push, and scheduled GitHub-hosted runner triggers stay disabled in zero-cost mode;
+- canonical `main` has no PR/push/scheduled GitHub-hosted runner triggers in zero-cost mode;
 - engineers never rerun hosted Actions to diagnose normal source failures;
 - `quick` is used repeatedly while coding; `test` once before Ready/review;
 - `full` is used only for a real release candidate, not every commit;
 - browser/a11y acceptance runs only against an actually deployed candidate;
 - continuous production monitoring lives outside GitHub-hosted CI;
 - never weaken assertions because hosted CI is unavailable.
+
+**Historical exception:** `release/whitelist-v1` still contains scoped PR-triggered workflows because mutating that accepted release ancestry merely to change CI would invalidate the frozen source. Until that line is retired, preserved post-launch PRs against it remain Draft and use local validation. Do not mark them Ready merely to obtain hosted CI.
 
 A skipped GitHub workflow is not validation evidence. Local command output or staging evidence is.
 
@@ -205,7 +213,7 @@ At least once per release cycle:
 - reconcile duplicate issues/backlogs;
 - ensure `docs/CURRENT_RELEASE.md` reflects reality.
 
-Targets are <=5 actionable open PRs and <=15 active branches after the historical cleanup is complete.
+Targets are <=5 actionable open PRs and <=15 active branches after the historical cleanup is complete. Use `scripts/branch-hygiene-report.sh` for non-destructive inventory; it never authorizes deletion by itself.
 
 ## 17. Repository settings
 
@@ -214,7 +222,7 @@ Where repository administration permits:
 - block force-push/deletion of `main`;
 - require conversations resolved;
 - automatically delete merged head branches;
-- prefer squash merge;
+- prefer squash merge for ordinary work;
 - restrict direct pushes to emergency/admin use only.
 
 Do **not** make paid hosted checks required while the repository operates in zero-cost mode. Enforcement must not force engineers to spend money to merge correct code.
@@ -224,5 +232,7 @@ Until server-side rulesets are enabled, `.githooks/pre-push` provides local defe
 ## 18. Machine-enforced engineering contract
 
 `config/engineering-policy.json` is the small machine-readable policy and `scripts/check-engineering-policy.mjs` is its local enforcement layer. It locks zero-cost workflow posture, required source-of-truth files, release identity fields, the normal stack-depth policy, sensitive-filename hygiene and the legacy `custom.css` growth ceiling.
+
+`config/release-state.json` plus `scripts/check-release-state.mjs` binds release prose to exact commit/tree/RC/artifact identity and post-production convergence state. Before temporary RC refs can be considered retired, the verified release must have a recorded converged trunk SHA, runtime-equivalence proof, and accepted-release ancestry retained in that trunk.
 
 Human docs explain *why*. The machine policy prevents quiet regression of the highest-cost historical failure modes.
