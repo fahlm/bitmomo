@@ -12,6 +12,7 @@ on:
       - "scripts/check-theme-source-contract.sh"
       - "scripts/check-ui-architecture.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
+      - "scripts/check-launch-audit-hardening.mjs"
       - "scripts/check-navigation-footer.mjs"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-staged-cascade-ownership.mjs"
@@ -63,6 +64,7 @@ jobs:
           bash -n scripts/check-theme-source-contract.sh
           node --check scripts/check-public-ui.mjs
           node --check scripts/check-terminal-grade-contract.mjs
+          node --check scripts/check-launch-audit-hardening.mjs
           node --check scripts/check-staged-cascade-ownership.mjs
           node --check scripts/check-public-readability-rhythm.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
@@ -72,6 +74,9 @@ jobs:
 
       - name: Enforce terminal-grade public contract
         run: node scripts/check-terminal-grade-contract.mjs
+
+      - name: Enforce launch audit hardening
+        run: node scripts/check-launch-audit-hardening.mjs
 
       - name: Enforce navigation and footer contract
         run: node scripts/check-navigation-footer.mjs
