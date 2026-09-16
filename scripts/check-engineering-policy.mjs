@@ -52,6 +52,7 @@ for (const rel of required) check(`Required engineering contract exists: ${rel}`
 const workflowDir = path.join(root, '.github/workflows');
 const workflows = fs.readdirSync(workflowDir).filter((name) => /\.ya?ml$/.test(name)).sort();
 check('Workflow stubs remain visible', workflows.length > 0);
+const hardLockedJob = (source) => /^\s{4}if:\s*(?:false|\$\{\{\s*false\s*\}\})\s*$/m.test(source);
 for (const name of workflows) {
   const source = fs.readFileSync(path.join(workflowDir, name), 'utf8');
   check(`${name}: no automatic pull_request trigger`, !/^\s{2}pull_request\s*:/m.test(source));
@@ -66,9 +67,9 @@ for (const name of workflows) {
     if (!/\bruns-on\s*:/.test(block)) continue;
     runnableJobs += 1;
     const header = block.match(/^  ([A-Za-z0-9_-]+):/m)?.[1] || 'job';
-    check(`${name}/${header}: hosted runner is hard-locked`, /^\s{4}if:\s*false\s*$/m.test(block));
+    check(`${name}/${header}: hosted runner is hard-locked`, hardLockedJob(block));
   }
-  if (runnableJobs === 0) check(`${name}: contains a hard-lock marker`, /^\s{4}if:\s*false\s*$/m.test(source));
+  if (runnableJobs === 0) check(`${name}: contains a hard-lock marker`, hardLockedJob(source));
 }
 
 const hook = read('.githooks/pre-push');
