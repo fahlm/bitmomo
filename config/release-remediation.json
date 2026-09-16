@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "release": "whitelist-v1-remediation",
-  "status": "source_remediation_in_progress",
+  "status": "source_remediation_complete_candidate_freeze",
   "baseline": {
     "commit": "c33d128d5681909337ffc8b0811647012532fe9e",
     "artifact_id": 10414093076,
@@ -15,22 +15,22 @@
     "footer_v2_commit": "88168c4e85a090d16bfa2b6d5833afabca3cab5b",
     "btc_visualization_v2_pr": 180,
     "btc_visualization_v2_commit": "2cfd32ef5c8debcab2395d34116c7ded7ed28677",
-    "authority_footer_contract_fix": "4d897af1f17c9d0312a06e35d72fa524d9fe2a03"
+    "authority_footer_contract_fix": "4d897af1f17c9d0312a06e35d72fa524d9fe2a03",
+    "public_pro_proof_first_pr": 184,
+    "public_pro_proof_first_commit": "42659b53fab844adce9c566f849ae4955e0beb2c"
   },
   "scope": {
     "show_first_source_pr": 176,
     "show_first_mode": "selective_reimplementation_only",
     "btc_show_first_override_required": false,
-    "public_pro_proof_first_required": true,
+    "public_pro_proof_first_required": false,
     "protected_pro_dashboard_deferred_to_paid_lifecycle": true,
     "research_distribution": false,
     "engineering_system_v2_runtime": false,
     "engine_scoring_changes": "correctness_bug_only",
     "whitelist_logic_redesign": false
   },
-  "source_blockers": [
-    "canonical_public_pro_proof_first"
-  ],
+  "source_blockers": [],
   "staging_authorized": false,
   "production_authorized": false,
   "required_final_gates": [
