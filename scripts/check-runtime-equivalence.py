@@ -3,15 +3,10 @@ import fnmatch
 import json
 import subprocess
 import sys
-from pathlib import PurePosixPath
 
 
 def git(*args, text=True):
     return subprocess.check_output(['git', *args], text=text).strip() if text else subprocess.check_output(['git', *args])
-
-
-def exists(ref, path):
-    return subprocess.run(['git', 'cat-file', '-e', f'{ref}:{path}'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
 
 
 def show_text(ref, path):
@@ -25,13 +20,12 @@ def blob_sha(ref, path):
         return None
 
 
-def match(rel, pattern):
-    p = PurePosixPath(rel)
-    return p.match(pattern) or fnmatch.fnmatchcase(rel, pattern)
-
-
-def included(rel, includes, excludes):
-    return any(match(rel, pat) for pat in includes) and not any(match(rel, pat) for pat in excludes)
+def matches(rel, patterns):
+    # Keep this intentionally identical to scripts/build-production-artifact.py:
+    # artifact membership is defined by fnmatch.fnmatchcase on the path relative
+    # to each component root. The equivalence gate must never invent a second
+    # interpretation of production packaging.
+    return any(fnmatch.fnmatchcase(rel, pattern) for pattern in patterns)
 
 
 def list_component_files(ref, source):
@@ -50,6 +44,59 @@ def list_component_files(ref, source):
 def die(message):
     print(f'ERROR {message}', file=sys.stderr)
     raise SystemExit(2)
+
+
+def inventory(ref, config):
+    includes = config.get('include', [])
+    excludes = config.get('exclude', [])
+    packaged = {}
+    unexpected = []
+    component_counts = {}
+
+    for component in config.get('components', []):
+        source = component['source'].rstrip('/')
+        included_rel = []
+        for full, rel in list_component_files(ref, source):
+            if matches(rel, excludes):
+                continue
+            if not matches(rel, includes):
+                unexpected.append(full)
+                continue
+            included_rel.append(rel)
+            packaged[full] = component['name']
+
+        missing = sorted(set(component.get('required', [])) - set(included_rel))
+        if missing:
+            print(
+                f"FAIL {ref}: {component['name']} missing required runtime files: {', '.join(missing)}",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+
+        expected_component_count = int(component.get('expected_file_count', 0))
+        actual_component_count = len(included_rel)
+        component_counts[component['name']] = actual_component_count
+        if actual_component_count != expected_component_count:
+            print(
+                f"FAIL {ref}: {component['name']} runtime files={actual_component_count} expected={expected_component_count}",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+
+    if unexpected:
+        print(f'FAIL {ref}: unexpected managed source files would make production packaging fail', file=sys.stderr)
+        for path in unexpected[:100]:
+            print(f'- {path}', file=sys.stderr)
+        if len(unexpected) > 100:
+            print(f'... {len(unexpected) - 100} more', file=sys.stderr)
+        raise SystemExit(1)
+
+    expected_total = int(config.get('expected_file_count', 0))
+    if len(packaged) != expected_total:
+        print(f'FAIL {ref}: runtime inventory={len(packaged)} expected={expected_total}', file=sys.stderr)
+        raise SystemExit(1)
+
+    return packaged, component_counts
 
 
 if len(sys.argv) != 3:
@@ -72,44 +119,36 @@ if accepted_config_raw != candidate_config_raw:
     raise SystemExit(1)
 
 config = json.loads(accepted_config_raw)
-includes = config.get('include', [])
-excludes = config.get('exclude', [])
-components = config.get('components', [])
+accepted_inventory, accepted_counts = inventory(accepted, config)
+candidate_inventory, candidate_counts = inventory(candidate, config)
 
-runtime_paths = set()
-component_by_path = {}
-for component in components:
-    source = component['source'].rstrip('/')
-    accepted_files = list_component_files(accepted, source)
-    candidate_files = list_component_files(candidate, source)
-    for full, rel in accepted_files + candidate_files:
-        if included(rel, includes, excludes):
-            runtime_paths.add(full)
-            component_by_path[full] = component['name']
+accepted_paths = set(accepted_inventory)
+candidate_paths = set(candidate_inventory)
+if accepted_paths != candidate_paths:
+    added = sorted(candidate_paths - accepted_paths)
+    removed = sorted(accepted_paths - candidate_paths)
+    print('FAIL runtime path inventory differs between refs', file=sys.stderr)
+    for path in removed[:100]:
+        print(f'- REMOVED {path}', file=sys.stderr)
+    for path in added[:100]:
+        print(f'- ADDED {path}', file=sys.stderr)
+    raise SystemExit(1)
 
 mismatches = []
-for path in sorted(runtime_paths):
+for path in sorted(accepted_paths):
     a = blob_sha(accepted, path)
     b = blob_sha(candidate, path)
     if a != b:
-        mismatches.append((component_by_path.get(path, '?'), path, a or 'MISSING', b or 'MISSING'))
+        mismatches.append((accepted_inventory.get(path, '?'), path, a or 'MISSING', b or 'MISSING'))
 
-accepted_runtime_count = sum(1 for path in runtime_paths if blob_sha(accepted, path))
-candidate_runtime_count = sum(1 for path in runtime_paths if blob_sha(candidate, path))
 expected_count = int(config.get('expected_file_count', 0))
-
 print(f'accepted_ref={accepted} commit={git("rev-parse", accepted)}')
 print(f'candidate_ref={candidate} commit={git("rev-parse", candidate)}')
-print(f'accepted_runtime_files={accepted_runtime_count}')
-print(f'candidate_runtime_files={candidate_runtime_count}')
+print(f'accepted_runtime_files={len(accepted_paths)}')
+print(f'candidate_runtime_files={len(candidate_paths)}')
 print(f'expected_runtime_files={expected_count}')
-
-if accepted_runtime_count != expected_count:
-    print(f'FAIL accepted runtime inventory count {accepted_runtime_count} != packaging contract {expected_count}', file=sys.stderr)
-    raise SystemExit(1)
-if candidate_runtime_count != expected_count:
-    print(f'FAIL candidate runtime inventory count {candidate_runtime_count} != packaging contract {expected_count}', file=sys.stderr)
-    raise SystemExit(1)
+for name in sorted(accepted_counts):
+    print(f'component={name} accepted={accepted_counts[name]} candidate={candidate_counts.get(name, 0)}')
 
 if mismatches:
     print(f'FAIL runtime equivalence: {len(mismatches)} packaged file(s) differ', file=sys.stderr)
@@ -119,4 +158,7 @@ if mismatches:
         print(f'... {len(mismatches) - 100} more', file=sys.stderr)
     raise SystemExit(1)
 
-print(f'PASS runtime equivalence: all {expected_count} packaged files are byte-identical and packaging definition is unchanged')
+print(
+    f'PASS runtime equivalence: all {expected_count} packaged files are byte-identical, '
+    'component inventories match the production packager, and packaging definition is unchanged'
+)
