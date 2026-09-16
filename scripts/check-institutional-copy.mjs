@@ -14,6 +14,7 @@ const how = read('website/wp-content/themes/bitmomo-child-v3/template-parts/how-
 const whitelistHome = read('website/wp-content/themes/bitmomo-child-v3/template-parts/whitelist.php');
 const researchHome = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research.php');
 const researchHub = read('website/wp-content/themes/bitmomo-child-v3/template-parts/research-hub.php');
+const templateFunctions = read('website/wp-content/themes/bitmomo-child-v3/inc/template-functions.php');
 const about = read('website/wp-content/themes/bitmomo-child-v3/template-parts/about-authority.php');
 const article = read('website/wp-content/themes/bitmomo-child-v3/single.php');
 const functions = read('website/wp-content/themes/bitmomo-child-v3/functions.php');
@@ -41,7 +42,8 @@ check('Canonical editorial contract exists and defines the four information leve
 
 check('Homepage demonstrates current intelligence before secondary explanation',
   hero.includes('Apa yang berubah di Bitcoin hari ini?') &&
-  hero.includes('Bitmomo membaca kondisi pasar, perubahan antar-brief, dan kekuatan bukti.') &&
+  hero.includes('Bitmomo menganalisis kondisi pasar, perubahan antar-brief, dan kekuatan bukti.') &&
+  hero.includes('Analisis terbaru tampil langsung di halaman ini dan disimpan untuk evaluasi.') &&
   hero.includes('BTC MARKET VIEW') && hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') &&
   hero.includes('>FAKTOR UTAMA<') && hero.includes('<strong>SUMBER DATA</strong>') &&
   hero.includes('APA YANG TERJADI') && hero.includes('APA YANG BERUBAH') &&
@@ -61,7 +63,7 @@ check('Homepage delayed intelligence fails closed instead of rendering stale cur
   hero.includes('Observasi terverifikasi terakhir.')
 );
 check('Homepage avoids casual, literal-translation and internal-engineering copy',
-  !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b|Buka pembacaan lengkap|menavigasi berikutnya|standar freshness|Referensi current|snapshot tertunda|quality gate|fail-closed/i.test(hero)
+  !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b|\bpembacaan\b|Buka pembacaan lengkap|menavigasi berikutnya|standar freshness|Referensi current|snapshot tertunda|quality gate|fail-closed/i.test(hero)
 );
 check('Homepage proves accountability before explaining the product mechanism',
   how.includes('BUKTI, BUKAN KLAIM') &&
@@ -101,16 +103,27 @@ check('Market Context avoids false link affordance and literal translation artif
   !/Expected Range <b aria-hidden="true">↗|Scenario Map <b aria-hidden="true">↗|Invalidation <b aria-hidden="true">↗|\bthesis\b/i.test(marketContextJs)
 );
 
-check('Research Hub is publication-first and represents testable market and AI research',
+check('Research taxonomy models desk-specific Market and AI topics',
+  templateFunctions.includes("'market' => array(") &&
+  templateFunctions.includes("'label' => 'Market Research'") &&
+  templateFunctions.includes("'systems' => array(") &&
+  templateFunctions.includes("'label' => 'AI & Intelligence Systems'") &&
+  templateFunctions.includes("'inference'           => 'Inference'") &&
+  templateFunctions.includes("'compute'             => 'Compute'") &&
+  templateFunctions.includes("'discipline' => 'ai-systems'") &&
+  templateFunctions.includes("array_intersect($filter['terms'], $topics)")
+);
+check('Research Hub is publication-first with Desk then Topic navigation',
   researchHub.includes('Riset pasar dan AI yang dapat diuji.') &&
-  researchHub.includes('Crypto Markets · AI &amp; Intelligence Systems') &&
+  researchHub.includes('Market Research · AI &amp; Intelligence Systems') &&
+  researchHub.includes('aria-label="Desk riset"') &&
+  researchHub.includes('bm-research-filter--topics') &&
   researchHub.includes('bukti, konteks, batas tesis, dan evaluasi hasil') &&
   researchHub.includes('LATEST RESEARCH') &&
   researchHub.includes('Setiap tesis harus dapat diuji.') &&
-  researchHub.includes('$bm_visible_filters') &&
+  researchHub.includes('$bm_visible_desks') && researchHub.includes('$bm_visible_topics') &&
   researchHub.includes('bitmomo_research_focus_has_posts( $bm_filter_key, $bm_research_q )') &&
-  researchHub.includes("if ( 'all' === $bm_filter_key ) continue;") &&
-  !/>\s*RESEARCH (?:DOMAINS|PROGRAMS)\s*</i.test(researchHub) &&
+  !/Batas klasifikasi|outcome aktual|>\s*RESEARCH (?:DOMAINS|PROGRAMS)\s*</i.test(researchHub) &&
   !/Kerangka berulang untuk pasar yang kompleks|Dua disiplin\. Satu standar riset\./i.test(researchHub)
 );
 check('Article trust chrome remains compact and evidence-led',
