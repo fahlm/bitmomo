@@ -97,7 +97,12 @@ grep -q "Belum ada publikasi yang cocok" "${hub}"
 ! grep -q "Gabung Founding Whitelist" "${hub}"
 ! grep -q "RESEARCH PROGRAMS" "${hub}"
 ! grep -q "RESEARCH DOMAINS" "${hub}"
-grep -q "Intelligence Systems" "${footer}"
+# Footer V2 intentionally uses visitor-facing research IA rather than the
+# internal/historical "Intelligence Systems" label. Lock all three canonical
+# destinations so this is a stronger contract, not a weakened assertion.
+grep -q "Market Research" "${footer}"
+grep -q "AI Research" "${footer}"
+grep -q "Research Standard" "${footer}"
 
 library_line="$(grep -n "LATEST RESEARCH" "${hub}" | head -1 | cut -d: -f1)"
 method_line="$(grep -n "RESEARCH STANDARD" "${hub}" | tail -1 | cut -d: -f1)"
