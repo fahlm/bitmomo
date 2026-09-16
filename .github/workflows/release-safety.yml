@@ -89,6 +89,8 @@ jobs:
             scripts/check-navigation-footer.mjs \
             scripts/check-ui-architecture.mjs \
             scripts/check-terminal-grade-contract.mjs \
+            scripts/check-staged-cascade-ownership.mjs \
+            scripts/check-public-readability-rhythm.mjs \
             scripts/check-institutional-copy.mjs \
             scripts/check-home-research-boundary.mjs \
             scripts/check-public-design-consistency.mjs \
@@ -126,6 +128,12 @@ jobs:
 
       - name: Check navigation and footer contract
         run: node scripts/check-navigation-footer.mjs
+
+      - name: Check staged legacy cascade ownership
+        run: node scripts/check-staged-cascade-ownership.mjs
+
+      - name: Check public readability and vertical rhythm
+        run: node scripts/check-public-readability-rhythm.mjs
 
       - name: Check UI architecture and WCAG source contract
         run: node scripts/check-ui-architecture.mjs
