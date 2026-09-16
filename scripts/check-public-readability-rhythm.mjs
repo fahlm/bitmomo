@@ -57,12 +57,17 @@ check(
 );
 
 check(
-  'Homepage owner directly consumes semantic micro type instead of hard-coded 9px labels',
+  'Show-First Homepage owner directly consumes semantic readable type across intelligence and evidence',
   containsAll(home, [
     '.bm-home-reading__metric-label',
     'font-size: var(--bm-type-micro, 11px);',
     '.bm-home-reading__driver > span',
-    '.bm-home-proof__kicker',
+    '.bm-home-brief__panel > span',
+    '.bm-home-evidence__eyebrow',
+    '.bm-home-ledger__verdict',
+    'font-size: var(--bm-type-dense, 10px);',
+    '.bm-home-range__marker b',
+    '.bm-home-scenarios article > span',
     '.bm-home-research__meta',
   ]) && pxValues(home).every((value) => value >= 10)
 );

@@ -83,8 +83,8 @@ const heroIndex = frontPage.indexOf("template-parts/home', 'hero'");
 const howIndex = frontPage.indexOf("template-parts/how-it-works");
 const conversionIndex = frontPage.indexOf("template-parts/whitelist");
 const researchIndex = frontPage.indexOf("template-parts/research");
-if (!(heroIndex > -1 && howIndex > heroIndex && conversionIndex > howIndex && researchIndex > conversionIndex)) {
-  fail('homepage hierarchy must remain value/proof -> mechanism -> conversion -> research');
+if (!(heroIndex > -1 && howIndex > heroIndex && researchIndex > howIndex && conversionIndex > researchIndex)) {
+  fail('homepage hierarchy must remain current intelligence -> evidence/mechanism -> qualified research -> Founding conversion');
 }
 
 const frontendJs = read(themeDir, 'assets/js/bitmomo-frontend.js');
@@ -141,11 +141,12 @@ if (!readabilityCss.includes('--bmi-text: var(--bm-text)') || !readabilityCss.in
 }
 
 const homeHero = read(themeDir, 'template-parts/home-hero.php');
+const homeEvidence = read(themeDir, 'template-parts/how-it-works.php');
 const homeWhitelist = read(themeDir, 'template-parts/whitelist.php');
-for (const marker of ['.bm-home-hero', '.bm-home-reading', '.bm-home-proof', '.bm-howworks', '.bm-home-research']) {
+for (const marker of ['.bm-home-hero', '.bm-home-reading', '.bm-home-evidence', '.bm-home-ledger', '.bm-home-pro-proof', '.bm-howworks', '.bm-home-research']) {
   if (!homeCss.includes(marker)) fail(`homepage stylesheet lost institutional primitive: ${marker}`);
 }
-for (const marker of ['>BTC MARKET VIEW<', '>BIAS<', '>CONFIDENCE<', '>REFERENSI BTC<', '>DIPERBARUI<', '>FAKTOR UTAMA<', '<strong>SUMBER DATA</strong>']) {
+for (const marker of ['>BTC MARKET VIEW<', '>BIAS<', '>CONFIDENCE<', '>REFERENSI BTC<', '>DIPERBARUI<', '>FAKTOR UTAMA<', '<strong>SUMBER DATA</strong>', 'APA YANG TERJADI', 'APA YANG BERUBAH', 'MENGAPA PENTING', 'PANTAU BERIKUTNYA']) {
   if (!homeHero.includes(marker)) fail(`homepage market view lost visitor-facing information: ${marker}`);
 }
 for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['market_state_certainty']", 'Bitmomo_Public_Intelligence_Adapter::history()', '<style', 'Decision View']) {
@@ -154,8 +155,14 @@ for (const forbidden of ['>OPPORTUNITY<', '>STATE<', "['market_state']", "['mark
 if (!/class="bm-home-hero__primary"[^>]+\/btc-intelligence\//.test(homeHero) || !homeHero.includes('Buka BTC Intelligence')) {
   fail('homepage primary action must open product before asking for commitment');
 }
-if (!homeHero.includes('/btc-intelligence/#decision-ledger') || !homeHero.includes('href="#founding-whitelist"') || homeHero.indexOf('/btc-intelligence/#decision-ledger') > homeHero.indexOf('href="#founding-whitelist"')) {
-  fail('homepage proof path must precede Founding commitment');
+if (!homeHero.includes('/btc-intelligence/#decision-ledger') || !homeHero.includes('Periksa rekam jejak')) {
+  fail('homepage must expose the public Decision Ledger proof path before the later Founding conversion surface');
+}
+for (const marker of ['BUKTI, BUKAN KLAIM', '30D STATE TAPE', 'DECISION LEDGER', 'ARSIP PRO ≥48 JAM', 'EXPECTED RANGE', 'HOW BITMOMO WORKS']) {
+  if (!homeEvidence.includes(marker)) fail(`homepage evidence/mechanism surface lost required marker: ${marker}`);
+}
+if (homeEvidence.indexOf('BUKTI, BUKAN KLAIM') > homeEvidence.indexOf('HOW BITMOMO WORKS')) {
+  fail('homepage evidence must precede secondary product-mechanism explanation');
 }
 if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitelist.includes('Tidak ada pembayaran pada tahap whitelist')) {
   fail('homepage whitelist must expose proof and remove payment ambiguity');

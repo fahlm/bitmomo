@@ -12,8 +12,8 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
     <div class="bm-wl-unified">
       <div class="bm-wl-unified__intro">
         <span class="bm-wl-unified__eyebrow"><?php esc_html_e( 'BITMOMO PRO · FOUNDING ACCESS', 'bitmomo' ); ?></span>
-        <h2 class="bm-wl-unified__title" id="bm-wl-home-title"><?php esc_html_e( 'Kondisi pasar berubah. Pro menunjukkan apa yang perlu diperhatikan selanjutnya.', 'bitmomo' ); ?></h2>
-        <p class="bm-wl-unified__copy"><?php esc_html_e( 'BTC Intelligence merangkum kondisi saat ini. Pro menambahkan rentang harga, skenario utama, kondisi yang membatalkan tesis, dan perubahan penting sejak analisis sebelumnya.', 'bitmomo' ); ?></p>
+        <h2 class="bm-wl-unified__title" id="bm-wl-home-title"><?php esc_html_e( 'Butuh skenario yang lebih lengkap? Masuk ke Bitmomo Pro.', 'bitmomo' ); ?></h2>
+        <p class="bm-wl-unified__copy"><?php esc_html_e( 'BTC Intelligence gratis menunjukkan kondisi pasar saat ini. Pro menambahkan Expected Range, Scenario Map, invalidasi tesis, dan perubahan sejak brief sebelumnya—dengan rekam evaluasi yang tetap dapat diaudit.', 'bitmomo' ); ?></p>
 
         <dl class="bm-wl-unified__facts" aria-label="<?php esc_attr_e( 'Founding Membership', 'bitmomo' ); ?>">
           <div class="bm-wl-unified__fact">
@@ -32,7 +32,7 @@ $bm_wl_batch        = class_exists( 'Bitmomo_Pro_Sales' ) ? Bitmomo_Pro_Sales::B
 
         <div class="bm-wl-unified__links">
           <a class="bm-wl-unified__proof-link" href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>" data-bm-event="homepage_decision_ledger_click" data-bm-placement="whitelist_proof">
-            <?php esc_html_e( 'Tinjau Decision Ledger publik →', 'bitmomo' ); ?>
+            <?php esc_html_e( 'Periksa Decision Ledger publik →', 'bitmomo' ); ?>
           </a>
           <a class="bm-wl-unified__detail-link" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>" data-bm-event="homepage_pro_interest" data-bm-placement="whitelist_detail">
             <?php esc_html_e( 'Lihat detail Bitmomo Pro →', 'bitmomo' ); ?>

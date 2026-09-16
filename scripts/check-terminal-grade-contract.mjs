@@ -65,7 +65,8 @@ check('Institutional homepage layer exists, is loaded, and is runtime-required',
   assets.includes("'bitmomo-home'") &&
   runtime.includes('"assets/css/home.css"') &&
   homeCss.includes('.bm-home-hero') && homeCss.includes('.bm-home-reading') &&
-  homeCss.includes('.bm-home-proof') && homeCss.includes('.bm-home-research')
+  homeCss.includes('.bm-home-evidence') && homeCss.includes('.bm-home-ledger') &&
+  homeCss.includes('.bm-home-pro-proof') && homeCss.includes('.bm-home-research')
 );
 
 const customCss = path.join(theme, 'custom.css');
@@ -80,15 +81,20 @@ check('Homepage hero has no private breakpoint/style island', !/<style\b/i.test(
 check('Homepage is product-first and exposes accountability proof before commitment',
   hero.includes('Buka BTC Intelligence') &&
   hero.includes('/btc-intelligence/#decision-ledger') &&
-  hero.includes('PUBLIC LEDGER') &&
-  hero.includes('href="#founding-whitelist"') &&
-  hero.indexOf('/btc-intelligence/#decision-ledger') < hero.indexOf('href="#founding-whitelist"')
+  hero.includes('Periksa rekam jejak') &&
+  howItWorks.includes('BUKTI, BUKAN KLAIM') &&
+  howItWorks.includes('DECISION LEDGER') &&
+  howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('HOW BITMOMO WORKS') &&
+  frontPage.indexOf("template-parts/research") < frontPage.indexOf("template-parts/whitelist")
 );
 check('Homepage market view exposes finance-grade context without engine internals',
   hero.includes('>BTC MARKET VIEW<') && hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') &&
   hero.includes('>REFERENSI BTC<') && hero.includes('>DIPERBARUI<') && hero.includes('>FAKTOR UTAMA<') &&
   hero.includes('<strong>SUMBER DATA</strong>') &&
-  !/market_state|market_state_certainty|direction_strength|Bitmomo_Public_Intelligence_Adapter::history/.test(hero)
+  hero.includes('APA YANG TERJADI') && hero.includes('APA YANG BERUBAH') &&
+  hero.includes('MENGAPA PENTING') && hero.includes('PANTAU BERIKUTNYA') &&
+  !/market_state_certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(hero) &&
+  !/\$bm_snapshot\s*\[\s*['"]market_state['"]\s*\]/.test(hero)
 );
 check('Homepage delayed snapshot is transparent but cannot masquerade as current intelligence',
   hero.includes("$bm_snapshot_available = is_array( $bm_snapshot ) && in_array( $bm_status, array( 'fresh', 'delayed' ), true );") &&
@@ -98,8 +104,10 @@ check('Homepage delayed snapshot is transparent but cannot masquerade as current
   hero.includes("$bm_confidence = $bm_current_available") &&
   hero.includes("$bm_price = $bm_current_available") &&
   hero.includes("$bm_drivers = $bm_current_available") &&
-  hero.includes('Observasi terverifikasi terakhir.') &&
-  hero.includes('Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.')
+  hero.includes('Faktor pasar terbaru tidak ditampilkan karena Major Brief sedang tertunda.') &&
+  hero.includes('Bias terbaru tidak ditampilkan dari brief yang tertunda.') &&
+  hero.includes('Confidence terbaru ditahan sampai Major Brief kembali valid.') &&
+  hero.includes('Observasi terverifikasi terakhir.')
 );
 check('Homepage public copy avoids non-institutional legacy language',
   !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b/i.test(hero) &&
@@ -112,11 +120,15 @@ check('Dynamic market factors use concise professional market language',
   !/cukup kuat ke arah|mendukung arah naik|tekanan ke arah turun|menembus level penting/i.test(keyDrivers)
 );
 check('Homepage product model follows the visitor lifecycle without reverting to pipeline jargon',
+  howItWorks.includes('BUKTI, BUKAN KLAIM') &&
+  howItWorks.includes('30D STATE TAPE') &&
+  howItWorks.includes('DECISION LEDGER') &&
+  howItWorks.includes('ARSIP PRO ≥48 JAM') &&
+  howItWorks.includes('EXPECTED RANGE') &&
+  howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('HOW BITMOMO WORKS') &&
   howItWorks.includes('01 · UNDERSTAND NOW') &&
   howItWorks.includes('02 · MAP WHAT CHANGES') &&
   howItWorks.includes('03 · AUDIT THE RESULT') &&
-  howItWorks.includes('BTC Intelligence merangkum kondisi, perubahan material, maknanya, dan satu konteks pantauan') &&
-  howItWorks.includes('Bitmomo Pro menambahkan monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis') &&
   howItWorks.includes('Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.') &&
   !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
 );

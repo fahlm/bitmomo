@@ -39,13 +39,13 @@ check('Canonical editorial contract exists and defines the four information leve
   editorial.includes('ACCOUNTABILITY — actual results')
 );
 
-check('Homepage states the restored Free versus Pro boundary before secondary explanation',
-  hero.includes('Pahami kondisi BTC sekarang.') &&
-  hero.includes('Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.') &&
-  hero.includes('BTC Intelligence merangkum kondisi, perubahan material, mengapa perubahan itu penting, dan satu konteks yang layak dipantau.') &&
-  hero.includes('Bitmomo Pro memperluasnya dengan monitoring lengkap, Expected Range, skenario, dan kondisi invalidasi.') &&
+check('Homepage demonstrates current intelligence before secondary explanation',
+  hero.includes('Apa yang berubah di Bitcoin hari ini?') &&
+  hero.includes('Bitmomo membaca kondisi pasar, perubahan antar-brief, dan kekuatan bukti.') &&
   hero.includes('BTC MARKET VIEW') && hero.includes('>BIAS<') && hero.includes('>CONFIDENCE<') &&
-  hero.includes('>FAKTOR UTAMA<') && hero.includes('<strong>SUMBER DATA</strong>')
+  hero.includes('>FAKTOR UTAMA<') && hero.includes('<strong>SUMBER DATA</strong>') &&
+  hero.includes('APA YANG TERJADI') && hero.includes('APA YANG BERUBAH') &&
+  hero.includes('MENGAPA PENTING') && hero.includes('PANTAU BERIKUTNYA')
 );
 check('Homepage delayed intelligence fails closed instead of rendering stale current market values',
   hero.includes("$bm_current_available = $bm_snapshot_available && 'fresh' === $bm_status;") &&
@@ -55,13 +55,21 @@ check('Homepage delayed intelligence fails closed instead of rendering stale cur
   hero.includes("$bm_price = $bm_current_available") &&
   hero.includes("$bm_drivers = $bm_current_available") &&
   hero.includes("$bm_delayed ? 'Ditahan'") &&
-  hero.includes('Pembacaan saat ini ditahan sampai data kembali memenuhi standar freshness Bitmomo.') &&
+  hero.includes('Faktor pasar terbaru tidak ditampilkan karena Major Brief sedang tertunda.') &&
+  hero.includes('Bias terbaru tidak ditampilkan dari brief yang tertunda.') &&
+  hero.includes('Confidence terbaru ditahan sampai Major Brief kembali valid.') &&
   hero.includes('Observasi terverifikasi terakhir.')
 );
-check('Homepage avoids casual or translation-artifact market copy',
-  !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b|Buka pembacaan lengkap/i.test(hero)
+check('Homepage avoids casual, literal-translation and internal-engineering copy',
+  !/ALASAN UTAMA|Arah evidence|Konsistensi evidence|\bmeleset\b|Buka pembacaan lengkap|menavigasi berikutnya|standar freshness|Referensi current|snapshot tertunda|quality gate|fail-closed/i.test(hero)
 );
-check('Homepage mechanism follows the canonical visitor lifecycle rather than internal pipeline language',
+check('Homepage proves accountability before explaining the product mechanism',
+  how.includes('BUKTI, BUKAN KLAIM') &&
+  how.includes('30D STATE TAPE') &&
+  how.includes('DECISION LEDGER') &&
+  how.includes('ARSIP PRO ≥48 JAM') &&
+  how.includes('EXPECTED RANGE') &&
+  how.indexOf('BUKTI, BUKAN KLAIM') < how.indexOf('HOW BITMOMO WORKS') &&
   how.includes('01 · UNDERSTAND NOW') &&
   how.includes('02 · MAP WHAT CHANGES') &&
   how.includes('03 · AUDIT THE RESULT') &&
@@ -70,9 +78,12 @@ check('Homepage mechanism follows the canonical visitor lifecycle rather than in
 );
 check('Homepage founding copy avoids urgency theater and raw product jargon',
   whitelistHome.includes('Founding Price') && whitelistHome.includes('AKTIFKAN FOUNDING MEMBERSHIP') &&
+  whitelistHome.includes('Butuh skenario yang lebih lengkap? Masuk ke Bitmomo Pro.') &&
   !/KUNCI HARGA FOUNDING|Harga Founding|\binvalidation\b/i.test(whitelistHome)
 );
-check('Homepage Research metadata is localized',
+check('Homepage Research is positioned as testable market research with localized metadata',
+  researchHome.includes('Riset yang membentuk cara Bitmomo membaca pasar.') &&
+  researchHome.includes('tesis yang dapat diuji') &&
   researchHome.includes('%d menit baca') && !researchHome.includes('%d min read')
 );
 

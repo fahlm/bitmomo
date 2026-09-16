@@ -175,6 +175,14 @@ check(
 );
 
 check(
+  'Homepage conversion consumes the canonical steel-blue and commercial-action palette',
+  /var\(--bm-accent,\s*#6c8ebf\)/.test(conversion) &&
+  /var\(--bm-action,\s*#f4ad32\)/.test(conversion) &&
+  /var\(--bm-action-hover,\s*#ffc15a\)/.test(conversion) &&
+  !/#26d0c6|38\s*,\s*208\s*,\s*198|#e69a18/i.test(conversion)
+);
+
+check(
   'Named CSS layers load in deterministic order from foundation to surface owner',
   assets.indexOf('design-system.css') > -1 &&
   assets.indexOf('public-readability.css') > assets.indexOf('design-system.css') &&
