@@ -6,6 +6,9 @@ final class Bitmomo_Public_Intelligence_Adapter {
     const HISTORY_LIMIT = 30;
     const PUBLIC_DISPLAY_TIMEZONE = 'Asia/Jakarta';
     const ALLOWED_REGIMES = ['accumulation', 'expansion', 'distribution', 'capitulation', 'transition'];
+    const OPPORTUNITY_FRESH_SECONDS = 15 * MINUTE_IN_SECONDS;
+    const OPPORTUNITY_MAX_SECONDS = 30 * MINUTE_IN_SECONDS;
+    const MAJOR_BRIEF_GRACE_SECONDS = 20 * MINUTE_IN_SECONDS;
 
     public static function snapshot() {
         if (!class_exists('Bitmomo_AI_Intelligence')) return null;
@@ -17,7 +20,10 @@ final class Bitmomo_Public_Intelligence_Adapter {
         if (!Bitmomo_AI_Session_Intelligence::is_supported_session_type($raw_session_type)) return null;
         $session_type = Bitmomo_AI_Session_Intelligence::normalize_session_type($raw_session_type);
 
-        $status = sanitize_key((string) ($projection['status'] ?? ''));
+        // Major Brief freshness follows the next expected session anchor rather
+        // than an arbitrary wall-clock age. A valid Pre-Open brief remains the
+        // current brief until Post-Close is due (+grace), and vice versa.
+        $status = self::major_brief_status($projection);
         $is_fresh = 'fresh' === $status;
         $canonical_source_id = sanitize_text_field((string) ($projection['edition_id'] ?? ''));
         $regime = self::regime_for_source($canonical_source_id);
@@ -55,8 +61,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
 
         // Slow-clock lineage stays frozen with the Major Brief. The top-level
         // Opportunity is a separate fast-clock public state and is only exposed
-        // through the store's own freshness gate. This keeps two clocks honest
-        // without publishing a second timestamp as if it refreshed the brief.
+        // through the store's own freshness gate. This keeps two clocks honest.
         $canonical_opportunity = $is_fresh
             ? self::canonical_opportunity($session_intelligence['opportunity'] ?? null)
             : ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
@@ -71,8 +76,8 @@ final class Bitmomo_Public_Intelligence_Adapter {
         return [
             'status' => $status,
             // A delayed Major Brief may retain provenance/reference price, while
-            // its directional assessment fails closed. Opportunity is independent
-            // and can remain available only when its own <=30m freshness gate passes.
+            // its directional assessment fails closed. Market Pulse remains an
+            // independent fast clock: fresh <=15m, delayed 15-30m, unavailable >30m.
             'btc_reference_price' => (float) $price,
             'opportunity' => $opportunity,
             'market_state' => $market_state,
@@ -90,7 +95,7 @@ final class Bitmomo_Public_Intelligence_Adapter {
                 ],
             'freshness' => [
                 'state' => $status,
-                'label' => (string) ($projection['freshness_label'] ?? ''),
+                'label' => self::major_brief_freshness_label($projection, $status),
                 'timestamp' => (int) ($projection['timestamp'] ?? 0),
                 'timestamp_iso' => $as_of,
             ],
@@ -225,6 +230,40 @@ final class Bitmomo_Public_Intelligence_Adapter {
         return [];
     }
 
+    private static function major_brief_status(array $projection) {
+        $fallback = sanitize_key((string) ($projection['status'] ?? 'delayed'));
+        $raw_session_type = $projection['session_type'] ?? '';
+        $anchor_raw = trim((string) ($projection['session_anchor'] ?? ''));
+        if (
+            $anchor_raw === ''
+            || !class_exists('Bitmomo_AI_Session_Intelligence')
+            || !Bitmomo_AI_Session_Intelligence::is_supported_session_type($raw_session_type)
+        ) return in_array($fallback, ['fresh', 'delayed'], true) ? $fallback : 'delayed';
+
+        try {
+            $anchor = new DateTimeImmutable($anchor_raw);
+            $next_type = Bitmomo_AI_Session_Intelligence::opposite($raw_session_type);
+            $next_anchor = Bitmomo_AI_Session_Intelligence::next_anchor($next_type, $anchor->modify('+1 minute'));
+            $deadline = $next_anchor->modify('+' . self::MAJOR_BRIEF_GRACE_SECONDS . ' seconds');
+            return time() <= $deadline->getTimestamp() ? 'fresh' : 'delayed';
+        } catch (Exception $exception) {
+            unset($exception);
+            return in_array($fallback, ['fresh', 'delayed'], true) ? $fallback : 'delayed';
+        }
+    }
+
+    private static function major_brief_freshness_label(array $projection, $status) {
+        $timestamp = (int) ($projection['timestamp'] ?? 0);
+        if (!$timestamp) $timestamp = strtotime((string) ($projection['timestamp_iso'] ?? '')) ?: 0;
+        if (!$timestamp) return 'fresh' === $status ? 'Major Brief aktif' : 'Major Brief tertunda';
+
+        $age = function_exists('human_time_diff') ? human_time_diff($timestamp, time()) : '';
+        if ('fresh' === $status) {
+            return $age !== '' ? sprintf(__('Major Brief aktif · diterbitkan %s lalu', 'bitmomo-ai'), $age) : __('Major Brief aktif', 'bitmomo-ai');
+        }
+        return $age !== '' ? sprintf(__('Major Brief tertunda · brief terakhir %s lalu', 'bitmomo-ai'), $age) : __('Major Brief tertunda', 'bitmomo-ai');
+    }
+
     private static function empty_history() { return ['target_days' => self::HISTORY_LIMIT, 'available_days' => 0, 'days' => []]; }
     private static function bias_or_null($value) { $value = sanitize_key((string) $value); return in_array($value, ['bearish', 'neutral', 'bullish'], true) ? $value : null; }
     private static function strength_or_null($value) { $value = sanitize_key((string) $value); return in_array($value, ['strong_bearish', 'bearish', 'neutral', 'bullish', 'strong_bullish'], true) ? $value : null; }
@@ -258,13 +297,23 @@ final class Bitmomo_Public_Intelligence_Adapter {
             return ['status' => 'unavailable', 'methodology_version' => $methodology];
         }
         $state = strtoupper(sanitize_key((string) ($opportunity['state'] ?? '')));
-        if (!in_array($state, ['HIGH', 'NORMAL', 'LOW'], true)) {
+        $knowledge_time = sanitize_text_field((string) ($opportunity['knowledge_time'] ?? ''));
+        $knowledge_timestamp = strtotime($knowledge_time) ?: 0;
+        if (!in_array($state, ['HIGH', 'NORMAL', 'LOW'], true) || !$knowledge_timestamp) {
             return ['status' => 'unavailable', 'methodology_version' => $methodology];
         }
+
+        $age_seconds = max(0, time() - $knowledge_timestamp);
+        if ($age_seconds > self::OPPORTUNITY_MAX_SECONDS) {
+            return ['status' => 'unavailable', 'methodology_version' => $methodology];
+        }
+
         return [
             'status' => 'available',
             'state' => $state,
             'methodology_version' => sanitize_text_field((string) ($opportunity['methodology_version'] ?? $methodology)),
+            'freshness_state' => $age_seconds <= self::OPPORTUNITY_FRESH_SECONDS ? 'fresh' : 'delayed',
+            'age_seconds' => $age_seconds,
             'changed' => !empty($opportunity['changed']),
         ];
     }
