@@ -87,6 +87,7 @@ jobs:
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-market-context-contract.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php \
             website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php; do
@@ -114,6 +115,7 @@ jobs:
           php website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-public-surface-context.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-market-context-contract.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php
 
       - name: Enforce canonical authority source contract
         run: bash scripts/check-authority-source-contract.sh
