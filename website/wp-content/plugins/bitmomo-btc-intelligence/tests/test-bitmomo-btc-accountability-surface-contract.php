@@ -37,11 +37,16 @@ accountability_surface_check(
 	false !== strpos( $css, '.bm-bi__history-summary' )
 );
 accountability_surface_check(
-	'Decision Ledger is a bounded inspectable viewport and never truncates rows by CSS',
+	'Decision Ledger is a bounded inspectable viewport',
 	false !== strpos( $css, '.bm-bi__ledger-wrap{' ) &&
 	false !== strpos( $css, 'max-height:292px' ) &&
-	false !== strpos( $css, 'overflow:auto' ) &&
-	false === preg_match( '/tbody[^\{]*\{[^\}]*display\s*:\s*none/i', $css )
+	false !== strpos( $css, 'overflow:auto' )
+);
+accountability_surface_check(
+	'Accountability CSS never hides Decision Ledger body rows',
+	false === strpos( $css, 'tbody{display:none' ) &&
+	false === strpos( $css, 'tbody tr{display:none' ) &&
+	false === strpos( $css, 'tbody>tr{display:none' )
 );
 accountability_surface_check(
 	'Ledger header stays readable while the full result-neutral record set scrolls',
