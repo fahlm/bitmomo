@@ -127,6 +127,7 @@ body {
   color: var(--bm-text);
   font-family: var(--bm-font-sans);
   font-size: var(--bm-type-body);
+  overflow-x: visible;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -209,6 +210,16 @@ button:disabled,
     max-width: var(--bm-touch-target-mobile) !important;
     width: var(--bm-touch-target-mobile) !important;
     height: var(--bm-touch-target-mobile) !important;
+  }
+
+  /* Frozen custom.css still carries !important hamburger-bar geometry/color.
+     Neutralize it here so the canonical chrome owner remains deterministic. */
+  .bm-header button.bm-hamburger > span {
+    width: 22px !important;
+    min-width: 22px !important;
+    max-width: 22px !important;
+    background-color: currentColor !important;
+    background-image: none !important;
   }
 }
 

@@ -18,7 +18,14 @@
 
 /* Compact institutional header. */
 .bm-research-head {
+  display: block;
+  width: 100%;
+  margin: 0;
   padding-bottom: 24px;
+  align-items: initial;
+  justify-content: initial;
+  flex-wrap: nowrap;
+  gap: 0;
   border-bottom: 1px solid var(--bm-border);
 }
 .bm-research-head__grid {
