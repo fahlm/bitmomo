@@ -30,6 +30,7 @@ on:
       - "website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-founding149-acquisition-contract.php"
       - "scripts/check-authority-source-contract.sh"
       - "scripts/check-public-ui.mjs"
+      - "scripts/check-footer-home-geometry.mjs"
       - "scripts/check-article-cleanliness.mjs"
       - "scripts/check-social-preview.mjs"
       - "scripts/check-terminal-grade-contract.mjs"
@@ -114,6 +115,7 @@ jobs:
           done
           bash -n scripts/check-authority-source-contract.sh
           node --check scripts/check-public-ui.mjs
+          node --check scripts/check-footer-home-geometry.mjs
           node --check scripts/check-article-cleanliness.mjs
           node --check scripts/check-social-preview.mjs
           node --check scripts/check-terminal-grade-contract.mjs
