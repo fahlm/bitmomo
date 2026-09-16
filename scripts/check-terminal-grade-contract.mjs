@@ -241,17 +241,18 @@ check('BTC market-context shell is server-stable and series are not color-only',
   btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
 );
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes integrated public runtime and 118 managed files',
-  runtime.includes('"expected_file_count": 118') &&
+check('Runtime manifest includes integrated public runtime and 119 managed files',
+  runtime.includes('"expected_file_count": 119') &&
   runtime.includes('"expected_file_count": 46') &&
-  runtime.includes('"expected_file_count": 8') &&
+  runtime.includes('"expected_file_count": 9') &&
   runtime.includes('"expected_file_count": 28') &&
   runtime.includes('"assets/css/home.css"') &&
   runtime.includes('class-bitmomo-btc-intelligence-accountability.php') &&
   runtime.includes('class-bitmomo-btc-intelligence-market-context.php') &&
   runtime.includes('class-bitmomo-pro-public-copy.php') &&
   runtime.includes('assets/js/market-context-explorer.js') &&
-  runtime.includes('assets/css/market-context-explorer.css')
+  runtime.includes('assets/css/market-context-explorer.css') &&
+  runtime.includes('assets/css/accountability-surface.css')
 );
 
 check('Account flow has no pre-checkout dead end and renders human dates',
