@@ -22,9 +22,16 @@
   line-height: 1.35;
 }
 
-/* Compact institutional header. */
+/* Compact institutional header. Explicit geometry defeats frozen legacy flex ownership. */
 .bm-research-head {
+  display: block;
+  width: 100%;
+  margin: 0;
   padding-bottom: 24px;
+  align-items: initial;
+  justify-content: initial;
+  flex-wrap: nowrap;
+  gap: 0;
   border-bottom: 1px solid var(--bm-border);
 }
 
