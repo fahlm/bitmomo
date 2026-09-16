@@ -154,7 +154,7 @@ market_context_check(
 market_context_check(
 	'Disabled comparison controls preserve readable text contrast without dimming the entire control',
 	false !== strpos( $css, '.bm-mc__series-button:disabled{cursor:default;opacity:1}' ) &&
-	false !== strpos( $css, '.bm-mc__series-button:disabled:not(.is-btc) small{color:#8997a8}' ) &&
+	false !== strpos( $css, '.bm-mc__series-button:disabled:not(.is-btc) small{color:#91a3ba}' ) &&
 	false === strpos( $css, '.bm-mc__series-button:disabled{cursor:default;opacity:.54}' )
 );
 market_context_check(
