@@ -76,6 +76,21 @@ function bitmomo_pro_init() {
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 
+/**
+ * Whitelist conversion surfaces embed a WordPress nonce. They must never be
+ * served from a full-page cache with an expired nonce during a launch spike.
+ */
+function bitmomo_pro_prevent_whitelist_page_cache() {
+	global $post;
+	if ( ! is_a( $post, 'WP_Post' ) ) return;
+	$content = (string) $post->post_content;
+	if ( ! has_shortcode( $content, 'bitmomo_pro_sales' ) && ! has_shortcode( $content, 'bitmomo_pro_whitelist' ) ) return;
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) define( 'DONOTCACHEPAGE', true );
+	nocache_headers();
+	do_action( 'litespeed_control_set_nocache', 'Bitmomo whitelist nonce safety' );
+}
+add_action( 'template_redirect', 'bitmomo_pro_prevent_whitelist_page_cache', 1 );
+
 function bitmomo_pro_activate() {
 	Bitmomo_Pro_Briefs::instance()->register_post_type();
 	flush_rewrite_rules();
