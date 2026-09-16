@@ -12,7 +12,6 @@ on:
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-session-intelligence.php"
-      - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-public-intelligence-adapter.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php"
@@ -23,10 +22,12 @@ on:
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-founding149-acquisition.php"
       - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-sales.css"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
       - "website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-sales.php"
       - "website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-proof-first-contract.php"
+      - "website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-founding149-acquisition-contract.php"
       - "scripts/check-authority-source-contract.sh"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
@@ -34,10 +35,12 @@ on:
       - "scripts/check-terminal-grade-contract.mjs"
       - "scripts/check-institutional-copy.mjs"
       - "scripts/check-public-design-consistency.mjs"
+      - "scripts/check-telegram-acquisition-contract.mjs"
       - "docs/content/tentang-kami.md"
       - "docs/RESEARCH_HUB_CONTRACT.md"
       - "docs/ARTICLE_READING_CONTRACT.md"
       - "docs/editorial/**"
+      - "docs/acquisition/**"
       - "config/production-runtime.json"
       - ".github/workflows/authority-surface-safety.yml"
       - ".github/workflows/ui-browser-safety.yml"
@@ -89,15 +92,24 @@ jobs:
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-telegram-brief.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-telegram-transport.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-telegram-publisher.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-market-context-contract.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-brief.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-transport-contract.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-staging-canary.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-publisher-contract.php \
             website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php \
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-founding149-acquisition.php \
             website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-sales.php \
-            website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-proof-first-contract.php; do
+            website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-proof-first-contract.php \
+            website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-founding149-acquisition-contract.php; do
             php -l "$file"
           done
           bash -n scripts/check-authority-source-contract.sh
@@ -107,6 +119,7 @@ jobs:
           node --check scripts/check-terminal-grade-contract.mjs
           node --check scripts/check-institutional-copy.mjs
           node --check scripts/check-public-design-consistency.mjs
+          node --check scripts/check-telegram-acquisition-contract.mjs
           node --check website/wp-content/plugins/bitmomo-btc-intelligence/assets/js/market-context-explorer.js
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
@@ -123,6 +136,10 @@ jobs:
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-market-context-contract.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-brief.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-transport-contract.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-staging-canary.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-publisher-contract.php
 
       - name: Run public Pro sales contracts
         shell: bash
@@ -130,6 +147,7 @@ jobs:
           set -euo pipefail
           php website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-sales.php
           php website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-proof-first-contract.php
+          php website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-founding149-acquisition-contract.php
 
       - name: Enforce canonical authority source contract
         run: bash scripts/check-authority-source-contract.sh
@@ -137,6 +155,9 @@ jobs:
       - name: Verify BTC public provenance contract
         working-directory: website/wp-content/plugins/bitmomo-btc-intelligence
         run: php tests/test-bitmomo-btc-intelligence-provenance.php
+
+      - name: Enforce Telegram acquisition boundary
+        run: node scripts/check-telegram-acquisition-contract.mjs
 
       - name: Enforce terminal-grade public invariants
         run: node scripts/check-terminal-grade-contract.mjs

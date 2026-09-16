@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.12.8
+ * Version: 0.12.9
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.12.8' );
+define( 'BITMOMO_PRO_VERSION', '0.12.9' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -39,6 +39,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-daily.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-launch-readiness.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-performance.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-whitelist.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-founding149-acquisition.php';
 
 /** Bootstrap the paid-product/access responsibilities. */
 function bitmomo_pro_init() {
@@ -71,6 +72,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Launch_Readiness::instance();
 	Bitmomo_Pro_Performance::instance();
 	Bitmomo_Pro_Whitelist::instance();
+	Bitmomo_Pro_Founding149_Acquisition::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 

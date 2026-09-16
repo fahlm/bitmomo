@@ -94,6 +94,7 @@ jobs:
             scripts/check-institutional-copy.mjs \
             scripts/check-home-research-boundary.mjs \
             scripts/check-public-design-consistency.mjs \
+            scripts/check-telegram-acquisition-contract.mjs \
             scripts/check-social-preview.mjs \
             scripts/audit-css-debt.mjs; do
             node --check "$script"
@@ -149,6 +150,9 @@ jobs:
 
       - name: Check sitewide institutional design consistency
         run: node scripts/check-public-design-consistency.mjs
+
+      - name: Check Telegram acquisition contract
+        run: node scripts/check-telegram-acquisition-contract.mjs
 
       - name: Check CSS debt baseline
         run: node scripts/audit-css-debt.mjs
