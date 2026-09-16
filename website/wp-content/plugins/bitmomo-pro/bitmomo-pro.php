@@ -136,7 +136,8 @@ add_action( 'admin_init', 'bitmomo_pro_register_settings' );
 function bitmomo_pro_render_checkout_url_field() {
 	$value = get_option( 'bitmomo_pro_checkout_url', '' );
 	printf(
-		'<input type="url" class="regular-text" name="bitmomo_pro_checkout_url" value="%s" placeholder="https://..." />\n\t\t<p class="description">%s</p>',
+		'<input type="url" class="regular-text" name="bitmomo_pro_checkout_url" value="%s" placeholder="https://..." />
+		<p class="description">%s</p>',
 		esc_attr( $value ),
 		esc_html__( 'Where the Bitmomo Pro CTA points. Leave blank until a payment path is finalized — the whitelist remains the public conversion path.', 'bitmomo-pro' )
 	);
@@ -183,7 +184,8 @@ add_action( 'admin_init', 'bitmomo_pro_register_dashboard_url_setting' );
 function bitmomo_pro_render_dashboard_url_field() {
 	$value = get_option( 'bitmomo_pro_dashboard_url', '' );
 	printf(
-		'<input type="url" class="regular-text" name="bitmomo_pro_dashboard_url" value="%s" placeholder="https://.../pro-dashboard" />\n\t\t<p class="description">%s</p>',
+		'<input type="url" class="regular-text" name="bitmomo_pro_dashboard_url" value="%s" placeholder="https://.../pro-dashboard" />
+		<p class="description">%s</p>',
 		esc_attr( $value ),
 		esc_html__( 'Used in welcome/daily-brief emails. Leave blank to auto-detect a Page at the "pro-dashboard" slug.', 'bitmomo-pro' )
 	);
