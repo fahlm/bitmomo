@@ -15,41 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Research Desk is the institutional identity owner, while the historical
- * `Riset` category remains the route/container membership used by the public
- * Research surface and SEO boundary. Enforce that invariant at the taxonomy
- * write boundary so editor UI, WP-CLI migration, REST and future tooling all
- * converge on the same state.
- *
- * Removing a Research Desk deliberately does not remove `Riset`: the post then
- * becomes an unclassified legacy/archive item and fails closed until reviewed.
- */
-function bitmomo_enforce_research_desk_container( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-    unset( $terms, $append, $old_tt_ids );
-
-    if ( ! function_exists( 'bitmomo_research_desk_taxonomy' ) ) return;
-    if ( bitmomo_research_desk_taxonomy() !== (string) $taxonomy ) return;
-    if ( empty( $tt_ids ) ) return;
-
-    $post_id = (int) $object_id;
-    if ( ! $post_id || 'post' !== get_post_type( $post_id ) ) return;
-
-    $riset = get_category_by_slug( 'riset' );
-    if ( ! $riset || is_wp_error( $riset ) ) return;
-
-    $category_ids = wp_get_post_categories( $post_id );
-    if ( is_wp_error( $category_ids ) ) return;
-
-    $riset_id = (int) $riset->term_id;
-    $category_ids = array_map( 'intval', (array) $category_ids );
-    if ( in_array( $riset_id, $category_ids, true ) ) return;
-
-    $category_ids[] = $riset_id;
-    wp_set_post_categories( $post_id, array_values( array_unique( $category_ids ) ), false );
-}
-add_action( 'set_object_terms', 'bitmomo_enforce_research_desk_container', 10, 6 );
-
-/**
  * Returns whether a BTC Intelligence record is recent enough for public use.
  *
  * The manual MVP feed is expected to be refreshed daily. A small grace period
