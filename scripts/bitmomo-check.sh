@@ -36,7 +36,7 @@ lint_file() {
   case "$file" in
     *.php) "$PHP_BIN" -l "$file" >/dev/null && echo "PASS php $file" ;;
     *.js|*.mjs) "$NODE_BIN" --check "$file" >/dev/null && echo "PASS js $file" ;;
-    *.sh) bash -n "$file" && echo "PASS sh $file" ;;
+    *.sh|.githooks/*) bash -n "$file" && echo "PASS sh $file" ;;
     *.py) "$PYTHON_BIN" - "$file" <<'PY'
 import pathlib, sys
 path=sys.argv[1]; compile(pathlib.Path(path).read_text(encoding='utf-8'), path, 'exec'); print(f'PASS py {path}')
@@ -65,6 +65,8 @@ doctor() {
   "$NODE_BIN" scripts/check-engineering-policy.mjs
   "$NODE_BIN" scripts/check-release-state.mjs
   "$NODE_BIN" scripts/audit-frontend-debt.mjs
+  bash -n .githooks/pre-push
+  echo "PASS local pre-push hook syntax"
 
   local branch="$(git symbolic-ref --quiet --short HEAD || true)"
   case "$branch" in
@@ -94,7 +96,7 @@ quick() {
   local theme_changed=0 launch_changed=0 css_changed=0 release_state_changed=0 file
   while IFS= read -r file; do
     test -f "$file" || continue
-    case "$file" in website/wp-content/*|scripts/*) lint_file "$file" ;; esac
+    case "$file" in website/wp-content/*|scripts/*|.githooks/*) lint_file "$file" ;; esac
     case "$file" in website/wp-content/themes/bitmomo-child-v3/*|scripts/check-ui-architecture.mjs|scripts/audit-css-debt.mjs|scripts/audit-frontend-debt.mjs) theme_changed=1 ;; esac
     case "$file" in *.css) css_changed=1 ;; esac
     case "$file" in website/wp-content/*|config/production-runtime.json|scripts/build-production-artifact.py|scripts/check-m2-launch-surfaces.mjs) launch_changed=1 ;; esac
