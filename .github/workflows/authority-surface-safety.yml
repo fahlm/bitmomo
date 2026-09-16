@@ -12,7 +12,6 @@ on:
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-scheduler.php"
       - "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-session-intelligence.php"
-      - "website/wp-content/plugins/bitmomo-public-intelligence-adapter.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-institutional-fail-closed-contract.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-observability-health-matrix.php"
       - "website/wp-content/plugins/bitmomo-ai/tests/test-bitmomo-ai-opportunity-v1.php"
