@@ -29,6 +29,9 @@
   },
   "post_production": {
     "must_converge_to_main": true,
-    "retire_release_line": true
+    "main_converged_sha": null,
+    "runtime_equivalence_verified": false,
+    "retire_release_line": true,
+    "refs_retired": false
   }
 }
