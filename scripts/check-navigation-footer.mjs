@@ -94,6 +94,12 @@ check(
   !/\.bm-footer-newsletter[\s\S]{0,1800}background:\s*var\(--bm-action/.test(navCss)
 );
 check(
+  'Paused newsletter fallback stays compact instead of becoming a second hero card',
+  /\.bm-footer-newsletter\.is-paused\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\) auto/.test(navCss) &&
+  /\.bm-footer-newsletter\.is-paused\s*\{[\s\S]*?padding:\s*14px 16px/.test(navCss) &&
+  /\.bm-footer-newsletter\.is-paused\s*\{[\s\S]*?background:\s*transparent/.test(navCss)
+);
+check(
   'Legacy newsletter modal remains structurally disabled',
   /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontend) && !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontend + js)
 );
@@ -114,6 +120,12 @@ check(
   /bm-footer-principles/.test(footer + navCss) && /EVIDENCE FIRST/.test(footer) &&
   /TESTABLE RESEARCH/.test(footer) && /FAIL CLOSED/.test(footer) &&
   /grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/.test(navCss)
+);
+check(
+  'Canonical footer neutralizes retired legacy geometry and alignment',
+  /\.bm-footer\s*\{[\s\S]*?margin:\s*0;[\s\S]*?padding:\s*0;[\s\S]*?text-align:\s*left;/.test(navCss) &&
+  /\.bm-footer \.bm-container\s*\{[\s\S]*?text-align:\s*left;/.test(navCss) &&
+  /\.bm-footer-bottom p\s*\{[\s\S]*?font-size:\s*inherit;/.test(navCss)
 );
 check(
   'Terms link is fail-closed until a canonical published WordPress page exists',
