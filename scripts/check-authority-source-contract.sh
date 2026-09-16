@@ -14,7 +14,9 @@ header="${theme}/header.php"
 home="${theme}/home.php"
 assets="${theme}/inc/trait-bitmomo-assets.php"
 content="${theme}/inc/trait-bitmomo-content.php"
+content_assets="${theme}/inc/bitmomo-content-assets.php"
 research_migration="scripts/migrations/research-taxonomy-v3.php"
+research_guide="docs/editorial/BITMOMO_RESEARCH_AUTHORING_GUIDE_V1.md"
 
 # Institutional classification boundary.
 grep -q "template-parts/about" "${theme}/page.php"
@@ -49,6 +51,12 @@ grep -q "bitmomo-research-classification" "${helpers}"
 grep -q "Not institutional research" "${helpers}"
 grep -q "Ambiguous legacy classification fails closed" "${helpers}"
 
+# Desk identity and historical Research route membership must never drift.
+grep -q "bitmomo_enforce_research_desk_container" "${helpers}"
+grep -q "add_action('set_object_terms', 'bitmomo_enforce_research_desk_container', 10, 6)" "${helpers}"
+grep -q "if (!has_category('riset', \$post_id)) return 'unclassified';" "${helpers}"
+! grep -q "bitmomo_enforce_research_desk_container" "${content_assets}"
+
 test -f "${research_migration}"
 php -l "${research_migration}" >/dev/null
 grep -q "Default is DRY RUN" "${research_migration}"
@@ -56,6 +64,18 @@ grep -q "bitmomo research-taxonomy-v3 --apply" "${research_migration}"
 grep -q "validate_after_write" "${research_migration}"
 grep -q "bitmomo_research_taxonomy_version" "${research_migration}"
 grep -q "V3 remains inactive" "${research_migration}"
+
+# Analyst workflow is part of the Research operating contract, not tribal knowledge.
+test -f "${research_guide}"
+grep -q "Evidence before narrative" "${research_guide}"
+grep -q "exactly one Research Desk" "${research_guide}"
+grep -q "Manual excerpt / research deck" "${research_guide}"
+grep -q "Canonical research structure" "${research_guide}"
+grep -q "Market Research-specific rules" "${research_guide}"
+grep -q "Intelligence Systems Research-specific rules" "${research_guide}"
+grep -q "WordPress publishing workflow" "${research_guide}"
+grep -q "Reviewer acceptance checklist" "${research_guide}"
+grep -q "Escalation rules" "${research_guide}"
 
 grep -q "tag__not_in" "${hub}"
 grep -q "bitmomo_post_is_market_research" "${home_research}"
