@@ -27,6 +27,9 @@ $checks = array(
     "auto_publish" => defined("BITMOMO_AI_AUTO_PUBLISH") && ! BITMOMO_AI_AUTO_PUBLISH,
     "checkout" => function_exists("bitmomo_pro_get_checkout_url") && "" === bitmomo_pro_get_checkout_url(),
     "email" => false === wp_mail("blocked@example.invalid", "staging guard", "must not send"),
+    "telegram_delivery" => !defined("BITMOMO_TELEGRAM_DELIVERY_ENABLED") || !BITMOMO_TELEGRAM_DELIVERY_ENABLED,
+    "telegram_autopost" => !defined("BITMOMO_TELEGRAM_AUTOPOST_ENABLED") || !BITMOMO_TELEGRAM_AUTOPOST_ENABLED,
+    "telegram_canary" => !defined("BITMOMO_TELEGRAM_STAGING_CANARY_ENABLED") || !BITMOMO_TELEGRAM_STAGING_CANARY_ENABLED,
 );
 $http = wp_remote_post("https://example.com/", array("body" => array("probe" => "blocked")));
 $checks["outbound_http_write"] = is_wp_error($http) && "bitmomo_staging_outbound_write_disabled" === $http->get_error_code();
