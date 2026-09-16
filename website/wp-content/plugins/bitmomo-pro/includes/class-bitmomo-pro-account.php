@@ -66,11 +66,13 @@ class Bitmomo_Pro_Account {
 		return esc_url_raw( home_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
 	}
 
-	private function checkout_cta( $label ) {
+	private function checkout_cta( $label, $secondary = false ) {
 		$url = bitmomo_pro_get_checkout_url();
+		$class = 'bm-pro-account__cta' . ( $secondary ? ' bm-pro-account__cta--secondary' : '' );
 		if ( empty( $url ) ) {
 			printf(
-				'<a class="bm-pro-account__cta" href="%1$s">%2$s</a><p class="bm-pro-account__contact-note">%3$s</p>',
+				'<a class="%1$s" href="%2$s">%3$s</a><p class="bm-pro-account__contact-note">%4$s</p>',
+				esc_attr( $class ),
 				esc_url( home_url( '/pro/#bm-pro-whitelist' ) ),
 				esc_html__( 'Gabung Founding Whitelist', 'bitmomo-pro' ),
 				esc_html__( 'Checkout belum dibuka. Whitelist adalah jalur resmi untuk menerima pemberitahuan saat akses batch berikutnya tersedia.', 'bitmomo-pro' )
@@ -78,7 +80,8 @@ class Bitmomo_Pro_Account {
 			return;
 		}
 		printf(
-			'<a class="bm-pro-account__cta" href="%1$s">%2$s</a>',
+			'<a class="%1$s" href="%2$s">%3$s</a>',
+			esc_attr( $class ),
 			esc_url( $url ),
 			esc_html( $label )
 		);
@@ -100,14 +103,19 @@ class Bitmomo_Pro_Account {
 		echo '<div class="bm-pro-account__gate">';
 		echo '<h2 class="bm-pro-account__gate-title">' . esc_html__( 'Masuk untuk melihat status akses Bitmomo Pro', 'bitmomo-pro' ) . '</h2>';
 		echo '<div class="bm-pro-account__login-form">';
-		wp_login_form( array( 'redirect' => $this->current_url() ) );
+		wp_login_form(
+			array(
+				'redirect'     => $this->current_url(),
+				'label_log_in' => __( 'Masuk', 'bitmomo-pro' ),
+			)
+		);
 		echo '</div>';
 		printf(
 			'<p class="bm-pro-account__support"><a href="%1$s">%2$s</a></p>',
 			esc_url( wp_lostpassword_url( $this->current_url() ) ),
 			esc_html__( 'Lupa kata sandi?', 'bitmomo-pro' )
 		);
-		$this->checkout_cta( __( 'Lihat Bitmomo Pro', 'bitmomo-pro' ) );
+		$this->checkout_cta( __( 'Lihat Bitmomo Pro', 'bitmomo-pro' ), true );
 		echo '</div>';
 	}
 
