@@ -5,15 +5,8 @@
  * semantic brand colors, font stack, commercial actions, and minimum readable
  * text sizes resolve to the canonical theme foundation. Layout stays owned by
  * each surface stylesheet; this layer owns cross-product legibility invariants.
+ * Typography tokens themselves are owned only by design-system.css.
  */
-
-:root {
-  /* Public microcopy is intentionally no smaller than 11px. Dense chart/table
-     labels may use 10px, but only where compact data density is essential. */
-  --bm-type-micro: 11px;
-  --bm-type-dense: 10px;
-  --bm-type-support: 13px;
-}
 
 /* Older homepage/legacy data labels that can still appear off the canonical
    homepage inherit one readable micro-text color. */
