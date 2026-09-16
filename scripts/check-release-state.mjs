@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 
 const state = JSON.parse(fs.readFileSync('config/release-state.json', 'utf8'));
 const failures = [];
+const remote = process.env.BITMOMO_REMOTE || 'origin';
 const check = (label, ok) => {
   console.log(`[${ok ? 'PASS' : 'FAIL'}] ${label}`);
   if (!ok) failures.push(label);
@@ -56,20 +57,21 @@ if (sha40(state.candidate?.commit)) {
     const runtime = JSON.parse(runtimeRaw);
     check('recorded runtime file count matches candidate packaging contract', Number(runtime.expected_file_count) === Number(state.artifact.managed_runtime_files));
   } catch (error) {
-    check('candidate commit is available locally (git fetch origin if needed)', false);
+    check(`candidate commit is available locally (run git fetch --prune ${remote})`, false);
   }
 }
 
-// During an active release the named immutable RC ref must still resolve to the
-// recorded candidate. After a verified release has been converged to main and
-// refs_retired=true, the temporary RC ref may be removed only because the exact
-// accepted commit is then retained by canonical trunk ancestry.
+// During an active release verify the fetched remote-tracking RC identity rather
+// than a possibly missing/stale local branch. setup-engineer.sh refreshes this
+// ref first. After a verified release is converged and refs_retired=true, the
+// temporary RC ref may disappear only because canonical main retains ancestry.
 if (post.refs_retired !== true && state.candidate?.ref && sha40(state.candidate?.commit)) {
+  const remoteRef = `refs/remotes/${remote}/${state.candidate.ref}`;
   try {
-    const refCommit = execFileSync('git', ['rev-parse', `${state.candidate.ref}^{commit}`], { encoding: 'utf8' }).trim();
-    check('immutable RC ref still points to recorded candidate commit', refCommit === state.candidate.commit);
+    const refCommit = execFileSync('git', ['rev-parse', `${remoteRef}^{commit}`], { encoding: 'utf8' }).trim();
+    check(`fetched ${remote}/${state.candidate.ref} points to recorded candidate commit`, refCommit === state.candidate.commit);
   } catch (error) {
-    check('immutable RC ref is available locally (git fetch origin if needed)', false);
+    check(`fetched ${remote}/${state.candidate.ref} exists (run git fetch --prune ${remote})`, false);
   }
 }
 
