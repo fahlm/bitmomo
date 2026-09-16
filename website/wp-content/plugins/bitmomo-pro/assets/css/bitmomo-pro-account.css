@@ -144,6 +144,19 @@
 	color: #0b1620;
 }
 
+.bm-pro-account__cta--secondary {
+	border: 1px solid var(--bm-border-strong);
+	background: transparent;
+	color: var(--bm-text);
+}
+
+.bm-pro-account__cta--secondary:hover,
+.bm-pro-account__cta--secondary:focus-visible {
+	border-color: var(--bm-action);
+	background: rgba(231,190,114,.08);
+	color: var(--bm-text);
+}
+
 .bm-pro-account__contact-note {
 	color: var(--bm-text-muted);
 	font-size: .9rem;
