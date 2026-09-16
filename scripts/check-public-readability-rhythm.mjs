@@ -26,17 +26,25 @@ function pxValues(text) {
   return values;
 }
 
+const design = read(path.join(theme, 'assets/css/design-system.css'));
 const readability = read(path.join(theme, 'assets/css/public-readability.css'));
 const about = read(path.join(theme, 'assets/css/about.css'));
+const home = read(path.join(theme, 'assets/css/home.css'));
+const homeConversion = read(path.join(theme, 'assets/css/home-conversion.css'));
+const research = read(path.join(theme, 'assets/css/research.css'));
 const assets = read(path.join(theme, 'inc/trait-bitmomo-assets.php'));
 
 check(
-  'Canonical public micro/dense/support scales are explicit',
-  containsAll(readability, [
+  'Canonical design foundation exclusively owns public support/meta/micro/dense scales',
+  containsAll(design, [
+    '--bm-type-support: 13px;',
+    '--bm-type-meta: 12px;',
     '--bm-type-micro: 11px;',
     '--bm-type-dense: 10px;',
-    '--bm-type-support: 13px;',
-  ])
+  ]) &&
+  !readability.includes('--bm-type-micro:') &&
+  !readability.includes('--bm-type-dense:') &&
+  !readability.includes('--bm-type-support:')
 );
 
 check(
@@ -49,25 +57,36 @@ check(
 );
 
 check(
-  'Homepage micro labels and support copy are governed by the public readability contract',
-  containsAll(readability, [
-    '.home .bm-home-reading__metric-label',
-    '.home .bm-home-reading__driver > span',
-    '.home .bm-home-proof__kicker',
-    '.home .bm-home-research__meta',
-    '.home .bm-home-proof__item p',
-    '.home .bm-wl-home .bm-wl-unified__fact dt',
-  ])
+  'Homepage owner directly consumes semantic micro type instead of hard-coded 9px labels',
+  containsAll(home, [
+    '.bm-home-reading__metric-label',
+    'font-size: var(--bm-type-micro, 11px);',
+    '.bm-home-reading__driver > span',
+    '.bm-home-proof__kicker',
+    '.bm-home-research__meta',
+  ]) && pxValues(home).every((value) => value >= 10)
 );
 
 check(
-  'Research Hub metadata and library copy are governed by the public readability contract',
-  containsAll(readability, [
-    '.bm-research-hub .bm-research-standard-line span',
-    '.bm-research-hub .bm-research-meta',
-    '.bm-research-hub .bm-research-library__meta span',
-    '.bm-research-hub .bm-research-library__copy p',
-  ])
+  'Homepage conversion owner directly consumes readable labels and support copy',
+  containsAll(homeConversion, [
+    '.bm-wl-home .bm-wl-unified__fact dt',
+    'font: 800 var(--bm-type-micro, 11px)/1.3',
+    '.bm-wl-home .bm-wl__note',
+    'font-size: var(--bm-type-micro, 11px);',
+    '.bm-wl-home .bm-wl-unified__form-copy',
+    'font-size: 14px;',
+  ]) && pxValues(homeConversion).every((value) => value >= 10)
+);
+
+check(
+  'Research owner directly consumes semantic micro type with no sub-10px font declarations',
+  containsAll(research, [
+    '.bm-research-standard-line span',
+    'var(--bm-type-micro, 11px)',
+    '.bm-research-library__meta span',
+    '.bm-research-methodology__rules span',
+  ]) && pxValues(research).every((value) => value >= 10)
 );
 
 check(
@@ -114,7 +133,7 @@ check(
 
 const tooSmallContractValues = pxValues(readability).filter((value) => value < 10);
 check(
-  'Canonical readability contract contains no font declaration below 10px',
+  'Cross-product readability contract contains no font declaration below 10px',
   tooSmallContractValues.length === 0
 );
 
