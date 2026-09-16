@@ -31,17 +31,6 @@ get_header();
   $bm_about_url = home_url( '/tentang-kami/' );
   $bm_figure_caption = has_post_thumbnail() ? trim( (string) get_the_post_thumbnail_caption( $bm_post_id ) ) : '';
 
-  $bm_topic_slugs = array();
-  $bm_topic_labels = array();
-  if ( $bm_is_research && function_exists( 'bitmomo_research_taxonomy_is_active' ) && bitmomo_research_taxonomy_is_active() ) {
-    $bm_topic_slugs = bitmomo_post_research_topic_slugs( $bm_post_id );
-    $bm_topic_definitions = bitmomo_research_topic_definitions();
-    foreach ( $bm_topic_slugs as $bm_topic_slug ) {
-      if ( isset( $bm_topic_definitions[ $bm_topic_slug ] ) ) {
-        $bm_topic_labels[] = $bm_topic_definitions[ $bm_topic_slug ];
-      }
-    }
-  }
   ?>
   <article <?php post_class( 'bm-article' ); ?>>
     <div class="bm-container">
@@ -71,14 +60,6 @@ get_header();
           <span class="bm-article-meta__separator" aria-hidden="true">·</span>
           <span><?php echo esc_html( $bm_read_minutes . ' menit baca' ); ?></span>
         </div>
-
-        <?php if ( $bm_topic_labels ) : ?>
-          <ul class="bm-article-topics" aria-label="<?php esc_attr_e( 'Topik riset', 'bitmomo' ); ?>">
-            <?php foreach ( $bm_topic_labels as $bm_topic_name ) : ?>
-              <li><?php echo esc_html( $bm_topic_name ); ?></li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
       </header>
 
       <?php if ( has_post_thumbnail() ) : ?>
@@ -218,8 +199,7 @@ get_header();
   unset(
     $bm_post_id, $bm_cats, $bm_cat, $bm_classification, $bm_is_research, $bm_article_label,
     $bm_topic_label, $bm_read_minutes, $bm_deck, $bm_has_meaningful_update, $bm_research_url,
-    $bm_about_url, $bm_figure_caption, $bm_topic_slugs, $bm_topic_labels, $bm_topic_definitions,
-    $bm_topic_slug, $bm_topic_name, $bm_related_args, $bm_related_title, $bm_related_eyebrow,
+    $bm_about_url, $bm_figure_caption, $bm_related_args, $bm_related_title, $bm_related_eyebrow,
     $bm_taxonomy_v3, $bm_desk_slug, $bm_related, $bm_related_posts, $bm_related_candidate,
     $bm_candidate_id, $bm_related_post, $bm_riset, $bm_market_slugs, $bm_ai_tag, $bm_primary_cat_id,
     $bm_related_post_id, $bm_related_label, $bm_related_minutes
