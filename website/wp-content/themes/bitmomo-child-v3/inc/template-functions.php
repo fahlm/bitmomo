@@ -116,7 +116,7 @@ if (!function_exists('bitmomo_research_desk_definitions')) {
                 'classification' => 'market',
             ),
             'intelligence-systems' => array(
-                'label'          => 'Intelligence Systems Research',
+                'label'          => 'AI & Intelligence Systems',
                 'classification' => 'ai-systems',
             ),
         );
@@ -133,6 +133,8 @@ if (!function_exists('bitmomo_research_topic_definitions')) {
             'etf-flows'           => 'ETF & Flows',
             'liquidity'           => 'Liquidity',
             'fundamentals'        => 'Fundamentals',
+            'inference'           => 'Inference',
+            'compute'             => 'Compute',
             'agents'              => 'AI Agents',
             'evaluation'          => 'Evaluation',
             'provenance'          => 'Data Provenance',
@@ -299,7 +301,7 @@ if (!function_exists('bitmomo_post_publication_label')) {
         $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
         $classification = bitmomo_post_research_classification($post_id);
         if ('market' === $classification) return 'MARKET RESEARCH';
-        if ('ai-systems' === $classification) return 'INTELLIGENCE SYSTEMS RESEARCH';
+        if ('ai-systems' === $classification) return 'AI & INTELLIGENCE SYSTEMS';
         $categories = get_the_category($post_id);
         foreach ($categories as $category) {
             if ('riset' === $category->slug) continue;
@@ -313,8 +315,14 @@ if (!function_exists('bitmomo_research_focus_filters')) {
     function bitmomo_research_focus_filters() {
         return array(
             'all' => array(
-                'label' => 'All Research',
+                'label' => 'Semua Riset',
                 'discipline' => 'all',
+                'terms' => array(),
+                'legacy_terms' => array(),
+            ),
+            'market' => array(
+                'label' => 'Market Research',
+                'discipline' => 'market',
                 'terms' => array(),
                 'legacy_terms' => array(),
             ),
@@ -355,10 +363,52 @@ if (!function_exists('bitmomo_research_focus_filters')) {
                 'legacy_terms' => array('liquidity', 'likuiditas'),
             ),
             'systems' => array(
-                'label' => 'Intelligence Systems',
+                'label' => 'AI & Intelligence Systems',
                 'discipline' => 'ai-systems',
                 'terms' => array(),
                 'legacy_terms' => array('ai-lab'),
+            ),
+            'inference' => array(
+                'label' => 'Inference',
+                'discipline' => 'ai-systems',
+                'terms' => array('inference'),
+                'legacy_terms' => array('inference'),
+            ),
+            'compute' => array(
+                'label' => 'Compute',
+                'discipline' => 'ai-systems',
+                'terms' => array('compute'),
+                'legacy_terms' => array('compute'),
+            ),
+            'models' => array(
+                'label' => 'Models',
+                'discipline' => 'ai-systems',
+                'terms' => array('models'),
+                'legacy_terms' => array('models', 'ai-models'),
+            ),
+            'agents' => array(
+                'label' => 'AI Agents',
+                'discipline' => 'ai-systems',
+                'terms' => array('agents'),
+                'legacy_terms' => array('agents', 'ai-agents'),
+            ),
+            'evaluation' => array(
+                'label' => 'Evaluation',
+                'discipline' => 'ai-systems',
+                'terms' => array('evaluation'),
+                'legacy_terms' => array('evaluation'),
+            ),
+            'provenance' => array(
+                'label' => 'Data Provenance',
+                'discipline' => 'ai-systems',
+                'terms' => array('provenance'),
+                'legacy_terms' => array('provenance', 'data-provenance'),
+            ),
+            'ai-infrastructure' => array(
+                'label' => 'AI Infrastructure',
+                'discipline' => 'ai-systems',
+                'terms' => array('ai-infrastructure'),
+                'legacy_terms' => array('ai-infrastructure'),
             ),
         );
     }
@@ -374,8 +424,8 @@ if (!function_exists('bitmomo_post_matches_research_focus')) {
         if ('all' === $focus) return true;
 
         $filter = $filters[$focus];
-        if ('ai-systems' === $filter['discipline']) return 'ai-systems' === $classification;
-        if ('market' !== $classification) return false;
+        if ((string) $filter['discipline'] !== $classification) return false;
+        if (empty($filter['terms'])) return true;
 
         if (bitmomo_research_taxonomy_is_active()) {
             $topics = bitmomo_post_research_topic_slugs($post_id);
@@ -400,16 +450,29 @@ if (!function_exists('bitmomo_post_research_topic_label')) {
             $labels = bitmomo_research_topic_definitions();
             $priority = array(
                 'etf-flows', 'derivatives', 'market-structure', 'macro', 'liquidity',
-                'fundamentals', 'bitcoin', 'evaluation', 'provenance', 'agents',
-                'decentralized-ai', 'ai-infrastructure', 'models', 'industry-society',
+                'fundamentals', 'bitcoin', 'inference', 'compute', 'evaluation',
+                'provenance', 'agents', 'ai-infrastructure', 'models',
+                'decentralized-ai', 'industry-society',
             );
             foreach ($priority as $slug) {
                 if (in_array($slug, $topics, true) && isset($labels[$slug])) return $labels[$slug];
             }
-            return 'ai-systems' === $classification ? 'Intelligence Systems' : 'Market Research';
+            return 'ai-systems' === $classification ? 'AI & Intelligence Systems' : 'Market Research';
         }
 
-        if ('ai-systems' === $classification) return 'Intelligence Systems';
+        if ('ai-systems' === $classification) {
+            $ai_priority = array(
+                'inference' => 'Inference', 'compute' => 'Compute', 'models' => 'Models',
+                'ai-models' => 'Models', 'agents' => 'AI Agents', 'ai-agents' => 'AI Agents',
+                'evaluation' => 'Evaluation', 'provenance' => 'Data Provenance',
+                'data-provenance' => 'Data Provenance', 'ai-infrastructure' => 'AI Infrastructure',
+            );
+            foreach ($ai_priority as $slug => $label) {
+                if (has_category($slug, $post_id) || has_tag($slug, $post_id)) return $label;
+            }
+            return 'AI & Intelligence Systems';
+        }
+
         $priority = array(
             'etf' => 'ETF & Flows', 'funding-rate' => 'Derivatives', 'derivatives' => 'Derivatives',
             'market-structure' => 'Market Structure', 'macro' => 'Macro', 'makro' => 'Macro',
@@ -448,7 +511,7 @@ if (!function_exists('bitmomo_research_query_tax_query')) {
             ),
         );
 
-        if ('market' === $filter['discipline'] && !empty($filter['terms'])) {
+        if (in_array($filter['discipline'], array('market', 'ai-systems'), true) && !empty($filter['terms'])) {
             $clauses[] = array(
                 'taxonomy' => bitmomo_research_topic_taxonomy(),
                 'field'    => 'slug',
