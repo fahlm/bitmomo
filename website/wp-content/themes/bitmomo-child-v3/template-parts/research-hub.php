@@ -2,8 +2,8 @@
 /**
  * Canonical Bitmomo Research Hub.
  *
- * Publication-first: qualified research is the primary proof. Taxonomy and
- * methodology support discovery and trust, but do not outrank the corpus.
+ * Publication-first: qualified research is the primary proof. Desk and topic
+ * navigation support discovery without advertising an empty research surface.
  *
  * Research Taxonomy V3 has a migration-safe compatibility bridge:
  * - before activation, the audited legacy Riset boundary remains authoritative;
@@ -81,11 +81,7 @@ if ( $bm_taxonomy_v3 ) {
     );
     $bm_total_pages = max( 1, (int) $bm_library_query->max_num_pages );
 } else {
-    /*
-     * Migration-safe legacy path. This intentionally preserves the existing
-     * public boundary until the V3 database migration has passed. It is capped
-     * because it is a temporary bridge, not the long-term query architecture.
-     */
+    /* Migration-safe legacy path. V3 activation remains a separate DB decision. */
     $bm_ai_tag     = get_term_by( 'slug', 'ai-lab', 'post_tag' );
     $bm_ai_tag_id  = ( $bm_ai_tag && ! is_wp_error( $bm_ai_tag ) ) ? (int) $bm_ai_tag->term_id : 0;
     $bm_market_slugs = bitmomo_market_research_taxonomy_slugs();
@@ -177,6 +173,23 @@ if ( empty( $bm_visible_filters ) ) {
     $bm_visible_filters['all'] = $bm_focus_filters['all'];
 }
 $bm_focus = isset( $bm_visible_filters[ $bm_requested_focus ] ) ? $bm_requested_focus : 'all';
+$bm_active_filter = $bm_visible_filters[ $bm_focus ];
+$bm_active_discipline = (string) ( $bm_active_filter['discipline'] ?? 'all' );
+$bm_active_desk = 'market' === $bm_active_discipline ? 'market' : ( 'ai-systems' === $bm_active_discipline ? 'systems' : 'all' );
+
+$bm_visible_desks = array();
+foreach ( array( 'all', 'market', 'systems' ) as $bm_desk_key ) {
+    if ( isset( $bm_visible_filters[ $bm_desk_key ] ) ) $bm_visible_desks[ $bm_desk_key ] = $bm_visible_filters[ $bm_desk_key ];
+}
+$bm_visible_topics = array();
+if ( in_array( $bm_active_discipline, array( 'market', 'ai-systems' ), true ) ) {
+    foreach ( $bm_visible_filters as $bm_filter_key => $bm_filter ) {
+        if ( in_array( $bm_filter_key, array( 'all', 'market', 'systems' ), true ) ) continue;
+        if ( (string) ( $bm_filter['discipline'] ?? '' ) !== $bm_active_discipline ) continue;
+        if ( empty( $bm_filter['terms'] ) ) continue;
+        $bm_visible_topics[ $bm_filter_key ] = $bm_filter;
+    }
+}
 
 $bm_filter_url = static function ( $focus ) use ( $bm_research_url, $bm_research_q ) {
     $args = array();
@@ -199,7 +212,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
           <p class="bm-research-head__lead">Bitmomo Research menguji bagaimana pasar bergerak dan bagaimana sistem intelligence dibangun—dengan bukti, konteks, batas tesis, dan evaluasi hasil yang dapat ditelusuri.</p>
         </div>
         <div class="bm-research-head__utility">
-          <p><strong>Fokus</strong><span>Crypto Markets · AI &amp; Intelligence Systems</span></p>
+          <p><strong>Desk</strong><span>Market Research · AI &amp; Intelligence Systems</span></p>
           <p><strong>Proses</strong><span>Bukti → tesis → invalidasi → evaluasi</span></p>
           <a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Buka BTC Intelligence →</a>
         </div>
@@ -209,15 +222,24 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
       </div>
     </header>
 
-    <?php if ( count( $bm_visible_filters ) > 1 || $bm_research_q ) : ?>
+    <?php if ( count( $bm_visible_desks ) > 1 || $bm_visible_topics || $bm_research_q ) : ?>
       <section class="bm-research-discovery" aria-label="Navigasi dan pencarian riset">
-        <?php if ( count( $bm_visible_filters ) > 1 ) : ?>
-          <nav class="bm-research-filter" aria-label="Filter riset">
-            <?php foreach ( $bm_visible_filters as $bm_filter_key => $bm_filter ) : ?>
+        <?php if ( count( $bm_visible_desks ) > 1 ) : ?>
+          <nav class="bm-research-filter" aria-label="Desk riset">
+            <?php foreach ( $bm_visible_desks as $bm_filter_key => $bm_filter ) : ?>
+              <a href="<?php echo esc_url( $bm_filter_url( $bm_filter_key ) ); ?>"<?php echo $bm_filter_key === $bm_active_desk ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $bm_filter['label'] ); ?></a>
+            <?php endforeach; ?>
+          </nav>
+        <?php endif; ?>
+
+        <?php if ( $bm_visible_topics ) : ?>
+          <nav class="bm-research-filter bm-research-filter--topics" aria-label="Topik <?php echo esc_attr( $bm_visible_desks[ $bm_active_desk ]['label'] ?? 'riset' ); ?>">
+            <?php foreach ( $bm_visible_topics as $bm_filter_key => $bm_filter ) : ?>
               <a href="<?php echo esc_url( $bm_filter_url( $bm_filter_key ) ); ?>"<?php echo $bm_filter_key === $bm_focus ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $bm_filter['label'] ); ?></a>
             <?php endforeach; ?>
           </nav>
         <?php endif; ?>
+
         <form class="bm-research-search" method="get" action="<?php echo esc_url( $bm_research_url ); ?>" role="search">
           <?php if ( 'all' !== $bm_focus ) : ?><input type="hidden" name="focus" value="<?php echo esc_attr( $bm_focus ); ?>"><?php endif; ?>
           <label for="bm-research-search-input">Cari riset</label>
@@ -275,7 +297,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
           } elseif ( $bm_page > 1 ) {
               echo esc_html( sprintf( 'Halaman %d dari %d.', $bm_page, $bm_total_pages ) );
           } else {
-              echo 'Publikasi terbaru yang memenuhi klasifikasi riset Bitmomo.';
+              echo 'Publikasi terbaru yang memenuhi standar riset Bitmomo.';
           }
           ?>
         </p>
@@ -331,7 +353,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
       <?php elseif ( ! $bm_lead || $bm_page > 1 ) : ?>
         <div class="bm-research-empty">
           <strong>Belum ada publikasi yang cocok dengan tampilan ini.</strong>
-          <p>Ubah filter, kata pencarian, atau kembali ke halaman awal Research. Research Hub hanya menampilkan publikasi yang memenuhi klasifikasi riset Bitmomo.</p>
+          <p>Ubah desk, topik, atau kata pencarian. Research Hub hanya menampilkan publikasi yang sudah diklasifikasikan sebagai riset Bitmomo.</p>
           <a href="<?php echo esc_url( $bm_research_url ); ?>">Reset tampilan riset →</a>
         </div>
       <?php else : ?>
@@ -349,14 +371,9 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
         <div><span>01</span><strong>Bukti dapat ditelusuri</strong><p>Sumber dan waktu observasi harus jelas sejauh data memungkinkan.</p></div>
         <div><span>02</span><strong>Konteks sebelum kesimpulan</strong><p>Data dibaca dalam konteks sistem atau struktur pasar, bukan sebagai sinyal yang berdiri sendiri.</p></div>
         <div><span>03</span><strong>Batas tesis eksplisit</strong><p>Analisis menjelaskan kondisi yang membuat tesis perlu dievaluasi ulang.</p></div>
-        <div><span>04</span><strong>Evaluasi hasil</strong><p>Analisis yang dapat diuji dibandingkan dengan outcome aktual tanpa menghapus hasil yang tidak sesuai.</p></div>
+        <div><span>04</span><strong>Evaluasi hasil</strong><p>Analisis yang dapat diuji dibandingkan dengan hasil aktual tanpa memilih hanya hasil yang sesuai dengan tesis.</p></div>
       </div>
     </section>
-
-    <footer class="bm-research-boundary">
-      <strong>Batas klasifikasi</strong>
-      <p>Research Hub hanya mempromosikan publikasi dengan klasifikasi riset eksplisit. Publikasi umum tetap tersedia di URL aslinya tanpa otomatis dianggap sebagai riset Bitmomo.</p>
-    </footer>
   </div>
 </section>
 <?php
@@ -364,11 +381,13 @@ if ( $bm_library_query instanceof WP_Query ) wp_reset_postdata();
 unset(
     $bm_riset_term, $bm_riset_id, $bm_research_url, $bm_focus_filters, $bm_taxonomy_v3,
     $bm_requested_focus, $bm_research_q, $bm_page, $bm_per_page, $bm_visible_filters,
-    $bm_focus, $bm_lead, $bm_lead_id, $bm_library_posts, $bm_total_pages, $bm_library_query,
-    $bm_lead_query, $bm_candidate, $bm_filter_url, $bm_pagination_args, $bm_filter_key,
-    $bm_filter, $bm_ai_tag, $bm_ai_tag_id, $bm_market_slugs, $bm_market_args, $bm_ai_args,
-    $bm_market_posts, $bm_ai_posts, $bm_qualified_map, $bm_qualified_posts, $bm_filtered_posts,
-    $bm_library_all, $bm_post, $bm_post_id, $bm_classification, $bm_domain_label, $bm_topic_label,
+    $bm_focus, $bm_active_filter, $bm_active_discipline, $bm_active_desk, $bm_visible_desks,
+    $bm_visible_topics, $bm_desk_key, $bm_lead, $bm_lead_id, $bm_library_posts,
+    $bm_total_pages, $bm_library_query, $bm_lead_query, $bm_candidate, $bm_filter_url,
+    $bm_pagination_args, $bm_filter_key, $bm_filter, $bm_ai_tag, $bm_ai_tag_id,
+    $bm_market_slugs, $bm_market_args, $bm_ai_args, $bm_market_posts, $bm_ai_posts,
+    $bm_qualified_map, $bm_qualified_posts, $bm_filtered_posts, $bm_library_all,
+    $bm_post, $bm_post_id, $bm_classification, $bm_domain_label, $bm_topic_label,
     $bm_minutes, $bm_lead_class, $bm_lead_domain, $bm_lead_topic, $bm_lead_minutes,
     $bm_lead_excerpt, $bm_lead_summary_label, $bm_has_figure
 );
