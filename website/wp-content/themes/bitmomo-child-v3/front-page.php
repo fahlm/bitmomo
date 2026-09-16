@@ -16,6 +16,14 @@
  * @package Bitmomo
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
+
+// The homepage now renders the canonical public intelligence snapshot directly.
+// Do not let full-page/CDN cache make a valid old brief look current after the
+// adapter has already moved to delayed/unavailable state.
+if ( ! defined( 'DONOTCACHEPAGE' ) ) define( 'DONOTCACHEPAGE', true );
+nocache_headers();
+do_action( 'litespeed_control_set_nocache', 'Homepage intelligence freshness' );
+
 get_header();
 ?>
 <main id="primary">
