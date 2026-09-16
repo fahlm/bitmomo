@@ -30,6 +30,22 @@ check('launch checkout state is explicit', typeof state.launch_profile?.checkout
 check('launch WhatsApp state is explicit', typeof state.launch_profile?.whatsapp_enabled === 'boolean');
 check('launch mail transport is explicit', typeof state.launch_profile?.mail_transport === 'string' && state.launch_profile.mail_transport.length > 0);
 
+const post = state.post_production || {};
+check('post-production convergence flag is explicit', typeof post.must_converge_to_main === 'boolean');
+check('post-production release retirement flag is explicit', typeof post.retire_release_line === 'boolean');
+check('post-production ref retirement state is explicit', typeof post.refs_retired === 'boolean');
+check('runtime equivalence state is explicit', typeof post.runtime_equivalence_verified === 'boolean');
+check('main convergence SHA is null or exact SHA', post.main_converged_sha === null || sha40(post.main_converged_sha));
+
+if (post.refs_retired === true) {
+  check('RC/release refs retire only after production verification', state.production?.status === 'verified');
+  check('retired release has converged main SHA', sha40(post.main_converged_sha));
+  check('retired release has runtime equivalence proof', post.runtime_equivalence_verified === true);
+}
+if (post.runtime_equivalence_verified === true) {
+  check('runtime equivalence proof identifies converged main SHA', sha40(post.main_converged_sha));
+}
+
 if (sha40(state.candidate?.commit)) {
   try {
     execFileSync('git', ['cat-file', '-e', `${state.candidate.commit}^{commit}`], { stdio: 'ignore' });
@@ -44,12 +60,25 @@ if (sha40(state.candidate?.commit)) {
   }
 }
 
-if (state.candidate?.ref && sha40(state.candidate?.commit)) {
+// During an active release the named immutable RC ref must still resolve to the
+// recorded candidate. After a verified release has been converged to main and
+// refs_retired=true, commit/tree/artifact records remain authoritative history
+// and the temporary RC branch may be deleted without making doctor fail forever.
+if (post.refs_retired !== true && state.candidate?.ref && sha40(state.candidate?.commit)) {
   try {
     const refCommit = execFileSync('git', ['rev-parse', `${state.candidate.ref}^{commit}`], { encoding: 'utf8' }).trim();
     check('immutable RC ref still points to recorded candidate commit', refCommit === state.candidate.commit);
   } catch (error) {
     check('immutable RC ref is available locally (git fetch origin if needed)', false);
+  }
+}
+
+if (sha40(post.main_converged_sha)) {
+  try {
+    execFileSync('git', ['cat-file', '-e', `${post.main_converged_sha}^{commit}`], { stdio: 'ignore' });
+    check('recorded converged main commit is available locally', true);
+  } catch (error) {
+    check('recorded converged main commit is available locally', false);
   }
 }
 
@@ -71,4 +100,5 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`\nPASS release identity ${state.release_id}: ${state.candidate.ref} -> ${state.candidate.commit} / artifact ${state.artifact.id}`);
+const refState = post.refs_retired === true ? 'retired' : 'active';
+console.log(`\nPASS release identity ${state.release_id}: ${state.candidate.ref} (${refState}) -> ${state.candidate.commit} / artifact ${state.artifact.id}`);
