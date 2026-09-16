@@ -376,11 +376,13 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  counter-reset: none;
 }
 
 .bm-howworks-steps li {
   min-width: 0;
   padding: 22px 26px 4px 0;
+  border: 0;
   border-top: 1px solid rgba(255,255,255,.10);
   background: transparent;
   border-radius: 0;
@@ -393,10 +395,16 @@
 
 .bm-howworks-step-label {
   display: block;
+  align-items: initial;
+  gap: 0;
   color: var(--bm-text-muted, #98a4b1);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: .08em;
+}
+
+.bm-howworks-step-label::before {
+  content: none !important;
 }
 
 .bm-howworks-steps p {
