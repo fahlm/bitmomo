@@ -1,10 +1,11 @@
 /*
- * Bitmomo public product-token bridge.
+ * Bitmomo public product/readability bridge.
  *
  * Plugin-owned public surfaces remain independently namespaced, but their
- * semantic brand colors, font stack and commercial actions resolve to the
- * canonical theme foundation. This is a migration bridge, not a visual patch
- * layer: layout stays owned by each product stylesheet.
+ * semantic brand colors, font stack, commercial actions, and minimum readable
+ * text sizes resolve to the canonical theme foundation. Layout stays owned by
+ * each surface stylesheet; this layer owns cross-product legibility invariants.
+ * Typography tokens themselves are owned only by design-system.css.
  */
 
 /* Older homepage/legacy data labels that can still appear off the canonical
@@ -44,6 +45,100 @@
   font-family: var(--bm-font-sans);
 }
 
+/* BTC public legibility contract. Information can be dense, never microscopic. */
+.bm-bi .bm-bi__hero > small,
+.bm-bi .bm-bi__rail a,
+.bm-bi .bm-bi__section-kicker,
+.bm-bi .bm-bi__freshness,
+.bm-bi .bm-bi__freshness strong,
+.bm-bi .bm-bi__snapshot-grid span,
+.bm-bi .bm-bi__archive-metrics span,
+.bm-bi .bm-bi__archive-thesis > span,
+.bm-bi .bm-bi__snapshot-grid small,
+.bm-bi .bm-bi__brief-panel h3,
+.bm-bi .bm-bi__provenance,
+.bm-bi .bm-bi__history-summary,
+.bm-bi .bm-bi__history-summary small,
+.bm-bi .bm-bi__archive-head > div > span,
+.bm-bi .bm-bi__micro-note,
+.bm-bi .bm-bi__history-policy {
+  font-size: var(--bm-type-micro);
+}
+
+.bm-bi .bm-bi__brief-panel li,
+.bm-bi .bm-bi__brief-panel p,
+.bm-bi .bm-bi__no-change,
+.bm-bi .bm-bi__section-intro,
+.bm-bi .bm-bi__archive-thesis p,
+.bm-bi .bm-bi__archive-scenarios p,
+.bm-bi .bm-bi__details-body,
+.bm-bi .bm-bi__pro-cta > div > p:not(.bm-bi__eyebrow) {
+  font-size: var(--bm-type-support);
+}
+
+/* Dense evidence/table labels may be 10px, never the former 7.5–9px. */
+.bm-bi .bm-bi__audit-badge,
+.bm-bi .bm-bi__delay-badge,
+.bm-bi .bm-bi__ledger-table th,
+.bm-bi .bm-bi__ledger-table td:first-child small,
+.bm-bi .bm-bi__verdict,
+.bm-bi .bm-bi__proof-metric small,
+.bm-bi .bm-bi__archive-scenarios span,
+.bm-bi .bm-bi__archive-outcome,
+.bm-bi .bm-bi__track-record .bm-bi__eyebrow,
+.bm-bi .bm-bi__track-record .bm-bi__section-kicker,
+.bm-bi .bm-bi__ledger .bm-bi__audit-badge::after,
+.bm-bi .bm-bi__ledger .bm-bi__micro-note,
+.bm-bi .bm-bi__track-record .bm-bi__proof-metric small,
+.bm-bi .bm-bi__track-record .bm-bi__micro-note,
+.bm-bi .bm-bi__track-record .bm-bi__history-policy {
+  font-size: var(--bm-type-dense);
+}
+
+.bm-bi .bm-bi__track-record .bm-bi__section-intro,
+.bm-bi .bm-bi__ledger .bm-bi__section-intro {
+  font-size: 12px;
+}
+
+.bm-bi .bm-bi__track-record .bm-bi__proof-metric > span {
+  font-size: var(--bm-type-micro);
+}
+
+.bm-bi .bm-bi__cta-primary { font-size: 13px; }
+
+/* Market Context chart: controls/tooltips must be readable without sacrificing
+   data density. Axis labels retain a 10px dense-data exception. */
+.bm-bi .bm-bi__market-state span,
+.bm-bi .bm-mc__mode span,
+.bm-bi .bm-mc__control-label,
+.bm-bi .bm-mc__range button,
+.bm-bi .bm-mc__series-button,
+.bm-bi .bm-mc__tooltip time,
+.bm-bi .bm-mc__legend-item > span,
+.bm-bi .bm-mc__status,
+.bm-bi .bm-mc__pro-copy p,
+.bm-bi .bm-mc__pro-items span {
+  font-size: var(--bm-type-micro);
+}
+
+.bm-bi .bm-mc__mode small,
+.bm-bi .bm-mc__series-button small,
+.bm-bi .bm-mc__axis-label,
+.bm-bi .bm-mc__tooltip-row small,
+.bm-bi .bm-mc__tooltip-events > b,
+.bm-bi .bm-mc__tooltip-event,
+.bm-bi .bm-mc__legend-item small,
+.bm-bi .bm-mc__marker-key-label,
+.bm-bi .bm-mc__marker-key-items > span,
+.bm-bi .bm-mc__pro-copy > span {
+  font-size: var(--bm-type-dense);
+}
+
+.bm-bi .bm-mc__tooltip-row > span,
+.bm-bi .bm-mc__tooltip-row strong { font-size: var(--bm-type-micro); }
+.bm-bi .bm-mc__legend-item strong { font-size: 12px; }
+.bm-bi .bm-mc__heading > div:first-child > p:last-child { font-size: 14px; }
+
 /* Pro sales + whitelist share Bitmomo semantics while preserving their own
    page composition and interaction logic. */
 .bm-pro-sales {
@@ -57,6 +152,49 @@
   font-family: var(--bm-font-sans);
 }
 
+/* Public Pro legibility contract. Proof-first remains dense, but labels and
+   explanatory copy must survive normal desktop viewing and 200% zoom. */
+.bm-pro-sales .bm-pro-sales__hero-eyebrow,
+.bm-pro-sales .bm-pro-sales__eyebrow,
+.bm-pro-sales .bm-pro-sales__hero-facts span,
+.bm-pro-sales .bm-pro-sales__rail a,
+.bm-pro-sales .bm-pro-sales__deliverables > div > span,
+.bm-pro-sales .bm-pro-sales__proof-badge,
+.bm-pro-sales .bm-pro-sales__decision-card > header span,
+.bm-pro-sales .bm-pro-sales__decision-metrics span,
+.bm-pro-sales .bm-pro-sales__decision-copy span,
+.bm-pro-sales .bm-pro-sales__range-head span,
+.bm-pro-sales .bm-pro-sales__scenario-map span,
+.bm-pro-sales .bm-pro-sales__comparison-row.is-head,
+.bm-pro-sales .bm-pro-sales__micro-note {
+  font-size: var(--bm-type-micro);
+}
+
+.bm-pro-sales .bm-pro-sales__hero-micro,
+.bm-pro-sales .bm-pro-sales__hero-lock,
+.bm-pro-sales .bm-pro-sales__decision-card > footer,
+.bm-pro-sales .bm-pro-sales__comparison-row strong {
+  font-size: 12px;
+}
+
+.bm-pro-sales .bm-pro-sales__hero-price-sub,
+.bm-pro-sales .bm-pro-sales__deliverables p,
+.bm-pro-sales .bm-pro-sales__section-intro,
+.bm-pro-sales .bm-pro-sales__scenario-map p,
+.bm-pro-sales .bm-pro-sales__decision-copy p,
+.bm-pro-sales .bm-pro-sales__proof-pending p,
+.bm-pro-sales .bm-pro-sales__comparison-row span {
+  font-size: 13px;
+}
+
+.bm-pro-sales .bm-pro-sales__deliverables strong,
+.bm-pro-sales .bm-pro-sales__decision-metrics strong { font-size: 14px; }
+
+.bm-pro-sales .bm-pro-sales__verdict,
+.bm-pro-sales .bm-pro-sales__range-marker small {
+  font-size: var(--bm-type-dense);
+}
+
 .bm-pro-sales .bm-wl__submit {
   background: var(--bm-action) !important;
   color: #0b1620 !important;
@@ -67,6 +205,74 @@
   background: var(--bm-action-hover) !important;
   color: #0b1620 !important;
 }
+
+/* Homepage layer loads later; extra .home specificity makes the semantic floor
+   win without !important and without changing homepage layout ownership. */
+.home .bm-home-hero__notes,
+.home .bm-home-reading__label,
+.home .bm-home-reading__status,
+.home .bm-home-reading__metric-label,
+.home .bm-home-reading__metric small,
+.home .bm-home-reading__driver > span,
+.home .bm-home-reading__source,
+.home .bm-home-proof__kicker,
+.home .bm-howworks-eyebrow,
+.home .bm-howworks-step-label,
+.home .bm-home-research__eyebrow,
+.home .bm-home-research__index,
+.home .bm-home-research__meta,
+.home .bm-wl-home .bm-wl-unified__fact dt,
+.home .bm-wl-home .bm-wl__note {
+  font-size: var(--bm-type-micro);
+}
+
+.home .bm-home-proof__item p,
+.home .bm-home-research__body p,
+.home .bm-wl-home .bm-wl-unified__fact dd,
+.home .bm-wl-home .bm-wl-unified__form-copy {
+  font-size: 14px;
+}
+
+.home .bm-wl-home .bm-wl__field { font-size: 13px; }
+.home .bm-wl-home .bm-wl__consent,
+.home .bm-wl-home .bm-wl__continuation p { font-size: 12px; }
+
+/* Research Hub layer also loads later; hub scoping provides deterministic
+   specificity while keeping layout and hierarchy owned by research.css. */
+.bm-research-hub .bm-research-kicker,
+.bm-research-hub .bm-research-head__utility strong,
+.bm-research-hub .bm-research-standard-line span,
+.bm-research-hub .bm-research-search label,
+.bm-research-hub .bm-research-section-label,
+.bm-research-hub .bm-research-meta,
+.bm-research-hub .bm-research-lead__finding span,
+.bm-research-hub .bm-research-lead__figure,
+.bm-research-hub .bm-research-library__meta span,
+.bm-research-hub .bm-research-library__meta time,
+.bm-research-hub .bm-research-library__meta small,
+.bm-research-hub .bm-research-domain__head > span,
+.bm-research-hub .bm-research-methodology__rules span {
+  font-size: var(--bm-type-micro);
+}
+
+.bm-research-hub .bm-research-library__meta strong { font-size: 12px; }
+.bm-research-hub .bm-research-head__utility span,
+.bm-research-hub .bm-research-filter a,
+.bm-research-hub .bm-research-search button,
+.bm-research-hub .bm-research-text-link { font-size: 13px; }
+.bm-research-hub .bm-research-library__head > p,
+.bm-research-hub .bm-research-library__copy p,
+.bm-research-hub .bm-research-domain__head p { font-size: 14px; }
+
+/* Shared chrome: the footer is institutional information, not disclaimer-sized
+   microcopy. These selectors are more specific than its local 10–12.5px rules. */
+body .bm-footer-principle > span,
+body .bm-footer-group > strong,
+body .bm-footer-social > strong,
+body .bm-footer-newsletter__copy > span { font-size: var(--bm-type-micro); }
+body .bm-footer-principle > p,
+body .bm-footer-social a,
+body .bm-footer-legal a { font-size: 13px; }
 
 /* Authenticated Pro dashboard uses the same semantic colors as its public
    acquisition surface. */

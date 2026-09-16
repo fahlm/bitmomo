@@ -15,6 +15,7 @@ on:
       - "scripts/check-navigation-footer.mjs"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-staged-cascade-ownership.mjs"
+      - "scripts/check-public-readability-rhythm.mjs"
       - "scripts/audit-css-debt.mjs"
       - "docs/PUBLIC_SURFACE_CONTRACT.md"
       - ".github/workflows/theme-safety.yml"
@@ -63,6 +64,7 @@ jobs:
           node --check scripts/check-public-ui.mjs
           node --check scripts/check-terminal-grade-contract.mjs
           node --check scripts/check-staged-cascade-ownership.mjs
+          node --check scripts/check-public-readability-rhythm.mjs
           node --check website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js
 
       - name: Enforce UI architecture and WCAG source contracts
@@ -76,6 +78,9 @@ jobs:
 
       - name: Enforce staged legacy cascade ownership
         run: node scripts/check-staged-cascade-ownership.mjs
+
+      - name: Enforce public readability and vertical rhythm
+        run: node scripts/check-public-readability-rhythm.mjs
 
       - name: Report CSS debt baseline
         run: node scripts/audit-css-debt.mjs
