@@ -72,11 +72,14 @@ check('Homepage proves accountability before explaining the product mechanism',
   how.includes('ARSIP PRO ≥48 JAM') &&
   how.includes('EXPECTED RANGE') &&
   how.indexOf('BUKTI, BUKAN KLAIM') < how.indexOf('HOW BITMOMO WORKS') &&
+  how.includes('Analisis terdahulu yang sudah dievaluasi') &&
+  how.includes('Belum ada hasil yang sudah dapat dievaluasi.') &&
+  how.includes('Data pasar menjadi analisis yang dapat diuji.') &&
   how.includes('01 · UNDERSTAND NOW') &&
   how.includes('02 · MAP WHAT CHANGES') &&
   how.includes('03 · AUDIT THE RESULT') &&
   how.includes('Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.') &&
-  !/Data compression|quality gate|six-stage|11 AI Analysts/i.test(how)
+  !/PEMBACAAN TERBARU|Data pasar menjadi pembacaan|mature outcome|Data compression|quality gate|six-stage|11 AI Analysts/i.test(how)
 );
 check('Homepage founding copy avoids urgency theater and raw product jargon',
   whitelistHome.includes('Founding Price') && whitelistHome.includes('AKTIFKAN FOUNDING MEMBERSHIP') &&
@@ -175,9 +178,14 @@ check('BTC Intelligence renderer owns final institutional terminology and valuab
   btcPage.includes('MENGAPA PENTING') &&
   btcPage.includes('PANTAU BERIKUTNYA') &&
   btcPage.includes('evaluasi 15 menit dari candle 5 menit') &&
+  btcPage.includes('ANALISIS SAAT INI DITAHAN — MAJOR BRIEF TERTUNDA.') &&
+  btcPage.includes('STATUS DATA') &&
+  btcPage.includes('bias akhir berada di') &&
+  btcPage.includes('Market Pulse mengevaluasi kondisi intraday setiap 15 menit menggunakan candle 5 menit.') &&
   btcPage.includes('directional_consistency') &&
   btcPage.includes('structure_continuity') &&
   btcPage.includes('CONFIDENCE') &&
+  !/PEMBACAAN SAAT INI|Pembacaan arah|pembacaan berakhir|terhadap pembacaan|pendorong pembacaan|pembacaan canonical|evaluasi canonical|freshness intraday|recorded-live|outcome-nya|window evaluasi|Canonical brief|Clock sesi|Belum ada outcome matang|outcome konklusif/i.test(btcPage) &&
   !/strtr\s*\(/.test(btcMain) &&
   !/do_shortcode_tag/.test(btcMain)
 );
