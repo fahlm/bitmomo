@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "mode": "zero-cost-local-first",
+  "hosted_actions": "locked",
+  "max_pr_stack_depth": 2,
+  "target_active_open_prs": 5,
+  "target_active_branches": 15,
+  "legacy_custom_css_max_bytes": 50300,
+  "canonical_commands": {
+    "doctor": "bash scripts/bitmomo-check.sh doctor",
+    "quick": "bash scripts/bitmomo-check.sh quick",
+    "test": "bash scripts/bitmomo-check.sh test",
+    "full": "bash scripts/bitmomo-check.sh full <exact-40-char-sha>",
+    "equivalence": "bash scripts/bitmomo-check.sh equivalence <accepted-ref> <candidate-ref>",
+    "smoke": "bash scripts/bitmomo-check.sh smoke <base-url>"
+  },
+  "release": {
+    "candidate_prefix": "rc-",
+    "accepted_candidate_immutable": true,
+    "exact_artifact_required": true,
+    "production_requires_explicit_owner_authorization": true
+  }
+}
