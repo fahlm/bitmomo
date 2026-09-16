@@ -36,3 +36,27 @@ function bitmomo_btc_intelligence_init() {
 	Bitmomo_Btc_Intelligence_Market_Context::init();
 }
 add_action( 'plugins_loaded', 'bitmomo_btc_intelligence_init' );
+
+/**
+ * Accountability has its own presentation owner so compact History / Ledger /
+ * Track Record geometry does not leak into the canonical design foundation.
+ * File hashing keeps browser caches deterministic without bumping the plugin
+ * version for presentation-only changes.
+ */
+function bitmomo_btc_intelligence_accountability_assets() {
+	if ( ! is_page( 'btc-intelligence' ) ) {
+		return;
+	}
+	$asset = BITMOMO_BTC_INTELLIGENCE_DIR . 'assets/css/accountability-surface.css';
+	if ( ! is_readable( $asset ) ) {
+		return;
+	}
+	$hash = hash_file( 'sha256', $asset );
+	wp_enqueue_style(
+		'bitmomo-btc-accountability',
+		BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/accountability-surface.css',
+		array( 'bitmomo-btc-intelligence' ),
+		$hash ? substr( $hash, 0, 16 ) : BITMOMO_BTC_INTELLIGENCE_VERSION
+	);
+}
+add_action( 'wp_enqueue_scripts', 'bitmomo_btc_intelligence_accountability_assets', 20 );

@@ -6,15 +6,21 @@
   const snapshot = root ? root.querySelector('.bm-bi__snapshot') : null;
   if (!root || !snapshot || !config.endpoint) return;
 
-  const SERIES_ORDER = ['btc', 'gold', 'eth', 'sol'];
+  const SERIES_ORDER = ['btc', 'eth', 'sol', 'gold'];
   const RANGE_ORDER = ['7d', '30d', '90d', 'ytd', '1y'];
+  const DEFAULT_ACTIVE = ['btc', 'eth', 'sol'];
   const MAX_ACTIVE_SERIES = 3;
+  const DAY_SECONDS = 86400;
+
   const state = {
     range: config.defaultRange || '30d',
+    preferredActive: new Set(DEFAULT_ACTIVE),
     active: new Set(['btc']),
     payload: null,
     controller: null,
-    requestSeq: 0
+    requestSeq: 0,
+    resizeBucket: null,
+    resizeRaf: 0
   };
 
   root.classList.add('bm-bi--market-context');
@@ -22,6 +28,7 @@
   const explorer = buildExplorer();
   snapshot.insertAdjacentElement('afterend', explorer.section);
   enhanceSectionFlow();
+  setupResizeObserver();
   loadRange(state.range);
 
   function promoteCurrentDecision() {
@@ -64,7 +71,7 @@
       '<h2 id="bm-mc-title">Pahami BTC dalam konteks pasar yang lebih luas.</h2>',
       '<p>Bandingkan BTC dengan aset lain untuk melihat perubahan relatif dan kapan tesis pasar berubah.</p>',
       '</div>',
-      '<div class="bm-mc__mode"><span>KINERJA RELATIF</span><strong>Awal = 100</strong></div>'
+      '<div class="bm-mc__mode"><span>METODE</span><strong>Indeks relatif · Awal = 100</strong><small>Harga aktual tetap tersedia saat grafik ditelusuri.</small></div>'
     ].join('');
 
     const controls = document.createElement('div');
@@ -102,12 +109,18 @@
 
     const chart = document.createElement('div');
     chart.className = 'bm-mc__chart';
+    chart.tabIndex = 0;
     chart.setAttribute('role', 'region');
-    chart.setAttribute('aria-label', 'Grafik perbandingan kinerja pasar');
+    chart.setAttribute('aria-label', 'Grafik perbandingan kinerja pasar. Arahkan pointer, ketuk grafik, atau gunakan tombol panah kiri dan kanan untuk menelusuri tanggal.');
     chart.innerHTML = '<div class="bm-mc__loading" role="status">Memuat konteks pasar…</div>';
 
     const legend = document.createElement('div');
     legend.className = 'bm-mc__legend';
+    legend.setAttribute('aria-label', 'Ringkasan aset aktif');
+
+    const markerKey = document.createElement('div');
+    markerKey.className = 'bm-mc__marker-key';
+    markerKey.hidden = true;
 
     const status = document.createElement('p');
     status.className = 'bm-mc__status';
@@ -125,8 +138,33 @@
     ].join('');
 
     controls.append(rangeGroup, compareWrap);
-    section.append(heading, controls, chart, legend, status, overlays);
-    return { section, compareGroup, chart, legend, status };
+    section.append(heading, controls, chart, legend, markerKey, status, overlays);
+    return { section, rangeGroup, compareGroup, chart, legend, markerKey, status };
+  }
+
+  function setupResizeObserver() {
+    if (typeof ResizeObserver !== 'function') return;
+    state.resizeBucket = widthBucket(explorer.chart.clientWidth);
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const width = entry && entry.contentRect ? entry.contentRect.width : explorer.chart.clientWidth;
+      const nextBucket = widthBucket(width);
+      if (nextBucket === state.resizeBucket) return;
+      state.resizeBucket = nextBucket;
+      if (!state.payload) return;
+      if (state.resizeRaf) cancelAnimationFrame(state.resizeRaf);
+      state.resizeRaf = requestAnimationFrame(() => {
+        state.resizeRaf = 0;
+        renderChart();
+      });
+    });
+    observer.observe(explorer.chart);
+  }
+
+  function widthBucket(width) {
+    if (width >= 900) return 'wide';
+    if (width >= 620) return 'medium';
+    return 'compact';
   }
 
   async function loadRange(range) {
@@ -136,12 +174,12 @@
     const controller = new AbortController();
     state.controller = controller;
 
-    // A selected range owns its own payload. Never let an older successful
-    // range remain interactive while a new range is loading or has failed.
     state.payload = null;
     state.active = new Set(['btc']);
     explorer.compareGroup.replaceChildren();
     explorer.legend.replaceChildren();
+    explorer.markerKey.replaceChildren();
+    explorer.markerKey.hidden = true;
     explorer.chart.innerHTML = '<div class="bm-mc__loading" role="status">Memuat konteks pasar…</div>';
     explorer.status.textContent = 'Memuat data perbandingan pasar.';
     setLoading(true);
@@ -158,8 +196,10 @@
       const payload = await response.json();
       if (requestId !== state.requestSeq || range !== state.range) return;
       if (!payload || payload.range !== range || !Array.isArray(payload.series)) throw new Error('Invalid market-context payload');
+
       state.payload = payload;
       syncCurrentDecision(payload.current || {});
+      syncActiveSeries();
       renderSeriesControls();
       renderChart();
     } catch (error) {
@@ -169,8 +209,10 @@
       state.payload = null;
       state.active = new Set(['btc']);
       explorer.compareGroup.replaceChildren();
-      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Konteks pasar belum tersedia.</strong><span>Decision View di atas tetap menggunakan data utama Bitmomo.</span></div>';
       explorer.legend.replaceChildren();
+      explorer.markerKey.replaceChildren();
+      explorer.markerKey.hidden = true;
+      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Konteks pasar belum tersedia.</strong><span>Decision View di atas tetap menggunakan data utama Bitmomo.</span></div>';
       explorer.status.textContent = 'Konteks Pasar gagal dimuat; pembacaan BTC utama tidak terpengaruh.';
     } finally {
       if (requestId !== state.requestSeq) return;
@@ -200,69 +242,103 @@
     if (value) value.textContent = labels[current.market_state] || humanize(current.market_state);
   }
 
+  function isSeriesAvailable(series) {
+    return !!(series && series.status === 'available' && Array.isArray(series.points) && series.points.length > 1);
+  }
+
+  function syncActiveSeries() {
+    if (!state.payload) return;
+    const seriesById = new Map(state.payload.series.map((item) => [item.id, item]));
+    const next = [];
+    SERIES_ORDER.forEach((id) => {
+      if (next.length >= MAX_ACTIVE_SERIES) return;
+      if (!state.preferredActive.has(id)) return;
+      if (isSeriesAvailable(seriesById.get(id))) next.push(id);
+    });
+
+    if (!next.includes('btc') && isSeriesAvailable(seriesById.get('btc'))) {
+      next.unshift('btc');
+    }
+
+    state.active = new Set(next.slice(0, MAX_ACTIVE_SERIES));
+  }
+
   function renderSeriesControls() {
+    if (!state.payload) return;
     const seriesById = new Map(state.payload.series.map((item) => [item.id, item]));
     explorer.compareGroup.replaceChildren();
 
     SERIES_ORDER.forEach((id) => {
       const series = seriesById.get(id);
       if (!series) return;
-      const available = series.status === 'available' && Array.isArray(series.points) && series.points.length > 1;
-      if (!available && state.active.has(id) && id !== 'btc') state.active.delete(id);
+      const available = isSeriesAvailable(series);
+      const active = state.active.has(id);
 
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `bm-mc__series-button is-${escapeToken(id)}`;
       button.dataset.series = id;
-      button.setAttribute('aria-pressed', state.active.has(id) ? 'true' : 'false');
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
       button.disabled = id === 'btc' || !available;
+      button.setAttribute('aria-label', `${series.label}: ${active ? 'aktif' : available ? 'tidak aktif' : 'data tidak tersedia'}`);
 
       const label = document.createElement('span');
       label.textContent = series.label;
       const meta = document.createElement('small');
-      meta.textContent = available ? series.cadence : unavailableLabel(series.reason);
+      meta.dataset.role = 'meta';
+      meta.textContent = available ? (active ? 'aktif' : 'tambahkan') : unavailableLabel(series.reason);
       button.append(label, meta);
 
       if (id !== 'btc' && available) {
-        button.disabled = false;
-        button.addEventListener('click', () => toggleSeries(id, button));
+        button.addEventListener('click', () => toggleSeries(id));
       }
       explorer.compareGroup.appendChild(button);
     });
   }
 
-  function toggleSeries(id, button) {
+  function toggleSeries(id) {
     if (state.active.has(id)) {
       state.active.delete(id);
-      button.setAttribute('aria-pressed', 'false');
+      state.preferredActive.delete(id);
+      renderSeriesControls();
       renderChart();
       return;
     }
+
     if (state.active.size >= MAX_ACTIVE_SERIES) {
-      explorer.status.textContent = `Maksimal ${MAX_ACTIVE_SERIES} aset sekaligus agar perbandingan tetap terbaca.`;
+      explorer.status.textContent = `Maksimal ${MAX_ACTIVE_SERIES} aset sekaligus. Nonaktifkan satu pembanding untuk menambahkan ${String(id).toUpperCase()}.`;
       return;
     }
+
     state.active.add(id);
-    button.setAttribute('aria-pressed', 'true');
+    state.preferredActive.add(id);
+    renderSeriesControls();
     renderChart();
   }
 
   function renderChart() {
     if (!state.payload) return;
-    const available = state.payload.series.filter((item) => state.active.has(item.id) && item.status === 'available' && Array.isArray(item.points) && item.points.length > 1);
-    if (!available.length) {
-      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Data pembanding belum tersedia.</strong></div>';
+    const available = state.payload.series.filter((item) => state.active.has(item.id) && isSeriesAvailable(item));
+    const btc = available.find((item) => item.id === 'btc');
+
+    if (!btc) {
+      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Data BTC untuk perbandingan belum tersedia.</strong><span>Decision View utama tetap dapat digunakan.</span></div>';
+      explorer.legend.replaceChildren();
+      explorer.markerKey.hidden = true;
       return;
     }
 
-    const normalized = normalizeTogether(available);
-    if (!normalized.length) {
-      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Data pada rentang ini belum cukup untuk dibandingkan.</strong></div>';
+    const comparison = normalizeTogether(available);
+    if (!comparison || !comparison.series.length) {
+      explorer.chart.innerHTML = '<div class="bm-mc__unavailable"><strong>Belum ada tanggal dasar bersama untuk aset yang dipilih.</strong><span>Coba kurangi aset pembanding atau pilih rentang yang lebih panjang.</span></div>';
+      explorer.legend.replaceChildren();
+      explorer.markerKey.hidden = true;
       return;
     }
 
+    const normalized = comparison.series;
     const bounds = chartBounds(normalized);
-    const dims = { width: 1000, height: 360, left: 58, right: 24, top: 24, bottom: 42 };
+    const dims = { width: 1000, height: 390, left: 62, right: 24, top: 26, bottom: 46 };
     const plotWidth = dims.width - dims.left - dims.right;
     const plotHeight = dims.height - dims.top - dims.bottom;
     const x = (t) => dims.left + ((t - bounds.minT) / Math.max(1, bounds.maxT - bounds.minT)) * plotWidth;
@@ -272,21 +348,46 @@
       viewBox: `0 0 ${dims.width} ${dims.height}`,
       class: 'bm-mc__svg',
       role: 'img',
-      'aria-label': `Kinerja relatif ${normalized.map((item) => item.label).join(', ')}; awal rentang dinormalisasi ke 100.`
+      'aria-label': `Kinerja relatif ${normalized.map((item) => item.label).join(', ')}; tanggal dasar bersama ${formatDate(comparison.baselineT, '1y')} dinormalisasi ke indeks 100.`
     });
 
-    for (let i = 0; i < 5; i += 1) {
-      const value = bounds.minY + ((bounds.maxY - bounds.minY) * i) / 4;
+    bounds.yTicks.forEach((value) => {
       const lineY = y(value);
-      svg.appendChild(svgEl('line', { x1: dims.left, x2: dims.width - dims.right, y1: lineY, y2: lineY, class: value === 100 ? 'bm-mc__baseline' : 'bm-mc__gridline' }));
-      const label = svgEl('text', { x: dims.left - 10, y: lineY + 4, class: 'bm-mc__axis-label', 'text-anchor': 'end' });
-      label.textContent = formatIndex(value);
+      const isBaseline = Math.abs(value - 100) < Math.max(0.0001, bounds.yStep / 20);
+      svg.appendChild(svgEl('line', {
+        x1: dims.left,
+        x2: dims.width - dims.right,
+        y1: lineY,
+        y2: lineY,
+        class: isBaseline ? 'bm-mc__baseline' : 'bm-mc__gridline'
+      }));
+      const label = svgEl('text', {
+        x: dims.left - 11,
+        y: lineY + 4,
+        class: isBaseline ? 'bm-mc__axis-label is-baseline' : 'bm-mc__axis-label',
+        'text-anchor': 'end'
+      });
+      label.textContent = formatIndex(value, bounds.yStep);
       svg.appendChild(label);
-    }
+    });
 
-    const xTicks = [bounds.minT, bounds.minT + ((bounds.maxT - bounds.minT) / 2), bounds.maxT];
+    const xTicks = buildXTicks(bounds.minT, bounds.maxT, tickCountForWidth(explorer.chart.clientWidth));
     xTicks.forEach((tick, index) => {
-      const label = svgEl('text', { x: x(tick), y: dims.height - 13, class: 'bm-mc__axis-label', 'text-anchor': index === 0 ? 'start' : index === 2 ? 'end' : 'middle' });
+      if (index > 0 && index < xTicks.length - 1) {
+        svg.appendChild(svgEl('line', {
+          x1: x(tick),
+          x2: x(tick),
+          y1: dims.top,
+          y2: dims.height - dims.bottom,
+          class: 'bm-mc__x-gridline'
+        }));
+      }
+      const label = svgEl('text', {
+        x: x(tick),
+        y: dims.height - 15,
+        class: 'bm-mc__axis-label',
+        'text-anchor': index === 0 ? 'start' : index === xTicks.length - 1 ? 'end' : 'middle'
+      });
       label.textContent = formatDate(tick, state.range);
       svg.appendChild(label);
     });
@@ -300,14 +401,27 @@
       svg.appendChild(path);
     });
 
-    const btc = normalized.find((series) => series.id === 'btc');
-    if (btc) renderMarkers(svg, btc, bounds, x, y);
+    const normalizedBtc = normalized.find((series) => series.id === 'btc');
+    const markerTypes = normalizedBtc ? renderMarkers(svg, normalizedBtc, bounds, x, y) : new Set();
+    renderMarkerKey(markerTypes);
 
-    const crosshair = svgEl('line', { class: 'bm-mc__crosshair', y1: dims.top, y2: dims.height - dims.bottom, x1: dims.left, x2: dims.left });
+    const crosshair = svgEl('line', {
+      class: 'bm-mc__crosshair',
+      y1: dims.top,
+      y2: dims.height - dims.bottom,
+      x1: dims.left,
+      x2: dims.left
+    });
     crosshair.hidden = true;
     svg.appendChild(crosshair);
 
-    const hit = svgEl('rect', { x: dims.left, y: dims.top, width: plotWidth, height: plotHeight, class: 'bm-mc__hit-area' });
+    const hit = svgEl('rect', {
+      x: dims.left,
+      y: dims.top,
+      width: plotWidth,
+      height: plotHeight,
+      class: 'bm-mc__hit-area'
+    });
     svg.appendChild(hit);
 
     const tooltip = document.createElement('div');
@@ -315,26 +429,58 @@
     tooltip.hidden = true;
 
     explorer.chart.replaceChildren(svg, tooltip);
-    bindChartPointer(svg, hit, crosshair, tooltip, normalized, bounds, dims);
+
+    const statusText = `Tanggal dasar bersama ${formatDate(comparison.baselineT, '1y')} · ${normalized.length} aset · data harian tertutup. Arahkan, ketuk, atau gunakan ← → untuk detail.`;
+    explorer.status.textContent = statusText;
+
+    const reveal = bindChartPointer(svg, hit, crosshair, tooltip, normalized, bounds, dims, statusText);
+    bindChartKeyboard(reveal, tooltip, crosshair, normalized, statusText);
     renderLegend(normalized);
-    explorer.status.textContent = `${normalized.map((item) => item.label).join(', ')} dibandingkan dari titik awal ${formatDate(normalized[0].baselineT, '1y')}. Semua garis dimulai dari indeks 100.`;
+    syncControlMetrics(normalized);
   }
 
   function normalizeTogether(seriesList) {
-    const firstTimes = seriesList.map((series) => series.points[0] && Number(series.points[0].t)).filter(Number.isFinite);
-    if (!firstTimes.length) return [];
-    const baselineT = Math.max(...firstTimes);
-    return seriesList.map((series) => {
-      const points = series.points.filter((point) => Number(point.t) >= baselineT && Number(point.value) > 0);
+    const prepared = seriesList.map((series) => ({
+      ...series,
+      points: series.points
+        .map((point) => ({ ...point, t: Number(point.t), value: Number(point.value) }))
+        .filter((point) => Number.isFinite(point.t) && Number.isFinite(point.value) && point.value > 0)
+        .sort((a, b) => a.t - b.t)
+    })).filter((series) => series.points.length > 1);
+
+    if (!prepared.length) return null;
+
+    const baselineT = findCommonBaselineTimestamp(prepared);
+    if (!Number.isFinite(baselineT)) return null;
+
+    const normalized = prepared.map((series) => {
+      const basePoint = series.points.find((point) => point.t === baselineT);
+      if (!basePoint || basePoint.value <= 0) return null;
+      const points = series.points
+        .filter((point) => point.t >= baselineT)
+        .map((point) => ({ ...point, index: (point.value / basePoint.value) * 100 }));
       if (points.length < 2) return null;
-      const base = Number(points[0].value);
       return {
         ...series,
-        baselineT: Number(points[0].t),
-        base,
-        points: points.map((point) => ({ ...point, t: Number(point.t), value: Number(point.value), index: (Number(point.value) / base) * 100 }))
+        baselineT,
+        base: basePoint.value,
+        points
       };
     }).filter(Boolean);
+
+    if (normalized.length !== prepared.length) return null;
+    return { baselineT, series: normalized };
+  }
+
+  function findCommonBaselineTimestamp(seriesList) {
+    if (!seriesList.length) return null;
+    if (seriesList.length === 1) return seriesList[0].points[0].t;
+
+    const remaining = seriesList.slice(1).map((series) => new Set(series.points.map((point) => point.t)));
+    for (const point of seriesList[0].points) {
+      if (remaining.every((times) => times.has(point.t))) return point.t;
+    }
+    return null;
   }
 
   function chartBounds(seriesList) {
@@ -343,45 +489,154 @@
     const times = allPoints.map((point) => point.t).filter(Number.isFinite);
     const rawMin = Math.min(100, ...values);
     const rawMax = Math.max(100, ...values);
-    const padding = Math.max(1.5, (rawMax - rawMin) * 0.12);
+    const rawSpan = Math.max(1, rawMax - rawMin);
+    const paddedMin = rawMin - Math.max(0.8, rawSpan * 0.08);
+    const paddedMax = rawMax + Math.max(0.8, rawSpan * 0.08);
+    const yStep = niceStep((paddedMax - paddedMin) / 4);
+    let minY = Math.floor(paddedMin / yStep) * yStep;
+    let maxY = Math.ceil(paddedMax / yStep) * yStep;
+
+    if (maxY - minY < yStep * 4) {
+      const missing = yStep * 4 - (maxY - minY);
+      minY -= Math.ceil((missing / 2) / yStep) * yStep;
+      maxY += Math.floor((missing / 2) / yStep) * yStep;
+    }
+
+    minY = Math.min(minY, 100);
+    maxY = Math.max(maxY, 100);
+
+    const yTicks = [];
+    for (let value = minY, guard = 0; value <= maxY + yStep / 10 && guard < 12; value += yStep, guard += 1) {
+      yTicks.push(Number(value.toFixed(8)));
+    }
+
     return {
       minT: Math.min(...times),
       maxT: Math.max(...times),
-      minY: rawMin - padding,
-      maxY: rawMax + padding
+      minY,
+      maxY,
+      yStep,
+      yTicks
     };
+  }
+
+  function niceStep(rawStep) {
+    const step = Math.max(0.0001, Number(rawStep) || 1);
+    const exponent = Math.floor(Math.log10(step));
+    const power = 10 ** exponent;
+    const fraction = step / power;
+    let niceFraction = 1;
+    if (fraction > 5) niceFraction = 10;
+    else if (fraction > 2.5) niceFraction = 5;
+    else if (fraction > 2) niceFraction = 2.5;
+    else if (fraction > 1) niceFraction = 2;
+    return niceFraction * power;
+  }
+
+  function buildXTicks(minT, maxT, count) {
+    const tickCount = Math.max(2, count);
+    return Array.from({ length: tickCount }, (_, index) => minT + ((maxT - minT) * index) / (tickCount - 1));
+  }
+
+  function tickCountForWidth(width) {
+    if (width >= 900) return 5;
+    if (width >= 620) return 4;
+    return 3;
   }
 
   function renderMarkers(svg, btc, bounds, x, y) {
     const markers = Array.isArray(state.payload.markers) ? state.payload.markers : [];
+    const groups = new Map();
+
     markers.forEach((marker) => {
       const t = Number(marker.t);
-      if (!Number.isFinite(t) || t < bounds.minT || t > bounds.maxT) return;
+      if (!Number.isFinite(t) || t < bounds.minT - DAY_SECONDS || t > bounds.maxT + DAY_SECONDS) return;
       const point = nearestPoint(btc.points, t);
-      if (!point) return;
-      const group = svgEl('g', { class: `bm-mc__marker is-${escapeToken(marker.type || 'state')}`, 'data-label': marker.label || '' });
-      const cx = x(t);
-      const cy = y(point.index);
-      if (marker.type === 'decision') {
+      if (!point || Math.abs(point.t - t) > DAY_SECONDS * 1.5) return;
+      const type = marker.type === 'decision' ? 'decision' : 'state';
+      const key = `${point.t}:${type}`;
+      if (!groups.has(key)) groups.set(key, { type, point, markers: [] });
+      groups.get(key).markers.push(marker);
+    });
+
+    const types = new Set();
+    groups.forEach((entry) => {
+      types.add(entry.type);
+      const cx = x(entry.point.t);
+      const anchorY = y(entry.point.index);
+      const cy = anchorY + (entry.type === 'decision' ? 11 : -11);
+      const group = svgEl('g', {
+        class: `bm-mc__marker is-${entry.type}`,
+        'data-count': entry.markers.length
+      });
+
+      group.appendChild(svgEl('line', {
+        x1: cx,
+        x2: cx,
+        y1: anchorY,
+        y2: cy,
+        class: 'bm-mc__marker-stem'
+      }));
+
+      if (entry.type === 'decision') {
         group.appendChild(svgEl('circle', { cx, cy, r: 5 }));
       } else {
         group.appendChild(svgEl('path', { d: `M ${cx} ${cy - 6} L ${cx + 6} ${cy} L ${cx} ${cy + 6} L ${cx - 6} ${cy} Z` }));
       }
+
       const title = svgEl('title');
-      title.textContent = markerTitle(marker);
+      title.textContent = entry.markers.length > 1
+        ? `${markerTitle(entry.markers[0])} · ${entry.markers.length} peristiwa`
+        : markerTitle(entry.markers[0]);
       group.appendChild(title);
       svg.appendChild(group);
     });
+
+    return types;
   }
 
-  function bindChartPointer(svg, hit, crosshair, tooltip, normalized, bounds, dims) {
+  function renderMarkerKey(types) {
+    explorer.markerKey.replaceChildren();
+    if (!types || !types.size) {
+      explorer.markerKey.hidden = true;
+      return;
+    }
+
+    const label = document.createElement('span');
+    label.className = 'bm-mc__marker-key-label';
+    label.textContent = 'PENANDA';
+
+    const items = document.createElement('div');
+    items.className = 'bm-mc__marker-key-items';
+
+    if (types.has('decision')) {
+      const item = document.createElement('span');
+      item.innerHTML = '<i class="is-decision" aria-hidden="true"></i>Decision Ledger';
+      items.appendChild(item);
+    }
+    if (types.has('state')) {
+      const item = document.createElement('span');
+      item.innerHTML = '<i class="is-state" aria-hidden="true"></i>Perubahan tesis';
+      items.appendChild(item);
+    }
+
+    explorer.markerKey.append(label, items);
+    explorer.markerKey.hidden = false;
+  }
+
+  function bindChartPointer(svg, hit, crosshair, tooltip, normalized, bounds, dims, statusText) {
     const plotWidth = dims.width - dims.left - dims.right;
-    const update = (clientX) => {
-      const rect = svg.getBoundingClientRect();
-      const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / Math.max(1, rect.width)));
-      const svgX = ratio * dims.width;
-      const plotRatio = Math.min(1, Math.max(0, (svgX - dims.left) / plotWidth));
-      const targetT = bounds.minT + plotRatio * (bounds.maxT - bounds.minT);
+    let pinned = false;
+
+    const hide = () => {
+      pinned = false;
+      crosshair.hidden = true;
+      tooltip.hidden = true;
+      tooltip.classList.remove('is-left', 'is-right');
+      explorer.status.textContent = statusText;
+    };
+
+    const revealAtTimestamp = (targetT, announce = false) => {
       const anchor = nearestPoint(normalized[0].points, targetT);
       if (!anchor) return;
       const lineX = dims.left + ((anchor.t - bounds.minT) / Math.max(1, bounds.maxT - bounds.minT)) * plotWidth;
@@ -391,24 +646,116 @@
       tooltip.hidden = false;
       tooltip.innerHTML = tooltipHtml(anchor.t, normalized);
       const leftPct = (lineX / dims.width) * 100;
-      tooltip.style.left = `${Math.min(78, Math.max(8, leftPct))}%`;
+      tooltip.style.left = `${Math.min(96, Math.max(4, leftPct))}%`;
+      tooltip.classList.toggle('is-left', leftPct < 18);
+      tooltip.classList.toggle('is-right', leftPct > 82);
+      if (announce) explorer.status.textContent = keyboardSummary(anchor.t, normalized);
     };
 
-    hit.addEventListener('pointermove', (event) => update(event.clientX));
-    hit.addEventListener('pointerleave', () => {
-      crosshair.hidden = true;
-      tooltip.hidden = true;
+    const updateFromClientX = (clientX, announce = false) => {
+      const rect = svg.getBoundingClientRect();
+      const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / Math.max(1, rect.width)));
+      const svgX = ratio * dims.width;
+      const plotRatio = Math.min(1, Math.max(0, (svgX - dims.left) / plotWidth));
+      const targetT = bounds.minT + plotRatio * (bounds.maxT - bounds.minT);
+      revealAtTimestamp(targetT, announce);
+    };
+
+    hit.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch' || pinned) return;
+      updateFromClientX(event.clientX, false);
     });
+
+    hit.addEventListener('pointerdown', (event) => {
+      pinned = true;
+      updateFromClientX(event.clientX, true);
+    });
+
+    hit.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'touch' && !pinned) hide();
+    });
+
+    return { revealAtTimestamp, hide };
+  }
+
+  function bindChartKeyboard(reveal, tooltip, crosshair, normalized, statusText) {
+    if (explorer.chart._bmMarketContextKeyHandler) {
+      explorer.chart.removeEventListener('keydown', explorer.chart._bmMarketContextKeyHandler);
+    }
+
+    const points = normalized[0].points;
+    let index = Math.max(0, points.length - 1);
+    const handler = (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape'].includes(event.key)) return;
+      event.preventDefault();
+
+      if (event.key === 'Escape') {
+        reveal.hide();
+        return;
+      }
+      if (event.key === 'Home') index = 0;
+      else if (event.key === 'End') index = points.length - 1;
+      else if (event.key === 'ArrowLeft') index = Math.max(0, index - 1);
+      else if (event.key === 'ArrowRight') index = Math.min(points.length - 1, index + 1);
+
+      reveal.revealAtTimestamp(points[index].t, true);
+    };
+
+    explorer.chart._bmMarketContextKeyHandler = handler;
+    explorer.chart.addEventListener('keydown', handler);
+
+    explorer.chart.onblur = () => {
+      tooltip.hidden = true;
+      crosshair.hidden = true;
+      explorer.status.textContent = statusText;
+    };
   }
 
   function tooltipHtml(targetT, normalized) {
     const rows = normalized.map((series) => {
-      const point = nearestPoint(series.points, targetT);
+      const point = pointAtOrBefore(series.points, targetT);
       if (!point) return '';
       const change = point.index - 100;
-      return `<div class="bm-mc__tooltip-row"><span><i class="is-${escapeToken(series.id)}"></i>${escapeHtml(series.label)}</span><strong>${formatSigned(change)}%</strong><small>${formatActual(point.value, series.unit)}</small></div>`;
+      const dateNote = point.t === targetT ? '' : ` · data ${formatDate(point.t, '1y')}`;
+      return `<div class="bm-mc__tooltip-row"><span><i class="is-${escapeToken(series.id)}"></i>${escapeHtml(series.label)}</span><strong>${formatSigned(change)}%</strong><small>${escapeHtml(formatActual(point.value, series.unit))} · ${escapeHtml(series.provider)}${escapeHtml(dateNote)}</small></div>`;
     }).join('');
-    return `<time>${escapeHtml(formatDate(targetT, '1y'))}</time>${rows}`;
+
+    const events = tooltipEvents(targetT);
+    return `<time>${escapeHtml(formatDate(targetT, '1y'))}</time>${rows}${events}`;
+  }
+
+  function tooltipEvents(targetT) {
+    const markers = Array.isArray(state.payload && state.payload.markers) ? state.payload.markers : [];
+    const targetDay = utcDay(targetT);
+    const dayMarkers = markers.filter((marker) => utcDay(Number(marker.t)) === targetDay);
+    if (!dayMarkers.length) return '';
+
+    const rows = dayMarkers.slice(0, 4).map((marker) => {
+      const type = marker.type === 'decision' ? 'decision' : 'state';
+      const icon = type === 'decision' ? '●' : '◆';
+      const parts = [];
+      if (type === 'decision') {
+        parts.push('Decision Ledger');
+        if (marker.bias) parts.push(localizeBias(marker.bias));
+        if (Number.isFinite(Number(marker.confidence))) parts.push(`${Number(marker.confidence)}/100`);
+      } else {
+        parts.push('Tesis berubah');
+        if (marker.bias) parts.push(localizeBias(marker.bias));
+        if (marker.market_state) parts.push(localizeMarketState(marker.market_state));
+      }
+      return `<div class="bm-mc__tooltip-event is-${type}"><span aria-hidden="true">${icon}</span>${escapeHtml(parts.join(' · '))}</div>`;
+    }).join('');
+
+    return `<div class="bm-mc__tooltip-events"><b>Peristiwa Bitmomo</b>${rows}</div>`;
+  }
+
+  function keyboardSummary(targetT, normalized) {
+    const values = normalized.map((series) => {
+      const point = pointAtOrBefore(series.points, targetT);
+      if (!point) return '';
+      return `${series.label} ${formatSigned(point.index - 100)} persen`;
+    }).filter(Boolean).join(', ');
+    return `${formatDate(targetT, '1y')}: ${values}.`;
   }
 
   function renderLegend(normalized) {
@@ -417,8 +764,27 @@
       const last = series.points[series.points.length - 1];
       const item = document.createElement('div');
       item.className = `bm-mc__legend-item is-${escapeToken(series.id)}`;
-      item.innerHTML = `<span><i></i>${escapeHtml(series.label)}</span><strong>${formatSigned(last.index - 100)}%</strong><small>${escapeHtml(series.cadence)} · ${escapeHtml(series.provider)}</small>`;
+      item.title = `${series.provider} · ${series.cadence}`;
+      item.innerHTML = [
+        `<span><i></i>${escapeHtml(series.label)}</span>`,
+        `<strong>${formatSigned(last.index - 100)}%</strong>`,
+        `<small>${escapeHtml(formatActual(last.value, series.unit))} · ${escapeHtml(formatDate(last.t, '1y'))}</small>`
+      ].join('');
       explorer.legend.appendChild(item);
+    });
+  }
+
+  function syncControlMetrics(normalized) {
+    const byId = new Map(normalized.map((series) => [series.id, series]));
+    explorer.compareGroup.querySelectorAll('.bm-mc__series-button').forEach((button) => {
+      const id = button.dataset.series;
+      const meta = button.querySelector('[data-role="meta"]');
+      if (!meta) return;
+      const series = byId.get(id);
+      if (series && state.active.has(id)) {
+        const last = series.points[series.points.length - 1];
+        meta.textContent = `${formatSigned(last.index - 100)}%`;
+      }
     });
   }
 
@@ -436,18 +802,26 @@
     return best;
   }
 
+  function pointAtOrBefore(points, targetT) {
+    if (!points || !points.length) return null;
+    let candidate = null;
+    for (let i = 0; i < points.length; i += 1) {
+      if (points[i].t > targetT) break;
+      candidate = points[i];
+    }
+    return candidate;
+  }
+
   function markerTitle(marker) {
     const parts = [marker.label || 'Penanda Bitmomo'];
-    if (marker.market_state) parts.push(humanize(marker.market_state));
-    if (marker.bias) parts.push(humanize(marker.bias));
+    if (marker.market_state) parts.push(localizeMarketState(marker.market_state));
+    if (marker.bias) parts.push(localizeBias(marker.bias));
     if (Number.isFinite(Number(marker.confidence))) parts.push(`Keyakinan ${Number(marker.confidence)}/100`);
     return parts.join(' · ');
   }
 
-  function unavailableLabel(reason) {
-    if (reason === 'provider_not_configured') return 'belum dikonfigurasi';
-    if (reason === 'insufficient_history' || reason === 'insufficient_closed_history') return 'riwayat belum cukup';
-    return 'sementara tidak tersedia';
+  function unavailableLabel() {
+    return 'tidak tersedia';
   }
 
   function formatActual(value, unit) {
@@ -459,8 +833,9 @@
     return `${formatted} ${unit || ''}`.trim();
   }
 
-  function formatIndex(value) {
-    return Number(value).toFixed(Math.abs(value - 100) < 10 ? 1 : 0);
+  function formatIndex(value, step) {
+    const decimals = Math.abs(step) < 1 ? 1 : Number.isInteger(step) ? 0 : 1;
+    return Number(value).toFixed(decimals);
   }
 
   function formatSigned(value) {
@@ -474,6 +849,27 @@
       ? { day: '2-digit', month: 'short', year: '2-digit' }
       : { day: '2-digit', month: 'short' };
     return new Intl.DateTimeFormat('id-ID', options).format(date);
+  }
+
+  function utcDay(timestamp) {
+    if (!Number.isFinite(Number(timestamp))) return '';
+    return new Date(Number(timestamp) * 1000).toISOString().slice(0, 10);
+  }
+
+  function localizeBias(value) {
+    const labels = { bullish: 'Bullish', neutral: 'Netral', bearish: 'Bearish' };
+    return labels[String(value || '').toLowerCase()] || humanize(value);
+  }
+
+  function localizeMarketState(value) {
+    const labels = {
+      accumulation: 'Akumulasi',
+      expansion: 'Ekspansi',
+      distribution: 'Distribusi',
+      capitulation: 'Kapitulasi',
+      transition: 'Transisi'
+    };
+    return labels[String(value || '').toLowerCase()] || humanize(value);
   }
 
   function humanize(value) {

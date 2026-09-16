@@ -55,7 +55,7 @@ market_context_check(
 	false !== strpos( $js, 'Pahami BTC dalam konteks pasar yang lebih luas.' ) &&
 	false !== strpos( $js, 'kapan tesis pasar berubah.' ) &&
 	false === stripos( $js, 'sendirian' ) &&
-	false === stripos( $js, 'thesis' )
+	false === stripos( $js, 'thesis')
 );
 market_context_check(
 	'Gold is fail-closed behind an explicit provider key and never proxied with a crypto token',
@@ -102,9 +102,60 @@ market_context_check(
 	false !== strpos( $js, 'formatActual(point.value, series.unit)' )
 );
 market_context_check(
-	'Pointer hover layer creates no meaningless keyboard tab stop',
+	'First frame is show-first with BTC ETH and SOL preferred while Gold stays optional',
+	false !== strpos( $js, "DEFAULT_ACTIVE = ['btc', 'eth', 'sol']" ) &&
+	false !== strpos( $js, "SERIES_ORDER = ['btc', 'eth', 'sol', 'gold']" ) &&
+	false !== strpos( $js, 'preferredActive: new Set(DEFAULT_ACTIVE)')
+);
+market_context_check(
+	'Cross-asset normalization requires one exact shared baseline timestamp',
+	false !== strpos( $js, 'findCommonBaselineTimestamp' ) &&
+	false !== strpos( $js, 'point.t === baselineT' ) &&
+	false !== strpos( $js, 'tanggal dasar bersama' )
+);
+market_context_check(
+	'Non-trading-day tooltips use the latest observation at or before the selected date and never look ahead',
+	false !== strpos( $js, 'function pointAtOrBefore' ) &&
+	false !== strpos( $js, 'pointAtOrBefore(series.points, targetT)' ) &&
+	false !== strpos( $js, 'if (points[i].t > targetT) break;')
+);
+market_context_check(
+	'Axis construction uses readable nice ticks and explicitly preserves the 100 baseline',
+	false !== strpos( $js, 'function niceStep' ) &&
+	false !== strpos( $js, 'Math.min(minY, 100)' ) &&
+	false !== strpos( $js, 'Math.max(maxY, 100)' ) &&
+	false !== strpos( $css, '.bm-mc__axis-label.is-baseline' )
+);
+market_context_check(
+	'Responsive chart density rerenders only across meaningful width buckets',
+	false !== strpos( $js, 'ResizeObserver' ) &&
+	false !== strpos( $js, 'tickCountForWidth' ) &&
+	false !== strpos( $js, "return 'compact'" )
+);
+market_context_check(
+	'Bitmomo markers are decluttered, explained, and included in contextual detail',
+	false !== strpos( $js, 'bm-mc__marker-stem' ) &&
+	false !== strpos( $js, 'renderMarkerKey' ) &&
+	false !== strpos( $js, 'Peristiwa Bitmomo' ) &&
+	false !== strpos( $css, '.bm-mc__marker-key' )
+);
+market_context_check(
+	'Chart itself is keyboard navigable while the pointer hit layer creates no duplicate tab stop',
+	false !== strpos( $js, 'chart.tabIndex = 0' ) &&
+	false !== strpos( $js, "'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape'" ) &&
 	false === strpos( $js, "class: 'bm-mc__hit-area', tabindex: '0'" ) &&
 	false === strpos( $js, "hit.addEventListener('focus'" )
+);
+market_context_check(
+	'Unavailable provider internals are not leaked into visitor-facing comparison controls',
+	false !== strpos( $js, "return 'tidak tersedia'" ) &&
+	false === strpos( $js, "return 'belum dikonfigurasi'" )
+);
+market_context_check(
+	'Active-series summary is intrinsic and does not render the old empty three-column grid',
+	false !== strpos( $css, '.bm-mc__legend{' ) &&
+	false !== strpos( $css, 'display:flex;' ) &&
+	false === strpos( $css, 'grid-template-columns:repeat(3,minmax(0,1fr))' )
 );
 market_context_check(
 	'Canonical BTC shell is server-stable rather than dependent on the enhancement class',
@@ -121,7 +172,8 @@ market_context_check(
 	'Market Context uses the shared design foundation, non-color line patterns, and reduced-motion safety',
 	false !== strpos( $css, 'var(--bm-shell-width,1180px)' ) &&
 	false !== strpos( $css, 'stroke-dasharray:8 3' ) &&
-	false !== strpos( $css, 'stroke-dasharray:3 3' ) &&
+	false !== strpos( $css, 'stroke-dasharray:5 3' ) &&
+	false !== strpos( $css, 'stroke-dasharray:10 3 2 3' ) &&
 	false !== strpos( $css, '@media (prefers-reduced-motion:reduce)' )
 );
 
