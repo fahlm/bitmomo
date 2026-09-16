@@ -16,6 +16,13 @@ if ( ! defined( 'BITMOMO_AI_AUTO_PUBLISH' ) ) {
 	define( 'BITMOMO_AI_AUTO_PUBLISH', false );
 }
 
+// Market Pulse is a launch-critical read-only capability. Staging must exercise
+// the same 15-minute evaluation path visitors will rely on at launch. The
+// outbound-write guard below still blocks non-GET/HEAD side effects.
+if ( ! defined( 'BITMOMO_AI_OPPORTUNITY_ENABLED' ) ) {
+	define( 'BITMOMO_AI_OPPORTUNITY_ENABLED', true );
+}
+
 add_filter( 'pre_wp_mail', static function () {
 	return false;
 }, PHP_INT_MIN );
