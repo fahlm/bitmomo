@@ -56,6 +56,24 @@ The equivalence gate loads the accepted `config/production-runtime.json`, requir
 
 This gate is specifically useful for the Whitelist V1 post-production trunk convergence: it can prove that governance reconciliation did not silently alter the already accepted runtime before a new full exact-SHA validation is run.
 
+## Release ancestry retention
+
+A verified release commit must remain reachable from canonical history after temporary release/RC refs are deleted. Release evidence must not depend on a branch that later disappears.
+
+For ordinary future releases cut directly from integrated `main`, this happens naturally because the accepted candidate is already an ancestor of later `main`.
+
+For the historical Whitelist V1 parallel-trunk exception, convergence must preserve the accepted commit `c33d128d5681909337ffc8b0811647012532fe9e` as an ancestor of the reconciled trunk. Use an explicit reconciliation **merge commit** for this one exceptional integration rather than squash-copying the release files. Resolve conflicts so:
+
+- product/runtime content remains byte-equivalent to the accepted production source;
+- newer zero-cost governance/tooling on `main` is preserved;
+- the resulting reconciliation commit has both histories as parents;
+- `c33d128...` is provably an ancestor of the reconciled commit;
+- runtime equivalence and the exact-SHA full gate both PASS before the reconciliation reaches canonical `main`.
+
+Only after production is verified, convergence is merged, ancestry is proven, and machine release state records the reconciled trunk SHA may temporary `release/*` / `rc-*` refs be retired.
+
+This explicit merge-commit exception does **not** change the normal squash-merge policy for ordinary feature/fix/docs/ops PRs.
+
 ## Rollback
 
 Rollback is preferred over live editing when production-only behavior is unsafe. Restore the last known-good runtime/backup, record the production-only failure, fix from a focused branch, run the relevant deterministic gate, and cut a new RC. Never hide an emergency edit by later making source resemble production.
@@ -82,10 +100,14 @@ Whitelist V1 predates this model and its accepted release source is materially d
 
 Immediately after production is verified:
 
-1. reconcile the accepted product source back into `main` while preserving the zero-cost governance/tooling changes;
-2. run `bash scripts/bitmomo-check.sh equivalence c33d128d5681909337ffc8b0811647012532fe9e <reconciled-sha>` and require PASS;
-3. run one `full <reconciled-sha>` exact-SHA gate;
-4. verify the reconciled product semantics against the just-verified production runtime;
-5. retire `release/whitelist-v1` and temporary RC branches.
+1. create a dedicated reconciliation branch from then-current `main`;
+2. merge the accepted Whitelist source/history into that branch with an explicit merge commit so `c33d128...` remains an ancestor; preserve current governance/tooling while resolving conflicts;
+3. run `bash scripts/bitmomo-check.sh equivalence c33d128d5681909337ffc8b0811647012532fe9e <reconciled-sha>` and require PASS;
+4. run one `bash scripts/bitmomo-check.sh full <reconciled-sha>` exact-SHA gate;
+5. verify the reconciled product semantics against the just-verified production runtime;
+6. merge the validated reconciliation into canonical `main` while preserving that ancestry;
+7. record the canonical converged main SHA + runtime-equivalence proof in machine release state;
+8. prove `git merge-base --is-ancestor c33d128d5681909337ffc8b0811647012532fe9e <converged-main-sha>`;
+9. only then retire `release/whitelist-v1` and temporary RC refs.
 
 Future releases begin from integrated `main`, not a long-lived parallel product trunk.
