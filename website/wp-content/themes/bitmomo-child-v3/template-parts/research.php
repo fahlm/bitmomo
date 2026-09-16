@@ -1,5 +1,5 @@
 <?php
-/** Compact qualified market-research desk for the homepage. @package Bitmomo */
+/** Qualified market-research desk for the homepage. @package Bitmomo */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 $bm_riset_term = get_category_by_slug( 'riset' );
@@ -11,7 +11,7 @@ $bm_market_slugs = function_exists( 'bitmomo_market_research_taxonomy_slugs' )
 
 $bm_research_items = array();
 
-// Homepage research must obey the same institutional qualification boundary as
+// Homepage research obeys the same institutional qualification boundary as
 // the Research Hub. Broad `Riset` membership alone is never enough.
 if ( $bm_riset_term && $bm_market_slugs ) {
     $bm_query_args = array(
@@ -59,7 +59,7 @@ if ( $bm_riset_term && $bm_market_slugs ) {
                 'label'        => function_exists( 'bitmomo_post_research_topic_label' ) ? bitmomo_post_research_topic_label( get_the_ID() ) : __( 'Market Research', 'bitmomo' ),
                 'title'        => get_the_title(),
                 'link'         => get_permalink(),
-                'excerpt'      => wp_trim_words( get_the_excerpt(), 14, '…' ),
+                'excerpt'      => wp_trim_words( get_the_excerpt(), 24, '…' ),
                 'date_iso'     => get_the_date( DATE_W3C ),
                 'date_label'   => get_the_date( 'd M Y' ),
                 'reading_time' => max( 1, (int) $bm_reading_minutes ),
@@ -79,14 +79,15 @@ if ( ! $bm_research_items ) {
     <header class="bm-home-research__head">
       <div>
         <span class="bm-home-research__eyebrow"><?php esc_html_e( 'RESEARCH DESK', 'bitmomo' ); ?></span>
-        <h2 id="bm-home-research-title"><?php esc_html_e( 'Riset pasar terbaru', 'bitmomo' ); ?></h2>
+        <h2 id="bm-home-research-title"><?php esc_html_e( 'Riset yang membentuk cara Bitmomo membaca pasar.', 'bitmomo' ); ?></h2>
+        <p><?php esc_html_e( 'Publikasi terbaru dari desk riset pasar Bitmomo. Fokusnya bukan berita harian, melainkan tesis yang dapat diuji terhadap data dan hasil berikutnya.', 'bitmomo' ); ?></p>
       </div>
       <a class="bm-home-research__all" href="<?php echo esc_url( $bm_riset_url ); ?>"><?php esc_html_e( 'Buka Research Hub →', 'bitmomo' ); ?></a>
     </header>
 
     <ol class="bm-home-research__list">
       <?php foreach ( $bm_research_items as $bm_index => $bm_item ) : ?>
-      <li class="bm-home-research__item">
+      <li class="bm-home-research__item<?php echo 0 === $bm_index ? ' is-lead' : ''; ?>">
         <span class="bm-home-research__index"><?php echo esc_html( str_pad( (string) ( $bm_index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span>
         <div class="bm-home-research__meta">
           <strong><?php echo esc_html( $bm_item['label'] ); ?></strong>
