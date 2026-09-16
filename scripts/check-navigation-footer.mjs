@@ -88,9 +88,10 @@ check(
   /shortcode_exists\(\s*'mailpoet_form'\s*\)/.test(footer) && /if \( \$bm_newsletter_available \)/.test(footer)
 );
 check(
-  'Newsletter is visually secondary and does not consume the commercial action token',
-  /\.bm-footer-newsletter__form[\s\S]*?background:\s*var\(--bm-bg-soft/.test(navCss) &&
-  !/\.bm-footer-newsletter[\s\S]{0,1400}background:\s*var\(--bm-action/.test(navCss)
+  'Newsletter is visually secondary and isolated from the commercial action token',
+  /\.bm-footer-newsletter\s*\{[\s\S]*?background:\s*var\(--bm-bg-elevated/.test(navCss) &&
+  /\.bm-footer-newsletter\s*\{[\s\S]*?border:\s*1px solid var\(--bm-border/.test(navCss) &&
+  !/\.bm-footer-newsletter[\s\S]{0,1800}background:\s*var\(--bm-action/.test(navCss)
 );
 check(
   'Legacy newsletter modal remains structurally disabled',
@@ -102,10 +103,17 @@ check(
   /#subscribe/.test(content) && /#newsletter/.test(content) && /str_replace\(\s*'js-open-subscribe'\s*,\s*''/.test(content)
 );
 check(
-  'Footer keeps product, research and company IA separate from legal utility links',
-  /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) && /Decision Ledger/.test(footer) &&
-  /Research Standard/.test(footer) && /Help Center/.test(footer) && /class="bm-footer-legal"/.test(footer) &&
-  /Kebijakan Privasi/.test(footer) && /Disclaimer/.test(footer)
+  'Footer IA exposes clear product, research and company destinations without internal jargon',
+  /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) &&
+  /BTC Intelligence/.test(footer) && /Bitmomo Pro/.test(footer) && /Track Record/.test(footer) &&
+  /Market Research/.test(footer) && /AI Research/.test(footer) && /Research Standard/.test(footer) &&
+  /Tentang Bitmomo/.test(footer) && /Help Center/.test(footer) && !/>Decision Ledger</.test(footer)
+);
+check(
+  'Footer makes Bitmomo operating principles visible as a restrained trust rail',
+  /bm-footer-principles/.test(footer + navCss) && /EVIDENCE FIRST/.test(footer) &&
+  /TESTABLE RESEARCH/.test(footer) && /FAIL CLOSED/.test(footer) &&
+  /grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/.test(navCss)
 );
 check(
   'Terms link is fail-closed until a canonical published WordPress page exists',
@@ -113,14 +121,14 @@ check(
   /if \( \$bm_terms_url \)/.test(footer) && /Syarat Layanan/.test(footer)
 );
 check(
-  'Footer brand reuses the canonical renderer and restrained public identity',
-  /bitmomo_render_brand\(\)/.test(footer) && /rekam jejak keputusan/.test(footer) &&
-  /Bitmomo\.<\/p>/.test(footer) && /bukan rekomendasi beli\/jual atau nasihat keuangan/.test(footer) &&
-  !/bloginfo\(\s*'name'\s*\)/.test(footer)
+  'Footer brand reuses canonical identity and states the intelligence plus AI-research position',
+  /bitmomo_render_brand\(\)/.test(footer) && /Market intelligence BTC dan riset AI/.test(footer) &&
+  /rekam jejak keputusan/.test(footer) && /Bitmomo\.<\/p>/.test(footer) &&
+  /bukan rekomendasi beli\/jual atau nasihat keuangan/.test(footer) && !/bloginfo\(\s*'name'\s*\)/.test(footer)
 );
 check(
   'Footer grid collapses deterministically from desktop to tablet, mobile and narrow mobile',
-  /grid-template-columns:\s*minmax\(260px, 1\.35fr\) repeat\(3/.test(navCss) &&
+  /grid-template-columns:\s*minmax\(300px, 1\.45fr\) repeat\(3/.test(navCss) &&
   /@media \(max-width: 900px\)[\s\S]*?grid-template-columns:\s*repeat\(3/.test(navCss) &&
   /@media \(max-width: 640px\)[\s\S]*?grid-template-columns:\s*repeat\(2/.test(navCss) &&
   /@media \(max-width: 430px\)[\s\S]*?grid-template-columns:\s*1fr/.test(navCss)
