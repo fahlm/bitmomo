@@ -30,6 +30,16 @@ Open a Draft PR early. Normal work targets `main`. Keep one PR to one reviewable
 
 Do not use GitHub-hosted Actions as the development loop. A skipped workflow is not test evidence; local command output and deployed staging evidence are.
 
+## Risk class
+
+Before marking a PR Ready, classify it:
+
+- **A:** source-only / low runtime risk — local validation may be sufficient;
+- **B:** public/runtime behavior — staging and browser acceptance are required before promotion;
+- **C:** money/access/data integrity — full exact-SHA validation, staging product/data acceptance and explicit production authorization are mandatory.
+
+The PR template is the canonical checklist.
+
 ## Release loop
 
 Normal development merges to `main` first. When a real release candidate exists, the release authority runs:
@@ -42,11 +52,27 @@ The accepted candidate is then frozen as an immutable `rc-*` snapshot. Build one
 
 A blocker creates a focused fix and a new RC. Never patch an accepted RC in place.
 
+## Historical Whitelist release exception
+
+`release/whitelist-v1` predates the trunk-oriented model and is temporarily preserved because it contains the staging-accepted Whitelist candidate lineage. Do not use it as a new development trunk.
+
+Until Whitelist V1 is production-verified and its accepted source is converged back to `main`:
+
+- preserved post-launch PRs against that branch remain **Draft**;
+- do not mark them Ready merely to obtain hosted CI;
+- validate locally;
+- do not mutate the accepted release/RC;
+- port/recreate the preserved work from canonical `main` after convergence.
+
+The historical release branch is then retired.
+
 ## Local safety guard
 
-The repository pre-push hook blocks ordinary direct pushes from `main`, `release/*`, and `rc-*`. Work on a purpose-named branch and use a PR. The environment override `BITMOMO_ALLOW_PROTECTED_PUSH=1` exists only for explicit release authority/emergency operations; it is not a normal workflow.
+The repository pre-push hook parses the **remote destination ref** and blocks ordinary pushes to `main`, `release/*`, and `rc-*`. This prevents refspec bypasses such as pushing a feature-branch HEAD directly to `main`.
 
-Server-side branch protection remains the final enforcement layer once repository administration is configured.
+The environment override `BITMOMO_ALLOW_PROTECTED_PUSH=1` exists only for explicit release authority/emergency operations; it is not a normal workflow.
+
+Server-side branch protection remains the final enforcement layer once repository administration is configured. The local hook is defense-in-depth, not a security boundary.
 
 ## Ownership
 
