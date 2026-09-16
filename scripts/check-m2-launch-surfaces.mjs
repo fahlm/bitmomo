@@ -46,12 +46,15 @@ check(
 );
 check('Homepage does not let AI Lab compete with the launch funnel', !/template-parts\/ai[^\n]*lab/.test(frontPage));
 check(
-  'Homepage journey is value/proof -> mechanism -> conversion -> research while Pro conversion remains provider-neutral',
-  heroIndex > -1 && howIndex > heroIndex && proConversionIndex > howIndex && researchIndex > proConversionIndex
+  'Homepage journey is current intelligence -> evidence -> qualified research -> conversion',
+  heroIndex > -1 && howIndex > heroIndex && researchIndex > howIndex && proConversionIndex > researchIndex
     && /home_url\(\s*'\/btc-intelligence\/'\s*\)/.test(homeHero)
-    && /href="#founding-whitelist"/.test(homeHero)
     && /\/btc-intelligence\/#decision-ledger/.test(homeHero)
-    && homeHero.indexOf('/btc-intelligence/#decision-ledger') < homeHero.indexOf('href="#founding-whitelist"')
+    && /Bitmomo_Public_Intelligence_Adapter::history\(\)/.test(howItWorks)
+    && /Bitmomo_Btc_Intelligence_Accountability::decision_ledger\(\s*3\s*\)/.test(howItWorks)
+    && /Bitmomo_Btc_Intelligence_Accountability::delayed_proof\(\s*1\s*\)/.test(howItWorks)
+    && /ARSIP PRO ≥48 JAM/.test(howItWorks)
+    && /EXPECTED RANGE/.test(howItWorks)
     && /bitmomo_pro_get_checkout_url\(\)/.test(homeWhitelist)
     && /Bitmomo_Pro_Whitelist::instance\(\)->render_widget/.test(homeWhitelist)
     && /home_url\(\s*'\/pro\/'\s*\)/.test(homeWhitelist)
@@ -82,8 +85,27 @@ check(
     && />REFERENSI BTC</.test(homeHero) && />FAKTOR UTAMA</.test(homeHero) && />DIPERBARUI</.test(homeHero)
     && /<strong>SUMBER DATA<\/strong>/.test(homeHero)
     && /\$bm_drivers\[0\]/.test(homeHero) && /\['provenance'\]\['source'\]/.test(homeHero)
+    && /APA YANG TERJADI/.test(homeHero) && /APA YANG BERUBAH/.test(homeHero)
+    && /MENGAPA PENTING/.test(homeHero) && /PANTAU BERIKUTNYA/.test(homeHero)
     && !/>OPPORTUNITY</.test(homeHero) && !/>STATE</.test(homeHero)
-    && !/market_state|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
+    && !/\$bm_snapshot\s*\[\s*['"]market_state['"]\s*\]|market_state_certainty|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
+);
+check(
+  'Homepage change narrative covers canonical structural changes without exposing raw state values',
+  /'market_state' === \$bm_field/.test(homeHero)
+    && /'structural_state' === \$bm_field/.test(homeHero)
+    && /Konteks pasar berubah dibanding brief sebelumnya\./.test(homeHero)
+    && /Struktur harga berubah dibanding brief sebelumnya\./.test(homeHero)
+    && !/\$bm_change\[['"](?:from|to)['"]\][\s\S]{0,120}(?:market_state|structural_state)/.test(homeHero)
+);
+check(
+  'Homepage evidence precedes mechanism and uses only public accountability boundaries',
+  /BUKTI, BUKAN KLAIM/.test(howItWorks)
+    && /30D STATE TAPE/.test(howItWorks)
+    && /DECISION LEDGER/.test(howItWorks)
+    && /ARSIP PRO ≥48 JAM/.test(howItWorks)
+    && howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('HOW BITMOMO WORKS')
+    && !/Bitmomo_Pro_Briefs|Bitmomo_AI_Scorecard|Bitmomo_Regime_State_Store/.test(howItWorks)
 );
 check(
   'Homepage explanation uses the canonical visitor lifecycle instead of engine vocabulary',
@@ -232,11 +254,14 @@ check(
   /public function render_mailpoet_modal\(\)[\s\S]*?return;/.test(frontendTrait) && !/bm-subscribe-modal|bm-subscribe-dialog/.test(frontendTrait)
 );
 check(
-  'Homepage Research stays BTC-first, concise, and excludes AI Lab posts from fallback',
+  'Homepage Research stays BTC-first, qualified, and evidence-led',
   /array\( 'bitcoin', 'makro', 'market-structure' \)/.test(research)
-    && /wp_trim_words\( get_the_excerpt\(\), 14/.test(research)
+    && /wp_trim_words\( get_the_excerpt\(\), 24/.test(research)
     && /get_term_by\( 'slug', 'ai-lab', 'post_tag' \)/.test(research)
-    && /tag__not_in/.test(research) && !/Baca selengkapnya/.test(research)
+    && /tag__not_in/.test(research)
+    && /Riset yang membentuk cara Bitmomo membaca pasar\./.test(research)
+    && /tesis yang dapat diuji/.test(research)
+    && !/Baca selengkapnya/.test(research)
 );
 check('BTC Intelligence loads repeat-use telemetry only on the product page', /bitmomo_enqueue_btc_retention_telemetry/.test(themeFunctions) && /is_page\('btc-intelligence'\)/.test(themeFunctions) && /bitmomo-retention\.js/.test(themeFunctions));
 check(
