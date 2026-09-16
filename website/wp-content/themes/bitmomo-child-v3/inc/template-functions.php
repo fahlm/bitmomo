@@ -268,6 +268,10 @@ if (!function_exists('bitmomo_post_research_classification')) {
             return bitmomo_legacy_post_research_classification($post_id);
         }
 
+        // Desk is the identity owner, but `Riset` remains the canonical route
+        // container. A split state fails closed even if terms were corrupted.
+        if (!has_category('riset', $post_id)) return 'unclassified';
+
         $desk = bitmomo_post_research_desk_slug($post_id);
         if ('' === $desk) return 'unclassified';
 
@@ -540,6 +544,39 @@ if (!function_exists('bitmomo_render_research_editor_meta_box')) {
         }
     }
 }
+
+if (!function_exists('bitmomo_enforce_research_desk_container')) {
+    /**
+     * Research Desk is the institutional identity owner while `Riset` remains
+     * the canonical route/container. Enforce the invariant at the taxonomy
+     * write boundary so editor, WP-CLI migration, REST, and future tooling all
+     * converge on the same state.
+     *
+     * Removing a desk deliberately keeps `Riset`; the post then becomes an
+     * unclassified archive item until editorial review.
+     */
+    function bitmomo_enforce_research_desk_container($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids) {
+        unset($terms, $append, $old_tt_ids);
+        if (bitmomo_research_desk_taxonomy() !== (string) $taxonomy || empty($tt_ids)) return;
+
+        $post_id = (int) $object_id;
+        if (!$post_id || 'post' !== get_post_type($post_id)) return;
+
+        $riset = get_category_by_slug('riset');
+        if (!$riset || is_wp_error($riset)) return;
+
+        $category_ids = wp_get_post_categories($post_id);
+        if (is_wp_error($category_ids)) return;
+
+        $category_ids = array_map('intval', (array) $category_ids);
+        $riset_id = (int) $riset->term_id;
+        if (in_array($riset_id, $category_ids, true)) return;
+
+        $category_ids[] = $riset_id;
+        wp_set_post_categories($post_id, array_values(array_unique($category_ids)), false);
+    }
+}
+add_action('set_object_terms', 'bitmomo_enforce_research_desk_container', 10, 6);
 
 if (!function_exists('bitmomo_save_research_editor_meta_box')) {
     function bitmomo_save_research_editor_meta_box($post_id) {
