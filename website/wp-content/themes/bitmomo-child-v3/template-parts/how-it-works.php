@@ -107,7 +107,7 @@ $bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_r
           </div>
           <div class="bm-home-state__summary">
             <strong class="is-bullish">Bullish <?php echo esc_html( $bm_counts['bullish'] ); ?></strong>
-            <strong class="is-neutral">Netral</strong>
+            <strong class="is-neutral">Netral <?php echo esc_html( $bm_counts['neutral'] ); ?></strong>
             <strong class="is-bearish">Bearish <?php echo esc_html( $bm_counts['bearish'] ); ?></strong>
             <span><?php echo esc_html( count( $bm_days ) ); ?> hari tersedia</span>
           </div>
