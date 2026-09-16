@@ -23,7 +23,12 @@ check('Engineering policy schema is supported', policy.schema === 1);
 check('Repository operates in zero-cost local-first mode', policy.mode === 'zero-cost-local-first');
 check('Hosted Actions policy is locked', policy.hosted_actions === 'locked');
 check('Maximum normal PR stack depth is <= 2', Number(policy.max_pr_stack_depth) <= 2);
+check('Active PR target is bounded', Number(policy.target_active_open_prs) > 0 && Number(policy.target_active_open_prs) <= 5);
+check('Active branch target is bounded', Number(policy.target_active_branches) > 0 && Number(policy.target_active_branches) <= 15);
 check('Runtime equivalence command is canonical', /bitmomo-check\.sh equivalence/.test(policy.canonical_commands?.equivalence || ''));
+check('Release candidates are declared immutable', policy.release?.accepted_candidate_immutable === true);
+check('Release requires exact artifact identity', policy.release?.exact_artifact_required === true);
+check('Production requires explicit owner authorization', policy.release?.production_requires_explicit_owner_authorization === true);
 
 const required = [
   'docs/CURRENT_RELEASE.md',
@@ -31,6 +36,8 @@ const required = [
   'docs/ARCHITECTURE_OWNERSHIP.md',
   'docs/PRODUCTION_PIPELINE.md',
   '.github/pull_request_template.md',
+  '.githooks/pre-push',
+  'scripts/setup-engineer.sh',
   'scripts/bitmomo-check.sh',
   'scripts/production-monitor-local.sh',
   'scripts/check-engineering-policy.mjs',
@@ -64,6 +71,12 @@ for (const name of workflows) {
   if (runnableJobs === 0) check(`${name}: contains a hard-lock marker`, /^\s{4}if:\s*false\s*$/m.test(source));
 }
 
+const hook = read('.githooks/pre-push');
+check('Pre-push guard evaluates remote destination refs', hook.includes('remote_ref'));
+check('Pre-push guard protects main destination', hook.includes('refs/heads/main'));
+check('Pre-push guard protects release destinations', hook.includes('refs/heads/release/*'));
+check('Pre-push guard protects immutable RC destinations', hook.includes('refs/heads/rc-*'));
+
 const customCss = 'website/wp-content/themes/bitmomo-child-v3/custom.css';
 if (exists(customCss)) {
   const bytes = fs.statSync(path.join(root, customCss)).size;
@@ -85,6 +98,7 @@ check('PR template requires local test command', prTemplate.includes('bash scrip
 const operating = read('docs/ENGINEERING_OPERATING_MODEL.md');
 check('Operating model defines zero-cost validation', /zero-cost validation model/i.test(operating));
 check('Operating model defines machine-enforced contract', /machine-enforced engineering contract/i.test(operating));
+check('Operating model points to machine policy', operating.includes('config/engineering-policy.json'));
 const currentRelease = read('docs/CURRENT_RELEASE.md');
 check('Current release records exact commit', /- Commit:\s*`[0-9a-f]{40}`/.test(currentRelease));
 check('Current release records artifact identity', /- Artifact ID:\s*`?\d+`?/.test(currentRelease));
