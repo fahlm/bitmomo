@@ -90,8 +90,10 @@ check('Market Context avoids false link affordance and literal translation artif
   !/Expected Range <b aria-hidden="true">↗|Scenario Map <b aria-hidden="true">↗|Invalidation <b aria-hidden="true">↗|\bthesis\b/i.test(marketContextJs)
 );
 
-check('Research Hub is publication-first and communicates a testable-thesis value proposition',
-  researchHub.includes('Tesis pasar yang dapat diuji.') &&
+check('Research Hub is publication-first and represents testable market and AI research',
+  researchHub.includes('Riset pasar dan AI yang dapat diuji.') &&
+  researchHub.includes('Crypto Markets · AI &amp; Intelligence Systems') &&
+  researchHub.includes('bukti, konteks, batas tesis, dan evaluasi hasil') &&
   researchHub.includes('LATEST RESEARCH') &&
   researchHub.includes('Setiap tesis harus dapat diuji.') &&
   researchHub.includes('$bm_visible_filters') &&
