@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo Pro
  * Plugin URI: https://bitmomo.id
  * Description: Paid-product access layer for Bitmomo Pro. Packages, protects, and delivers the daily Pro brief to entitled subscribers. Does not generate market intelligence — see the bitmomo-ai plugin for that.
- * Version: 0.12.8
+ * Version: 0.12.9
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'BITMOMO_PRO_VERSION', '0.12.8' );
+define( 'BITMOMO_PRO_VERSION', '0.12.9' );
 define( 'BITMOMO_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -39,6 +39,7 @@ require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-daily.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-launch-readiness.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-performance.php';
 require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-whitelist.php';
+require_once BITMOMO_PRO_DIR . 'includes/class-bitmomo-pro-founding149-acquisition.php';
 
 /** Bootstrap the paid-product/access responsibilities. */
 function bitmomo_pro_init() {
@@ -71,6 +72,7 @@ function bitmomo_pro_init() {
 	Bitmomo_Pro_Launch_Readiness::instance();
 	Bitmomo_Pro_Performance::instance();
 	Bitmomo_Pro_Whitelist::instance();
+	Bitmomo_Pro_Founding149_Acquisition::instance();
 }
 add_action( 'plugins_loaded', 'bitmomo_pro_init' );
 
@@ -134,8 +136,7 @@ add_action( 'admin_init', 'bitmomo_pro_register_settings' );
 function bitmomo_pro_render_checkout_url_field() {
 	$value = get_option( 'bitmomo_pro_checkout_url', '' );
 	printf(
-		'<input type="url" class="regular-text" name="bitmomo_pro_checkout_url" value="%s" placeholder="https://..." />
-		<p class="description">%s</p>',
+		'<input type="url" class="regular-text" name="bitmomo_pro_checkout_url" value="%s" placeholder="https://..." />\n\t\t<p class="description">%s</p>',
 		esc_attr( $value ),
 		esc_html__( 'Where the Bitmomo Pro CTA points. Leave blank until a payment path is finalized — the whitelist remains the public conversion path.', 'bitmomo-pro' )
 	);
@@ -182,8 +183,7 @@ add_action( 'admin_init', 'bitmomo_pro_register_dashboard_url_setting' );
 function bitmomo_pro_render_dashboard_url_field() {
 	$value = get_option( 'bitmomo_pro_dashboard_url', '' );
 	printf(
-		'<input type="url" class="regular-text" name="bitmomo_pro_dashboard_url" value="%s" placeholder="https://.../pro-dashboard" />
-		<p class="description">%s</p>',
+		'<input type="url" class="regular-text" name="bitmomo_pro_dashboard_url" value="%s" placeholder="https://.../pro-dashboard" />\n\t\t<p class="description">%s</p>',
 		esc_attr( $value ),
 		esc_html__( 'Used in welcome/daily-brief emails. Leave blank to auto-detect a Page at the "pro-dashboard" slug.', 'bitmomo-pro' )
 	);
