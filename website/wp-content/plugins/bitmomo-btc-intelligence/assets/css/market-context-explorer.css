@@ -194,7 +194,9 @@
 .bm-mc__series-button.is-gold{color:var(--bmc-gold)}
 .bm-mc__series-button.is-eth{color:var(--bmc-eth)}
 .bm-mc__series-button.is-sol{color:var(--bmc-sol)}
-.bm-mc__series-button:disabled{cursor:default;opacity:.54}
+.bm-mc__series-button:disabled{cursor:default;opacity:1}
+.bm-mc__series-button:disabled:not(.is-btc),
+.bm-mc__series-button:disabled:not(.is-btc) small{color:#8997a8}
 .bm-mc__series-button.is-btc:disabled{opacity:1;color:var(--bmc-btc)}
 
 /* Chart */

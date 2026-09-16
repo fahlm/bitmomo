@@ -656,7 +656,7 @@ class Bitmomo_Btc_Intelligence_Page {
 				<?php $this->render_blocked_boundary( __( 'Belum ada cukup outcome yang layak untuk diringkas.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
 				<p class="bm-bi__section-intro"><?php esc_html_e( 'Jumlah outcome konklusif ditampilkan lebih dulu. Persentase akurasi hanya ditampilkan sebagai statistik sementara setelah minimum sampel tercapai, dan baru dianggap memadai setelah ambang sampel kuat.', 'bitmomo-btc-intelligence' ); ?></p>
-				<div class="bm-bi__proof-grid">
+				<div class="bm-bi__proof-grid" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Ringkasan track record BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<?php $this->render_metric( __( 'Keseluruhan', 'bitmomo-btc-intelligence' ), $current['all'] ?? array() ); ?>
 					<?php $this->render_metric( __( '30 terakhir', 'bitmomo-btc-intelligence' ), $current['rolling_30'] ?? array() ); ?>
 					<?php $directions = is_array( $current['by_direction'] ?? null ) ? $current['by_direction'] : array(); ?>
