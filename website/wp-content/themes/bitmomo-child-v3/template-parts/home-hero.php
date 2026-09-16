@@ -88,6 +88,10 @@ if ( 'compared' === ( $bm_comparison['status'] ?? '' ) ) {
             $bm_from = $bm_label_direction( $bm_change['from'] ?? '' );
             $bm_to = $bm_label_direction( $bm_change['to'] ?? '' );
             if ( $bm_from && $bm_to ) $bm_changed_lines[] = sprintf( 'Kekuatan arah berubah dari %s menjadi %s.', $bm_from, $bm_to );
+        } elseif ( 'market_state' === $bm_field ) {
+            $bm_changed_lines[] = 'Konteks pasar berubah dibanding brief sebelumnya.';
+        } elseif ( 'structural_state' === $bm_field ) {
+            $bm_changed_lines[] = 'Struktur harga berubah dibanding brief sebelumnya.';
         } elseif ( 'confidence' === $bm_field ) {
             $bm_from = max( 0, min( 100, (int) ( $bm_change['from'] ?? 0 ) ) );
             $bm_to = max( 0, min( 100, (int) ( $bm_change['to'] ?? 0 ) ) );
