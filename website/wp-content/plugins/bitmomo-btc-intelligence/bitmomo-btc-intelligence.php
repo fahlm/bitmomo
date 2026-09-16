@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo BTC Intelligence
  * Plugin URI: https://bitmomo.id
  * Description: Public /btc-intelligence/ product surface for current BTC context, session briefs, history, Decision Ledger, delayed Pro proof, accountable evaluation, and public-safe Telegram distribution.
- * Version: 0.3.9
+ * Version: 0.3.8
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.9' );
+define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.8' );
 define( 'BITMOMO_BTC_INTELLIGENCE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_BTC_INTELLIGENCE_URL', plugin_dir_url( __FILE__ ) );
 
