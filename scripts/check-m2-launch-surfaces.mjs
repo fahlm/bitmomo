@@ -88,7 +88,15 @@ check(
     && /APA YANG TERJADI/.test(homeHero) && /APA YANG BERUBAH/.test(homeHero)
     && /MENGAPA PENTING/.test(homeHero) && /PANTAU BERIKUTNYA/.test(homeHero)
     && !/>OPPORTUNITY</.test(homeHero) && !/>STATE</.test(homeHero)
-    && !/market_state|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
+    && !/\$bm_snapshot\s*\[\s*['"]market_state['"]\s*\]|market_state_certainty|certainty|source_diagnostics|private_note|Bitmomo_Public_Intelligence_Adapter::history/.test(homeHero)
+);
+check(
+  'Homepage change narrative covers canonical structural changes without exposing raw state values',
+  /'market_state' === \$bm_field/.test(homeHero)
+    && /'structural_state' === \$bm_field/.test(homeHero)
+    && /Konteks pasar berubah dibanding brief sebelumnya\./.test(homeHero)
+    && /Struktur harga berubah dibanding brief sebelumnya\./.test(homeHero)
+    && !/\$bm_change\[['"](?:from|to)['"]\][\s\S]{0,120}(?:market_state|structural_state)/.test(homeHero)
 );
 check(
   'Homepage evidence precedes mechanism and uses only public accountability boundaries',
