@@ -2,6 +2,7 @@
 $root      = dirname( __DIR__ );
 $bootstrap = file_get_contents( $root . '/bitmomo-btc-intelligence.php' );
 $css       = file_get_contents( $root . '/assets/css/accountability-surface.css' );
+$page      = file_get_contents( $root . '/includes/class-bitmomo-btc-intelligence-page.php' );
 
 $pass = 0;
 $fail = 0;
@@ -68,6 +69,13 @@ accountability_surface_check(
 	false !== strpos( $css, 'overflow-x:auto' ) &&
 	false !== strpos( $css, 'scroll-snap-type:x proximity' ) &&
 	false === strpos( $css, '.bm-bi__track-record .bm-bi__proof-grid{grid-template-columns:1fr}' )
+);
+accountability_surface_check(
+	'Mobile Track Record scroll region is keyboard reachable and has a visible focus indicator',
+	false !== strpos( $page, 'class="bm-bi__proof-grid" tabindex="0" role="region"' ) &&
+	false !== strpos( $page, "Ringkasan track record BTC" ) &&
+	false !== strpos( $css, '.bm-bi__track-record .bm-bi__proof-grid:focus-visible{' ) &&
+	false !== strpos( $css, 'outline:var(--bm-focus-ring,2px solid var(--bmi-accent))' )
 );
 accountability_surface_check(
 	'Accountability styling remains accessible under reduced motion',
