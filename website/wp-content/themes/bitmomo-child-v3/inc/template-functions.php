@@ -483,11 +483,11 @@ if (!function_exists('bitmomo_research_query_args')) {
 }
 
 if (!function_exists('bitmomo_research_focus_has_posts')) {
-    function bitmomo_research_focus_has_posts($focus) {
+    function bitmomo_research_focus_has_posts($focus, $search = '') {
         if (!bitmomo_research_taxonomy_is_active()) return false;
         $query = new WP_Query(bitmomo_research_query_args(
             $focus,
-            '',
+            $search,
             array(
                 'posts_per_page' => 4,
                 'fields'         => 'ids',
