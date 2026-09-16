@@ -3,17 +3,43 @@ set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
-branch="$(git symbolic-ref --quiet --short HEAD || true)"
 
-case "$branch" in
-  main|release/*|rc-*)
-    if [ "${BITMOMO_ALLOW_PROTECTED_PUSH:-0}" != "1" ]; then
-      echo "ERROR direct push from '$branch' is blocked by Bitmomo's local safety hook." >&2
-      echo "Use a focused working branch + PR. Release/RC mutation requires an explicit release-authority override." >&2
-      echo "Emergency/release authority only: BITMOMO_ALLOW_PROTECTED_PUSH=1 git push ..." >&2
-      exit 1
-    fi
-    ;;
-esac
+ZERO_SHA="0000000000000000000000000000000000000000"
+override="${BITMOMO_ALLOW_PROTECTED_PUSH:-0}"
+has_non_delete=0
+blocked_ref=""
 
-bash scripts/bitmomo-check.sh quick
+# Git supplies one line per ref update:
+# <local ref> <local sha> <remote ref> <remote sha>
+# Guard the destination ref rather than the currently checked-out branch so
+# refspec pushes such as `git push origin HEAD:main` cannot bypass the policy.
+while read -r local_ref local_sha remote_ref remote_sha; do
+  test -n "${remote_ref:-}" || continue
+
+  case "${local_sha:-}" in
+    "$ZERO_SHA") ;;
+    *) has_non_delete=1 ;;
+  esac
+
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/release/*|refs/heads/rc-*)
+      if [ "$override" != "1" ]; then
+        blocked_ref="$remote_ref"
+        break
+      fi
+      ;;
+  esac
+done
+
+if [ -n "$blocked_ref" ]; then
+  echo "ERROR direct push to '$blocked_ref' is blocked by Bitmomo's local safety hook." >&2
+  echo "Use a focused working branch + PR. Release/RC mutation requires explicit release authority." >&2
+  echo "Emergency/release authority only: BITMOMO_ALLOW_PROTECTED_PUSH=1 git push ..." >&2
+  exit 1
+fi
+
+if [ "$has_non_delete" -eq 1 ]; then
+  bash scripts/bitmomo-check.sh quick
+else
+  echo "PASS pre-push: deletion-only update, source validation skipped"
+fi
