@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "release": "whitelist-v1-remediation",
+  "status": "source_remediation_in_progress",
+  "baseline": {
+    "commit": "c33d128d5681909337ffc8b0811647012532fe9e",
+    "artifact_id": 10414093076,
+    "technical_acceptance": "pass",
+    "product_acceptance": "fail",
+    "production_authorized": false,
+    "deploy_permitted": false
+  },
+  "scope": {
+    "footer_v2_pr": 179,
+    "btc_visualization_v2_pr": 180,
+    "show_first_source_pr": 176,
+    "show_first_mode": "selective_reimplementation_only",
+    "research_distribution": false,
+    "engineering_system_v2_runtime": false,
+    "engine_scoring_changes": "correctness_bug_only",
+    "whitelist_logic_redesign": false
+  },
+  "required_final_gates": [
+    "deterministic_release_validation",
+    "exact_artifact_provenance",
+    "staging_runtime_parity",
+    "responsive_browser_acceptance",
+    "accessibility_acceptance",
+    "whitelist_regression_acceptance",
+    "btc_fail_closed_acceptance",
+    "explicit_human_product_visual_acceptance"
+  ]
+}
