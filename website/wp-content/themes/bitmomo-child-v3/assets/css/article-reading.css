@@ -70,7 +70,7 @@
   flex-wrap: wrap;
   gap: 7px 9px;
   align-items: center;
-  margin-top: 22px;
+  margin: 22px 0 0;
   color: var(--bm-text-muted);
   font-size: var(--bm-type-meta);
   line-height: 1.5;
@@ -96,6 +96,7 @@
   max-width: var(--bm-article-wide);
   margin: 0 auto clamp(34px, 5vw, 50px);
   overflow: visible;
+  aspect-ratio: auto;
   border-radius: 0;
   background: transparent;
 }
@@ -394,7 +395,14 @@
 }
 
 .bm-related-head .bm-public-eyebrow { margin-bottom: 5px !important; }
-.bm-related-head .bm-section-title { margin: 0; font-size: var(--bm-type-section-title); }
+.bm-related-head .bm-section-title {
+  margin: 0;
+  color: var(--bm-text);
+  font-size: var(--bm-type-section-title);
+  font-weight: 800;
+  text-align: left;
+  text-transform: none;
+}
 
 .bm-related-list {
   margin: 0;
