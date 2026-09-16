@@ -1,0 +1,175 @@
+/* Bitmomo BTC Accountability — compact evidence-first ownership.
+ * Presentation only: History, Decision Ledger and Track Record keep their
+ * existing read-only data contracts and result-neutral inclusion policy.
+ */
+
+/* Stitch three evidence sections into one quiet institutional surface. */
+.bm-bi__history{
+  margin-top:30px;
+  padding:18px 18px 11px;
+  border:1px solid var(--bmi-border);
+  border-bottom:0;
+  border-radius:10px 10px 0 0;
+  background:linear-gradient(180deg,rgba(17,25,35,.72),rgba(9,15,22,.55))
+}
+.bm-bi__ledger{
+  margin-top:0;
+  padding:12px 18px 0;
+  border:1px solid var(--bmi-border);
+  border-top:0;
+  border-bottom:0;
+  background:rgba(9,15,22,.58)
+}
+.bm-bi__track-record{
+  margin-top:0;
+  padding:14px 18px 18px;
+  border:1px solid var(--bmi-border);
+  border-top:0;
+  border-radius:0 0 10px 10px;
+  background:linear-gradient(180deg,rgba(9,15,22,.58),rgba(14,22,32,.72))
+}
+
+/* One visual hierarchy: history first, ledger is primary evidence, scorecard is summary. */
+.bm-bi__history .bm-bi__section-head,
+.bm-bi__ledger .bm-bi__section-head,
+.bm-bi__track-record .bm-bi__section-head{gap:14px}
+.bm-bi__history .bm-bi__section-head h2{font-size:clamp(18px,2.2vw,23px)}
+.bm-bi__ledger .bm-bi__section-head h2{font-size:clamp(17px,2vw,21px)}
+.bm-bi__track-record .bm-bi__section-head h2{font-size:15px;letter-spacing:-.01em}
+.bm-bi__track-record .bm-bi__eyebrow{margin-bottom:4px;font-size:8px;letter-spacing:.11em}
+.bm-bi__track-record .bm-bi__section-kicker{font-size:8px}
+.bm-bi__ledger .bm-bi__section-intro{
+  max-width:760px;
+  margin:6px 0 10px;
+  font-size:11px;
+  line-height:1.48
+}
+.bm-bi__track-record .bm-bi__section-intro{
+  max-width:760px;
+  margin:6px 0 9px;
+  font-size:10px;
+  line-height:1.45
+}
+
+/* 30D context stays visible but becomes a tape, not another dashboard card. */
+.bm-bi__history-bars{
+  height:38px;
+  margin-top:10px;
+  padding:6px 8px;
+  border-color:var(--bmi-border-soft);
+  border-radius:6px;
+  background:rgba(7,12,18,.54)
+}
+.bm-bi__history-bars span{height:24px;border-radius:2px;opacity:.9}
+.bm-bi__history-summary{gap:12px;margin-top:7px;font-size:9px}
+.bm-bi__history-summary small{font-size:8px}
+
+/* Result-neutral badge, visually factual rather than defensive. */
+.bm-bi__ledger .bm-bi__audit-badge{
+  min-height:24px;
+  padding:0 8px;
+  border-radius:5px;
+  font-size:0;
+  letter-spacing:.07em
+}
+.bm-bi__ledger .bm-bi__audit-badge::after{
+  content:"ALL MATURED OUTCOMES";
+  font:800 8px/1 var(--bmi-mono);
+  letter-spacing:.07em
+}
+
+/* The ledger is an inspectable viewport: all records remain present and scrollable. */
+.bm-bi__ledger-wrap{
+  max-height:292px;
+  overflow:auto;
+  scrollbar-gutter:stable;
+  border-radius:7px;
+  overscroll-behavior:contain
+}
+.bm-bi__ledger-table{min-width:700px;font-size:10px}
+.bm-bi__ledger-table th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  padding:8px 10px;
+  background:#101821;
+  box-shadow:0 1px 0 var(--bmi-border)
+}
+.bm-bi__ledger-table td{padding:8px 10px}
+.bm-bi__ledger-table td:first-child{font-size:9px}
+.bm-bi__ledger-table td:first-child small{margin-top:2px;font-size:7.5px}
+.bm-bi__ledger-table td:nth-child(2) strong{font-size:10px}
+.bm-bi__verdict{min-height:21px;padding:0 6px;font-size:7.5px}
+.bm-bi__ledger .bm-bi__micro-note{margin-top:7px;font-size:8.5px;line-height:1.45}
+
+/* Replace four oversized score cards with a dense KPI strip. */
+.bm-bi__track-record .bm-bi__proof-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;
+  margin-top:8px;
+  overflow:hidden;
+  border:1px solid var(--bmi-border-soft);
+  border-radius:7px;
+  background:var(--bmi-border-soft)
+}
+.bm-bi__track-record .bm-bi__proof-metric{
+  min-width:0;
+  padding:10px 11px;
+  border:0;
+  border-left:1px solid var(--bmi-border-soft);
+  border-radius:0;
+  background:#0c1219
+}
+.bm-bi__track-record .bm-bi__proof-metric:first-child{border-left:0}
+.bm-bi__track-record .bm-bi__proof-metric>span{font-size:8.5px}
+.bm-bi__track-record .bm-bi__proof-metric strong{margin-top:4px;font-size:16px}
+.bm-bi__track-record .bm-bi__proof-metric small{margin-top:4px;font-size:7.5px;line-height:1.35}
+.bm-bi__track-record .bm-bi__micro-note,
+.bm-bi__track-record .bm-bi__history-policy{margin-top:7px;font-size:8.5px;line-height:1.45}
+.bm-bi__track-record .bm-bi__history-policy{padding-top:7px}
+
+@media(max-width:860px){
+  .bm-bi__history{padding:16px 14px 10px}
+  .bm-bi__ledger{padding:11px 14px 0}
+  .bm-bi__track-record{padding:12px 14px 15px}
+  .bm-bi__track-record .bm-bi__proof-grid{
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+    scrollbar-width:thin
+  }
+  .bm-bi__track-record .bm-bi__proof-metric{
+    flex:0 0 min(210px,72vw);
+    border-left:1px solid var(--bmi-border-soft);
+    scroll-snap-align:start
+  }
+  .bm-bi__track-record .bm-bi__proof-metric:first-child{border-left:0}
+}
+
+@media(max-width:720px){
+  .bm-bi__history,
+  .bm-bi__ledger,
+  .bm-bi__track-record{padding-left:12px;padding-right:12px}
+  .bm-bi__history .bm-bi__section-head,
+  .bm-bi__ledger .bm-bi__section-head,
+  .bm-bi__track-record .bm-bi__section-head{flex-direction:row;align-items:flex-start}
+  .bm-bi__ledger .bm-bi__audit-badge{margin-left:auto}
+  .bm-bi__ledger-wrap{max-height:260px}
+  .bm-bi__history-summary small{width:auto;margin-left:auto}
+}
+
+@media(max-width:480px){
+  .bm-bi__history{margin-top:22px;padding-top:14px}
+  .bm-bi__history-bars{height:34px;padding:5px 6px}
+  .bm-bi__history-bars span{height:22px}
+  .bm-bi__history-summary{gap:8px}
+  .bm-bi__ledger .bm-bi__section-head{display:grid;grid-template-columns:minmax(0,1fr) auto}
+  .bm-bi__ledger .bm-bi__audit-badge{align-self:start}
+  .bm-bi__ledger-wrap{max-height:244px}
+  .bm-bi__track-record .bm-bi__proof-metric{flex-basis:min(190px,78vw)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .bm-bi__track-record .bm-bi__proof-grid{scroll-behavior:auto}
+}
