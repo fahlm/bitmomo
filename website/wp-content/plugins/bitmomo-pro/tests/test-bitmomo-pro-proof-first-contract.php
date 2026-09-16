@@ -27,6 +27,8 @@ $check( 'Legacy shortcode-output Show First rewriter is absent from canonical re
 $check( 'Range and scenarios are responsive below tablet/mobile widths', false !== strpos( $css, '.bm-pro-sales__range-track' ) && false !== strpos( $css, '.bm-pro-sales__scenario-map' ) && false !== strpos( $css, '@media(max-width:768px)' ) && false !== strpos( $css, '@media(max-width:420px)' ) );
 $check( 'Scenario text has hard wrapping protection', false !== strpos( $css, '.bm-pro-sales__scenario-map p' ) && false !== strpos( $css, 'overflow-wrap:anywhere' ) );
 $check( 'Mobile scenario map collapses to one column', preg_match( '/@media\(max-width:900px\).*?\.bm-pro-sales__scenario-map\{grid-template-columns:1fr\}/s', $css ) === 1 );
+$check( 'Range marker labels wrap inside bounded widths instead of clipping', false !== strpos( $css, '.bm-pro-sales__range-marker small' ) && false !== strpos( $css, 'white-space:normal' ) && false !== strpos( $css, 'overflow-wrap:anywhere' ) );
+$check( 'Reference and outcome labels are vertically staggered', false !== strpos( $css, '.bm-pro-sales__range-marker.is-outcome small{top:56px' ) );
 
 if ( $failures ) {
 	fwrite( STDERR, 'Pro proof-first contract failed with ' . count( $failures ) . ' issue(s):' . PHP_EOL );
