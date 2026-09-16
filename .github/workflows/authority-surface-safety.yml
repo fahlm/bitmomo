@@ -22,7 +22,11 @@ on:
       - "website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
       - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php"
+      - "website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php"
+      - "website/wp-content/plugins/bitmomo-pro/assets/css/bitmomo-pro-sales.css"
       - "website/wp-content/plugins/bitmomo-pro/assets/js/bitmomo-pro-whitelist.js"
+      - "website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-sales.php"
+      - "website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-proof-first-contract.php"
       - "scripts/check-authority-source-contract.sh"
       - "scripts/check-public-ui.mjs"
       - "scripts/check-article-cleanliness.mjs"
@@ -90,7 +94,10 @@ jobs:
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php \
             website/wp-content/plugins/bitmomo-pro/bitmomo-pro.php \
             website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php \
-            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php; do
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-public-copy.php \
+            website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-sales.php \
+            website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-sales.php \
+            website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-proof-first-contract.php; do
             php -l "$file"
           done
           bash -n scripts/check-authority-source-contract.sh
@@ -116,6 +123,13 @@ jobs:
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-market-context-contract.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php
+
+      - name: Run public Pro sales contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          php website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-sales.php
+          php website/wp-content/plugins/bitmomo-pro/tests/test-bitmomo-pro-proof-first-contract.php
 
       - name: Enforce canonical authority source contract
         run: bash scripts/check-authority-source-contract.sh
