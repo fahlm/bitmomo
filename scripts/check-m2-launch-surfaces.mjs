@@ -185,8 +185,8 @@ const accountabilityIndex = proRender.indexOf('render_accountability()');
 const conversionIndex = proRender.indexOf('render_founding_economics()');
 const faqIndex = proRender.indexOf('render_buyer_faq()');
 check(
-  '/pro tells the focused buyer journey in canonical order',
-  todayIndex > -1 && exampleIndex > todayIndex && comparisonIndex > exampleIndex
+  '/pro tells the proof-first focused buyer journey in canonical order',
+  exampleIndex > -1 && todayIndex > exampleIndex && comparisonIndex > todayIndex
     && accountabilityIndex > comparisonIndex && conversionIndex > accountabilityIndex && faqIndex > conversionIndex
 );
 check(
