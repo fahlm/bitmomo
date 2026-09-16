@@ -3,7 +3,7 @@
  *
  * Canonical front-page owner outside the embedded Pro conversion form.
  * Frozen legacy custom.css loads earlier and must not regain ownership here.
- * Visitor journey: current intelligence -> evidence -> mechanism -> conversion -> research.
+ * Visitor journey: current intelligence -> evidence -> mechanism -> research -> conversion.
  */
 
 .home #primary {
@@ -1081,5 +1081,16 @@
   .bm-home-research__all,
   .bm-home-evidence__link {
     min-height: var(--bm-touch-target-mobile, 44px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-home-hero__primary,
+  .bm-home-hero__secondary,
+  .bm-home-reading__link,
+  .bm-home-evidence__link,
+  .bm-home-research__all,
+  .bm-home-research__body h3 a {
+    transition: none;
   }
 }
