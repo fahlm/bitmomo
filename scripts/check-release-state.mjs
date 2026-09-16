@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 
 const state = JSON.parse(fs.readFileSync('config/release-state.json', 'utf8'));
 const failures = [];
@@ -62,8 +62,8 @@ if (sha40(state.candidate?.commit)) {
 
 // During an active release the named immutable RC ref must still resolve to the
 // recorded candidate. After a verified release has been converged to main and
-// refs_retired=true, commit/tree/artifact records remain authoritative history
-// and the temporary RC branch may be deleted without making doctor fail forever.
+// refs_retired=true, the temporary RC ref may be removed only because the exact
+// accepted commit is then retained by canonical trunk ancestry.
 if (post.refs_retired !== true && state.candidate?.ref && sha40(state.candidate?.commit)) {
   try {
     const refCommit = execFileSync('git', ['rev-parse', `${state.candidate.ref}^{commit}`], { encoding: 'utf8' }).trim();
@@ -77,6 +77,11 @@ if (sha40(post.main_converged_sha)) {
   try {
     execFileSync('git', ['cat-file', '-e', `${post.main_converged_sha}^{commit}`], { stdio: 'ignore' });
     check('recorded converged main commit is available locally', true);
+
+    if (sha40(state.candidate?.commit)) {
+      const ancestry = spawnSync('git', ['merge-base', '--is-ancestor', state.candidate.commit, post.main_converged_sha], { stdio: 'ignore' });
+      check('accepted release commit is retained in converged trunk ancestry', ancestry.status === 0);
+    }
   } catch (error) {
     check('recorded converged main commit is available locally', false);
   }
