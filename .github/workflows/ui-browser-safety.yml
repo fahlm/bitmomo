@@ -53,6 +53,12 @@ jobs:
           BITMOMO_EXPECTED_SOCIAL_JSON: ${{ github.event.inputs.expected_social_json || '{}' }}
         run: node scripts/check-public-ui.mjs
 
+      - name: Audit homepage bottom and footer geometry
+        env:
+          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url }}
+          BITMOMO_UI_OUTPUT_DIR: ui-artifacts
+        run: node scripts/check-footer-home-geometry.mjs
+
       - name: Audit article search promise and body cleanliness
         env:
           BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url }}
