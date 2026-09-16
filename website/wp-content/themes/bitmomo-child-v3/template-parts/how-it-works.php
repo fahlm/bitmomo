@@ -50,8 +50,35 @@ $bm_range_high = is_array( $bm_proof_row ) && is_numeric( $bm_proof_row['expecte
 $bm_range_ref = is_array( $bm_proof_row ) && is_numeric( $bm_proof_row['reference_price'] ?? null ) ? (float) $bm_proof_row['reference_price'] : null;
 $bm_range_outcome = is_array( $bm_proof_row ) && is_numeric( $bm_proof_row['outcome_price_24h'] ?? null ) ? (float) $bm_proof_row['outcome_price_24h'] : null;
 $bm_range_span = null !== $bm_range_low && null !== $bm_range_high ? max( 1.0, $bm_range_high - $bm_range_low ) : null;
-$bm_ref_pct = null !== $bm_range_span && null !== $bm_range_ref ? max( 0, min( 100, ( ( $bm_range_ref - $bm_range_low ) / $bm_range_span ) * 100 ) ) : null;
-$bm_outcome_pct = null !== $bm_range_span && null !== $bm_range_outcome ? max( 0, min( 100, ( ( $bm_range_outcome - $bm_range_low ) / $bm_range_span ) * 100 ) ) : null;
+
+$bm_ref_position = '';
+$bm_ref_pct = null;
+if ( null !== $bm_range_span && null !== $bm_range_ref ) {
+    if ( $bm_range_ref < $bm_range_low ) {
+        $bm_ref_pct = 0.0;
+        $bm_ref_position = 'below';
+    } elseif ( $bm_range_ref > $bm_range_high ) {
+        $bm_ref_pct = 100.0;
+        $bm_ref_position = 'above';
+    } else {
+        $bm_ref_pct = ( ( $bm_range_ref - $bm_range_low ) / $bm_range_span ) * 100;
+    }
+}
+
+$bm_outcome_position = '';
+$bm_outcome_pct = null;
+if ( null !== $bm_range_span && null !== $bm_range_outcome ) {
+    if ( $bm_range_outcome < $bm_range_low ) {
+        $bm_outcome_pct = 0.0;
+        $bm_outcome_position = 'below';
+    } elseif ( $bm_range_outcome > $bm_range_high ) {
+        $bm_outcome_pct = 100.0;
+        $bm_outcome_position = 'above';
+    } else {
+        $bm_outcome_pct = ( ( $bm_range_outcome - $bm_range_low ) / $bm_range_span ) * 100;
+    }
+}
+$bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_row['range_hit'] ?? '' ) ) : '';
 ?>
 <section class="bm-section bm-home-evidence" aria-labelledby="bm-home-evidence-title">
   <div class="bm-container">
@@ -140,13 +167,18 @@ $bm_outcome_pct = null !== $bm_range_span && null !== $bm_range_outcome ? max( 0
         <div class="bm-home-range" aria-label="Expected Range historis">
           <div class="bm-home-range__labels"><span><?php echo esc_html( $bm_price( $bm_range_low ) ); ?></span><strong>EXPECTED RANGE</strong><span><?php echo esc_html( $bm_price( $bm_range_high ) ); ?></span></div>
           <div class="bm-home-range__track">
-            <?php if ( null !== $bm_ref_pct ) : ?><span class="bm-home-range__marker is-ref" style="left:<?php echo esc_attr( number_format( $bm_ref_pct, 2, '.', '' ) ); ?>%"><b>REF</b></span><?php endif; ?>
-            <?php if ( null !== $bm_outcome_pct ) : ?><span class="bm-home-range__marker is-outcome" style="left:<?php echo esc_attr( number_format( $bm_outcome_pct, 2, '.', '' ) ); ?>%"><b>+24H</b></span><?php endif; ?>
+            <?php if ( null !== $bm_ref_pct ) : ?>
+              <span class="bm-home-range__marker is-ref<?php echo $bm_ref_position ? ' is-' . esc_attr( $bm_ref_position ) : ''; ?>" style="left:<?php echo esc_attr( number_format( $bm_ref_pct, 2, '.', '' ) ); ?>%"><b<?php echo 'below' === $bm_ref_position ? ' style="left:0;transform:none"' : ( 'above' === $bm_ref_position ? ' style="left:auto;right:0;transform:none"' : '' ); ?>><?php echo esc_html( 'below' === $bm_ref_position ? 'REF ↓' : ( 'above' === $bm_ref_position ? 'REF ↑' : 'REF' ) ); ?></b></span>
+            <?php endif; ?>
+            <?php if ( null !== $bm_outcome_pct ) : ?>
+              <span class="bm-home-range__marker is-outcome<?php echo $bm_outcome_position ? ' is-' . esc_attr( $bm_outcome_position ) : ''; ?>" style="left:<?php echo esc_attr( number_format( $bm_outcome_pct, 2, '.', '' ) ); ?>%"><b<?php echo 'below' === $bm_outcome_position ? ' style="left:0;transform:none"' : ( 'above' === $bm_outcome_position ? ' style="left:auto;right:0;transform:none"' : '' ); ?>><?php echo esc_html( 'below' === $bm_outcome_position ? '+24H ↓' : ( 'above' === $bm_outcome_position ? '+24H ↑' : '+24H' ) ); ?></b></span>
+            <?php endif; ?>
           </div>
           <div class="bm-home-range__facts">
             <span>Referensi <strong><?php echo esc_html( $bm_price( $bm_range_ref ) ); ?></strong></span>
             <span>Outcome +24H <strong><?php echo esc_html( $bm_price( $bm_range_outcome ) ); ?></strong></span>
             <span>Return <strong><?php echo esc_html( $bm_return( $bm_proof_row['outcome_return_pct'] ?? null ) ); ?></strong></span>
+            <?php if ( in_array( $bm_range_hit, array( 'yes', 'no' ), true ) ) : ?><span>Range tercapai <strong><?php echo esc_html( 'yes' === $bm_range_hit ? 'YA' : 'TIDAK' ); ?></strong></span><?php endif; ?>
           </div>
         </div>
 
@@ -188,5 +220,6 @@ $bm_outcome_pct = null !== $bm_range_span && null !== $bm_range_outcome ? max( 0
     $bm_history, $bm_days, $bm_counts, $bm_day, $bm_day_bias, $bm_date, $bm_date_label, $bm_ledger,
     $bm_ledger_rows, $bm_row, $bm_direction, $bm_verdict, $bm_proof, $bm_proof_rows, $bm_proof_row,
     $bm_bias_labels, $bm_verdict_labels, $bm_price, $bm_return, $bm_wib, $bm_range_low, $bm_range_high,
-    $bm_range_ref, $bm_range_outcome, $bm_range_span, $bm_ref_pct, $bm_outcome_pct
+    $bm_range_ref, $bm_range_outcome, $bm_range_span, $bm_ref_pct, $bm_ref_position, $bm_outcome_pct,
+    $bm_outcome_position, $bm_range_hit
 ); ?>
