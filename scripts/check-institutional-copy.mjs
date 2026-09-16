@@ -97,7 +97,8 @@ check('Research Hub is publication-first and represents testable market and AI r
   researchHub.includes('LATEST RESEARCH') &&
   researchHub.includes('Setiap tesis harus dapat diuji.') &&
   researchHub.includes('$bm_visible_filters') &&
-  researchHub.includes('Do not advertise empty research programs') &&
+  researchHub.includes('bitmomo_research_focus_has_posts( $bm_filter_key, $bm_research_q )') &&
+  researchHub.includes("if ( 'all' === $bm_filter_key ) continue;") &&
   !/>\s*RESEARCH (?:DOMAINS|PROGRAMS)\s*</i.test(researchHub) &&
   !/Kerangka berulang untuk pasar yang kompleks|Dua disiplin\. Satu standar riset\./i.test(researchHub)
 );
