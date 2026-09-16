@@ -53,12 +53,12 @@ foreach ( array( '#pro-product', '#pro-example', '#pro-proof', '#pro-pricing', '
 	check( 'NAV: rail exposes ' . $anchor, false !== strpos( $html, 'href="' . $anchor . '"' ) );
 }
 check(
-	'FLOW: current product -> real example -> Free/Pro -> accountability -> economics -> FAQ',
+	'FLOW: real example -> product explanation -> Free/Pro -> accountability -> economics -> FAQ',
 	in_order(
 		$html,
 		array(
-			'YANG SUDAH TERSEDIA SEKARANG',
 			'PRODUCT PROOF',
+			'YANG SUDAH TERSEDIA SEKARANG',
 			'FREE → PRO',
 			'ACCOUNTABILITY',
 			'FOUNDING PRICE Rp149.000/bulan',
@@ -66,6 +66,10 @@ check(
 		)
 	)
 );
+$render_sales_pos = strpos( $source, 'public function render_sales' );
+$proof_call_pos = strpos( $source, '$this->render_product_proof();', $render_sales_pos );
+$product_call_pos = strpos( $source, '$this->render_what_exists_today();', $render_sales_pos );
+check( 'FLOW: canonical source calls Product Proof before product catalogue', false !== $proof_call_pos && false !== $product_call_pos && $proof_call_pos < $product_call_pos );
 check( 'FLOW: generic problem statement is not rendered', false === strpos( $html, 'Data ada di mana-mana. Konteks yang jarang.' ) );
 check( 'FLOW: internal six-stage pipeline is not rendered', false === strpos( $html, 'Bagaimana Bitmomo mengubah data menjadi intelligence' ) );
 check( 'FLOW: generic AI/experience section is not rendered', false === strpos( $html, 'AI adalah bagian dari sistem. Konteks adalah fondasinya.' ) );
@@ -84,10 +88,13 @@ check( 'FREE VS PRO: full monitoring remains Pro-only', false !== strpos( $html,
 // Public proof must be real, delayed, and fail closed.
 check( 'PROOF: renderer asks only for one delayed public proof row', false !== strpos( $source, 'Bitmomo_Btc_Intelligence_Accountability::delayed_proof( 1 )' ) );
 check( 'PROOF: no direct current Pro brief store is queried', false === strpos( $source, 'Bitmomo_Pro_Briefs::' ) && false === strpos( $source, 'Bitmomo_Pro_Performance::' ) && false === strpos( $source, '_bitmomo_pro_' ) );
-check( 'PROOF: no mock proof is manufactured', false !== strpos( $html, 'Bitmomo tidak membuat harga, confidence, atau hasil contoh untuk mengisi ruang ini.' ) );
+check( 'PROOF: no mock proof is manufactured', false !== strpos( $html, 'Bitmomo tidak membuat harga, confidence, skenario, atau hasil contoh untuk mengisi ruang ini.' ) );
 check( 'PROOF: delayed archive boundary is visible', false !== strpos( $html, 'ARSIP ≥ 48 JAM' ) );
 check( 'PROOF: public ledger/archive remains one click away', false !== strpos( $html, '/btc-intelligence/#pro-archive' ) && false !== strpos( $html, '/btc-intelligence/#decision-ledger' ) );
 check( 'PROOF: public labels use final visitor language directly', false !== strpos( $source, 'HASIL +24H' ) && false !== strpos( $source, 'Rentang tercapai:' ) && false === strpos( $source, 'OUTCOME +24H' ) && false === strpos( $source, 'Range hit:' ) );
+check( 'PROOF: range visual uses frozen range, reference and settled outcome fields', false !== strpos( $source, "expected_range_low" ) && false !== strpos( $source, "expected_range_high" ) && false !== strpos( $source, "reference_price" ) && false !== strpos( $source, "outcome_price_24h" ) && false !== strpos( $source, 'bm-pro-sales__range-track' ) );
+check( 'PROOF: scenario map uses real Bear Base Bull fields', false !== strpos( $source, "bear_scenario" ) && false !== strpos( $source, "base_scenario" ) && false !== strpos( $source, "bull_scenario" ) && false !== strpos( $source, 'bm-pro-sales__scenario-map' ) );
+check( 'PROOF: legacy shortcode output rewriter is not canonical architecture', false === strpos( $source, 'do_shortcode_tag' ) && false === strpos( $source, 'Bitmomo_Pro_Show_First' ) );
 
 // Accountability.
 check( 'ACCOUNTABILITY: recorded-before-outcome principle is explicit', false !== strpos( $html, 'Dicatat sebelum hasil diketahui' ) );
@@ -149,10 +156,12 @@ check( 'LAYOUT: internal product rail is sticky under canonical header', false !
 check( 'LAYOUT: mobile rail uses 60px header and 44px targets', false !== strpos( $css, 'top:var(--bm-header-height-mobile,60px)') && false !== strpos( $css, '.bm-pro-sales__rail a{min-height:44px}' ) );
 check( 'LAYOUT: commercial CTA has at least 48px target height', false !== strpos( $css, 'min-height:48px' ) );
 check( 'LAYOUT: explicit responsive contracts exist', false !== strpos( $css, '@media(max-width:900px)') && false !== strpos( $css, '@media(max-width:768px)') && false !== strpos( $css, '@media(max-width:420px)') );
+check( 'LAYOUT: scenario map collapses on narrow screens', false !== strpos( $css, '.bm-pro-sales__scenario-map{grid-template-columns:1fr}' ) );
+check( 'LAYOUT: scenario text hard-wraps instead of overflowing', false !== strpos( $css, '.bm-pro-sales__scenario-map p' ) && false !== strpos( $css, 'overflow-wrap:anywhere' ) );
 check( 'ACCESSIBILITY: focus-visible owner exists', false !== strpos( $css, ':focus-visible' ) );
 check( 'ACCESSIBILITY: reduced-motion safety exists', false !== strpos( $css, '@media(prefers-reduced-motion:reduce)' ) );
 check( 'PERFORMANCE: no third-party font/image/script dependency introduced', 0 === preg_match( '/https?:\/\//', $css ) && 0 === preg_match( '/<script|<img\b/i', $source ) );
-check( 'PERFORMANCE: sales CSS uses dedicated asset version', false !== strpos( $source, "SALES_ASSET_VERSION = '2026.09.14-pro-cognition-v2'" ) );
+check( 'PERFORMANCE: sales CSS uses dedicated asset version', false !== strpos( $source, "SALES_ASSET_VERSION = '2026.09.16-pro-proof-first-v1'" ) );
 
 // Trust layer.
 check( 'TRUST: Decision Ledger, Help, Privacy and Disclaimer are discoverable', false !== strpos( $html, 'Decision Ledger' ) && false !== strpos( $html, 'Help Center' ) && false !== strpos( $html, 'Kebijakan Privasi' ) && false !== strpos( $html, 'Disclaimer' ) );
