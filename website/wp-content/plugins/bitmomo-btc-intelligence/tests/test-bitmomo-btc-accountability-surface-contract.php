@@ -2,6 +2,8 @@
 $root      = dirname( __DIR__ );
 $bootstrap = file_get_contents( $root . '/bitmomo-btc-intelligence.php' );
 $css       = file_get_contents( $root . '/assets/css/accountability-surface.css' );
+$polish    = file_get_contents( $root . '/assets/css/launch-trust-polish.css' );
+$integrity = file_get_contents( $root . '/assets/js/accountability-integrity.js' );
 $page      = file_get_contents( $root . '/includes/class-bitmomo-btc-intelligence-page.php' );
 
 $pass = 0;
@@ -19,9 +21,52 @@ function accountability_surface_check( $label, $condition ) {
 
 accountability_surface_check(
 	'Accountability presentation is a dedicated first-party asset with deterministic cache invalidation',
-	false !== strpos( $bootstrap, "assets/css/accountability-surface.css" ) &&
-	false !== strpos( $bootstrap, "array( 'bitmomo-btc-intelligence' )" ) &&
+	false !== strpos( $bootstrap, 'assets/css/accountability-surface.css' ) &&
 	false !== strpos( $bootstrap, "hash_file( 'sha256', \$asset )" )
+);
+accountability_surface_check(
+	'Accountability population provenance is localized from the canonical server contracts',
+	false !== strpos( $bootstrap, 'assets/js/accountability-integrity.js' ) &&
+	false !== strpos( $bootstrap, 'Bitmomo_Btc_Intelligence_Accountability::decision_ledger( 12 )' ) &&
+	false !== strpos( $bootstrap, 'Bitmomo_Public_Intelligence_Adapter::evaluation_summary()' ) &&
+	false !== strpos( $bootstrap, "'scorecardMethodology'" ) &&
+	false !== strpos( $bootstrap, "'ledgerEvaluated'" )
+);
+accountability_surface_check(
+	'Ledger and Scorecard disclose that their populations are intentionally different',
+	false !== strpos( $integrity, 'Populasi Ledger:' ) &&
+	false !== strpos( $integrity, 'Populasi Scorecard:' ) &&
+	false !== strpos( $integrity, 'jumlah baris keduanya tidak harus sama' ) &&
+	false !== strpos( $integrity, 'Tidak ada filter berdasarkan hasil')
+);
+accountability_surface_check(
+	'Ledger exposes outcome methodology per visible record without rewriting verdicts',
+	false !== strpos( $integrity, 'bm-bi__ledger-method' ) &&
+	false !== strpos( $integrity, 'observed-close-24h-v2' ) &&
+	false === strpos( $integrity, 'is-aligned') &&
+	false === strpos( $integrity, 'is-missed')
+);
+accountability_surface_check(
+	'Legacy session labels are normalized only at the public presentation boundary',
+	false !== strpos( $integrity, "US POST-CLOSE · legacy" ) &&
+	false !== strpos( $integrity, "US PRE-OPEN · legacy" ) &&
+	false !== strpos( $integrity, "value === 'us session'" )
+);
+accountability_surface_check(
+	'Historical publication gaps are disclosed and never fabricated into decision rows',
+	false !== strpos( $integrity, 'Jadwal yang tidak menghasilkan record tidak diisi ulang secara retrospektif') &&
+	false !== strpos( $integrity, 'gap data, bukan keputusan pasar')
+);
+accountability_surface_check(
+	'Neutral outcome rule and directional inconclusive band are explicit',
+	false !== strpos( $integrity, 'Netral dinilai sesuai hanya bila perubahan tetap di dalam rentang') &&
+	false !== strpos( $integrity, '−0,5% sampai +0,5%')
+);
+accountability_surface_check(
+	'Launch polish hides unavailable optional comparison providers and raises public text floor',
+	false !== strpos( $polish, '.bm-bi .bm-mc__series-button:disabled:not(.is-btc)' ) &&
+	false !== strpos( $polish, 'display: none' ) &&
+	false !== strpos( $polish, 'font-size: 11px')
 );
 accountability_surface_check(
 	'History Ledger and Track Record are visually stitched into one compound evidence surface',
@@ -73,7 +118,7 @@ accountability_surface_check(
 accountability_surface_check(
 	'Mobile Track Record scroll region is keyboard reachable and has a visible focus indicator',
 	false !== strpos( $page, 'class="bm-bi__proof-grid" tabindex="0" role="region"' ) &&
-	false !== strpos( $page, "Ringkasan track record BTC" ) &&
+	false !== strpos( $page, 'Ringkasan track record BTC' ) &&
 	false !== strpos( $css, '.bm-bi__track-record .bm-bi__proof-grid:focus-visible{' ) &&
 	false !== strpos( $css, 'outline:var(--bm-focus-ring,2px solid var(--bmi-accent))' )
 );
