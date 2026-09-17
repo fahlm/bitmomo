@@ -4,20 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Cache hardening for protected, user-dependent Pro routes.
+ * Cache hardening for user-dependent Pro routes and the Founding Whitelist.
  *
- * PR #27 flagged that full-page caching in front of a page rendering
- * [bitmomo_pro_dashboard] could serve one visitor's authenticated/paid
- * render to a later, different visitor — that route's output is
- * user-dependent, so it must never be treated as a static, shareable
- * cache artifact. This class signals that at the application level. It
- * cannot verify that Hostinger/LiteSpeed actually honors the signal in
- * production — that verification is Codex's runtime QA job (see PR body).
- *
- * Deliberately scoped to pages/posts containing [bitmomo_pro_dashboard]
- * or [bitmomo_pro_account]. Both vary by the current user's identity and
- * entitlement. [bitmomo_pro_sales] is identical for every visitor and is
- * safe to cache, so it is left untouched.
+ * Protected account/dashboard surfaces must never be shared between visitors.
+ * Whitelist surfaces are also non-cacheable while checkout is not configured,
+ * because the rendered form contains a WordPress nonce. Serving a stale cached
+ * nonce can make launch traffic fail even though the form itself is healthy.
  */
 class Bitmomo_Pro_Cache {
 
@@ -36,6 +28,13 @@ class Bitmomo_Pro_Cache {
 	}
 
 	public function maybe_prevent_caching() {
+		// Homepage renders the Founding Whitelist directly from the theme while
+		// checkout is unavailable, so it must not serve a cached nonce.
+		if ( is_front_page() && function_exists( 'bitmomo_pro_get_checkout_url' ) && '' === bitmomo_pro_get_checkout_url() ) {
+			$this->send_no_cache_signals();
+			return;
+		}
+
 		if ( ! is_singular() ) {
 			return;
 		}
@@ -46,36 +45,28 @@ class Bitmomo_Pro_Cache {
 		}
 
 		$protected_shortcodes = array( 'bitmomo_pro_dashboard', 'bitmomo_pro_account' );
-		$is_protected         = false;
 		foreach ( $protected_shortcodes as $shortcode ) {
 			if ( has_shortcode( $post->post_content, $shortcode ) ) {
-				$is_protected = true;
-				break;
+				$this->send_no_cache_signals();
+				return;
 			}
 		}
 
-		if ( ! $is_protected ) {
-			return;
+		// Pro/whitelist acquisition pages are safe to cache only after the live
+		// whitelist form disappears. Until checkout exists, their HTML carries a
+		// nonce and therefore must be generated per request.
+		$whitelist_shortcodes = array( 'bitmomo_pro_sales', 'bitmomo_pro_whitelist' );
+		if ( function_exists( 'bitmomo_pro_get_checkout_url' ) && '' === bitmomo_pro_get_checkout_url() ) {
+			foreach ( $whitelist_shortcodes as $shortcode ) {
+				if ( has_shortcode( $post->post_content, $shortcode ) ) {
+					$this->send_no_cache_signals();
+					return;
+				}
+			}
 		}
-
-		$this->send_no_cache_signals();
 	}
 
-	/**
-	 * Sends every no-cache signal that is safe to send from a plugin
-	 * without assuming a specific cache product is installed:
-	 * - DONOTCACHEPAGE: a page-level cache opt-out constant honored by
-	 *   WP Super Cache, W3 Total Cache, and several other cache plugins.
-	 * - nocache_headers(): WordPress core helper that sends the standard
-	 *   Cache-Control/Pragma/Expires headers marking a response
-	 *   non-cacheable and non-storable.
-	 * - Cache-Control: private — an explicit signal, in addition to
-	 *   nocache_headers(), that this response varies per visitor and must
-	 *   never be reused for a different one.
-	 * - X-LiteSpeed-Cache-Control: no-cache — LiteSpeed Cache (the layer
-	 *   Hostinger commonly runs) recognizes this response header
-	 *   directly; harmless to send if LiteSpeed Cache isn't active.
-	 */
+	/** Send cache-layer opt-out signals without assuming one vendor. */
 	private function send_no_cache_signals() {
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 			define( 'DONOTCACHEPAGE', true );
