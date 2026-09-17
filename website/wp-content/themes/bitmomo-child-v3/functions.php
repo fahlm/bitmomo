@@ -60,6 +60,9 @@ function bitmomo_public_seo_title($title) {
     if (is_page('pro')) return 'Bitmomo Pro — BTC Market Intelligence';
     if (is_page('btc-intelligence')) return 'BTC Intelligence — Bitmomo';
     if (is_page('tentang-kami')) return 'Tentang Bitmomo — Market Research & Intelligence Systems';
+    if (is_page('help')) return 'Help Center — Bitmomo';
+    if (is_page('kebijakan-privasi')) return 'Kebijakan Privasi — Bitmomo';
+    if (is_page('disclaimer')) return 'Disclaimer — Bitmomo';
     if (is_category('riset')) return 'Bitmomo Research — Bitcoin Markets & Intelligence Systems';
     if (bitmomo_is_pro_account_page()) return 'Akun Bitmomo Pro — Bitmomo';
 
