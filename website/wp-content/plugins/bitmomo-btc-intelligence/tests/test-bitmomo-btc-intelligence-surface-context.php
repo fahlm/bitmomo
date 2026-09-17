@@ -52,12 +52,12 @@ btc_surface_check( 'Market State classifier output stays hidden', false === strp
 Bitmomo_Public_Intelligence_Adapter::$snapshot = null;
 Bitmomo_Public_Intelligence_Adapter::$surface = array( 'opportunity' => $opportunity );
 $partial = render_surface_fixture( $reflection );
-btc_surface_check( 'missing directional snapshot is explicit and fail-closed', false !== strpos( $partial, 'Pembacaan arah sedang ditahan' ) );
+btc_surface_check( 'missing directional snapshot is explicit and fail-closed', false !== strpos( $partial, 'Analisis arah sedang ditahan karena Major Brief belum memenuhi standar kualitas Bitmomo.' ) );
 btc_surface_check( 'missing directional snapshot does not invent direction or confidence', false === strpos( $partial, '74/100' ) && false === strpos( $partial, 'Directional consistency' ) );
 
 Bitmomo_Public_Intelligence_Adapter::$surface['opportunity'] = array( 'status' => 'unavailable', 'methodology_version' => 'opportunity-v1' );
 $unavailable = render_surface_fixture( $reflection );
-btc_surface_check( 'fully unavailable state remains explicit', false !== strpos( $unavailable, 'Pembacaan arah sedang ditahan' ) );
+btc_surface_check( 'fully unavailable state remains explicit', false !== strpos( $unavailable, 'Analisis arah sedang ditahan karena Major Brief belum memenuhi standar kualitas Bitmomo.' ) );
 
 $encoded = $full . $partial . $unavailable;
 foreach ( array( 'source_diagnostics', 'private_note', 'risk', 'axes', 'entitlement', 'monitoring_conditions', 'scenario_contract', 'engine-secret', 'classifier-secret' ) as $forbidden ) {
