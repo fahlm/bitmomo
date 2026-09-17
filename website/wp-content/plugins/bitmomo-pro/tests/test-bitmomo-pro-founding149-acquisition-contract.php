@@ -31,6 +31,14 @@ check_founding149_contract(
 	false !== strpos( $cache, "header( 'X-LiteSpeed-Cache-Control: no-cache' )" ) &&
 	false !== strpos( $cache, "do_action( 'litespeed_control_set_nocache'" )
 );
+check_founding149_contract(
+	'Only canonical production hosts may remain indexable',
+	false !== strpos( $cache, "array( 'bitmomo.id', 'www.bitmomo.id' )" ) &&
+	false !== strpos( $cache, "X-Robots-Tag: noindex, nofollow, noarchive" ) &&
+	false !== strpos( $cache, "User-agent: *\\nDisallow: /\\n" ) &&
+	false !== strpos( $cache, "add_filter( 'wp_robots'" ) &&
+	false !== strpos( $cache, "add_filter( 'rank_math/frontend/robots'" )
+);
 
 printf( "\n%d/%d passed.\n", $GLOBALS['__pass'], $GLOBALS['__pass'] + $GLOBALS['__fail'] );
 exit( $GLOBALS['__fail'] === 0 ? 0 : 1 );
