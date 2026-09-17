@@ -46,7 +46,7 @@ get_header();
             <li class="bm-home-infrastructure__brand">CoinGecko</li>
             <li class="bm-home-infrastructure__brand">Hyperliquid</li>
           </ul>
-          <p class="bm-home-infrastructure__note">Bitmomo membangun intelligence dari data pasar, analytical tools, dan market infrastructure.</p>
+          <p class="bm-home-infrastructure__note">Bitmomo membangun intelligence dari data pasar, perangkat analisis, dan infrastruktur pasar.</p>
           <p class="bm-home-infrastructure__legal">Nama dan merek pihak ketiga adalah milik masing-masing pemilik dan tidak menyiratkan afiliasi atau endorsement.</p>
         </div>
       </div>
