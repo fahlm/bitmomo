@@ -66,15 +66,15 @@ $bm_footer_groups = array(
 $bm_footer_principles = array(
   array(
     'label' => __( 'EVIDENCE FIRST', 'bitmomo' ),
-    'text'  => __( 'Market context dibangun dari data yang lolos quality gate.', 'bitmomo' ),
+    'text'  => __( 'Konteks pasar dibangun dari data yang memenuhi standar kualitas.', 'bitmomo' ),
   ),
   array(
     'label' => __( 'TESTABLE RESEARCH', 'bitmomo' ),
-    'text'  => __( 'AI systems diperlakukan sebagai sistem yang harus diuji, bukan klaim.', 'bitmomo' ),
+    'text'  => __( 'Sistem AI diperlakukan sebagai sistem yang harus diuji, bukan sekadar klaim.', 'bitmomo' ),
   ),
   array(
     'label' => __( 'FAIL CLOSED', 'bitmomo' ),
-    'text'  => __( 'Data stale atau invalid tidak ditampilkan sebagai intelligence terkini.', 'bitmomo' ),
+    'text'  => __( 'Data yang terlambat atau tidak valid tidak ditampilkan sebagai intelligence terkini.', 'bitmomo' ),
   ),
 );
 
@@ -83,7 +83,7 @@ $bm_footer_principles = array(
  * Founding Whitelist. Backend identity is environment-owned: define
  * BITMOMO_NEWSLETTER_FORM_ID or set the `bitmomo_newsletter_form_id` option.
  * There is deliberately no numeric fallback; missing/invalid configuration
- * fails closed and renders no decorative/broken subscription capability.
+ * fails closed and the public copy must fail closed with it.
  */
 $bm_newsletter_default_id = defined( 'BITMOMO_NEWSLETTER_FORM_ID' )
   ? (int) BITMOMO_NEWSLETTER_FORM_ID
@@ -105,7 +105,7 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
     <div class="bm-footer-grid">
       <div class="bm-footer-brand">
         <?php bitmomo_render_brand(); ?>
-        <p><?php esc_html_e( 'Market intelligence BTC dan riset AI untuk memahami kondisi pasar, menguji thesis, dan menilai rekam jejak keputusan.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Market intelligence BTC dan riset AI untuk memahami kondisi pasar, menguji tesis, dan menilai rekam jejak keputusan.', 'bitmomo' ); ?></p>
 
         <?php if ( $bm_social_links ) : ?>
           <nav class="bm-footer-social" aria-label="<?php esc_attr_e( 'Kanal resmi Bitmomo', 'bitmomo' ); ?>">
@@ -130,23 +130,29 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
     </div>
 
     <div id="newsletter" class="bm-footer-newsletter-anchor">
-      <section class="bm-footer-newsletter<?php echo $bm_newsletter_available ? '' : ' is-paused'; ?>" aria-labelledby="bm-footer-newsletter-title">
-        <div class="bm-footer-newsletter__copy">
-          <span><?php esc_html_e( 'BITMOMO BRIEF · GRATIS', 'bitmomo' ); ?></span>
-          <h2 id="bm-footer-newsletter-title"><?php esc_html_e( 'BTC intelligence dan riset terbaru, tanpa noise yang tidak perlu.', 'bitmomo' ); ?></h2>
-          <p><?php esc_html_e( 'Newsletter gratis dan terpisah dari Founding Whitelist. Berhenti berlangganan kapan saja.', 'bitmomo' ); ?></p>
-        </div>
-        <?php if ( $bm_newsletter_available ) : ?>
+      <?php if ( $bm_newsletter_available ) : ?>
+        <section class="bm-footer-newsletter" aria-labelledby="bm-footer-newsletter-title">
+          <div class="bm-footer-newsletter__copy">
+            <span><?php esc_html_e( 'BITMOMO BRIEF · GRATIS', 'bitmomo' ); ?></span>
+            <h2 id="bm-footer-newsletter-title"><?php esc_html_e( 'BTC intelligence dan riset terbaru, tanpa noise yang tidak perlu.', 'bitmomo' ); ?></h2>
+            <p><?php esc_html_e( 'Newsletter gratis dan terpisah dari Founding Whitelist. Berhenti berlangganan kapan saja.', 'bitmomo' ); ?></p>
+          </div>
           <div class="bm-footer-newsletter__form">
             <?php echo do_shortcode( sprintf( '[mailpoet_form id="%d"]', $bm_newsletter_form_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
           </div>
-        <?php else : ?>
-          <div class="bm-footer-newsletter__standby" aria-live="polite">
-            <span><?php esc_html_e( 'Brief publik tetap tersedia melalui Research.', 'bitmomo' ); ?></span>
+        </section>
+      <?php else : ?>
+        <section class="bm-footer-newsletter is-paused" aria-labelledby="bm-footer-research-title">
+          <div class="bm-footer-newsletter__copy">
+            <span><?php esc_html_e( 'BITMOMO RESEARCH', 'bitmomo' ); ?></span>
+            <h2 id="bm-footer-research-title"><?php esc_html_e( 'Baca riset pasar dan AI terbaru dari Bitmomo.', 'bitmomo' ); ?></h2>
+            <p><?php esc_html_e( 'Publikasi yang tersedia dapat dibaca langsung tanpa pendaftaran email.', 'bitmomo' ); ?></p>
+          </div>
+          <div class="bm-footer-newsletter__standby">
             <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Baca Research', 'bitmomo' ); ?></a>
           </div>
-        <?php endif; ?>
-      </section>
+        </section>
+      <?php endif; ?>
     </div>
 
     <div class="bm-footer-bottom">
