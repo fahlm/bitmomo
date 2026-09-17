@@ -1,0 +1,42 @@
+[Unit]
+Description=Bitmomo Hyperliquid Controlled Live Canary V0
+After=network-online.target bitmomo-hl-shadow.service
+Wants=network-online.target
+Requires=bitmomo-hl-shadow.service
+
+[Service]
+Type=simple
+User=bitmomo
+Group=bitmomo
+WorkingDirectory=/opt/bitmomo/research/hyperliquid-volume
+Environment=PYTHONUNBUFFERED=1
+Environment=HL_STATE_JSON=/var/lib/bitmomo-hl/autonomous_state.json
+Environment=HL_CANARY_SESSION_JSON=/var/lib/bitmomo-hl/live_canary_session.json
+Environment=HL_CANARY_ENABLE_FILE=/var/lib/bitmomo-hl/control/ENABLE_LIVE_CANARY
+Environment=HL_CANARY_KILL_FILE=/var/lib/bitmomo-hl/control/KILL_LIVE_CANARY
+Environment=HL_CANARY_AUTHORITY_LOCK=/run/bitmomo-hl/live_canary.lock
+# This file must be root-owned mode 600 and must never be committed to Git.
+# It supplies HL_ACCOUNT_ADDRESS, HL_SECRET_KEY for an authorized Hyperliquid API
+# wallet, and the exact HL_CANARY_ACK string documented by the runtime.
+EnvironmentFile=/etc/bitmomo-hl/canary.env
+RuntimeDirectory=bitmomo-hl
+RuntimeDirectoryMode=0750
+ExecStart=/opt/bitmomo/.venv/bin/python -u -m market_selector.live_canary_runtime \
+  --live-mainnet-canary \
+  --scanner-state /var/lib/bitmomo-hl/autonomous_state.json \
+  --session-state /var/lib/bitmomo-hl/live_canary_session.json \
+  --enable-file /var/lib/bitmomo-hl/control/ENABLE_LIVE_CANARY \
+  --kill-file /var/lib/bitmomo-hl/control/KILL_LIVE_CANARY \
+  --authority-lock /run/bitmomo-hl/live_canary.lock
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/bitmomo-hl /run/bitmomo-hl
+
+[Install]
+WantedBy=multi-user.target
