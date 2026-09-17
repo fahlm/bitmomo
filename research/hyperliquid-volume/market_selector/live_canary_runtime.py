@@ -6,7 +6,7 @@ import math
 import os
 import tempfile
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +23,7 @@ from .hyperliquid_adapter import (
     HyperliquidAccountAdapter,
     HyperliquidOrderAdapter,
 )
-from .live_accounting import HyperliquidMissionAccounting, LiveMissionStatus
+from .live_accounting import HyperliquidMissionAccounting
 from .mission import CANARY_MISSION
 from .operator_control import OperatorControl
 
@@ -82,8 +82,12 @@ class LiveCanaryRuntimeConfig:
     confirmation_timeout_seconds: float = 5.0
     confirmation_poll_seconds: float = 0.25
     flatten_attempts: int = 3
-    controller: CanaryControllerConfig = CanaryControllerConfig()
-    policy: CanaryPolicyConfig = CanaryPolicyConfig(macro_prior=MacroPrior.BEARISH)
+    max_account_value_fraction: float = 0.80
+    position_flat_tolerance: float = 1e-12
+    controller: CanaryControllerConfig = field(default_factory=CanaryControllerConfig)
+    policy: CanaryPolicyConfig = field(
+        default_factory=lambda: CanaryPolicyConfig(macro_prior=MacroPrior.BEARISH)
+    )
 
     def validate(self) -> None:
         if self.poll_seconds <= 0:
@@ -94,6 +98,10 @@ class LiveCanaryRuntimeConfig:
             raise ValueError("confirmation_poll_seconds must be positive")
         if self.flatten_attempts < 1:
             raise ValueError("flatten_attempts must be >= 1")
+        if not 0 < self.max_account_value_fraction <= 1:
+            raise ValueError("max_account_value_fraction must be in (0, 1]")
+        if self.position_flat_tolerance < 0:
+            raise ValueError("position_flat_tolerance must be non-negative")
         self.controller.validate()
         self.policy.validate()
 
@@ -213,12 +221,15 @@ class LiveCanaryRuntime:
             last = self.account_adapter.account_snapshot()
         return last
 
+    def _is_flat_size(self, value: float) -> bool:
+        return abs(float(value)) <= self.cfg.position_flat_tolerance
+
     def _flatten(self, coin: str, reason: str) -> None:
         assert self.session is not None
         for _ in range(self.cfg.flatten_attempts):
             before = self.account_adapter.account_snapshot()
             size = abs(float(before.positions.get(coin, 0.0)))
-            if size <= 0:
+            if self._is_flat_size(size):
                 self.session.active_coin = None
                 self.session.pending_coin = None
                 self.session.opened_at_ms = None
@@ -235,9 +246,9 @@ class LiveCanaryRuntime:
                 slippage=self.cfg.controller.max_flatten_slippage,
             )
             after = self._wait_for_account(
-                lambda snap: abs(float(snap.positions.get(coin, 0.0))) <= 0.0
+                lambda snap: self._is_flat_size(snap.positions.get(coin, 0.0))
             )
-            if abs(float(after.positions.get(coin, 0.0))) <= 0.0:
+            if self._is_flat_size(after.positions.get(coin, 0.0)):
                 self.session.active_coin = None
                 self.session.pending_coin = None
                 self.session.opened_at_ms = None
@@ -254,7 +265,23 @@ class LiveCanaryRuntime:
 
     def _open_short(self, coin: str, target_notional_usd: float) -> None:
         assert self.session is not None
-        size, mid = self._size_for_notional(coin, target_notional_usd)
+        before = self.account_adapter.account_snapshot()
+        if before.positions or before.open_order_ids:
+            raise RuntimeError("entry_requires_flat_account_and_zero_open_orders")
+        if before.account_value_usd is None or before.withdrawable_usd is None:
+            raise RuntimeError("account_balance_unavailable")
+        available = min(float(before.account_value_usd), float(before.withdrawable_usd))
+        if available <= 0:
+            raise RuntimeError("account_balance_non_positive")
+
+        capital_cap = available * self.cfg.max_account_value_fraction
+        bounded_notional = min(float(target_notional_usd), capital_cap)
+        if bounded_notional < self.cfg.controller.minimum_order_notional_usd:
+            raise RuntimeError(
+                f"account_cap_below_minimum:{bounded_notional:.4f}"
+            )
+
+        size, mid = self._size_for_notional(coin, bounded_notional)
         actual_target = size * mid
         if actual_target < self.cfg.controller.minimum_order_notional_usd:
             raise RuntimeError(f"rounded_notional_below_minimum:{actual_target:.4f}")
@@ -297,17 +324,17 @@ class LiveCanaryRuntime:
         position = float(after.positions.get(coin, 0.0))
         other_positions = {
             name: value for name, value in after.positions.items()
-            if name != coin and abs(float(value)) > 0
+            if name != coin and not self._is_flat_size(value)
         }
         if other_positions:
             self.session.halt_reason = "multiple_exchange_positions"
             self.session_store.save(self.session)
-            if position != 0.0:
+            if not self._is_flat_size(position):
                 self.session.active_coin = coin
                 self._flatten(coin, "unexpected_other_position")
             raise RuntimeError("multiple_exchange_positions")
 
-        if position < 0:
+        if position < -self.cfg.position_flat_tolerance:
             self.session.active_coin = coin
             self.session.pending_coin = None
             self.session.opened_at_ms = int(time.time() * 1000)
@@ -315,11 +342,11 @@ class LiveCanaryRuntime:
             self.session_store.save(self.session)
             print(
                 f"CANARY OPEN_SHORT coin={coin} size={abs(position):.12g} "
-                f"target_notional={actual_target:.2f}"
+                f"target_notional={actual_target:.2f} capital_cap={capital_cap:.2f}"
             )
             return
 
-        if position > 0:
+        if position > self.cfg.position_flat_tolerance:
             self.session.active_coin = coin
             self.session.pending_coin = None
             self.session.opened_at_ms = int(time.time() * 1000)
