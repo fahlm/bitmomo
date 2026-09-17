@@ -253,10 +253,10 @@ check('BTC market-context shell is server-stable and series are not color-only',
   btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
 );
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes integrated public + Telegram runtime and 123 managed files',
-  runtime.includes('"expected_file_count": 123') &&
-  runtime.includes('"expected_file_count": 46') &&
-  runtime.includes('"expected_file_count": 12') &&
+check('Runtime manifest includes integrated public + Telegram runtime and 126 managed files',
+  runtime.includes('"expected_file_count": 126') &&
+  runtime.includes('"expected_file_count": 47') &&
+  runtime.includes('"expected_file_count": 14') &&
   runtime.includes('"expected_file_count": 29') &&
   runtime.includes('"assets/css/home.css"') &&
   runtime.includes('class-bitmomo-btc-intelligence-accountability.php') &&

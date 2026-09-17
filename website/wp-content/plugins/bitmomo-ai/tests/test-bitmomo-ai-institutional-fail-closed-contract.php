@@ -42,7 +42,12 @@ $pulse_position = strpos($page, '$this->render_market_pulse( $activity, $pulse_l
 $delayed_position = strpos($page, 'if ( $is_delayed )');
 audit_check('Market Pulse renders before Major Brief freshness gating', false !== $pulse_position && false !== $delayed_position && $pulse_position < $delayed_position);
 audit_check('insufficient sample accuracy is withheld at presentation boundary', false !== strpos($page, 'Akurasi ditahan sampai sampel minimum terpenuhi.'));
-audit_check('methodology discloses independent clocks and exact New York anchors', false !== strpos($page, '08:10 dan 20:10 America/New_York') && false !== strpos($page, 'clock yang terpisah'));
+audit_check(
+    'methodology discloses two independent New York Major Brief schedules',
+    false !== strpos($page, '08.10 dan 20.10 waktu New York') &&
+    false !== strpos($page, 'mengikuti perubahan daylight-saving AS') &&
+    false !== strpos($page, 'Keterlambatan pada salah satu jadwal tidak mengubah status jadwal lainnya.')
+);
 
 $failed = array_filter($checks, function ($row) { return !$row[1]; });
 foreach ($checks as $row) echo ($row[1] ? 'PASS' : 'FAIL') . ': ' . $row[0] . PHP_EOL;
