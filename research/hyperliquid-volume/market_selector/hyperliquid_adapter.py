@@ -58,6 +58,16 @@ class HyperliquidExchangeLike(Protocol):
         **kwargs,
     ) -> Any: ...
 
+    def market_open(
+        self,
+        coin: str,
+        is_buy: bool,
+        sz: float,
+        px: float | None = None,
+        slippage: float = 0.05,
+        **kwargs,
+    ) -> Any: ...
+
     def cancel(self, coin: str, oid: int) -> Any: ...
     def market_close(self, coin: str, sz: float | None = None, **kwargs) -> Any: ...
 
@@ -211,10 +221,34 @@ class HyperliquidOrderAdapter:
         )
         return self._parse_submit_response(raw)
 
+    def market_open(
+        self,
+        *,
+        coin: str,
+        is_buy: bool,
+        size: float,
+        slippage: float,
+    ) -> OrderSubmitResult:
+        """Submit the official SDK aggressive IOC entry helper.
+
+        Controlled-canary V0 uses IOC entry/exit deliberately so the first live
+        stage has no resting entry order to orphan across process failure. Exchange
+        account state, not this response object, remains authoritative after submit.
+        """
+
+        if size <= 0:
+            raise ValueError("size must be positive")
+        if slippage <= 0 or slippage > 0.05:
+            raise ValueError("slippage must be in (0, 0.05]")
+        raw = self.exchange.market_open(coin, is_buy, size, None, slippage)
+        return self._parse_submit_response(raw)
+
     def cancel(self, *, coin: str, oid: str) -> bool:
         raw = self.exchange.cancel(coin, int(oid))
         return isinstance(raw, dict) and raw.get("status") == "ok"
 
-    def flatten_market(self, *, coin: str, size: float | None = None) -> OrderSubmitResult:
-        raw = self.exchange.market_close(coin, size)
+    def flatten_market(self, *, coin: str, size: float | None = None, slippage: float = 0.01) -> OrderSubmitResult:
+        if slippage <= 0 or slippage > 0.05:
+            raise ValueError("slippage must be in (0, 0.05]")
+        raw = self.exchange.market_close(coin, size, None, slippage)
         return self._parse_submit_response(raw)
