@@ -10,6 +10,33 @@
   display: none;
 }
 
+/* Accountability populations are intentionally different. Make the distinction
+ * explicit beside the evidence instead of forcing incompatible versions into
+ * one denominator. */
+.bm-bi__population-note {
+  max-width: 920px;
+  margin: -7px 0 16px;
+  padding: 9px 11px;
+  border-left: 2px solid var(--bmi-accent);
+  background: rgba(var(--bmi-accent-rgb), .045);
+  color: var(--bm-text-secondary, #b7c0ca);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.bm-bi__population-note.is-scorecard {
+  margin-top: -8px;
+}
+
+.bm-bi__ledger-method {
+  display: block;
+  margin-top: 4px;
+  color: var(--bmi-subtle);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
 /* Public visitor text should not fall below 11px. Data-visualization geometry
  * (SVG axis labels/markers) is intentionally excluded from this floor. */
 .bm-bi__eyebrow,
@@ -52,5 +79,9 @@
   .bm-bi__brief-panel li,
   .bm-bi__no-change {
     font-size: 13px;
+  }
+
+  .bm-bi__population-note {
+    font-size: 12px;
   }
 }
