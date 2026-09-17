@@ -27,7 +27,7 @@ market_context_check(
 );
 market_context_check(
 	'BTC asset version is bumped for deterministic cache invalidation',
-	false !== strpos( $plugin, "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.8'" )
+	false !== strpos( $plugin, "BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.9'" )
 );
 market_context_check(
 	'Market Context assets use file-hash cache invalidation instead of the static plugin version',
