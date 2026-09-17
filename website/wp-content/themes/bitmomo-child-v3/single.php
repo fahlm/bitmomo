@@ -31,6 +31,47 @@ get_header();
   $bm_about_url = home_url( '/tentang-kami/' );
   $bm_figure_caption = has_post_thumbnail() ? trim( (string) get_the_post_thumbnail_caption( $bm_post_id ) ) : '';
 
+  /*
+   * Research copy is stored in WordPress, not in this theme. Keep a narrow
+   * presentation safety boundary for artifacts that must never reach a public
+   * research article: ChatGPT attribution query strings and literal editor
+   * scaffolding. The canonical DB cleanup remains a separate idempotent
+   * migration; this renderer prevents stale DB/cache copies from leaking them.
+   */
+  $bm_article_content = apply_filters( 'the_content', get_the_content( null, false, $bm_post_id ) );
+  if ( $bm_is_research && is_string( $bm_article_content ) ) {
+    $bm_article_content = preg_replace_callback(
+      '/href=(["\'])(https?:\/\/[^"\']+)\1/i',
+      static function ( $matches ) {
+        $quote = $matches[1];
+        $url = html_entity_decode( $matches[2], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+        $query = wp_parse_url( $url, PHP_URL_QUERY );
+        $params = array();
+        if ( is_string( $query ) ) parse_str( $query, $params );
+        if ( isset( $params['utm_source'] ) && 'chatgpt.com' === strtolower( trim( (string) $params['utm_source'] ) ) ) {
+          $url = remove_query_arg( 'utm_source', $url );
+        }
+        return 'href=' . $quote . esc_url( $url ) . $quote;
+      },
+      $bm_article_content
+    );
+    $bm_article_content = preg_replace( '/<p\b[^>]*>\s*Excerpt:\s*<\/p>/i', '', $bm_article_content );
+    $bm_article_content = preg_replace( '/(<p\b[^>]*>\s*)Excerpt:\s*/i', '$1', $bm_article_content );
+  }
+
+  /* Suppress an auto-truncated excerpt when it merely repeats paragraph one. */
+  if ( $bm_is_research && '' !== $bm_deck ) {
+    $bm_original_deck = $bm_deck;
+    $bm_deck = preg_replace( '/\s*(?:\[\x{2026}\]|\[\.\.\.\])\s*$/u', '', $bm_deck );
+    $bm_deck = is_string( $bm_deck ) ? trim( $bm_deck ) : '';
+    $bm_deck_plain = preg_replace( '/\s+/u', ' ', wp_strip_all_tags( $bm_deck ) );
+    $bm_body_plain = preg_replace( '/\s+/u', ' ', wp_strip_all_tags( $bm_article_content ) );
+    $bm_auto_truncated = (bool) preg_match( '/(?:\[\x{2026}\]|\[\.\.\.\])\s*$/u', $bm_original_deck );
+    $bm_duplicate_opening = '' !== $bm_deck_plain && '' !== $bm_body_plain && 0 === strpos( $bm_body_plain, $bm_deck_plain );
+    if ( $bm_duplicate_opening && ( $bm_auto_truncated || strlen( $bm_deck_plain ) >= 80 ) ) {
+      $bm_deck = '';
+    }
+  }
   ?>
   <article <?php post_class( 'bm-article' ); ?>>
     <div class="bm-container">
@@ -69,7 +110,7 @@ get_header();
         </figure>
       <?php endif; ?>
 
-      <div class="bm-article-body"><?php the_content(); ?></div>
+      <div class="bm-article-body"><?php echo $bm_article_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output already passed through the_content; URL cleanup is narrow. ?></div>
 
       <footer class="bm-article-foot">
         <?php if ( $bm_is_research ) : ?>
@@ -198,7 +239,8 @@ get_header();
   <?php endif;
   unset(
     $bm_post_id, $bm_cats, $bm_cat, $bm_classification, $bm_is_research, $bm_article_label,
-    $bm_topic_label, $bm_read_minutes, $bm_deck, $bm_has_meaningful_update, $bm_research_url,
+    $bm_topic_label, $bm_read_minutes, $bm_deck, $bm_original_deck, $bm_deck_plain, $bm_body_plain,
+    $bm_auto_truncated, $bm_duplicate_opening, $bm_article_content, $bm_has_meaningful_update, $bm_research_url,
     $bm_about_url, $bm_figure_caption, $bm_related_args, $bm_related_title, $bm_related_eyebrow,
     $bm_taxonomy_v3, $bm_desk_slug, $bm_related, $bm_related_posts, $bm_related_candidate,
     $bm_candidate_id, $bm_related_post, $bm_riset, $bm_market_slugs, $bm_ai_tag, $bm_primary_cat_id,
