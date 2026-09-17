@@ -13,6 +13,9 @@
     const firstCell = tr.querySelector('td:first-child');
     if (!row || !firstCell || firstCell.querySelector('.bm-bi__ledger-method')) return;
 
+    const session = firstCell.querySelector('small');
+    if (session) session.textContent = publicSessionLabel(session.textContent || '');
+
     const method = document.createElement('small');
     method.className = 'bm-bi__ledger-method';
     method.textContent = friendlyMethod(row.outcomeMethodology || '');
@@ -29,6 +32,11 @@
     const missed = Number(config.ledgerUnscored || 0);
     note.textContent = `Populasi Ledger: ${total} catatan matang terbaru lintas versi (${evaluated} sudah dievaluasi${missed ? `; ${missed} periode evaluasi terlewat` : ''}). Tidak ada filter berdasarkan hasil.`;
     ledgerIntro.insertAdjacentElement('afterend', note);
+
+    const coverage = document.createElement('p');
+    coverage.className = 'bm-bi__population-note bm-bi__coverage-note';
+    coverage.textContent = 'Ledger hanya menampilkan brief recorded-live yang benar-benar tercatat. Jadwal yang tidak menghasilkan record tidak diisi ulang secara retrospektif; kekosongan historis tetap diperlakukan sebagai gap data, bukan keputusan pasar.';
+    note.insertAdjacentElement('afterend', coverage);
   }
 
   const track = root.querySelector('.bm-bi__track-record');
@@ -55,5 +63,14 @@
     if (value === 'observed-close-24h-v2') return 'Metode hasil +24j v2';
     if (value === 'legacy-window-v1' || !value) return 'Metode hasil +24j legacy';
     return `Metode ${String(method).replace(/[-_]+/g, ' ')}`;
+  }
+
+  function publicSessionLabel(label) {
+    const value = String(label || '').trim().toLowerCase();
+    if (value === 'us session') return 'US POST-CLOSE · legacy';
+    if (value === 'us post-close' || value === 'us post close') return 'US POST-CLOSE';
+    if (value === 'us pre-open' || value === 'us pre open') return 'US PRE-OPEN';
+    if (value === 'morning') return 'US PRE-OPEN · legacy';
+    return label;
   }
 })();
