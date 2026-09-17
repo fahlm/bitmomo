@@ -103,8 +103,8 @@ $method->setAccessible( true );
 $html = $method->invoke( $page, array() );
 
 check_session_contract( 'Major Brief identifies canonical session', false !== strpos( $html, 'MAJOR BRIEF · US POST-CLOSE' ) );
-check_session_contract( 'Session anchor is translated to WIB', false !== strpos( $html, 'Anchor sesi · 13 Sep · 07:10 WIB' ) );
-check_session_contract( 'Post-close Free brief exposes concise observed 24h context', false !== strpos( $html, 'Dalam 24 jam menuju brief ini, BTC bergerak +2.25% dan pembacaan berakhir Bullish.' ) );
+check_session_contract( 'Session anchor is translated to WIB', false !== strpos( $html, 'Jadwal sesi · 13 Sep · 07:10 WIB' ) );
+check_session_contract( 'Post-close Free brief exposes concise observed 24h context', false !== strpos( $html, 'Dalam 24 jam menuju brief ini, BTC bergerak +2.25% dan bias akhir berada di Bullish.' ) );
 check_session_contract( 'Free brief keeps two public-safe drivers only', false !== strpos( $html, 'Momentum BTC menguat.' ) && false !== strpos( $html, 'Volatilitas meningkat.' ) && false === strpos( $html, 'Driver ketiga tidak boleh tampil.' ) );
 check_session_contract( 'What Changed remains humanized', false !== strpos( $html, 'Bias berubah dari Netral menjadi Bullish.' ) && false !== strpos( $html, 'Confidence berubah dari 61 menjadi 82.' ) );
 check_session_contract( 'Why It Matters translates deterministic codes into visitor language', false !== strpos( $html, 'Arah dominan pasar berubah' ) && false !== strpos( $html, 'Kekuatan bukti berubah' ) );
@@ -120,7 +120,7 @@ Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['status'] = 'delayed';
 Bitmomo_Public_Intelligence_Adapter::$snapshot_fixture['freshness']['state'] = 'delayed';
 $delayed_page = $reflection->newInstanceWithoutConstructor();
 $delayed_html = $method->invoke( $delayed_page, array() );
-check_session_contract( 'Delayed snapshot still fails closed', false !== strpos( $delayed_html, 'PEMBACAAN SAAT INI DITAHAN' ) );
+check_session_contract( 'Delayed snapshot still fails closed', false !== strpos( $delayed_html, 'ANALISIS SAAT INI DITAHAN' ) );
 check_session_contract( 'Delayed snapshot withholds session analysis and public watch', false === strpos( $delayed_html, 'Dalam 24 jam menuju brief ini' ) && false === strpos( $delayed_html, 'Arah dominan pasar berubah' ) && false === strpos( $delayed_html, 'Apakah kekuatan arah tetap konsisten' ) && false === strpos( $delayed_html, 'Momentum BTC menguat.' ) );
 
 printf( "\n%d/%d passed.\n", $GLOBALS['__pass'], $GLOBALS['__pass'] + $GLOBALS['__fail'] );
