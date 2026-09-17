@@ -131,6 +131,7 @@
 	min-height: var(--bm-touch-target-mobile);
 	align-items: center;
 	padding: 10px 18px;
+	border: 1px solid transparent;
 	border-radius: var(--bm-radius-md);
 	background: var(--bm-action);
 	color: #0b1620;
@@ -142,6 +143,21 @@
 .bm-pro-account__cta:focus-visible {
 	background: var(--bm-action-hover);
 	color: #0b1620;
+}
+
+/* Logged-out users have one primary task: authenticate. The commercial CTA is
+ * intentionally secondary so two yellow actions do not compete in one gate. */
+.bm-pro-account__login-form ~ .bm-pro-account__cta {
+	border-color: var(--bm-border-strong, var(--bm-border));
+	background: transparent;
+	color: var(--bm-text);
+}
+
+.bm-pro-account__login-form ~ .bm-pro-account__cta:hover,
+.bm-pro-account__login-form ~ .bm-pro-account__cta:focus-visible {
+	border-color: var(--bm-teal);
+	background: var(--bm-bg-soft);
+	color: var(--bm-teal);
 }
 
 .bm-pro-account__contact-note {
