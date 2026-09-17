@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo BTC Intelligence
  * Plugin URI: https://bitmomo.id
  * Description: Public /btc-intelligence/ product surface for current BTC context, session briefs, history, Decision Ledger, delayed Pro proof, accountable evaluation, and public-safe Telegram distribution.
- * Version: 0.3.8
+ * Version: 0.3.9
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.8' );
+define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.9' );
 define( 'BITMOMO_BTC_INTELLIGENCE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_BTC_INTELLIGENCE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -56,16 +56,30 @@ function bitmomo_btc_intelligence_accountability_assets() {
 	if ( ! is_page( 'btc-intelligence' ) ) {
 		return;
 	}
-	$asset = BITMOMO_BTC_INTELLIGENCE_DIR . 'assets/css/accountability-surface.css';
-	if ( ! is_readable( $asset ) ) {
-		return;
-	}
-	$hash = hash_file( 'sha256', $asset );
-	wp_enqueue_style(
-		'bitmomo-btc-accountability',
-		BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/accountability-surface.css',
-		array( 'bitmomo-btc-intelligence' ),
-		$hash ? substr( $hash, 0, 16 ) : BITMOMO_BTC_INTELLIGENCE_VERSION
+
+	$assets = array(
+		'bitmomo-btc-accountability' => array(
+			'path' => 'assets/css/accountability-surface.css',
+			'deps' => array( 'bitmomo-btc-intelligence' ),
+		),
+		'bitmomo-btc-launch-trust-polish' => array(
+			'path' => 'assets/css/launch-trust-polish.css',
+			'deps' => array( 'bitmomo-btc-accountability', 'bitmomo-btc-market-context' ),
+		),
 	);
+
+	foreach ( $assets as $handle => $definition ) {
+		$asset = BITMOMO_BTC_INTELLIGENCE_DIR . $definition['path'];
+		if ( ! is_readable( $asset ) ) {
+			continue;
+		}
+		$hash = hash_file( 'sha256', $asset );
+		wp_enqueue_style(
+			$handle,
+			BITMOMO_BTC_INTELLIGENCE_URL . $definition['path'],
+			$definition['deps'],
+			$hash ? substr( $hash, 0, 16 ) : BITMOMO_BTC_INTELLIGENCE_VERSION
+		);
+	}
 }
-add_action( 'wp_enqueue_scripts', 'bitmomo_btc_intelligence_accountability_assets', 20 );
+add_action( 'wp_enqueue_scripts', 'bitmomo_btc_intelligence_accountability_assets', 40 );
