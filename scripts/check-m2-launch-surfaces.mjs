@@ -180,7 +180,7 @@ check('BTC Intelligence keeps methodology secondary and one Pro action', /<detai
 check(
   'BTC Intelligence exposes Decision Ledger and a policy-bound 48h delayed Pro archive',
   /Decision Ledger/.test(btcIntelligencePage)
-    && /DELAY ≥ %d JAM/.test(btcIntelligencePage)
+    && /TERTUNDA ≥ %d JAM/.test(btcIntelligencePage)
     && /const PROOF_DELAY_HOURS\s*=\s*48/.test(btcAccountability)
 );
 
