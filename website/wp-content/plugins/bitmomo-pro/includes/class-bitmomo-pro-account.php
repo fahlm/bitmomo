@@ -70,7 +70,7 @@ class Bitmomo_Pro_Account {
 		$url = bitmomo_pro_get_checkout_url();
 		if ( empty( $url ) ) {
 			printf(
-				'<a class="bm-pro-account__cta" href="%1$s">%2$s</a><p class="bm-pro-account__contact-note">%3$s</p>',
+				'<a class="bm-pro-account__cta bm-pro-account__cta--secondary" href="%1$s">%2$s</a><p class="bm-pro-account__contact-note">%3$s</p>',
 				esc_url( home_url( '/pro/#bm-pro-whitelist' ) ),
 				esc_html__( 'Gabung Founding Whitelist', 'bitmomo-pro' ),
 				esc_html__( 'Checkout belum dibuka. Whitelist adalah jalur resmi untuk menerima pemberitahuan saat akses batch berikutnya tersedia.', 'bitmomo-pro' )
@@ -100,7 +100,12 @@ class Bitmomo_Pro_Account {
 		echo '<div class="bm-pro-account__gate">';
 		echo '<h2 class="bm-pro-account__gate-title">' . esc_html__( 'Masuk untuk melihat status akses Bitmomo Pro', 'bitmomo-pro' ) . '</h2>';
 		echo '<div class="bm-pro-account__login-form">';
-		wp_login_form( array( 'redirect' => $this->current_url() ) );
+		wp_login_form(
+			array(
+				'redirect'     => $this->current_url(),
+				'label_log_in' => __( 'Masuk', 'bitmomo-pro' ),
+			)
+		);
 		echo '</div>';
 		printf(
 			'<p class="bm-pro-account__support"><a href="%1$s">%2$s</a></p>',
