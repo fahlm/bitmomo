@@ -36,12 +36,12 @@ final class Bitmomo_Btc_Intelligence_Accountability {
 		}
 
 		$contract = array(
-			'provenance'       => 'recorded_live_matured_outcomes',
-			'policy'           => 'RECENT_MATURED_NO_RESULT_FILTER',
-			'evaluation_window'=> '+24h',
-			'rows'             => array(),
-			'evaluated_n'      => 0,
-			'unscored_n'       => 0,
+			'provenance'        => 'recorded_live_matured_outcomes',
+			'policy'            => 'RECENT_MATURED_NO_RESULT_FILTER',
+			'evaluation_window' => '+24h',
+			'rows'              => array(),
+			'evaluated_n'       => 0,
+			'unscored_n'        => 0,
 		);
 
 		if ( ! class_exists( 'Bitmomo_AI_Content_Types' ) || ! post_type_exists( Bitmomo_AI_Content_Types::SIGNAL ) ) {
@@ -101,23 +101,31 @@ final class Bitmomo_Btc_Intelligence_Accountability {
 			$confidence  = max( 0, min( 100, (int) get_post_meta( $id, '_bm_confidence', true ) ) );
 			$edition     = sanitize_key( (string) get_post_meta( $id, '_bm_edition', true ) );
 			$method      = sanitize_key( (string) get_post_meta( $id, '_bm_outcome_methodology', true ) );
-			$regime      = $regime_index[ $source_id ];
+			$model       = sanitize_text_field( (string) get_post_meta( $id, '_bm_model', true ) );
+			$regime_meta = is_array( $regime_index[ $source_id ] ) ? $regime_index[ $source_id ] : array();
+			$regime      = sanitize_key( (string) ( $regime_meta['regime'] ?? '' ) );
+			$classifier  = sanitize_text_field( (string) ( $regime_meta['classifier_version'] ?? '' ) );
+			$method      = '' !== $method ? $method : 'legacy-window-v1';
+			$model       = '' !== trim( $model ) ? $model : 'unknown-model';
+			$classifier  = '' !== trim( $classifier ) ? $classifier : 'unknown-classifier';
+			$evaluation_version = $model . ' | ' . $classifier . ' | ' . $method;
 
 			$row = array(
-				'id'                 => substr( hash( 'sha256', $id . '|' . $generated_at ), 0, 12 ),
-				'generated_at'       => gmdate( 'c', $generated_ts ),
-				'direction'          => $direction,
-				'confidence'         => $confidence,
-				'market_state'       => $regime,
-				'session'            => self::session_label( $edition ),
-				'reference_price'    => is_numeric( $entry_price ) && (float) $entry_price > 0 ? (float) $entry_price : null,
-				'outcome_status'     => $status,
-				'outcome_direction'  => 'evaluated' === $status ? $outcome_direction : null,
-				'verdict'            => self::verdict( $status, $outcome_direction ),
-				'forward_return_pct' => 'evaluated' === $status && is_numeric( $return_pct ) ? (float) $return_pct : null,
-				'high_24h'           => 'evaluated' === $status && is_numeric( $high_24h ) && (float) $high_24h > 0 ? (float) $high_24h : null,
-				'low_24h'            => 'evaluated' === $status && is_numeric( $low_24h ) && (float) $low_24h > 0 ? (float) $low_24h : null,
-				'outcome_methodology'=> '' !== $method ? $method : 'legacy-window-v1',
+				'id'                  => substr( hash( 'sha256', $id . '|' . $generated_at ), 0, 12 ),
+				'generated_at'        => gmdate( 'c', $generated_ts ),
+				'direction'           => $direction,
+				'confidence'          => $confidence,
+				'market_state'        => $regime,
+				'session'             => self::session_label( $edition ),
+				'reference_price'     => is_numeric( $entry_price ) && (float) $entry_price > 0 ? (float) $entry_price : null,
+				'outcome_status'      => $status,
+				'outcome_direction'   => 'evaluated' === $status ? $outcome_direction : null,
+				'verdict'             => self::verdict( $status, $outcome_direction ),
+				'forward_return_pct'  => 'evaluated' === $status && is_numeric( $return_pct ) ? (float) $return_pct : null,
+				'high_24h'            => 'evaluated' === $status && is_numeric( $high_24h ) && (float) $high_24h > 0 ? (float) $high_24h : null,
+				'low_24h'             => 'evaluated' === $status && is_numeric( $low_24h ) && (float) $low_24h > 0 ? (float) $low_24h : null,
+				'outcome_methodology' => $method,
+				'evaluation_version'  => $evaluation_version,
 			);
 
 			$contract['rows'][] = $row;
@@ -278,8 +286,12 @@ final class Bitmomo_Btc_Intelligence_Accountability {
 			}
 			$source = self::normalize_source_id( get_post_meta( $id, '_bitmomo_regime_source_record_id', true ) );
 			$state = sanitize_key( (string) get_post_meta( $id, '_bitmomo_regime_regime', true ) );
+			$classifier = sanitize_text_field( (string) get_post_meta( $id, '_bitmomo_regime_classifier_version', true ) );
 			if ( '' !== $source && in_array( $state, array( 'accumulation', 'expansion', 'distribution', 'capitulation', 'transition' ), true ) ) {
-				$index[ $source ] = $state;
+				$index[ $source ] = array(
+					'regime'             => $state,
+					'classifier_version' => $classifier,
+				);
 			}
 		}
 		return $index;
@@ -296,12 +308,12 @@ final class Bitmomo_Btc_Intelligence_Accountability {
 
 	private static function session_label( $edition ) {
 		$labels = array(
-			'morning'       => 'Morning',
-			'us_pre_open'   => 'US Pre-open',
-			'us_session'    => 'US Session',
-			'us_post_close' => 'US Post-close',
+			'morning'       => 'Legacy · Morning',
+			'us_pre_open'   => 'US Pre-Open',
+			'us_session'    => 'Legacy · US Session',
+			'us_post_close' => 'US Post-Close',
 		);
-		return $labels[ sanitize_key( (string) $edition ) ] ?? 'Market update';
+		return $labels[ sanitize_key( (string) $edition ) ] ?? 'Legacy · Market Update';
 	}
 
 	private static function verdict( $status, $outcome ) {
