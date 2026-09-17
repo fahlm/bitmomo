@@ -131,6 +131,7 @@
 	min-height: var(--bm-touch-target-mobile);
 	align-items: center;
 	padding: 10px 18px;
+	border: 1px solid transparent;
 	border-radius: var(--bm-radius-md);
 	background: var(--bm-action);
 	color: #0b1620;
@@ -142,6 +143,19 @@
 .bm-pro-account__cta:focus-visible {
 	background: var(--bm-action-hover);
 	color: #0b1620;
+}
+
+.bm-pro-account__cta--secondary {
+	border-color: var(--bm-border);
+	background: transparent;
+	color: var(--bm-text);
+}
+
+.bm-pro-account__cta--secondary:hover,
+.bm-pro-account__cta--secondary:focus-visible {
+	border-color: var(--bm-text-muted);
+	background: var(--bm-bg-soft);
+	color: var(--bm-text);
 }
 
 .bm-pro-account__contact-note {
