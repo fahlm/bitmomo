@@ -14,7 +14,7 @@ $html = $page->render_page( array() );
 check( 'Page renders without public adapter', strlen( $html ) > 400 );
 check( 'Page has canonical wrapper', false !== strpos( $html, 'class="bm-bi"' ) );
 check( 'Hero explains the two-clock visitor model', false !== strpos( $html, 'Market Pulse menunjukkan aktivitas intraday' ) && false !== strpos( $html, 'Major Brief menunjukkan bias' ) );
-check( 'Unavailable Major Brief fails closed', false !== strpos( $html, 'Pembacaan arah sedang ditahan karena Major Brief belum memenuhi standar kualitas Bitmomo.' ) );
+check( 'Unavailable Major Brief fails closed', false !== strpos( $html, 'Analisis arah sedang ditahan karena Major Brief belum memenuhi standar kualitas Bitmomo.' ) );
 check( 'No fabricated BTC reference without adapter', false === strpos( $html, '$65,000' ) && false === strpos( $html, '$65.000' ) );
 check( 'Only one Pro conversion action is rendered', 1 === substr_count( $html, 'Lihat Bitmomo Pro' ) );
 check( 'Page still renders accountability boundaries without data', false !== strpos( $html, 'Decision Ledger' ) && false !== strpos( $html, 'Arsip Pro' ) );
@@ -31,7 +31,7 @@ check( 'Commercial action consumes canonical amber token', false !== strpos( $cs
 check( 'Secondary methodology stays progressively disclosed', false !== strpos( $css, '.bm-bi__details' ) );
 check( 'Mobile snapshot collapses to one column', false !== strpos( $css, '.bm-bi__snapshot-grid{grid-template-columns:1fr}' ) );
 check( 'Ledger overflow is contained instead of overflowing the page', false !== strpos( $css, '.bm-bi__ledger-wrap' ) && false !== strpos( $css, 'overflow-x:auto' ) );
-check( 'Renderer explicitly separates stale Major Brief from Market Pulse', false !== strpos( $class_source, 'MAJOR BRIEF TERTUNDA' ) && false !== strpos( $class_source, 'Market Pulse tetap ditampilkan terpisah' ) && false !== strpos( $class_source, 'render_market_pulse' ) );
+check( 'Renderer explicitly separates stale Major Brief from Market Pulse', false !== strpos( $class_source, 'MAJOR BRIEF TERTUNDA' ) && false !== strpos( $class_source, 'Market Pulse tetap tampil terpisah' ) && false !== strpos( $class_source, 'render_market_pulse' ) );
 check( 'Early sample copy explicitly cautions against inference', false !== strpos( $class_source, 'Sampel awal — belum layak disimpulkan' ) );
 check( 'Insufficient sample accuracy is explicitly withheld', false !== strpos( $class_source, 'Akurasi ditahan sampai sampel minimum terpenuhi.' ) );
 
@@ -148,20 +148,20 @@ check( 'What changed is capped and humanized', false !== strpos( $html, 'Bias be
 check( 'Public trust metadata is concise', false !== strpos( $html, '13 Sep 2026 · 03:10 WIB' ) && false !== strpos( $html, 'Sumber data: Binance + Bybit' ) );
 check( '30-day context shows direction only', false !== strpos( $html, 'Bullish 2' ) && false !== strpos( $html, 'Netral 1' ) && false !== strpos( $html, 'Bearish 1' ) );
 check( '30-day context does not expose regime or classifier internals', false === strpos( $html, 'classifier-secret' ) );
-check( 'Decision Ledger includes wins, misses and unscored records instead of success-only rows', false !== strpos( $html, 'NO CHERRY-PICKING' ) && false !== strpos( $html, 'SESUAI' ) && false !== strpos( $html, 'TIDAK SESUAI' ) && false !== strpos( $html, 'BELUM DINILAI' ) );
+check( 'Decision Ledger includes wins, misses and unscored records instead of success-only rows', false !== strpos( $html, 'TANPA PILIH-PILIH HASIL' ) && false !== strpos( $html, 'SESUAI' ) && false !== strpos( $html, 'TIDAK SESUAI' ) && false !== strpos( $html, 'BELUM DINILAI' ) );
 check( 'Decision Ledger shows frozen-time view and forward outcome', false !== strpos( $html, '$64,000' ) && false !== strpos( $html, '+1.42%' ) );
 check( 'Decision Ledger does not dump internal methodology IDs', false === strpos( $html, 'observed-close-24h-v2' ) );
 check( 'Track record uses current methodology outcome only', false !== strpos( $html, 'Akurasi 62.9%' ) && false !== strpos( $html, 'Akurasi 63.0%' ) && false === strpos( $html, '11.1%' ) );
 check( 'Track record hides engine and classifier version identifiers', false === strpos( $html, 'engine-v2' ) && false === strpos( $html, 'classifier-v2' ) && false === strpos( $html, 'legacy-window-v1' ) );
 $sample_position = strpos( $html, '35 / 40' );
 $accuracy_position = strpos( $html, 'Akurasi 62.9%' );
-check( 'Track record is sample-first rather than percentage-first', false !== $sample_position && false !== $accuracy_position && $sample_position < $accuracy_position && false !== strpos( $html, 'outcome konklusif / total · Sampel memadai' ) );
-check( 'Track record explains why sample comes first', false !== strpos( $html, 'Jumlah outcome konklusif ditampilkan lebih dulu' ) );
-check( 'Track record describes exact +24h evaluation', false !== strpos( $html, 'tepat +24 jam' ) );
-check( 'Legacy methodology is disclosed without dumping identifiers', false !== strpos( $html, 'Metodologi lama tetap disimpan untuk audit' ) );
+check( 'Track record is sample-first rather than percentage-first', false !== $sample_position && false !== $accuracy_position && $sample_position < $accuracy_position && false !== strpos( $html, 'hasil konklusif / total · Sampel memadai' ) );
+check( 'Track record explains why sample comes first', false !== strpos( $html, 'Jumlah hasil konklusif ditampilkan lebih dulu' ) );
+check( 'Track record describes exact +24h evaluation', false !== strpos( $html, 'Aturan hasil tepat +24 jam' ) );
+check( 'Legacy methodology is disclosed without dumping identifiers', false !== strpos( $html, 'Versi lama dipertahankan untuk audit' ) );
 check( 'Delayed Pro proof exposes a real historical decision contract', false !== strpos( $html, 'FROM THE PRO ARCHIVE' ) && false !== strpos( $html, 'BTC bertahan di atas support' ) && false !== strpos( $html, 'Thesis batal jika support utama gagal dipertahankan' ) );
-check( 'Delayed Pro proof exposes actual settled outcome and range result', false !== strpos( $html, '+1.11%' ) && false !== strpos( $html, 'Range hit: YA' ) );
-check( 'Delayed Pro proof is explicitly historical and time-delayed', false !== strpos( $html, 'DELAY ≥ 48 JAM' ) && false !== strpos( $html, 'Arsip historis · bukan guidance saat ini' ) );
+check( 'Delayed Pro proof exposes actual settled outcome and range result', false !== strpos( $html, '+1.11%' ) && false !== strpos( $html, 'Range tercapai: YA' ) );
+check( 'Delayed Pro proof is explicitly historical and time-delayed', false !== strpos( $html, 'TERTUNDA ≥ 48 JAM' ) && false !== strpos( $html, 'Arsip historis · bukan panduan saat ini' ) );
 check( 'Internal evaluation diagnostics still do not render', false === strpos( $html, 'Settlement complete' ) && false === strpos( $html, 'Stale rate' ) && false === strpos( $html, 'Confidence vs akurasi' ) );
 check( 'Free page does not leak current-Pro internal field identifiers', false === strpos( $html, 'monitoring_conditions' ) && false === strpos( $html, 'scenario_contract' ) && false === strpos( $html, 'what_to_watch' ) );
 
