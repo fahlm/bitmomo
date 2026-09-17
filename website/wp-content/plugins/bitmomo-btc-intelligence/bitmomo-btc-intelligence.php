@@ -3,7 +3,7 @@
  * Plugin Name: Bitmomo BTC Intelligence
  * Plugin URI: https://bitmomo.id
  * Description: Public /btc-intelligence/ product surface for current BTC context, session briefs, history, Decision Ledger, delayed Pro proof, accountable evaluation, and public-safe Telegram distribution.
- * Version: 0.3.9
+ * Version: 0.3.10
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Bitmomo
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.9' );
+define( 'BITMOMO_BTC_INTELLIGENCE_VERSION', '0.3.10' );
 define( 'BITMOMO_BTC_INTELLIGENCE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BITMOMO_BTC_INTELLIGENCE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -81,5 +81,52 @@ function bitmomo_btc_intelligence_accountability_assets() {
 			$hash ? substr( $hash, 0, 16 ) : BITMOMO_BTC_INTELLIGENCE_VERSION
 		);
 	}
+
+	$script_relative = 'assets/js/accountability-integrity.js';
+	$script_path = BITMOMO_BTC_INTELLIGENCE_DIR . $script_relative;
+	if ( ! is_readable( $script_path ) ) {
+		return;
+	}
+
+	$ledger = class_exists( 'Bitmomo_Btc_Intelligence_Accountability' )
+		? Bitmomo_Btc_Intelligence_Accountability::decision_ledger( 12 )
+		: array();
+	$ledger_rows = is_array( $ledger['rows'] ?? null ) ? $ledger['rows'] : array();
+
+	$summary = array();
+	if ( class_exists( 'Bitmomo_Public_Intelligence_Adapter' ) && method_exists( 'Bitmomo_Public_Intelligence_Adapter', 'evaluation_summary' ) ) {
+		$summary = Bitmomo_Public_Intelligence_Adapter::evaluation_summary();
+	}
+	$versions = is_array( $summary['directional_evaluation'] ?? null ) ? $summary['directional_evaluation'] : array();
+	$current = $versions ? reset( $versions ) : array();
+
+	$safe_rows = array();
+	foreach ( $ledger_rows as $row ) {
+		$safe_rows[] = array(
+			'outcomeMethodology' => sanitize_key( (string) ( $row['outcome_methodology'] ?? '' ) ),
+		);
+	}
+
+	$script_hash = hash_file( 'sha256', $script_path );
+	wp_enqueue_script(
+		'bitmomo-btc-accountability-integrity',
+		BITMOMO_BTC_INTELLIGENCE_URL . $script_relative,
+		array(),
+		$script_hash ? substr( $script_hash, 0, 16 ) : BITMOMO_BTC_INTELLIGENCE_VERSION,
+		true
+	);
+	wp_localize_script(
+		'bitmomo-btc-accountability-integrity',
+		'BitmomoAccountabilityIntegrity',
+		array(
+			'ledgerRows'            => $safe_rows,
+			'ledgerTotal'           => count( $ledger_rows ),
+			'ledgerEvaluated'       => max( 0, (int) ( $ledger['evaluated_n'] ?? 0 ) ),
+			'ledgerUnscored'        => max( 0, (int) ( $ledger['unscored_n'] ?? 0 ) ),
+			'scorecardN'            => max( 0, (int) ( $current['all']['n'] ?? 0 ) ),
+			'scorecardMethodology'  => sanitize_key( (string) ( $current['outcome_methodology'] ?? '' ) ),
+			'scorecardVersionCount' => count( $versions ),
+		)
+	);
 }
 add_action( 'wp_enqueue_scripts', 'bitmomo_btc_intelligence_accountability_assets', 40 );
