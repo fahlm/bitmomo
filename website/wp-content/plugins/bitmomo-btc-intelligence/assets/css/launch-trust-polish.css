@@ -1,0 +1,56 @@
+/* Whitelist launch trust/readability patch.
+ * Keep this narrow: no layout redesign, only fail-closed optional controls and
+ * a readable public-text floor for the BTC Intelligence terminal.
+ */
+
+/* Optional comparison providers that fail closed must disappear, not advertise
+ * a broken/incomplete capability. BTC remains visible even when disabled as
+ * the non-removable reference series. */
+.bm-bi .bm-mc__series-button:disabled:not(.is-btc) {
+  display: none;
+}
+
+/* Public visitor text should not fall below 11px. Data-visualization geometry
+ * (SVG axis labels/markers) is intentionally excluded from this floor. */
+.bm-bi__eyebrow,
+.bm-bi__hero > small,
+.bm-bi__rail a,
+.bm-bi__section-kicker,
+.bm-bi__freshness,
+.bm-bi__freshness strong,
+.bm-bi__snapshot-grid span,
+.bm-bi__snapshot-grid small,
+.bm-bi__brief-panel h3,
+.bm-bi__provenance,
+.bm-bi__history-summary,
+.bm-bi__history-summary small,
+.bm-bi__audit-badge,
+.bm-bi__delay-badge,
+.bm-bi__ledger-table th,
+.bm-bi__ledger-table td:first-child,
+.bm-bi__ledger-table td:first-child small,
+.bm-bi__verdict,
+.bm-bi__proof-metric > span,
+.bm-bi__proof-metric small,
+.bm-bi__micro-note,
+.bm-bi__history-policy,
+.bm-bi__archive-head > div > span,
+.bm-bi .bm-mc__mode span,
+.bm-bi .bm-mc__mode strong,
+.bm-bi .bm-mc__mode small,
+.bm-bi .bm-mc__control-label,
+.bm-bi .bm-mc__range button,
+.bm-bi .bm-mc__series-button,
+.bm-bi .bm-mc__series-button span,
+.bm-bi .bm-mc__series-button small {
+  font-size: 11px;
+}
+
+@media (max-width: 480px) {
+  .bm-bi__section-intro,
+  .bm-bi__brief-panel p,
+  .bm-bi__brief-panel li,
+  .bm-bi__no-change {
+    font-size: 13px;
+  }
+}
