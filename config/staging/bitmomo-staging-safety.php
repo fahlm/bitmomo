@@ -1,6 +1,6 @@
 <?php
 /**
- * Bitmomo staging-only side-effect guard.
+ * Bitmomo staging-only side-effect and indexing guard.
  *
  * Install as wp-content/mu-plugins/bitmomo-staging-safety.php. This file is
  * deliberately outside the managed production artifact.
@@ -15,6 +15,27 @@ define( 'BITMOMO_STAGING_SIDE_EFFECTS_DISABLED', true );
 if ( ! defined( 'BITMOMO_AI_AUTO_PUBLISH' ) ) {
 	define( 'BITMOMO_AI_AUTO_PUBLISH', false );
 }
+
+/*
+ * Staging must never become a search-index candidate, regardless of Rank Math,
+ * individual post meta, or a copied WordPress "discourage search engines"
+ * option. This guard is staging-only and is never packaged into production.
+ */
+add_action( 'send_headers', static function () {
+	header( 'X-Robots-Tag: noindex, nofollow, noarchive', true );
+}, PHP_INT_MIN );
+
+add_filter( 'wp_robots', static function ( $robots ) {
+	$robots['noindex']   = true;
+	$robots['nofollow']  = true;
+	$robots['noarchive'] = true;
+	unset( $robots['index'], $robots['follow'] );
+	return $robots;
+}, PHP_INT_MAX );
+
+add_filter( 'robots_txt', static function () {
+	return "User-agent: *\nDisallow: /\n";
+}, PHP_INT_MAX );
 
 add_filter( 'pre_wp_mail', static function () {
 	return false;
@@ -39,4 +60,3 @@ add_filter( 'rest_pre_dispatch', static function ( $result, $server, $request ) 
 }, PHP_INT_MIN, 3 );
 
 add_filter( 'bitmomo_pro_checkout_url', '__return_empty_string', PHP_INT_MAX );
-
