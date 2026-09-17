@@ -42,7 +42,7 @@ $bm_updated_ts = preg_match( '/(?:Z|[+-]\d{2}:\d{2})$/', $bm_updated_iso ) ? str
 $bm_updated_label = $bm_updated_ts
     ? ( new DateTimeImmutable( '@' . $bm_updated_ts ) )->setTimezone( new DateTimeZone( 'Asia/Jakarta' ) )->format( 'd M · H:i' ) . ' WIB'
     : 'Belum tersedia';
-$bm_updated_note = $bm_delayed ? 'Observasi terverifikasi terakhir.' : 'Waktu pembacaan Major Brief terbaru.';
+$bm_updated_note = $bm_delayed ? 'Observasi terverifikasi terakhir.' : 'Waktu Major Brief terbaru.';
 
 $bm_source = $bm_snapshot_available ? trim( (string) ( $bm_snapshot['provenance']['source'] ?? '' ) ) : '';
 $bm_source_lc = strtolower( $bm_source );
@@ -105,10 +105,10 @@ if ( 'compared' === ( $bm_comparison['status'] ?? '' ) ) {
 }
 
 $bm_why_map = array(
-    'directional_context_changed' => 'Arah dominan berubah; konteks pembacaan sebelumnya tidak lagi sepenuhnya berlaku.',
-    'evidence_strength_changed'   => 'Kekuatan bukti berubah; tingkat keyakinan terhadap pembacaan saat ini ikut bergeser.',
+    'directional_context_changed' => 'Arah dominan berubah; konteks analisis sebelumnya tidak lagi sepenuhnya berlaku.',
+    'evidence_strength_changed'   => 'Kekuatan bukti berubah; tingkat keyakinan terhadap analisis saat ini ikut bergeser.',
     'market_structure_changed'    => 'Struktur harga berubah; respons berikutnya menjadi lebih penting untuk konfirmasi.',
-    'leading_evidence_changed'    => 'Faktor utama berpindah; pendorong pembacaan saat ini berbeda dari brief pembanding.',
+    'leading_evidence_changed'    => 'Faktor utama berpindah; pendorong analisis saat ini berbeda dari brief pembanding.',
 );
 $bm_why_lines = array();
 foreach ( (array) ( $bm_session_intelligence['why_it_matters'] ?? array() ) as $bm_code ) {
@@ -120,7 +120,7 @@ foreach ( (array) ( $bm_session_intelligence['why_it_matters'] ?? array() ) as $
 }
 
 $bm_watch_map = array(
-    'directional_consistency' => 'Apakah kekuatan arah tetap konsisten pada pembacaan berikutnya.',
+    'directional_consistency' => 'Apakah kekuatan arah tetap konsisten pada brief berikutnya.',
     'structure_continuity'    => 'Apakah struktur harga tetap mendukung bias saat ini.',
 );
 $bm_watch_line = '';
@@ -145,7 +145,7 @@ if ( $bm_happened_line === '' && $bm_driver ) $bm_happened_line = $bm_driver;
       <div class="bm-home-hero__copy">
         <p class="bm-home-hero__eyebrow">BTC MARKET INTELLIGENCE</p>
         <h1 class="bm-home-hero__title" id="bm-home-title">Apa yang berubah di Bitcoin hari ini?</h1>
-        <p class="bm-home-hero__lead">Bitmomo membaca kondisi pasar, perubahan antar-brief, dan kekuatan bukti. Pembacaan terbaru tampil langsung di halaman ini dan disimpan untuk evaluasi.</p>
+        <p class="bm-home-hero__lead">Bitmomo menganalisis kondisi pasar, perubahan antar-brief, dan kekuatan bukti. Analisis terbaru tampil langsung di halaman ini dan disimpan untuk evaluasi.</p>
 
         <div class="bm-home-hero__actions">
           <a class="bm-home-hero__primary" href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>" data-bm-event="homepage_btc_intelligence_click" data-bm-placement="hero_primary">Buka BTC Intelligence</a>
@@ -203,14 +203,14 @@ if ( $bm_happened_line === '' && $bm_driver ) $bm_happened_line = $bm_driver;
     <div class="bm-home-brief" aria-label="Ringkasan intelligence BTC terbaru">
       <article class="bm-home-brief__panel">
         <span>APA YANG TERJADI</span>
-        <p><?php echo esc_html( $bm_current_available ? ( $bm_happened_line ?: 'Belum ada ringkasan pergerakan yang memenuhi standar publikasi.' ) : 'Pembacaan terbaru sedang ditahan sampai Major Brief kembali valid.' ); ?></p>
+        <p><?php echo esc_html( $bm_current_available ? ( $bm_happened_line ?: 'Belum ada ringkasan pergerakan yang memenuhi standar publikasi.' ) : 'Analisis terbaru sedang ditahan sampai Major Brief kembali valid.' ); ?></p>
       </article>
       <article class="bm-home-brief__panel">
         <span>APA YANG BERUBAH</span>
         <?php if ( $bm_current_available && $bm_changed_lines ) : ?>
           <ul><?php foreach ( $bm_changed_lines as $bm_line ) : ?><li><?php echo esc_html( $bm_line ); ?></li><?php endforeach; ?></ul>
         <?php else : ?>
-          <p><?php echo esc_html( $bm_current_available ? 'Belum ada perubahan material dari pembacaan pembanding.' : 'Perubahan antar-brief tidak ditampilkan dari data yang tertunda.' ); ?></p>
+          <p><?php echo esc_html( $bm_current_available ? 'Belum ada perubahan material dibanding brief sebelumnya.' : 'Perubahan antar-brief tidak ditampilkan dari data yang tertunda.' ); ?></p>
         <?php endif; ?>
       </article>
       <article class="bm-home-brief__panel">
@@ -223,7 +223,7 @@ if ( $bm_happened_line === '' && $bm_driver ) $bm_happened_line = $bm_driver;
       </article>
       <article class="bm-home-brief__panel">
         <span>PANTAU BERIKUTNYA</span>
-        <p><?php echo esc_html( $bm_current_available ? ( $bm_watch_line ?: 'Belum ada konteks pantauan publik yang memenuhi kontrak saat ini.' ) : 'Konteks pantauan terbaru akan kembali tampil setelah Major Brief valid.' ); ?></p>
+        <p><?php echo esc_html( $bm_current_available ? ( $bm_watch_line ?: 'Belum ada konteks pantauan publik yang memenuhi standar saat ini.' ) : 'Konteks pantauan terbaru akan kembali tampil setelah Major Brief valid.' ); ?></p>
       </article>
     </div>
   </div>

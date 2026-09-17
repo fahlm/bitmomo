@@ -86,7 +86,7 @@ $bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_r
       <span class="bm-home-evidence__eyebrow">BUKTI, BUKAN KLAIM</span>
       <div>
         <h2 id="bm-home-evidence-title">Lihat apa yang Bitmomo catat—dan apa yang terjadi setelahnya.</h2>
-        <p>Riwayat dan arsip di bawah berasal dari catatan yang dibuat sebelum hasil pasar diketahui. Tidak ada pemilihan hasil berdasarkan apakah pembacaan terlihat bagus atau buruk.</p>
+        <p>Riwayat dan arsip di bawah berasal dari catatan yang dibuat sebelum hasil pasar diketahui. Hasil yang sesuai maupun tidak sesuai tetap diperlakukan dengan aturan yang sama.</p>
       </div>
     </header>
 
@@ -120,7 +120,7 @@ $bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_r
       <section class="bm-home-ledger" aria-labelledby="bm-home-ledger-title">
         <header>
           <span>DECISION LEDGER</span>
-          <h3 id="bm-home-ledger-title">Pembacaan terbaru yang sudah matang</h3>
+          <h3 id="bm-home-ledger-title">Analisis terdahulu yang sudah dievaluasi</h3>
         </header>
         <?php if ( $bm_ledger_rows ) : ?>
           <ol class="bm-home-ledger__list">
@@ -142,7 +142,7 @@ $bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_r
             <?php endforeach; ?>
           </ol>
         <?php else : ?>
-          <p class="bm-home-evidence__empty">Belum ada outcome matang yang dapat ditampilkan.</p>
+          <p class="bm-home-evidence__empty">Belum ada hasil yang sudah dapat dievaluasi.</p>
         <?php endif; ?>
         <a class="bm-home-evidence__link" href="<?php echo esc_url( home_url( '/btc-intelligence/#decision-ledger' ) ); ?>">Periksa Decision Ledger lengkap →</a>
       </section>
@@ -176,7 +176,7 @@ $bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_r
           </div>
           <div class="bm-home-range__facts">
             <span>Referensi <strong><?php echo esc_html( $bm_price( $bm_range_ref ) ); ?></strong></span>
-            <span>Outcome +24H <strong><?php echo esc_html( $bm_price( $bm_range_outcome ) ); ?></strong></span>
+            <span>Hasil +24H <strong><?php echo esc_html( $bm_price( $bm_range_outcome ) ); ?></strong></span>
             <span>Return <strong><?php echo esc_html( $bm_return( $bm_proof_row['outcome_return_pct'] ?? null ) ); ?></strong></span>
             <?php if ( in_array( $bm_range_hit, array( 'yes', 'no' ), true ) ) : ?><span>Range tercapai <strong><?php echo esc_html( 'yes' === $bm_range_hit ? 'YA' : 'TIDAK' ); ?></strong></span><?php endif; ?>
           </div>
@@ -196,7 +196,7 @@ $bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_r
     <div class="bm-howworks" aria-labelledby="bm-howworks-title">
       <header class="bm-howworks-head">
         <span class="bm-howworks-eyebrow"><?php esc_html_e( 'HOW BITMOMO WORKS', 'bitmomo' ); ?></span>
-        <h2 id="bm-howworks-title"><?php esc_html_e( 'Data pasar menjadi pembacaan yang bisa diuji.', 'bitmomo' ); ?></h2>
+        <h2 id="bm-howworks-title"><?php esc_html_e( 'Data pasar menjadi analisis yang dapat diuji.', 'bitmomo' ); ?></h2>
       </header>
 
       <ol class="bm-howworks-steps">
