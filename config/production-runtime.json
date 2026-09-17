@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "artifact_name": "bitmomo-runtime.tar",
-  "expected_file_count": 125,
+  "expected_file_count": 126,
   "include": [
     "*.php",
     "**/*.php",
@@ -41,7 +41,7 @@
       "name": "bitmomo-child-v3",
       "source": "website/wp-content/themes/bitmomo-child-v3",
       "destination": "wp-content/themes/bitmomo-child-v3",
-      "expected_file_count": 46,
+      "expected_file_count": 47,
       "required": [
         "style.css",
         "functions.php",
@@ -58,6 +58,7 @@
         "inc/trait-bitmomo-assets.php",
         "assets/css/design-system.css",
         "assets/css/home.css",
+        "assets/css/home-infrastructure.css",
         "assets/css/home-opportunity.css",
         "assets/css/home-conversion.css",
         "assets/css/public-surfaces.css",
