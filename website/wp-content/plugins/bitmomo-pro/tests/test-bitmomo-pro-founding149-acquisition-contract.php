@@ -29,9 +29,9 @@ check_founding149_contract( 'Canonical whitelist remains private and non-REST', 
 check_founding149_contract( 'Whitelist launch surface disables page cache while checkout is absent',
 	false !== strpos( $security, 'disable_cache_for_whitelist_surface' ) &&
 	false !== strpos( $security, "define( 'DONOTCACHEPAGE', true )" ) &&
-	false !== strpos( $security, "litespeed_control_set_nocache" ) &&
-	false !== strpos( $security, "has_shortcode( $content, 'bitmomo_pro_sales' )" ) &&
-	false !== strpos( $security, "has_shortcode( $content, 'bitmomo_pro_whitelist' )" )
+	false !== strpos( $security, 'litespeed_control_set_nocache' ) &&
+	false !== strpos( $security, "has_shortcode( \$content, 'bitmomo_pro_sales' )" ) &&
+	false !== strpos( $security, "has_shortcode( \$content, 'bitmomo_pro_whitelist' )" )
 );
 check_founding149_contract( 'Anonymous WordPress user enumeration is removed without blocking authenticated REST use',
 	false !== strpos( $security, 'hide_public_user_routes' ) &&
@@ -39,7 +39,7 @@ check_founding149_contract( 'Anonymous WordPress user enumeration is removed wit
 	false !== strpos( $security, "'/wp/v2/users'" )
 );
 check_founding149_contract( 'Public security boundary is bootstrapped by Bitmomo Pro',
-	false !== strpos( $main, "class-bitmomo-pro-public-security.php" ) &&
+	false !== strpos( $main, 'class-bitmomo-pro-public-security.php' ) &&
 	false !== strpos( $main, 'Bitmomo_Pro_Public_Security::instance()' )
 );
 check_founding149_contract( 'Staging-only guard emits noindex header and deny-all robots policy',
