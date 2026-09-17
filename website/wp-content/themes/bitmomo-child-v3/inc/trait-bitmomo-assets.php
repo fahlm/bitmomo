@@ -122,6 +122,19 @@ trait Bitmomo_Assets_Trait {
                 $public_surface_deps = ['bitmomo-home'];
             }
 
+            // Compact trust strip has its own bounded owner so homepage.css does
+            // not accumulate provider/infrastructure-specific presentation.
+            $home_infrastructure_css_path = get_stylesheet_directory() . '/assets/css/home-infrastructure.css';
+            if (file_exists($home_infrastructure_css_path)) {
+                wp_enqueue_style(
+                    'bitmomo-home-infrastructure',
+                    get_stylesheet_directory_uri() . '/assets/css/home-infrastructure.css',
+                    $public_surface_deps,
+                    $this->get_file_version($home_infrastructure_css_path)
+                );
+                $public_surface_deps = ['bitmomo-home-infrastructure'];
+            }
+
             $conversion_css_path = get_stylesheet_directory() . '/assets/css/home-conversion.css';
             if (file_exists($conversion_css_path)) {
                 wp_enqueue_style(

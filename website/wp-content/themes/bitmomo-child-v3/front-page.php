@@ -3,15 +3,17 @@
  * Front Page — Bitmomo canonical public hierarchy.
  *
  * Homepage responsibility is intentionally narrow: show current BTC
- * intelligence, prove accountability with recorded evidence, surface qualified
- * research, then convert interest into Bitmomo Pro / Founding access.
+ * intelligence, prove accountability with recorded evidence, identify the data
+ * and infrastructure ecosystem, surface qualified research, then convert
+ * interest into Bitmomo Pro / Founding access.
  *
  * 1. Header
  * 2. Current BTC intelligence
- * 3. Accountability + delayed Pro proof + compact product model
- * 4. Qualified market research
- * 5. Bitmomo Pro + Founding conversion
- * 6. Footer
+ * 3. Data & infrastructure trust strip
+ * 4. Accountability + delayed Pro proof + compact product model
+ * 5. Qualified market research
+ * 6. Bitmomo Pro + Founding conversion
+ * 7. Footer
  *
  * @package Bitmomo
  */
@@ -28,6 +30,29 @@ get_header();
 ?>
 <main id="primary">
   <?php get_template_part( 'template-parts/home', 'hero' ); ?>
+
+  <section class="bm-home-infrastructure" aria-labelledby="bm-home-infrastructure-title">
+    <div class="bm-container">
+      <div class="bm-home-infrastructure__row">
+        <p class="bm-home-infrastructure__eyebrow" id="bm-home-infrastructure-title">DATA &amp; INFRASTRUCTURE</p>
+        <div class="bm-home-infrastructure__content">
+          <ul class="bm-home-infrastructure__brands" aria-label="Ekosistem data dan infrastruktur Bitmomo">
+            <li class="bm-home-infrastructure__brand">Binance</li>
+            <li class="bm-home-infrastructure__brand">Bybit</li>
+            <li class="bm-home-infrastructure__brand">TradingView</li>
+            <li class="bm-home-infrastructure__brand">Glassnode</li>
+            <li class="bm-home-infrastructure__brand">CryptoQuant</li>
+            <li class="bm-home-infrastructure__brand">Dune</li>
+            <li class="bm-home-infrastructure__brand">CoinGecko</li>
+            <li class="bm-home-infrastructure__brand">Hyperliquid</li>
+          </ul>
+          <p class="bm-home-infrastructure__note">Bitmomo membangun intelligence dari data pasar, perangkat analisis, dan infrastruktur pasar.</p>
+          <p class="bm-home-infrastructure__legal">Nama dan merek pihak ketiga adalah milik masing-masing pemilik dan tidak menyiratkan afiliasi atau endorsement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <?php get_template_part( 'template-parts/how-it-works' ); ?>
   <?php get_template_part( 'template-parts/research' ); ?>
   <?php get_template_part( 'template-parts/whitelist' ); ?>

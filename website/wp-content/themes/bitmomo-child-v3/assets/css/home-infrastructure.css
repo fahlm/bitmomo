@@ -1,0 +1,101 @@
+/*
+ * Homepage data & infrastructure trust strip.
+ *
+ * This surface is deliberately provider-neutral: it identifies the ecosystem
+ * Bitmomo works across without using partnership, endorsement, or powered-by
+ * language. Brand names stay typographic so the homepage has no third-party
+ * asset/CDN dependency.
+ */
+
+.bm-home-infrastructure {
+  padding: 22px 0 24px;
+  background: var(--bm-bg, #0b1118);
+}
+
+.bm-home-infrastructure .bm-container {
+  max-width: var(--bm-public-width, 1180px);
+}
+
+.bm-home-infrastructure__row {
+  display: grid;
+  grid-template-columns: minmax(150px, .42fr) minmax(0, 1.58fr);
+  gap: 24px clamp(28px, 5vw, 64px);
+  align-items: start;
+}
+
+.bm-home-infrastructure__eyebrow {
+  margin: 2px 0 0;
+  color: var(--bm-text-subtle, #7f8b98);
+  font: 800 var(--bm-type-micro, 11px)/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.bm-home-infrastructure__content {
+  min-width: 0;
+}
+
+.bm-home-infrastructure__brands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px clamp(20px, 3vw, 34px);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bm-home-infrastructure__brand {
+  color: var(--bm-text-secondary, #b7c0ca);
+  font-size: clamp(13px, 1.3vw, 15px);
+  font-weight: 780;
+  line-height: 1.35;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+}
+
+.bm-home-infrastructure__note,
+.bm-home-infrastructure__legal {
+  max-width: 920px;
+  color: var(--bm-text-subtle, #7f8b98);
+}
+
+.bm-home-infrastructure__note {
+  margin: 16px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.bm-home-infrastructure__legal {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .bm-home-infrastructure {
+    padding: 20px 0 22px;
+  }
+
+  .bm-home-infrastructure__row {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+
+  .bm-home-infrastructure__brands {
+    gap: 10px 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  .bm-home-infrastructure__brands {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px;
+  }
+
+  .bm-home-infrastructure__brand {
+    min-width: 0;
+    white-space: normal;
+  }
+}
