@@ -92,6 +92,7 @@ jobs:
             website/wp-content/plugins/bitmomo-btc-intelligence/bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-page.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-coverage.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-telegram-brief.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-telegram-transport.php \
@@ -99,6 +100,7 @@ jobs:
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-market-context-contract.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php \
+            website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-major-brief-coverage.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-brief.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-transport-contract.php \
             website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-staging-canary.php \
@@ -138,6 +140,7 @@ jobs:
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-intelligence.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-market-context-contract.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-accountability-surface-contract.php
+          php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-major-brief-coverage.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-brief.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-transport-contract.php
           php website/wp-content/plugins/bitmomo-btc-intelligence/tests/test-bitmomo-btc-telegram-staging-canary.php
