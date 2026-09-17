@@ -1,5 +1,8 @@
 from market_selector.execution_boundary import reconcile_account
-from market_selector.hyperliquid_adapter import HyperliquidAccountAdapter
+from market_selector.hyperliquid_adapter import (
+    HyperliquidAccountAdapter,
+    HyperliquidOrderAdapter,
+)
 
 
 class FakeInfo:
@@ -48,6 +51,48 @@ class FakeInfo:
         return {"status": "order", "order": {"order": {"oid": oid}}}
 
 
+class FakeExchange:
+    def __init__(self):
+        self.market_open_calls = []
+        self.market_close_calls = []
+        self.order_calls = []
+        self.cancel_calls = []
+
+    def order(self, coin, is_buy, sz, limit_px, order_type, reduce_only=False, **kwargs):
+        self.order_calls.append((coin, is_buy, sz, limit_px, order_type, reduce_only))
+        return {"status": "ok", "response": {"data": {"statuses": [{"resting": {"oid": 7}}]}}}
+
+    def market_open(self, coin, is_buy, sz, px=None, slippage=0.05, **kwargs):
+        self.market_open_calls.append((coin, is_buy, sz, px, slippage))
+        return {
+            "status": "ok",
+            "response": {
+                "data": {
+                    "statuses": [
+                        {"filled": {"oid": 8, "totalSz": str(sz), "avgPx": "100"}}
+                    ]
+                }
+            },
+        }
+
+    def cancel(self, coin, oid):
+        self.cancel_calls.append((coin, oid))
+        return {"status": "ok"}
+
+    def market_close(self, coin, sz=None, px=None, slippage=0.05, **kwargs):
+        self.market_close_calls.append((coin, sz, px, slippage))
+        return {
+            "status": "ok",
+            "response": {
+                "data": {
+                    "statuses": [
+                        {"filled": {"oid": 9, "totalSz": str(sz or 1), "avgPx": "99"}}
+                    ]
+                }
+            },
+        }
+
+
 def test_account_snapshot_normalizes_positions_orders_and_balances():
     adapter = HyperliquidAccountAdapter(FakeInfo(), account_address="0xabc")
     snap = adapter.account_snapshot()
@@ -80,3 +125,30 @@ def test_fill_economics_counts_actual_notional_and_fee_net_pnl():
     assert econ.closed_pnl_gross_usd == 1.0
     assert econ.fees_usd == 0.10
     assert round(econ.realized_pnl_net_usd, 8) == 0.90
+
+
+def test_ioc_market_open_uses_official_helper_and_parses_fill():
+    exchange = FakeExchange()
+    adapter = HyperliquidOrderAdapter(exchange)
+    result = adapter.market_open(
+        coin="PONS",
+        is_buy=False,
+        size=12.5,
+        slippage=0.002,
+    )
+
+    assert result.accepted is True
+    assert result.filled_oid == "8"
+    assert result.filled_size == 12.5
+    assert result.average_price == 100.0
+    assert exchange.market_open_calls == [("PONS", False, 12.5, None, 0.002)]
+
+
+def test_flatten_market_passes_bounded_slippage():
+    exchange = FakeExchange()
+    adapter = HyperliquidOrderAdapter(exchange)
+    result = adapter.flatten_market(coin="PONS", size=12.5, slippage=0.003)
+
+    assert result.accepted is True
+    assert result.filled_oid == "9"
+    assert exchange.market_close_calls == [("PONS", 12.5, None, 0.003)]
