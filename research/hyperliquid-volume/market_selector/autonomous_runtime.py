@@ -371,6 +371,9 @@ class AutonomousShadowRuntime:
                 "spread_median_bps": m.spread_median_bps,
                 "bbo_queue_multiple": m.bbo_queue_multiple,
                 "trade_rate_per_minute": m.trade_rate_per_minute,
+                "book_imbalance": m.book_imbalance,
+                "microprice_edge_bps": m.microprice_edge_bps,
+                "aggressor_flow": m.aggressor_flow,
                 "execution_samples": m.execution_samples,
                 "execution_age_seconds": m.execution_age_seconds,
                 "fill_rate": m.fill_rate,
@@ -390,7 +393,7 @@ class AutonomousShadowRuntime:
             }
 
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "updated_at_ms": int(time.time() * 1000),
             "mode": "SHADOW_ONLY",
             "mainnet_order_submission": False,
