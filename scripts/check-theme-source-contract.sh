@@ -6,6 +6,7 @@ cd "${repo_root}"
 
 theme_dir="website/wp-content/themes/bitmomo-child-v3"
 asset_trait="${theme_dir}/inc/trait-bitmomo-assets.php"
+frontend_trait="${theme_dir}/inc/trait-bitmomo-frontend.php"
 account="website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php"
 
 expected=(
@@ -61,5 +62,13 @@ grep -q "<h1 class=\"bm-pro-account__title\"" "${account}" || {
 
 grep -q "bitmomo_post_research_classification" "${theme_dir}/single.php"
 ! grep -q "Riset Terkait" "${theme_dir}/single.php"
+
+grep -q "bitmomo_hide_anonymous_rest_user_routes" "${frontend_trait}" || {
+  echo "::error file=${frontend_trait}::Anonymous REST user-enumeration boundary is missing"
+  exit 1
+}
+grep -q "is_user_logged_in()" "${frontend_trait}"
+grep -q "'/wp/v2/users'" "${frontend_trait}"
+grep -q "add_filter('rest_endpoints'" "${frontend_trait}"
 
 echo "PASS canonical theme source contract"
