@@ -13,9 +13,10 @@ function check_founding149_contract( $label, $condition ) {
 	echo "[FAIL] {$label}\n";
 }
 
-$source    = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-pro-founding149-acquisition.php' );
-$whitelist = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-pro-whitelist.php' );
-$cache     = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-pro-cache.php' );
+$source          = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-pro-founding149-acquisition.php' );
+$whitelist       = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-pro-whitelist.php' );
+$cache           = file_get_contents( dirname( __DIR__ ) . '/includes/class-bitmomo-pro-cache.php' );
+$theme_functions = file_get_contents( dirname( __DIR__, 3 ) . '/themes/bitmomo-child-v3/functions.php' );
 
 check_founding149_contract( 'Campaign id is the single approved Founding 149 Telegram motion', false !== strpos( $source, "const CAMPAIGN = 'founding149_tlw_v1';" ) );
 check_founding149_contract( 'Scoreboard reuses canonical whitelist post type and UTM campaign metadata', false !== strpos( $source, 'Bitmomo_Pro_Whitelist::POST_TYPE' ) && false !== strpos( $source, 'Bitmomo_Pro_Whitelist::META_UTM_CAMPAIGN' ) );
@@ -38,6 +39,13 @@ check_founding149_contract(
 	false !== strpos( $cache, "User-agent: *\\nDisallow: /\\n" ) &&
 	false !== strpos( $cache, "add_filter( 'wp_robots'" ) &&
 	false !== strpos( $cache, "add_filter( 'rank_math/frontend/robots'" )
+);
+check_founding149_contract(
+	'Anonymous WordPress REST user enumeration is removed while authenticated sessions remain supported',
+	false !== strpos( $theme_functions, "function bitmomo_hide_public_rest_users" ) &&
+	false !== strpos( $theme_functions, "if (is_user_logged_in()) return \$endpoints;" ) &&
+	false !== strpos( $theme_functions, "'/wp/v2/users'" ) &&
+	false !== strpos( $theme_functions, "add_filter('rest_endpoints', 'bitmomo_hide_public_rest_users', 20);" )
 );
 
 printf( "\n%d/%d passed.\n", $GLOBALS['__pass'], $GLOBALS['__pass'] + $GLOBALS['__fail'] );
