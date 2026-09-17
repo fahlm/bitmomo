@@ -53,6 +53,11 @@ jobs:
           BITMOMO_EXPECTED_SOCIAL_JSON: ${{ github.event.inputs.expected_social_json || '{}' }}
         run: node scripts/check-public-ui.mjs
 
+      - name: Audit live BTC intelligence freshness
+        env:
+          BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url }}
+        run: node scripts/check-intelligence-freshness.mjs
+
       - name: Audit homepage bottom and footer geometry
         env:
           BITMOMO_UI_BASE_URL: ${{ github.event.inputs.base_url }}

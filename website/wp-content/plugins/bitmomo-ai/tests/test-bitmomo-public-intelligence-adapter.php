@@ -29,7 +29,7 @@ class Bitmomo_AI_Opportunity_Store {
         'status' => 'available',
         'state' => 'LOW',
         'methodology_version' => 'opportunity-v1',
-        'knowledge_time' => '2026-09-12T20:20:00+00:00',
+        'knowledge_time' => '',
         'record_id' => 'fast-private-record',
         'changed' => true,
     ];
@@ -101,6 +101,7 @@ Bitmomo_Regime_State_Store::$records = [
     ['as_of' => '2026-09-11 00:59:59', 'source_record_id' => 'bitmomo-ai:2026-09-10T201000-0400:us_post_close:dddd444444', 'regime' => 'distribution', 'directional_bias' => 'bearish', 'regime_confidence' => 66, 'classifier_version' => 'classifier-v1', 'edition' => 'us_session', 'provenance' => 'recorded_live'],
     ['as_of' => '2026-09-10 00:59:59', 'source_record_id' => 'bitmomo-ai:2026-09-09T201000-0400:us_post_close:eeee555555', 'regime' => 'capitulation', 'directional_bias' => 'bearish', 'regime_confidence' => 90, 'classifier_version' => 'classifier-v0', 'edition' => 'us_session', 'provenance' => 'historical_reconstruction'],
 ];
+Bitmomo_AI_Opportunity_Store::$public['knowledge_time'] = gmdate('c', time() - 300);
 
 $checks = [];
 function adapter_check($label, $condition) { global $checks; $checks[] = [$label, (bool) $condition]; }

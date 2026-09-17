@@ -1,5 +1,6 @@
 <?php
 define( 'ABSPATH', __DIR__ );
+define( 'MINUTE_IN_SECONDS', 60 );
 
 function sanitize_text_field( $value ) { return trim( strip_tags( (string) $value ) ); }
 function sanitize_key( $value ) { return strtolower( preg_replace( '/[^a-z0-9_\-]/i', '', (string) $value ) ); }
@@ -28,10 +29,12 @@ Bitmomo_AI_Opportunity_Store::$latest = array(
 	'status' => 'available',
 	'state' => 'HIGH',
 	'methodology_version' => 'opportunity-v1',
+	'knowledge_time' => gmdate( 'c', time() - ( 5 * MINUTE_IN_SECONDS ) ),
 );
 $surface = Bitmomo_Public_Intelligence_Adapter::surface_context();
 surface_check( 'full public surface exposes canonical Opportunity', ( $surface['opportunity']['state'] ?? '' ) === 'HIGH' );
 surface_check( 'full public surface exposes safe provenance', ( $surface['provenance']['source'] ?? '' ) === 'Binance public market data' && ( $surface['provenance']['as_of'] ?? '' ) === '2026-09-12T06:20:00+00:00' );
+surface_check( 'full public surface labels a <=15m Opportunity as fresh', ( $surface['opportunity']['freshness_state'] ?? '' ) === 'fresh' );
 
 Bitmomo_AI_Intelligence::$projection = array( 'status' => 'unavailable', 'private_note' => 'do-not-leak' );
 Bitmomo_AI_Opportunity_Store::$latest = array( 'status' => 'unavailable', 'methodology_version' => 'opportunity-v1' );
@@ -39,12 +42,18 @@ $unavailable = Bitmomo_Public_Intelligence_Adapter::surface_context();
 surface_check( 'snapshot remains strict', null === Bitmomo_Public_Intelligence_Adapter::snapshot() );
 surface_check( 'unavailable surface has no invented provenance', null === $unavailable['provenance']['source'] && null === $unavailable['provenance']['as_of'] && 'Asia/Jakarta' === $unavailable['provenance']['timezone'] );
 
-Bitmomo_AI_Opportunity_Store::$latest = array( 'status' => 'available', 'state' => 'LOW', 'methodology_version' => 'opportunity-v1' );
+Bitmomo_AI_Opportunity_Store::$latest = array(
+	'status' => 'available',
+	'state' => 'LOW',
+	'methodology_version' => 'opportunity-v1',
+	'knowledge_time' => gmdate( 'c', time() - ( 20 * MINUTE_IN_SECONDS ) ),
+);
 $partial = Bitmomo_Public_Intelligence_Adapter::surface_context();
 surface_check( 'Opportunity remains independent of snapshot', ( $partial['opportunity']['state'] ?? '' ) === 'LOW' );
+surface_check( 'independent Opportunity exposes delayed fast-clock state between 15 and 30 minutes', ( $partial['opportunity']['freshness_state'] ?? '' ) === 'delayed' );
 
 $encoded = json_encode( array( $surface, $unavailable, $partial ) );
-foreach ( array( 'private_note', 'source_diagnostics', 'record_id', 'risk', 'axes', 'pro_projection', 'entitlement' ) as $forbidden ) {
+foreach ( array( 'private_note', 'source_diagnostics', 'record_id', 'risk', 'axes', 'pro_projection', 'entitlement', 'knowledge_time' ) as $forbidden ) {
 	surface_check( "no {$forbidden} leak", false === strpos( $encoded, '"' . $forbidden . '"' ) );
 }
 

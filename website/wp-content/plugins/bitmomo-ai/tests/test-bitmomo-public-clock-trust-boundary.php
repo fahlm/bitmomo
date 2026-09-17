@@ -4,6 +4,8 @@ define('MINUTE_IN_SECONDS', 60);
 
 function sanitize_key($value) { return strtolower(preg_replace('/[^a-z0-9_\-]/i', '', (string) $value)); }
 function sanitize_text_field($value) { return trim(strip_tags((string) $value)); }
+function __($value, $domain = null) { return $value; }
+function human_time_diff($from, $to) { return max(1, (int) floor(abs($to - $from) / 60)) . ' menit'; }
 
 class Bitmomo_AI_Session_Intelligence {
     const MARKET_TIMEZONE = 'America/New_York';
@@ -13,6 +15,17 @@ class Bitmomo_AI_Session_Intelligence {
     public static function normalize_session_type($value) {
         $value = sanitize_key((string) $value);
         return in_array($value, ['us_pre_open', 'morning'], true) ? 'us_pre_open' : 'us_post_close';
+    }
+    public static function opposite($value) {
+        return self::normalize_session_type($value) === 'us_pre_open' ? 'us_post_close' : 'us_pre_open';
+    }
+    public static function next_anchor($session_type, DateTimeImmutable $now = null) {
+        $timezone = new DateTimeZone(self::MARKET_TIMEZONE);
+        $now = $now ? $now->setTimezone($timezone) : new DateTimeImmutable('now', $timezone);
+        $is_pre = self::normalize_session_type($session_type) === 'us_pre_open';
+        $candidate = $now->setTime($is_pre ? 8 : 20, 10, 0);
+        if ($candidate <= $now) $candidate = $candidate->modify('+1 day');
+        return $candidate;
     }
 }
 
@@ -85,7 +98,22 @@ function trust_check($label, $condition) {
     $checks[] = [$label, (bool) $condition];
 }
 
-$canonical_id = 'bitmomo-ai:2026-09-14T201000-0400:us_post_close:test';
+$ny = new DateTimeZone('America/New_York');
+$now_ny = new DateTimeImmutable('now', $ny);
+$today_pre = $now_ny->setTime(8, 10, 0);
+$today_post = $now_ny->setTime(20, 10, 0);
+if ($today_post <= $now_ny) {
+    $current_type = 'us_post_close';
+    $current_anchor = $today_post;
+} elseif ($today_pre <= $now_ny) {
+    $current_type = 'us_pre_open';
+    $current_anchor = $today_pre;
+} else {
+    $current_type = 'us_post_close';
+    $current_anchor = $today_post->modify('-1 day');
+}
+
+$canonical_id = 'bitmomo-ai:current-session:test';
 $base_projection = [
     'status' => 'fresh',
     'price' => 65000,
@@ -98,9 +126,9 @@ $base_projection = [
     'freshness_label' => 'fresh',
     'latest_attempt' => [],
     'edition_id' => $canonical_id,
-    'session_type' => 'us_post_close',
-    'session_label' => 'US POST-CLOSE',
-    'session_anchor' => '2026-09-14T20:10:00-04:00',
+    'session_type' => $current_type,
+    'session_label' => $current_type === 'us_pre_open' ? 'US PRE-OPEN' : 'US POST-CLOSE',
+    'session_anchor' => $current_anchor->format(DateTimeInterface::ATOM),
     'us_market_status' => 'regular_session_day',
     'key_drivers' => ['Momentum menguat.'],
     'session_intelligence' => [
@@ -109,7 +137,7 @@ $base_projection = [
             'status' => 'available',
             'state' => 'HIGH',
             'methodology_version' => 'opportunity-v1',
-            'knowledge_time' => '2026-09-15T00:00:00+00:00',
+            'knowledge_time' => gmdate('c', time() - 300),
             'changed' => false,
         ],
     ],
@@ -140,35 +168,75 @@ trust_check('top-level Opportunity is owned by fresh fast store, not frozen Majo
 trust_check('fast Opportunity exposes state but no independent public timestamp or record id',
     !isset($fresh['opportunity']['knowledge_time'], $fresh['opportunity']['record_id'])
 );
-trust_check('fresh Major Brief still exposes validated slow-clock directional assessment',
+trust_check('fast Opportunity is fresh through the first 15 minutes',
+    ($fresh['opportunity']['freshness_state'] ?? '') === 'fresh' &&
+    ($fresh['opportunity']['age_seconds'] ?? 9999) <= 15 * MINUTE_IN_SECONDS
+);
+trust_check('current Major Brief exposes validated slow-clock directional assessment',
+    ($fresh['status'] ?? '') === 'fresh' &&
     ($fresh['directional_bias'] ?? '') === 'bullish' &&
     ($fresh['confidence']['value'] ?? null) === 82 &&
     ($fresh['market_state'] ?? '') === 'expansion'
 );
 
-$delayed_projection = $base_projection;
-$delayed_projection['status'] = 'delayed';
-$delayed_projection['timestamp'] = time() - (7 * 3600);
-$delayed_projection['timestamp_iso'] = gmdate('c', $delayed_projection['timestamp']);
-$delayed_projection['freshness_label'] = 'delayed';
-Bitmomo_AI_Intelligence::$projection = $delayed_projection;
-$delayed = Bitmomo_Public_Intelligence_Adapter::snapshot();
-
-trust_check('delayed Major Brief withholds slow-clock assessment',
-    is_array($delayed) &&
-    ($delayed['status'] ?? '') === 'delayed' &&
-    ($delayed['directional_bias'] ?? null) === null &&
-    ($delayed['direction_strength'] ?? null) === null &&
-    ($delayed['market_state'] ?? null) === null &&
-    ($delayed['confidence']['value'] ?? null) === null &&
-    ($delayed['key_drivers'] ?? []) === [] &&
-    ($delayed['session_intelligence'] ?? []) === []
+// A Major Brief can be older than the legacy six-hour threshold and still be
+// current when the next session anchor has not arrived yet.
+$current_but_old = $base_projection;
+$current_but_old['status'] = 'delayed';
+$current_but_old['timestamp'] = time() - (7 * 3600);
+$current_but_old['timestamp_iso'] = gmdate('c', $current_but_old['timestamp']);
+$current_but_old['freshness_label'] = 'delayed';
+Bitmomo_AI_Intelligence::$projection = $current_but_old;
+$current = Bitmomo_Public_Intelligence_Adapter::snapshot();
+trust_check('Major Brief freshness follows the next session anchor, not the legacy six-hour age',
+    is_array($current) &&
+    ($current['status'] ?? '') === 'fresh' &&
+    ($current['directional_bias'] ?? '') === 'bullish'
 );
-trust_check('fresh fast Opportunity survives delayed Major Brief without refreshing brief provenance',
-    ($delayed['opportunity']['status'] ?? '') === 'available' &&
-    ($delayed['opportunity']['state'] ?? '') === 'LOW' &&
-    !isset($delayed['opportunity']['knowledge_time']) &&
-    ($delayed['provenance']['as_of'] ?? '') === $delayed_projection['timestamp_iso']
+
+// Force a genuinely overdue Major Brief by moving its anchor two days back.
+$overdue_projection = $base_projection;
+$overdue_projection['status'] = 'delayed';
+$overdue_projection['timestamp'] = time() - (20 * 3600);
+$overdue_projection['timestamp_iso'] = gmdate('c', $overdue_projection['timestamp']);
+$overdue_projection['session_anchor'] = $current_anchor->modify('-2 days')->format(DateTimeInterface::ATOM);
+Bitmomo_AI_Intelligence::$projection = $overdue_projection;
+$overdue = Bitmomo_Public_Intelligence_Adapter::snapshot();
+trust_check('overdue Major Brief withholds slow-clock assessment',
+    is_array($overdue) &&
+    ($overdue['status'] ?? '') === 'delayed' &&
+    ($overdue['directional_bias'] ?? null) === null &&
+    ($overdue['direction_strength'] ?? null) === null &&
+    ($overdue['market_state'] ?? null) === null &&
+    ($overdue['confidence']['value'] ?? null) === null &&
+    ($overdue['key_drivers'] ?? []) === [] &&
+    ($overdue['session_intelligence'] ?? []) === []
+);
+trust_check('fresh fast Opportunity survives an overdue Major Brief without refreshing brief provenance',
+    ($overdue['opportunity']['status'] ?? '') === 'available' &&
+    ($overdue['opportunity']['state'] ?? '') === 'LOW' &&
+    !isset($overdue['opportunity']['knowledge_time']) &&
+    ($overdue['provenance']['as_of'] ?? '') === $overdue_projection['timestamp_iso']
+);
+
+Bitmomo_AI_Intelligence::$projection = $base_projection;
+Bitmomo_AI_Opportunity_Store::$public = [
+    'status' => 'available',
+    'state' => 'NORMAL',
+    'methodology_version' => 'opportunity-v1',
+    'knowledge_time' => gmdate('c', time() - (20 * MINUTE_IN_SECONDS)),
+    'changed' => false,
+];
+$pulse_delayed = Bitmomo_Public_Intelligence_Adapter::snapshot();
+trust_check('Market Pulse is explicitly delayed between 15 and 30 minutes',
+    ($pulse_delayed['opportunity']['status'] ?? '') === 'available' &&
+    ($pulse_delayed['opportunity']['freshness_state'] ?? '') === 'delayed'
+);
+
+Bitmomo_AI_Opportunity_Store::$public['knowledge_time'] = gmdate('c', time() - (31 * MINUTE_IN_SECONDS));
+$pulse_expired = Bitmomo_Public_Intelligence_Adapter::snapshot();
+trust_check('Market Pulse fails closed after 30 minutes',
+    ($pulse_expired['opportunity']['status'] ?? '') === 'unavailable'
 );
 
 Bitmomo_AI_Opportunity_Store::$public = ['status' => 'unavailable', 'methodology_version' => 'opportunity-v1'];
@@ -190,9 +258,14 @@ trust_check('early sample may retain accuracy only with explicit EARLY SAMPLE st
 $plugin_source = file_get_contents(__DIR__ . '/../bitmomo-ai.php');
 $guard = strpos($plugin_source, "defined('BITMOMO_AI_OPPORTUNITY_ENABLED') && BITMOMO_AI_OPPORTUNITY_ENABLED");
 $register = strpos($plugin_source, 'Bitmomo_AI_Opportunity::register();');
-trust_check('Opportunity polling is explicit opt-in rather than a release-side effect',
+trust_check('Opportunity polling remains explicit opt-in in the production plugin',
     false !== $guard && false !== $register && $guard < $register &&
     !preg_match('/define\s*\(\s*[\'\"]BITMOMO_AI_OPPORTUNITY_ENABLED[\'\"]/', $plugin_source)
+);
+
+$staging_guard = file_get_contents(__DIR__ . '/../../../../../config/staging/bitmomo-staging-safety.php');
+trust_check('canonical staging explicitly enables launch-critical Market Pulse polling',
+    false !== strpos($staging_guard, "define( 'BITMOMO_AI_OPPORTUNITY_ENABLED', true )")
 );
 
 $failed = array_filter($checks, function ($row) { return !$row[1]; });
