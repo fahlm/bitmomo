@@ -289,6 +289,23 @@ function bitmomo_ajax_public_snapshot_contract() {
 add_action('wp_ajax_nopriv_bitmomo_snapshot_contract', 'bitmomo_ajax_public_snapshot_contract');
 add_action('wp_ajax_bitmomo_snapshot_contract', 'bitmomo_ajax_public_snapshot_contract');
 
+/**
+ * Anonymous REST clients do not need author-account enumeration. Keep the
+ * normal WordPress user endpoints available to authenticated sessions so the
+ * editor/admin experience remains intact, while removing the public username
+ * discovery surface used for login brute-force reconnaissance.
+ */
+function bitmomo_hide_public_rest_users($endpoints) {
+    if (is_user_logged_in()) return $endpoints;
+
+    foreach (array_keys($endpoints) as $route) {
+        if (0 === strpos((string) $route, '/wp/v2/users')) unset($endpoints[$route]);
+    }
+
+    return $endpoints;
+}
+add_filter('rest_endpoints', 'bitmomo_hide_public_rest_users', 20);
+
 function bitmomo_enqueue_btc_retention_telemetry() {
     if (!is_page('btc-intelligence')) return;
     $path = get_stylesheet_directory() . '/assets/js/bitmomo-retention.js';
