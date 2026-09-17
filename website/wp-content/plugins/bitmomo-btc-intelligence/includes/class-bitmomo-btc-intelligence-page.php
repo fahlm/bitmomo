@@ -618,7 +618,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<?php else : ?>
 				<div class="bm-bi__ledger-wrap" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Decision Ledger BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<table class="bm-bi__ledger-table">
-						<thead><tr><th>WAKTU</th><th>VIEW</th><th>CONF.</th><th>BTC</th><th>+24H</th><th>HASIL</th><th>VERSI EVALUASI</th></tr></thead>
+						<thead><tr><th>WAKTU</th><th>VIEW</th><th>CONF.</th><th>BTC</th><th>+24H</th><th>HASIL</th></tr></thead>
 						<tbody>
 						<?php foreach ( $rows as $row ) :
 							$verdict = sanitize_key( (string) ( $row['verdict'] ?? 'unscored' ) );
@@ -626,7 +626,6 @@ class Bitmomo_Btc_Intelligence_Page {
 							$date = $this->format_wib( $row['generated_at'] ?? '', 'd M · H:i' );
 							$return = $row['forward_return_pct'] ?? null;
 							$return_class = is_numeric( $return ) ? ( (float) $return > 0 ? 'is-positive' : ( (float) $return < 0 ? 'is-negative' : 'is-flat' ) ) : '';
-							$evaluation_version = trim( (string) ( $row['evaluation_version'] ?? $row['outcome_methodology'] ?? '' ) );
 							?>
 							<tr>
 								<td><time datetime="<?php echo esc_attr( (string) ( $row['generated_at'] ?? '' ) ); ?>"><?php echo esc_html( $date ?: '—' ); ?></time><small><?php echo esc_html( (string) ( $row['session'] ?? '' ) ); ?></small></td>
@@ -635,7 +634,6 @@ class Bitmomo_Btc_Intelligence_Page {
 								<td><?php echo esc_html( $this->format_price( $row['reference_price'] ?? null ) ); ?></td>
 								<td class="<?php echo esc_attr( $return_class ); ?>"><?php echo esc_html( $this->format_return( $return ) ); ?></td>
 								<td><span class="bm-bi__verdict is-<?php echo esc_attr( $verdict ); ?>"><?php echo esc_html( $this->verdict_label( $verdict ) ); ?></span></td>
-								<td><small><?php echo esc_html( $evaluation_version ?: '—' ); ?></small></td>
 							</tr>
 						<?php endforeach; ?>
 						</tbody>
@@ -659,7 +657,7 @@ class Bitmomo_Btc_Intelligence_Page {
 				<?php $this->render_blocked_boundary( __( 'Belum ada cukup hasil yang layak untuk diringkas.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
 				<p class="bm-bi__section-intro"><?php esc_html_e( 'Scorecard hanya menghitung record yang memakai kombinasi model, classifier, dan metode evaluasi yang sama. Record versi lama tetap ada di Decision Ledger tetapi tidak dicampur ke statistik aktif.', 'bitmomo-btc-intelligence' ); ?></p>
-				<?php if ( $active_version ) : ?><p class="bm-bi__micro-note"><strong><?php esc_html_e( 'Versi evaluasi aktif:', 'bitmomo-btc-intelligence' ); ?></strong> <?php echo esc_html( $active_version ); ?></p><?php endif; ?>
+				<p class="bm-bi__micro-note"><?php esc_html_e( 'Jumlah hasil konklusif ditampilkan lebih dulu agar ukuran sampel terlihat sebelum persentase akurasi.', 'bitmomo-btc-intelligence' ); ?></p>
 				<div class="bm-bi__proof-grid" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Ringkasan track record BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<?php $this->render_metric( __( 'Keseluruhan', 'bitmomo-btc-intelligence' ), $current['all'] ?? array() ); ?>
 					<?php $this->render_metric( __( '30 terakhir', 'bitmomo-btc-intelligence' ), $current['rolling_30'] ?? array() ); ?>
@@ -668,7 +666,7 @@ class Bitmomo_Btc_Intelligence_Page {
 					<?php $this->render_metric( 'Bearish', $directions['bearish'] ?? array() ); ?>
 					<?php $this->render_metric( 'Netral', $directions['neutral'] ?? array() ); ?>
 				</div>
-				<p class="bm-bi__micro-note"><?php esc_html_e( 'Aturan hasil: Bullish sesuai pada return +24 jam ≥ +0,5%; Bearish sesuai pada return ≤ -0,5%; Netral sesuai bila pergerakan tetap di dalam band -0,5% hingga +0,5%. Bullish/Bearish di dalam band tersebut dianggap tidak konklusif dan tidak masuk denominator akurasi.', 'bitmomo-btc-intelligence' ); ?></p>
+				<p class="bm-bi__micro-note"><?php esc_html_e( 'Aturan hasil tepat +24 jam: Bullish sesuai pada return ≥ +0,5%; Bearish sesuai pada return ≤ -0,5%; Netral sesuai bila pergerakan tetap di dalam band -0,5% hingga +0,5%. Bullish/Bearish di dalam band tersebut dianggap tidak konklusif dan tidak masuk denominator akurasi.', 'bitmomo-btc-intelligence' ); ?></p>
 				<?php if ( count( $versions ) > 1 ) : ?><p class="bm-bi__history-policy"><?php echo esc_html( sprintf( __( '%d versi evaluasi tersimpan. Versi lama dipertahankan untuk audit dan tidak digabungkan ke angka aktif di atas.', 'bitmomo-btc-intelligence' ), count( $versions ) ) ); ?></p><?php endif; ?>
 			<?php endif; ?>
 		</section>
