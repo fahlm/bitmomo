@@ -190,3 +190,25 @@ function bitmomo_pro_render_dashboard_url_field() {
 		esc_html__( 'Used in welcome/daily-brief emails. Leave blank to auto-detect a Page at the "pro-dashboard" slug.', 'bitmomo-pro' )
 	);
 }
+
+/**
+ * Public hardening: do not expose WordPress usernames through REST to anonymous
+ * visitors. Authenticated editor/admin REST behavior remains intact.
+ */
+function bitmomo_pro_block_public_user_enumeration( $result, $server, $request ) {
+	if ( is_user_logged_in() || ! $request instanceof WP_REST_Request ) {
+		return $result;
+	}
+
+	$route = (string) $request->get_route();
+	if ( 1 !== preg_match( '#^/wp/v2/users(?:/|$)#', $route ) ) {
+		return $result;
+	}
+
+	return new WP_Error(
+		'rest_no_route',
+		__( 'No route was found matching the URL and request method.', 'bitmomo-pro' ),
+		array( 'status' => 404 )
+	);
+}
+add_filter( 'rest_pre_dispatch', 'bitmomo_pro_block_public_user_enumeration', 10, 3 );
