@@ -57,6 +57,7 @@ class CanarySessionState:
     opened_at_ms: int | None = None
     last_flat_ms: int | None = None
     non_bearish_streak: int = 0
+    recovery_required: bool = False
     halt_reason: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -69,6 +70,7 @@ class CanarySessionState:
             "opened_at_ms": self.opened_at_ms,
             "last_flat_ms": self.last_flat_ms,
             "non_bearish_streak": self.non_bearish_streak,
+            "recovery_required": self.recovery_required,
             "halt_reason": self.halt_reason,
         }
 
@@ -87,6 +89,7 @@ class CanarySessionState:
                 None if payload.get("last_flat_ms") is None else int(payload["last_flat_ms"])
             ),
             non_bearish_streak=int(payload.get("non_bearish_streak", 0)),
+            recovery_required=bool(payload.get("recovery_required", False)),
             halt_reason=payload.get("halt_reason"),
         )
 
@@ -140,6 +143,25 @@ def evaluate_canary_controller(
     )
 
     has_inventory = any(abs(float(v)) > 0 for v in account.positions.values())
+
+    # A process restart revokes prior authority. If the journal says this process
+    # may have owned exposure, recovery is reduce-only: flatten first, then clear
+    # the recovery flag. Never resume or duplicate an entry from stale state.
+    if session.recovery_required:
+        owned = session.active_coin or session.pending_coin
+        if has_inventory:
+            position = _single_position(account)
+            if position is None or owned is None or position[0] != owned:
+                return CanaryControllerDecision(CanaryAction.HALT, None, None, "restart_state_ambiguous")
+            return CanaryControllerDecision(CanaryAction.FLATTEN, owned, None, "restart_recovery_flatten")
+        if account.open_order_ids:
+            return CanaryControllerDecision(CanaryAction.HALT, None, None, "restart_open_orders_ambiguous")
+        session.active_coin = None
+        session.pending_coin = None
+        session.opened_at_ms = None
+        session.non_bearish_streak = 0
+        session.recovery_required = False
+        session.last_flat_ms = now_ms
 
     if session.halt_reason:
         if has_inventory and session.active_coin:
