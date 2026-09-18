@@ -1,0 +1,16 @@
+# EXAMPLE ONLY — NOT INSTALLED ANYWHERE.
+#
+# Forward recorder for short-retention Binance USD-M derivatives series.
+# Installing this on any host (VPS, Hostinger, staging, production) requires
+# Fahmi's explicit approval. Never add it to WordPress cron.
+#
+# Cadence: every 15 minutes. With limit=30 the 5m endpoints return 2.5h of
+# history per call, so a run can be missed for up to ~2h without creating a gap;
+# the 1h endpoints tolerate ~29h. Missing periods are detectable afterwards with
+# `bitmomo-lab recorder-gaps`.
+#
+# Replace LAB with the absolute path of research/lab in a checkout of the
+# research branch. The recorder needs no secrets and no environment variables.
+
+LAB=/path/to/bitmomo/research/lab
+*/15 * * * * cd "$LAB" && .venv/bin/bitmomo-lab record >> .data/reports/recorder.log 2>&1

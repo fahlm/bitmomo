@@ -1,0 +1,1189 @@
+{
+  "assembly": {
+    "conflicting_duplicate_keys": 0,
+    "exact_duplicates_collapsed": 0,
+    "outside_window_dropped": 0,
+    "rows_in": 703698,
+    "rows_out": 703698
+  },
+  "availability_rule": {
+    "basis": "close_boundary",
+    "declared_lag_us": 0,
+    "note": "Row describes [open_time, open_time+interval). Knowable at the closing boundary; matches production, which consumes candles with close_time <= cutoff.",
+    "period_us": 300000000
+  },
+  "build": {
+    "code_commit": "7ccbd2134b8178ac299663f0204eda30e9c2a993",
+    "code_dirty": false,
+    "lab_version": "0.1.0",
+    "pyarrow": "21.0.0",
+    "python": "3.12.11"
+  },
+  "dataset": "binance_spot_klines_5m",
+  "interval": "5m",
+  "manifest_body_sha256": "9d3e5a937b75793257842570c2ef2e230866694aedf1df27cdde867b9de2fe47",
+  "manifest_version": "lab-manifest-v1",
+  "missing_archive_files": [],
+  "normalized": {
+    "columns": [
+      "source:string",
+      "dataset:string",
+      "symbol:string",
+      "interval:string",
+      "availability_basis:string",
+      "schema_version:string",
+      "raw_ref:string",
+      "event_time:timestamp[us, tz=UTC]",
+      "available_at:timestamp[us, tz=UTC]",
+      "quality:string",
+      "source_close_time:timestamp[us, tz=UTC]",
+      "source_time_unit:string",
+      "open:double",
+      "high:double",
+      "low:double",
+      "close:double",
+      "volume:double",
+      "quote_volume:double",
+      "trade_count:int64",
+      "taker_buy_volume:double",
+      "taker_buy_quote_volume:double"
+    ],
+    "content_sha256": "5c0867dbd83e723a92d0ec3d25ecee8c6b81447bd323b0e80ba9fdcbb237b25b",
+    "parquet_file_sha256": "0bf96c90e4e134b3c3bc56e6af43abf6dce7c59fdae42e666ff9ae679a51bb07",
+    "relative_path": "normalized/binance_spot_klines_5m/BTCUSDT/binance_spot_klines_5m__BTCUSDT__2020-01-01__2026-09-10.parquet",
+    "rows": 703698
+  },
+  "quality": {
+    "coverage_by_year": {
+      "2020": {
+        "coverage_pct": 99.7609,
+        "expected": 105408,
+        "present": 105156
+      },
+      "2021": {
+        "coverage_pct": 99.8088,
+        "expected": 105120,
+        "present": 104919
+      },
+      "2022": {
+        "coverage_pct": 100.0,
+        "expected": 105120,
+        "present": 105120
+      },
+      "2023": {
+        "coverage_pct": 99.9838,
+        "expected": 105120,
+        "present": 105103
+      },
+      "2024": {
+        "coverage_pct": 100.0,
+        "expected": 105408,
+        "present": 105408
+      },
+      "2025": {
+        "coverage_pct": 100.0,
+        "expected": 105120,
+        "present": 105120
+      },
+      "2026": {
+        "coverage_pct": 100.0,
+        "expected": 72864,
+        "present": 72864
+      }
+    },
+    "expected_intervals": 704160,
+    "first_event_time": "2020-01-01T00:00:00Z",
+    "gaps": [
+      {
+        "from": "2020-02-09T02:00:00Z",
+        "missing_intervals": 12,
+        "to_exclusive": "2020-02-09T03:00:00Z"
+      },
+      {
+        "from": "2020-02-19T11:35:00Z",
+        "missing_intervals": 71,
+        "to_exclusive": "2020-02-19T17:30:00Z"
+      },
+      {
+        "from": "2020-03-04T09:20:00Z",
+        "missing_intervals": 26,
+        "to_exclusive": "2020-03-04T11:30:00Z"
+      },
+      {
+        "from": "2020-04-25T02:00:00Z",
+        "missing_intervals": 30,
+        "to_exclusive": "2020-04-25T04:30:00Z"
+      },
+      {
+        "from": "2020-06-28T02:00:00Z",
+        "missing_intervals": 42,
+        "to_exclusive": "2020-06-28T05:30:00Z"
+      },
+      {
+        "from": "2020-11-30T06:00:00Z",
+        "missing_intervals": 12,
+        "to_exclusive": "2020-11-30T07:00:00Z"
+      },
+      {
+        "from": "2020-12-21T14:05:00Z",
+        "missing_intervals": 47,
+        "to_exclusive": "2020-12-21T18:00:00Z"
+      },
+      {
+        "from": "2020-12-25T02:00:00Z",
+        "missing_intervals": 12,
+        "to_exclusive": "2020-12-25T03:00:00Z"
+      },
+      {
+        "from": "2021-02-11T03:40:00Z",
+        "missing_intervals": 16,
+        "to_exclusive": "2021-02-11T05:00:00Z"
+      },
+      {
+        "from": "2021-03-06T02:00:00Z",
+        "missing_intervals": 18,
+        "to_exclusive": "2021-03-06T03:30:00Z"
+      },
+      {
+        "from": "2021-04-20T02:00:00Z",
+        "missing_intervals": 30,
+        "to_exclusive": "2021-04-20T04:30:00Z"
+      },
+      {
+        "from": "2021-04-25T04:00:00Z",
+        "missing_intervals": 57,
+        "to_exclusive": "2021-04-25T08:45:00Z"
+      },
+      {
+        "from": "2021-08-13T01:55:00Z",
+        "missing_intervals": 55,
+        "to_exclusive": "2021-08-13T06:30:00Z"
+      },
+      {
+        "from": "2021-09-29T07:00:00Z",
+        "missing_intervals": 24,
+        "to_exclusive": "2021-09-29T09:00:00Z"
+      },
+      {
+        "from": "2021-12-24T04:55:00Z",
+        "missing_intervals": 1,
+        "to_exclusive": "2021-12-24T05:00:00Z"
+      },
+      {
+        "from": "2023-03-24T12:35:00Z",
+        "missing_intervals": 17,
+        "to_exclusive": "2023-03-24T14:00:00Z"
+      }
+    ],
+    "last_event_time": "2026-09-10T23:55:00Z",
+    "missing_intervals": 470,
+    "off_grid_ok_rows": 0,
+    "out_of_order_rows_in_source_order": 0,
+    "period_us": 300000000,
+    "present_ok_intervals": 703690,
+    "rows": 703698,
+    "rows_by_quality": {
+      "boundary_mismatch": 8,
+      "ok": 703690
+    }
+  },
+  "raw_files": [
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-01.zip",
+      "bytes": 469558,
+      "covers": [
+        "2020-01-01",
+        "2020-01-31"
+      ],
+      "sha256": "06d2ae5dc44a5d679ee795107988491265678572cb851bf68aefdd67296d1649",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-01.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-02.zip",
+      "bytes": 437971,
+      "covers": [
+        "2020-02-01",
+        "2020-02-29"
+      ],
+      "sha256": "5a55ea80e8139c03d5ffd1cf5d442ff2060168e7054889718e5f4b5cf417b2db",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-02.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-03.zip",
+      "bytes": 479177,
+      "covers": [
+        "2020-03-01",
+        "2020-03-31"
+      ],
+      "sha256": "18e19c32d81eba36afc03029bd124b2468a4ae07d68a780a81fd3453a5784265",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-03.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-04.zip",
+      "bytes": 456571,
+      "covers": [
+        "2020-04-01",
+        "2020-04-30"
+      ],
+      "sha256": "0284b9c8e7fc2545249637bc76a5f0eecc267f2cb7374f8b0f0648d8feaf7587",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-04.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-05.zip",
+      "bytes": 477076,
+      "covers": [
+        "2020-05-01",
+        "2020-05-31"
+      ],
+      "sha256": "798617aa2af58b8f350e27807e9816e0c86f9f5f606a4bb945c8a6f9a90cc8e1",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-05.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-06.zip",
+      "bytes": 450231,
+      "covers": [
+        "2020-06-01",
+        "2020-06-30"
+      ],
+      "sha256": "854b542e3c20cf4c106bbcb9fe761e35de756f1d061f0ef887c9f84a7a37f930",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-06.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-07.zip",
+      "bytes": 465604,
+      "covers": [
+        "2020-07-01",
+        "2020-07-31"
+      ],
+      "sha256": "99f3c881214d0b940f562d4b4a8660a5bfee17b34a114a0aa01d3f1b064ea4eb",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-07.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-08.zip",
+      "bytes": 474677,
+      "covers": [
+        "2020-08-01",
+        "2020-08-31"
+      ],
+      "sha256": "21435bfdff6477504a5611c4749d3c6dd35a4ba52db6ecc5adf05ce25b2faebf",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-08.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-09.zip",
+      "bytes": 458044,
+      "covers": [
+        "2020-09-01",
+        "2020-09-30"
+      ],
+      "sha256": "7d74fdf334c4a334857dede2224d214bb9c40c07d5fc20eeeb57f5022b4a2616",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-09.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-10.zip",
+      "bytes": 469954,
+      "covers": [
+        "2020-10-01",
+        "2020-10-31"
+      ],
+      "sha256": "c7a6731dfa5f936f626c28090a4e76cd952a0998958d4f717ee76cea1b8d2135",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-10.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-11.zip",
+      "bytes": 468732,
+      "covers": [
+        "2020-11-01",
+        "2020-11-30"
+      ],
+      "sha256": "b6eaa1dc16993083d794cf2445c5596dbc298df5b8ab4d891a45435564d1bb92",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-11.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-12.zip",
+      "bytes": 484075,
+      "covers": [
+        "2020-12-01",
+        "2020-12-31"
+      ],
+      "sha256": "c169b2a72cc188c8089abc9f3c6f9699e4759a5e7d0d7a7c69d9117b0da68049",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2020-12.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip",
+      "bytes": 502729,
+      "covers": [
+        "2021-01-01",
+        "2021-01-31"
+      ],
+      "sha256": "5eda1c9f22259d37f6602ca3ee8072a670131939c7a4bc7e048a2a0077e03d6f",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-01.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-02.zip",
+      "bytes": 452415,
+      "covers": [
+        "2021-02-01",
+        "2021-02-28"
+      ],
+      "sha256": "64cacfee55b7e73d6728a6e7cf32b03be2f205c06ad27a99889f002d0c853769",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-02.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-03.zip",
+      "bytes": 498443,
+      "covers": [
+        "2021-03-01",
+        "2021-03-31"
+      ],
+      "sha256": "d67c748616c67d16d92695e42c32084818adf53100931f7d6bb01d1c6a21cf65",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-03.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-04.zip",
+      "bytes": 475842,
+      "covers": [
+        "2021-04-01",
+        "2021-04-30"
+      ],
+      "sha256": "e365a42f9b3cd6262110977b37d341f90e339ef5b617de2d90c945c53a930854",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-04.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-05.zip",
+      "bytes": 504630,
+      "covers": [
+        "2021-05-01",
+        "2021-05-31"
+      ],
+      "sha256": "1c6ef655c4cd33fa6777ad02e60a78ffc254a69a217a22a56e57c125faf20b6b",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-05.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-06.zip",
+      "bytes": 482776,
+      "covers": [
+        "2021-06-01",
+        "2021-06-30"
+      ],
+      "sha256": "de8a478e5e30da06250976df98bf0a8b3aa040c4667334263f7c126097665bdb",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-06.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-07.zip",
+      "bytes": 488756,
+      "covers": [
+        "2021-07-01",
+        "2021-07-31"
+      ],
+      "sha256": "fbd9221353c0471581c7b7e3bec7538c79e3472da2bf30cfdee4f766dbf28e73",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-07.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-08.zip",
+      "bytes": 485921,
+      "covers": [
+        "2021-08-01",
+        "2021-08-31"
+      ],
+      "sha256": "ad8168331b2f0c83e7d4dea149b09881d5f4ecb0e6c7049f8637f2ef5a6dbf78",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-08.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-09.zip",
+      "bytes": 459071,
+      "covers": [
+        "2021-09-01",
+        "2021-09-30"
+      ],
+      "sha256": "73eef8294b704bcde8f35cf26098c79cc50591e49a65a970eff97ac10e78fac1",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-09.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-10.zip",
+      "bytes": 477592,
+      "covers": [
+        "2021-10-01",
+        "2021-10-31"
+      ],
+      "sha256": "cf28329e5f490ccb0e6759b8f66930a7397e65c2d8f5c4dfd727f44a54bbfae4",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-10.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-11.zip",
+      "bytes": 461307,
+      "covers": [
+        "2021-11-01",
+        "2021-11-30"
+      ],
+      "sha256": "69725bd82baef5339e32c773937966ec413648dfaf985741f9be730b9cddd915",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-11.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-12.zip",
+      "bytes": 473801,
+      "covers": [
+        "2021-12-01",
+        "2021-12-31"
+      ],
+      "sha256": "17c2731a870d09d0ea1345b9af40234fae47c947ff373499799169cdfda3b41c",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2021-12.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-01.zip",
+      "bytes": 471666,
+      "covers": [
+        "2022-01-01",
+        "2022-01-31"
+      ],
+      "sha256": "be1f2f943b365b9b00c1be4cbcb7c631990318baf36e7a4d8410ea9dc7bc1cda",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-01.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-02.zip",
+      "bytes": 426425,
+      "covers": [
+        "2022-02-01",
+        "2022-02-28"
+      ],
+      "sha256": "3cdb10f37876bb53487a5f68bdb00f87a2fa0dba0706133264bfcb5170d35cdd",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-02.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-03.zip",
+      "bytes": 470542,
+      "covers": [
+        "2022-03-01",
+        "2022-03-31"
+      ],
+      "sha256": "e980799352cf0447752d97a20704ffdcce18544525743a4d3ec9dc076cc25765",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-03.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-04.zip",
+      "bytes": 451680,
+      "covers": [
+        "2022-04-01",
+        "2022-04-30"
+      ],
+      "sha256": "a738199ee22e198fd9e51a7ecbcbd656c11603a530750ba26efa4c13d891ecd6",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-04.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-05.zip",
+      "bytes": 472624,
+      "covers": [
+        "2022-05-01",
+        "2022-05-31"
+      ],
+      "sha256": "9e342e114551ef3598fb1bf9d385878861878b9c9c42714eca82e867a9feda81",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-05.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-06.zip",
+      "bytes": 458989,
+      "covers": [
+        "2022-06-01",
+        "2022-06-30"
+      ],
+      "sha256": "5d4ef9d9fd134a239daebe1cd9261da7379991503d3093a0848d85c6172c9ab0",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-06.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-07.zip",
+      "bytes": 484900,
+      "covers": [
+        "2022-07-01",
+        "2022-07-31"
+      ],
+      "sha256": "f55cca50df856fdf179a2193e1bcf4507bc27a296042486e023814c3b21c62c7",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-07.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-08.zip",
+      "bytes": 487491,
+      "covers": [
+        "2022-08-01",
+        "2022-08-31"
+      ],
+      "sha256": "d65ea001b11191e31f6637f5893155273fcd02da3b269b9296007fbc1d49513e",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-08.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-09.zip",
+      "bytes": 475148,
+      "covers": [
+        "2022-09-01",
+        "2022-09-30"
+      ],
+      "sha256": "87208eb2b3b67f105b40ebff1a5eb81ca1d377ddd70936eecf224bafcee4e5b9",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-09.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-10.zip",
+      "bytes": 484426,
+      "covers": [
+        "2022-10-01",
+        "2022-10-31"
+      ],
+      "sha256": "b94e591ff353f2001d801ffcd2d7e2e2649f9efed49ac636f19a241ead90e19e",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-10.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-11.zip",
+      "bytes": 472167,
+      "covers": [
+        "2022-11-01",
+        "2022-11-30"
+      ],
+      "sha256": "928433fc8313bc1616a2c5ca79b78525bb09ea2ca84a81c66500cdfb6bcccc40",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-11.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-12.zip",
+      "bytes": 477480,
+      "covers": [
+        "2022-12-01",
+        "2022-12-31"
+      ],
+      "sha256": "3e1195cefa671991251ab5e1f606b9d7f7b7279dfd7efd033ae1aca2190ff698",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2022-12.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-01.zip",
+      "bytes": 485503,
+      "covers": [
+        "2023-01-01",
+        "2023-01-31"
+      ],
+      "sha256": "0b77520b2fc89c896430fd885bda345a808d61a512ef34ce62cf6a150b81e9ff",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-01.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-02.zip",
+      "bytes": 443952,
+      "covers": [
+        "2023-02-01",
+        "2023-02-28"
+      ],
+      "sha256": "337dd3741251bafe88c6e6faf39bcb89b75b6504f9d5ddc67221ee9371a7e7d4",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-02.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-03.zip",
+      "bytes": 486093,
+      "covers": [
+        "2023-03-01",
+        "2023-03-31"
+      ],
+      "sha256": "840da3f1dba73d44c483b2c600528ee845366a8f2dec3db1d0be9e128741ec19",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-03.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-04.zip",
+      "bytes": 446470,
+      "covers": [
+        "2023-04-01",
+        "2023-04-30"
+      ],
+      "sha256": "0ce744f9e9712a818b0090572d5541b83c2acec7d67de808ee5a66ff4299b008",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-04.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-05.zip",
+      "bytes": 458040,
+      "covers": [
+        "2023-05-01",
+        "2023-05-31"
+      ],
+      "sha256": "d288014d0cde16c31d524dc63a9ed779de6c1a65e08df6b069ced8b688da21e4",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-05.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-06.zip",
+      "bytes": 443755,
+      "covers": [
+        "2023-06-01",
+        "2023-06-30"
+      ],
+      "sha256": "781415877a1eaf4b376351bb3dc3cc31bc941b009a7b89a6a833cb6fb757279f",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-06.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-07.zip",
+      "bytes": 446813,
+      "covers": [
+        "2023-07-01",
+        "2023-07-31"
+      ],
+      "sha256": "88859cd91277f3e0c9df85bb66f5c2d91273612a7ccd60e2a4be86ea3cc4b84c",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-07.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-08.zip",
+      "bytes": 443882,
+      "covers": [
+        "2023-08-01",
+        "2023-08-31"
+      ],
+      "sha256": "a36e0b195d907bf100788f48ebae360ade5a31066bdee8469f610b802ff8e8f0",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-08.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-09.zip",
+      "bytes": 431662,
+      "covers": [
+        "2023-09-01",
+        "2023-09-30"
+      ],
+      "sha256": "4058d18e256eb96841c67cb6e27375f0dcee6d2d425b4ad5907f055890ca5761",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-09.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-10.zip",
+      "bytes": 455417,
+      "covers": [
+        "2023-10-01",
+        "2023-10-31"
+      ],
+      "sha256": "6a14d2b75ad5020d56c12cd17e90e6661023f34a12fa4173364fd26a9879ae56",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-10.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-11.zip",
+      "bytes": 444556,
+      "covers": [
+        "2023-11-01",
+        "2023-11-30"
+      ],
+      "sha256": "dcf1c619885ca4fc351b4c990afe850141563f09e61b386a8d9151ea402575e2",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-11.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-12.zip",
+      "bytes": 462569,
+      "covers": [
+        "2023-12-01",
+        "2023-12-31"
+      ],
+      "sha256": "8e3b780eddcff7f19f24f25d799b2affe03113b90457b8caa22a454f065fbf56",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2023-12.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-01.zip",
+      "bytes": 465498,
+      "covers": [
+        "2024-01-01",
+        "2024-01-31"
+      ],
+      "sha256": "a375f811f672ad70de97af533f6e70181647a9e978838b451ac17d5c17313ad8",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-01.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-02.zip",
+      "bytes": 434210,
+      "covers": [
+        "2024-02-01",
+        "2024-02-29"
+      ],
+      "sha256": "4bbed105653be96229f6678b3ce3df7366a6ced5aea32285da2bf62ac5f890ed",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-02.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-03.zip",
+      "bytes": 474003,
+      "covers": [
+        "2024-03-01",
+        "2024-03-31"
+      ],
+      "sha256": "fd3670210b38640ee9562b7761879fae8cfed3beec7d7313b868cf618ca4c72a",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-03.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-04.zip",
+      "bytes": 454656,
+      "covers": [
+        "2024-04-01",
+        "2024-04-30"
+      ],
+      "sha256": "b41c6d2703ee9e4c8167de082dcd363fac39ed176ebe9eacf7f0109e284a5948",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-04.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-05.zip",
+      "bytes": 462542,
+      "covers": [
+        "2024-05-01",
+        "2024-05-31"
+      ],
+      "sha256": "3a9c810274f38b18abda912c3446df51cb160c4c0e376655fb7defb1cacf5de2",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-05.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-06.zip",
+      "bytes": 440069,
+      "covers": [
+        "2024-06-01",
+        "2024-06-30"
+      ],
+      "sha256": "627dd48125d89759e498d2db2e523166787bda4dd9a64ca56abf9fba235ba71e",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-06.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-07.zip",
+      "bytes": 461448,
+      "covers": [
+        "2024-07-01",
+        "2024-07-31"
+      ],
+      "sha256": "7fcfb7aa22c344f0c6bb0a7d2ae2dbfd1a1e597fc80806daa341068dfdab6586",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-07.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-08.zip",
+      "bytes": 464434,
+      "covers": [
+        "2024-08-01",
+        "2024-08-31"
+      ],
+      "sha256": "4ead243e5f862df551e12815d8ddc4c67da711fda253325c36f83a1ff3ef36d7",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-08.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-09.zip",
+      "bytes": 441999,
+      "covers": [
+        "2024-09-01",
+        "2024-09-30"
+      ],
+      "sha256": "a9989fa72ee8eba72cdd79b0e251652fcd456a31548a3014a8660b65405bc67a",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-09.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-10.zip",
+      "bytes": 458990,
+      "covers": [
+        "2024-10-01",
+        "2024-10-31"
+      ],
+      "sha256": "5cd2d0dcc2dc193fc7b31be69166021fca41b9fce61ab6a0771ce00db864c327",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-10.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-11.zip",
+      "bytes": 458714,
+      "covers": [
+        "2024-11-01",
+        "2024-11-30"
+      ],
+      "sha256": "72851d323b0d43f7c8cdf177ca85ded66ec511ed3b1a53e63cca0d2501c75bc0",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-11.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-12.zip",
+      "bytes": 474874,
+      "covers": [
+        "2024-12-01",
+        "2024-12-31"
+      ],
+      "sha256": "0a2f70744f9244a066ab4ced934a725d85b247e917cfe22ada218435c1573301",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2024-12.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip",
+      "bytes": 477793,
+      "covers": [
+        "2025-01-01",
+        "2025-01-31"
+      ],
+      "sha256": "4ed2edba26630a98b6ac6102b41dad00e1542640336f0d571c5a7394b39df983",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-01.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-02.zip",
+      "bytes": 428947,
+      "covers": [
+        "2025-02-01",
+        "2025-02-28"
+      ],
+      "sha256": "a4859a5b4ad31f41f3ffad1d9a044154ff529c41983b76432ef3f10981b32415",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-02.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-03.zip",
+      "bytes": 475553,
+      "covers": [
+        "2025-03-01",
+        "2025-03-31"
+      ],
+      "sha256": "1eb1fb0c76a0e8302abdec42d54b844bd3c3d6d7e6e69ae434aaa1dea445d54d",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-03.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-04.zip",
+      "bytes": 456750,
+      "covers": [
+        "2025-04-01",
+        "2025-04-30"
+      ],
+      "sha256": "3ba9f1fd519bad5f190dfe0acda0dd57f904ad5eb848378be329b43cf69b5041",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-04.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-05.zip",
+      "bytes": 473236,
+      "covers": [
+        "2025-05-01",
+        "2025-05-31"
+      ],
+      "sha256": "a1f4381240c422cda18464a054b34f75bb32bc5bb9137306e6c9d412e1b160aa",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-05.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-06.zip",
+      "bytes": 452618,
+      "covers": [
+        "2025-06-01",
+        "2025-06-30"
+      ],
+      "sha256": "7c005bb32458cc9c797244c49d2be734f626561fb40031fba4b86831e95f06d9",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-06.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-07.zip",
+      "bytes": 466153,
+      "covers": [
+        "2025-07-01",
+        "2025-07-31"
+      ],
+      "sha256": "8e4890be772dee102d3f5051fc9da5786f1f5203fd5bf251f47d5d8abcf79209",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-07.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-08.zip",
+      "bytes": 467590,
+      "covers": [
+        "2025-08-01",
+        "2025-08-31"
+      ],
+      "sha256": "532cd96e6dad9950b359f43bd308dc7e72b36c236875002b594d1eb5dc4d7639",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-08.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-09.zip",
+      "bytes": 448044,
+      "covers": [
+        "2025-09-01",
+        "2025-09-30"
+      ],
+      "sha256": "5ff19de79c102825f41d85810660c2ea339c6c6ef407bae5991870741b975fd8",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-09.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-10.zip",
+      "bytes": 479009,
+      "covers": [
+        "2025-10-01",
+        "2025-10-31"
+      ],
+      "sha256": "079e33529c01dfd219ce79428d3c5ff5ef9814005be6ccd091ffe73580607fd2",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-10.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-11.zip",
+      "bytes": 463951,
+      "covers": [
+        "2025-11-01",
+        "2025-11-30"
+      ],
+      "sha256": "470e5eecf5c2fb18390f5234897f71d9cec61e2bf31d0152948ce985e0ae583d",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-11.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-12.zip",
+      "bytes": 467107,
+      "covers": [
+        "2025-12-01",
+        "2025-12-31"
+      ],
+      "sha256": "5f1f3ad19c8f79fe1f5f8e009bf55fcef306c60990a18d0a75d3b568628c2083",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2025-12.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-01.zip",
+      "bytes": 463510,
+      "covers": [
+        "2026-01-01",
+        "2026-01-31"
+      ],
+      "sha256": "0b95c0dd7a22e374604527581a896930058e6d5426e55d34c9ec3e118a6b979e",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-01.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-02.zip",
+      "bytes": 431551,
+      "covers": [
+        "2026-02-01",
+        "2026-02-28"
+      ],
+      "sha256": "329314be85423f40b4ddcc77bde1c78c71bd8a7ff5915f342bf972b949e71e34",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-02.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-03.zip",
+      "bytes": 475234,
+      "covers": [
+        "2026-03-01",
+        "2026-03-31"
+      ],
+      "sha256": "e4a615e1558cd80acff53593a4659d3addc933bdbed1149ed252b8588aaccb3c",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-03.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-04.zip",
+      "bytes": 451938,
+      "covers": [
+        "2026-04-01",
+        "2026-04-30"
+      ],
+      "sha256": "396a694802d5ce56b78e770d534182ba2b0931932fdd0ced5d5ebbf18fa6398a",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-04.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-05.zip",
+      "bytes": 461377,
+      "covers": [
+        "2026-05-01",
+        "2026-05-31"
+      ],
+      "sha256": "06525e8a806eb976d9a9e1e71ccd324033e7cb95f69c8c9b8adf8265ac1e0194",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-05.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-06.zip",
+      "bytes": 449138,
+      "covers": [
+        "2026-06-01",
+        "2026-06-30"
+      ],
+      "sha256": "963dd95de6dc9c49727d1c3fb8c4746a22709b2f2abc014f088cdf4571be3b3b",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-06.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-07.zip",
+      "bytes": 457771,
+      "covers": [
+        "2026-07-01",
+        "2026-07-31"
+      ],
+      "sha256": "425f6e1a0de85dc99d8a7f17924bcb210c8f92100fb71e5993e1d197577b7053",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-07.zip"
+    },
+    {
+      "archive_path": "spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-08.zip",
+      "bytes": 454643,
+      "covers": [
+        "2026-08-01",
+        "2026-08-31"
+      ],
+      "sha256": "85b174d0c091ab904341f1cce2f31fd88ebd0f10631678238756aa72d5d9897a",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/5m/BTCUSDT-5m-2026-08.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-01.zip",
+      "bytes": 15526,
+      "covers": [
+        "2026-09-01",
+        "2026-09-01"
+      ],
+      "sha256": "f36e1fb61463aef6ca44fbba5293c5bfb0ea1d9ed1bb060901d5b5d6b2a89d08",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-01.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-02.zip",
+      "bytes": 15372,
+      "covers": [
+        "2026-09-02",
+        "2026-09-02"
+      ],
+      "sha256": "0335641b7744f563a425abeb4ab4181c19868b12450d29c6bcf4b5aae7a55d46",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-02.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-03.zip",
+      "bytes": 15722,
+      "covers": [
+        "2026-09-03",
+        "2026-09-03"
+      ],
+      "sha256": "cd383e32b18d03884c7b5a56af669845fc0fcb7c72a0034a4741e57ff7ef2d4c",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-03.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-04.zip",
+      "bytes": 15499,
+      "covers": [
+        "2026-09-04",
+        "2026-09-04"
+      ],
+      "sha256": "d31ad11d93394fcd39a3ef045a47bdcc30c4d661fc37e9e83f627dbdffe938ee",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-04.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-05.zip",
+      "bytes": 14879,
+      "covers": [
+        "2026-09-05",
+        "2026-09-05"
+      ],
+      "sha256": "c05155706701290ed95ac87a50a75da45ad6c110504045a54967712f993eb3c8",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-05.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-06.zip",
+      "bytes": 14945,
+      "covers": [
+        "2026-09-06",
+        "2026-09-06"
+      ],
+      "sha256": "4dd9400c225b8a416eb9975a42221429ceb777c1a429922182301a9ac3a857ad",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-06.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-07.zip",
+      "bytes": 15342,
+      "covers": [
+        "2026-09-07",
+        "2026-09-07"
+      ],
+      "sha256": "4ff22f84912c9dcfdd177e2d5e4b8a6c673c3f6c002e7af2f352c1763d6be434",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-07.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-08.zip",
+      "bytes": 15456,
+      "covers": [
+        "2026-09-08",
+        "2026-09-08"
+      ],
+      "sha256": "222ea168db185e41eeb6196fccedee6cde88896243cdb788ff41ca2ca9efbeb2",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-08.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-09.zip",
+      "bytes": 15503,
+      "covers": [
+        "2026-09-09",
+        "2026-09-09"
+      ],
+      "sha256": "39a3ed27fd9feb36848600bc6d3ee4b7a1eae687580be8697e41ddf10f5e6342",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-09.zip"
+    },
+    {
+      "archive_path": "spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-10.zip",
+      "bytes": 15407,
+      "covers": [
+        "2026-09-10",
+        "2026-09-10"
+      ],
+      "sha256": "0ad49a8062a7486e77d866f90e2e55594d71cea8c46ee663fb8cfaca6a8a32e2",
+      "upstream_checksum_verified": true,
+      "url": "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/5m/BTCUSDT-5m-2026-09-10.zip"
+    }
+  ],
+  "schema_version": "lab-observation-v1",
+  "source": "binance_public_archive",
+  "symbol": "BTCUSDT",
+  "window": {
+    "end_inclusive": "2026-09-10",
+    "start": "2020-01-01"
+  }
+}

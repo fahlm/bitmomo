@@ -34,3 +34,6 @@ pnpm-debug.log*
 # Temporary files
 *.tmp
 *.temp
+
+# Intelligence Lab local data (never committed; manifests are committed instead)
+research/lab/.data/

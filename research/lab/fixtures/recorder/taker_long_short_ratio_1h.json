@@ -1,0 +1,24 @@
+{
+  "provenance": "synthetic: shaped from the Binance USD-M public API documentation (field names/types); NOT a live capture - fapi.binance.com is DNS-blocked on the authoring network. Replace with `bitmomo-lab record --capture-fixtures` output from an unblocked host.",
+  "status": 200,
+  "body": [
+    {
+      "buySellRatio": "0.9500",
+      "buyVol": "410.5000",
+      "sellVol": "432.1000",
+      "timestamp": 1789718400000
+    },
+    {
+      "buySellRatio": "1.0000",
+      "buyVol": "411.5000",
+      "sellVol": "432.1000",
+      "timestamp": 1789722000000
+    },
+    {
+      "buySellRatio": "1.0500",
+      "buyVol": "412.5000",
+      "sellVol": "432.1000",
+      "timestamp": 1789725600000
+    }
+  ]
+}
