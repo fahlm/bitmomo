@@ -308,7 +308,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
           <?php foreach ( $bm_library_posts as $bm_post ) :
             $bm_post_id = (int) $bm_post->ID;
             $bm_classification = bitmomo_post_research_classification( $bm_post_id );
-            $bm_domain_label = 'ai-systems' === $bm_classification ? 'AI & INTELLIGENCE SYSTEMS' : 'MARKET RESEARCH';
+            $bm_domain_label = 'ai-systems' === $bm_classification ? 'SISTEM AI & INTELLIGENCE' : 'RISET PASAR';
             $bm_topic_label = bitmomo_post_research_topic_label( $bm_post_id );
             $bm_minutes = bitmomo_post_reading_minutes( $bm_post_id );
           ?>
