@@ -64,6 +64,19 @@ check('Canonical design-system layer exists and is runtime-required',
   assets.includes("'bitmomo-design-system'") &&
   runtime.includes('"assets/css/design-system.css"')
 );
+check('Canonical public typeface is self-hosted Archivo with no third-party font dependency',
+  design.includes('@font-face') &&
+  design.includes('font-family: "Archivo"') &&
+  design.includes('archivo-regular.woff2') &&
+  design.includes('archivo-medium.woff2') &&
+  design.includes('archivo-bold.woff2') &&
+  design.includes('archivo-extrabold.woff2') &&
+  design.includes('--bm-font-sans: "Archivo"') &&
+  runtime.includes('"assets/fonts/archivo/archivo-regular.woff2"') &&
+  runtime.includes('"assets/fonts/archivo/archivo-extrabold.woff2"') &&
+  !assets.includes('fonts.googleapis.com')
+);
+
 check('Institutional homepage layer exists, is loaded, and is runtime-required',
   fs.existsSync(path.join(theme, 'assets/css/home.css')) &&
   assets.includes('assets/css/home.css') &&
@@ -273,9 +286,9 @@ check('BTC market-context shell is server-stable and series are not color-only',
   btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
 );
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes integrated public + Telegram runtime and 127 managed files',
-  runtime.includes('"expected_file_count": 127') &&
-  runtime.includes('"expected_file_count": 48') &&
+check('Runtime manifest includes integrated public + Telegram runtime and 131 managed files',
+  runtime.includes('"expected_file_count": 131') &&
+  runtime.includes('"expected_file_count": 52') &&
   runtime.includes('"expected_file_count": 14') &&
   runtime.includes('"expected_file_count": 29') &&
   runtime.includes('"assets/css/home.css"') &&
