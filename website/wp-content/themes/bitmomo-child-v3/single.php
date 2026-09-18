@@ -74,8 +74,8 @@ get_header();
       <footer class="bm-article-foot">
         <?php if ( $bm_is_research ) : ?>
           <aside class="bm-article-standard" aria-label="<?php esc_attr_e( 'Standar riset Bitmomo', 'bitmomo' ); ?>">
-            <span>RESEARCH STANDARD</span>
-            <p><strong>Evidence before narrative.</strong> Bukti, konteks, batas tesis, dan metode evaluasi harus tetap dapat ditelusuri ketika kesimpulan diuji ulang.</p>
+            <span>STANDAR RISET</span>
+            <p><strong>Bukti sebelum narasi.</strong> Bukti, konteks, batas tesis, dan metode evaluasi harus tetap dapat ditelusuri ketika kesimpulan diuji ulang.</p>
             <a href="<?php echo esc_url( $bm_research_url . '#research-standard' ); ?>">Lihat standar riset →</a>
           </aside>
           <a class="bm-article-back" href="<?php echo esc_url( $bm_research_url ); ?>">← Kembali ke Bitmomo Research</a>
