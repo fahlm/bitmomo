@@ -60,7 +60,7 @@ class Bitmomo_Pro_Sales {
 	public function enqueue_assets() {
 		global $post;
 		if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ) {
-			wp_enqueue_style( 'bitmomo-pro-sales', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-sales.css', array(), self::SALES_ASSET_VERSION );
+			wp_enqueue_style( 'bitmomo-pro-public', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-public.bundle.css', array(), self::SALES_ASSET_VERSION );
 		}
 	}
 
