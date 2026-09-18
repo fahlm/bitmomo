@@ -148,7 +148,7 @@ check( 'What changed is capped and humanized', false !== strpos( $html, 'Bias be
 check( 'Public trust metadata is concise', false !== strpos( $html, '13 Sep 2026 · 03:10 WIB' ) && false !== strpos( $html, 'Sumber data: Binance + Bybit' ) );
 check( '30-day context shows direction only', false !== strpos( $html, 'Bullish 2' ) && false !== strpos( $html, 'Netral 1' ) && false !== strpos( $html, 'Bearish 1' ) );
 check( '30-day context does not expose regime or classifier internals', false === strpos( $html, 'classifier-secret' ) );
-check( 'Decision Ledger includes wins, misses and unscored records instead of success-only rows', false !== strpos( $html, 'TANPA PILIH-PILIH HASIL' ) && false !== strpos( $html, 'SESUAI' ) && false !== strpos( $html, 'TIDAK SESUAI' ) && false !== strpos( $html, 'BELUM DINILAI' ) );
+check( 'Decision Ledger includes wins, misses and unscored records instead of success-only rows', false !== strpos( $html, 'SEMUA HASIL' ) && false !== strpos( $html, 'SESUAI' ) && false !== strpos( $html, 'TIDAK SESUAI' ) && false !== strpos( $html, 'BELUM DINILAI' ) );
 check( 'Decision Ledger shows frozen-time view and forward outcome', false !== strpos( $html, '$64,000' ) && false !== strpos( $html, '+1.42%' ) );
 check( 'Decision Ledger does not dump internal methodology IDs', false === strpos( $html, 'observed-close-24h-v2' ) );
 check( 'Track record uses current methodology outcome only', false !== strpos( $html, 'Akurasi 62.9%' ) && false !== strpos( $html, 'Akurasi 63.0%' ) && false === strpos( $html, '11.1%' ) );
@@ -159,7 +159,7 @@ check( 'Track record is sample-first rather than percentage-first', false !== $s
 check( 'Track record explains why sample comes first', false !== strpos( $html, 'Jumlah hasil konklusif ditampilkan lebih dulu' ) );
 check( 'Track record describes exact +24h evaluation', false !== strpos( $html, 'Aturan hasil tepat +24 jam' ) );
 check( 'Legacy methodology is disclosed without dumping identifiers', false !== strpos( $html, 'Versi lama dipertahankan untuk audit' ) );
-check( 'Delayed Pro proof exposes a real historical decision contract', false !== strpos( $html, 'FROM THE PRO ARCHIVE' ) && false !== strpos( $html, 'BTC bertahan di atas support' ) && false !== strpos( $html, 'Thesis batal jika support utama gagal dipertahankan' ) );
+check( 'Delayed Pro proof exposes a real historical decision contract', false !== strpos( $html, 'DARI ARSIP PRO' ) && false !== strpos( $html, 'BTC bertahan di atas support' ) && false !== strpos( $html, 'Thesis batal jika support utama gagal dipertahankan' ) );
 check( 'Delayed Pro proof exposes actual settled outcome and range result', false !== strpos( $html, '+1.11%' ) && false !== strpos( $html, 'Range tercapai: YA' ) );
 check( 'Delayed Pro proof is explicitly historical and time-delayed', false !== strpos( $html, 'TERTUNDA ≥ 48 JAM' ) && false !== strpos( $html, 'Arsip historis · bukan panduan saat ini' ) );
 check( 'Internal evaluation diagnostics still do not render', false === strpos( $html, 'Settlement complete' ) && false === strpos( $html, 'Stale rate' ) && false === strpos( $html, 'Confidence vs akurasi' ) );
