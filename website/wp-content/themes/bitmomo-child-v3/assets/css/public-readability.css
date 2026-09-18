@@ -197,13 +197,13 @@
 
 .bm-pro-sales .bm-wl__submit {
   background: var(--bm-action) !important;
-  color: #0b1620 !important;
+  color: var(--bm-bg) !important;
 }
 
 .bm-pro-sales .bm-wl__submit:hover,
 .bm-pro-sales .bm-wl__submit:focus-visible {
   background: var(--bm-action-hover) !important;
-  color: #0b1620 !important;
+  color: var(--bm-bg) !important;
 }
 
 /* Homepage layer loads later; extra .home specificity makes the semantic floor
