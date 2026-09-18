@@ -40,7 +40,7 @@ check(
     '--bm-type-support: 13px;',
     '--bm-type-meta: 12px;',
     '--bm-type-micro: 11px;',
-    '--bm-type-dense: 10px;',
+    '--bm-type-dense: 11px;',
   ]) &&
   !readability.includes('--bm-type-micro:') &&
   !readability.includes('--bm-type-dense:') &&
@@ -65,7 +65,7 @@ check(
     '.bm-home-brief__panel > span',
     '.bm-home-evidence__eyebrow',
     '.bm-home-ledger__verdict',
-    'font-size: var(--bm-type-dense, 10px);',
+    'font-size: var(--bm-type-dense, 11px);',
     '.bm-home-range__marker b',
     '.bm-home-scenarios article > span',
     '.bm-home-research__meta',
