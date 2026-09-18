@@ -501,7 +501,7 @@
 .bm-home-ledger__list div > span {
   display: block;
   color: var(--bm-text-subtle, #7f8b98);
-  font-size: var(--bm-type-dense, 10px);
+  font-size: var(--bm-type-dense, 11px);
   line-height: 1.4;
 }
 
@@ -523,7 +523,7 @@
   border: 1px solid rgba(255,255,255,.10);
   border-radius: 6px;
   color: var(--bm-text-muted, #98a4b1);
-  font-size: var(--bm-type-dense, 10px);
+  font-size: var(--bm-type-dense, 11px);
   font-weight: 800;
   white-space: nowrap;
 }
@@ -611,7 +611,7 @@
   left: 50%;
   transform: translateX(-50%);
   color: var(--bm-text-muted, #98a4b1);
-  font: 800 var(--bm-type-dense, 10px)/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font: 800 var(--bm-type-dense, 11px)/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   letter-spacing: .08em;
   white-space: nowrap;
 }

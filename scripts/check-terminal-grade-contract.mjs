@@ -52,6 +52,9 @@ const btcPage = read('website/wp-content/plugins/bitmomo-btc-intelligence/includ
 const btcAccountability = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-accountability.php');
 const btcMarketContext = read('website/wp-content/plugins/bitmomo-btc-intelligence/includes/class-bitmomo-btc-intelligence-market-context.php');
 const btcMarketCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/market-context-explorer.css');
+const btcPublicCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/bitmomo-btc-intelligence.css');
+const btcAccountabilityCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/accountability-surface.css');
+const btcCoverageCss = read('website/wp-content/plugins/bitmomo-btc-intelligence/assets/css/brief-coverage.css');
 const account = read('website/wp-content/plugins/bitmomo-pro/includes/class-bitmomo-pro-account.php');
 const runtime = read('config/production-runtime.json');
 
@@ -61,6 +64,22 @@ check('Canonical design-system layer exists and is runtime-required',
   assets.includes("'bitmomo-design-system'") &&
   runtime.includes('"assets/css/design-system.css"')
 );
+check('Canonical public typeface is self-hosted Archivo with no third-party font dependency',
+  design.includes('@font-face') &&
+  design.includes('font-family: "Archivo"') &&
+  design.includes('archivo-regular.woff2') &&
+  design.includes('archivo-medium.woff2') &&
+  design.includes('archivo-bold.woff2') &&
+  design.includes('archivo-extrabold.woff2') &&
+  design.includes('--bm-font-sans: "Archivo"') &&
+  runtime.includes('"assets/fonts/archivo/archivo-regular.woff2"') &&
+  runtime.includes('"assets/fonts/archivo/archivo-extrabold.woff2"') &&
+  !design.includes('fonts.googleapis.com') &&
+  !design.includes('fonts.gstatic.com') &&
+  assets.includes("wp_dequeue_style('hello-elementor-fonts')") &&
+  assets.includes("add_filter('elementor/frontend/print_google_fonts','__return_false',99)")
+);
+
 check('Institutional homepage layer exists, is loaded, and is runtime-required',
   fs.existsSync(path.join(theme, 'assets/css/home.css')) &&
   assets.includes('assets/css/home.css') &&
@@ -270,9 +289,9 @@ check('BTC market-context shell is server-stable and series are not color-only',
   btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
 );
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes integrated public + Telegram runtime and 127 managed files',
-  runtime.includes('"expected_file_count": 127') &&
-  runtime.includes('"expected_file_count": 48') &&
+check('Runtime manifest includes integrated public + Telegram runtime and 131 managed files',
+  runtime.includes('"expected_file_count": 131') &&
+  runtime.includes('"expected_file_count": 52') &&
   runtime.includes('"expected_file_count": 14') &&
   runtime.includes('"expected_file_count": 29') &&
   runtime.includes('"assets/css/home.css"') &&
@@ -286,6 +305,34 @@ check('Runtime manifest includes integrated public + Telegram runtime and 127 ma
   runtime.includes('assets/js/market-context-explorer.js') &&
   runtime.includes('assets/css/market-context-explorer.css') &&
   runtime.includes('assets/css/accountability-surface.css')
+);
+
+const btcCssBundle = [btcPublicCss, btcAccountabilityCss, btcCoverageCss, btcMarketCss].join('\n');
+const btcSub11 = [
+  ...[...btcCssBundle.matchAll(/font-size\s*:\s*([0-9.]+)px/gi)].filter((match) => Number(match[1]) < 11),
+  ...[...btcCssBundle.matchAll(/font\s*:\s*(?:[0-9]+\s+)?([0-9.]+)px\//gi)].filter((match) => Number(match[1]) < 11),
+];
+check('BTC public typography has an enforced 11px minimum literal size',
+  design.includes('--bm-type-dense: 11px') && btcSub11.length === 0
+);
+check('BTC numeric rendering uses tabular figures and a true minus sign',
+  btcPublicCss.includes('font-variant-numeric:tabular-nums') &&
+  btcPage.includes("$value < 0 ? '−' : ''") &&
+  btcPage.includes('number_format_i18n( abs( $value ), 2 )')
+);
+check('Decision Ledger exposes a narrow-screen scroll affordance',
+  btcPage.includes('Geser horizontal untuk melihat semua kolom.') &&
+  btcAccountabilityCss.includes('.bm-bi__scroll-hint{display:block}')
+);
+check('Runtime-injected 30D history count has a safe CSS fallback',
+  btcPage.includes('--bm-bi-history-count:') &&
+  btcPublicCss.includes('var(--bm-bi-history-count,30)')
+);
+check('AI dashboard styles load only when a public AI shortcode is actually present',
+  aiMain.includes("has_shortcode($content, 'bitmomo_market_insights')") &&
+  aiMain.includes("has_shortcode($content, 'bitmomo_bitcoin_signal')") &&
+  aiMain.includes("has_shortcode($content, 'bitmomo_ai_dashboard')") &&
+  !aiMain.includes("if (!is_singular() && !is_front_page() && !is_home()) return;")
 );
 
 check('Account flow has no pre-checkout dead end and renders human dates',

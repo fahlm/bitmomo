@@ -311,7 +311,18 @@ final class Bitmomo_AI_Plugin {
     }
 
     public static function enqueue_assets() {
-        if (!is_singular() && !is_front_page() && !is_home()) return;
+        global $post;
+
+        if (!is_a($post, 'WP_Post')) return;
+
+        $content = (string) $post->post_content;
+        $has_public_ai_surface =
+            has_shortcode($content, 'bitmomo_market_insights') ||
+            has_shortcode($content, 'bitmomo_bitcoin_signal') ||
+            has_shortcode($content, 'bitmomo_ai_dashboard');
+
+        if (!$has_public_ai_surface) return;
+
         wp_enqueue_style('bitmomo-ai', BITMOMO_AI_URL . 'assets/css/frontend.css', [], BITMOMO_AI_VERSION);
         wp_enqueue_style('bitmomo-ai-dashboard-layout', BITMOMO_AI_URL . 'assets/css/dashboard-layout.css', ['bitmomo-ai'], BITMOMO_AI_VERSION);
         wp_enqueue_style('bitmomo-ai-audience-dashboard', BITMOMO_AI_URL . 'assets/css/audience-dashboard.css', ['bitmomo-ai-dashboard-layout'], BITMOMO_AI_VERSION);

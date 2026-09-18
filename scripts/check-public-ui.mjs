@@ -100,12 +100,26 @@ async function collectMetrics(page) {
       try { return new URL(link.href).pathname.includes('/category/tren-ai/'); }
       catch { return false; }
     });
+    const focusable = [...document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')]
+      .filter((element) => visible(element) && !element.disabled && element.getAttribute('aria-hidden') !== 'true');
+    const firstFocusable = focusable[0] || null;
+    const unlabeledNavCount = [...document.querySelectorAll('nav')].filter((nav) => {
+      const ariaLabel = (nav.getAttribute('aria-label') || '').trim();
+      const labelledBy = (nav.getAttribute('aria-labelledby') || '').trim();
+      return !ariaLabel && !labelledBy;
+    }).length;
 
     const articleBody = document.querySelector('.bm-article-body');
     const articleBodyRect = articleBody && visible(articleBody) ? articleBody.getBoundingClientRect() : null;
     const articleBodyStyle = articleBodyRect ? getComputedStyle(articleBody) : null;
     const articleMeta = document.querySelector('.bm-article-meta');
     const articleEyebrow = document.querySelector('.bm-article .bm-public-eyebrow');
+    const bodyFontFamily = document.body ? getComputedStyle(document.body).fontFamily : '';
+    const stylesheetCount = document.querySelectorAll('link[rel="stylesheet"]').length;
+    const btcTextSizes = [...document.querySelectorAll('.bm-bi *')]
+      .filter((element) => visible(element) && (element.textContent || '').trim())
+      .map((element) => parseFloat(getComputedStyle(element).fontSize))
+      .filter((size) => Number.isFinite(size) && size > 0);
 
     return {
       clientWidth: document.documentElement.clientWidth,
@@ -116,6 +130,9 @@ async function collectMetrics(page) {
       firstH1Top: firstH1Rect ? firstH1Rect.top : null,
       firstH1FontSize: firstH1Style ? parseFloat(firstH1Style.fontSize) : null,
       title: document.title,
+      bodyFontFamily,
+      stylesheetCount,
+      btcMinTextPx: btcTextSizes.length ? Math.min(...btcTextSizes) : null,
       navLinks,
       proNavCount,
       legacySubscribeModalCount: document.querySelectorAll('#bm-subscribe-modal').length,
@@ -129,6 +146,9 @@ async function collectMetrics(page) {
       whatsappSurfaceCount: whatsappSurfaces.length,
       visibleWhatsappSurfaceCount: whatsappSurfaces.filter(visible).length,
       legacyTrenAiLinkCount: legacyTrenAiLinks.length,
+      skipLinkCount: document.querySelectorAll('a.bm-skip-link[href="#primary"]').length,
+      firstFocusableIsSkipLink: !!firstFocusable && firstFocusable.classList.contains('bm-skip-link'),
+      unlabeledNavCount,
       homeResearchLabels: [...document.querySelectorAll('.bm-research .bm-research-category, .bm-home-research__meta strong')].map((el) => (el.textContent || '').trim()),
       homeResearchItems: document.querySelectorAll('.bm-research .bm-research-item, .bm-home-research__item').length,
       article: {
@@ -238,6 +258,9 @@ try {
       if (metrics.missingFragmentTargets.length) addFailure(surface, viewport, `links target missing same-page anchors: ${metrics.missingFragmentTargets.join(', ')}`);
       if (metrics.emptyLinks.length) addFailure(surface, viewport, `empty href links: ${metrics.emptyLinks.join(', ')}`);
       if (metrics.legacyTrenAiLinkCount !== 0) addFailure(surface, viewport, `legacy /category/tren-ai/ trust-path link returned (${metrics.legacyTrenAiLinkCount})`);
+      if (metrics.skipLinkCount !== 1) addFailure(surface, viewport, `expected exactly one skip link to #primary, found ${metrics.skipLinkCount}`);
+      if (!metrics.firstFocusableIsSkipLink) addFailure(surface, viewport, 'first anonymous focus target is not the skip link');
+      if (metrics.unlabeledNavCount !== 0) addFailure(surface, viewport, `found ${metrics.unlabeledNavCount} nav landmark(s) without an accessible name`);
       if (bodyText.includes('Subscribe email sementara tidak tersedia.')) addFailure(surface, viewport, 'public broken-newsletter capability message is visible');
       if (bodyText.includes('Decision View aktif hari ini') || bodyText.includes('Decision View BTC, aktif setiap hari.')) addFailure(surface, viewport, 'static live-state Pro claim returned despite fail-closed product contract');
 
@@ -250,6 +273,12 @@ try {
       if (surface.active) {
         const activeLabels = metrics.navLinks.filter((link) => link.current === 'page').map((link) => link.text);
         if (!activeLabels.includes(surface.active)) addFailure(surface, viewport, `missing aria-current for ${surface.active}; active=${activeLabels.join(', ') || 'none'}`);
+      }
+
+      if (surface.name === 'btc-intelligence' && viewport.width === 390) {
+        if (metrics.stylesheetCount > 3) addFailure(surface, viewport, `anonymous stylesheet count ${metrics.stylesheetCount}; maximum is 3`);
+        if (!/Archivo/i.test(metrics.bodyFontFamily || '')) addFailure(surface, viewport, `body font is not self-hosted Archivo: ${metrics.bodyFontFamily || 'unknown'}`);
+        if (metrics.btcMinTextPx !== null && metrics.btcMinTextPx < 11) addFailure(surface, viewport, `BTC Intelligence renders text below 11px: ${metrics.btcMinTextPx}px`);
       }
 
       if (releaseProfile === 'whitelist' && ['home', 'pro'].includes(surface.name)) {

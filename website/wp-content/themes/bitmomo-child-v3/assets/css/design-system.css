@@ -7,6 +7,35 @@
  * compose these tokens, but must not redefine the Bitmomo brand foundation.
  */
 
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo/archivo-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo/archivo-medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo/archivo-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo/archivo-extrabold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
 
@@ -50,7 +79,7 @@
   --bm-radius-lg: 14px;
   --bm-radius-xl: 18px;
 
-  --bm-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --bm-font-sans: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --bm-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --bm-type-display: clamp(44px, 5.2vw, 68px);
   --bm-type-page-title: clamp(34px, 5vw, 58px);
@@ -63,7 +92,7 @@
   --bm-type-support: 13px;
   --bm-type-meta: 12px;
   --bm-type-micro: 11px;
-  --bm-type-dense: 10px;
+  --bm-type-dense: 11px;
   --bm-leading-tight: 1.08;
   --bm-leading-title: 1.16;
   --bm-leading-body: 1.68;

@@ -36,18 +36,18 @@
 .bm-bi__history .bm-bi__section-head h2{font-size:clamp(18px,2.2vw,23px)}
 .bm-bi__ledger .bm-bi__section-head h2{font-size:clamp(17px,2vw,21px)}
 .bm-bi__track-record .bm-bi__section-head h2{font-size:15px;letter-spacing:-.01em}
-.bm-bi__track-record .bm-bi__eyebrow{margin-bottom:4px;font-size:8px;letter-spacing:.11em}
-.bm-bi__track-record .bm-bi__section-kicker{font-size:8px}
+.bm-bi__track-record .bm-bi__eyebrow{margin-bottom:4px;font-size:var(--bm-type-micro,11px);letter-spacing:.11em}
+.bm-bi__track-record .bm-bi__section-kicker{font-size:var(--bm-type-micro,11px)}
 .bm-bi__ledger .bm-bi__section-intro{
   max-width:760px;
   margin:6px 0 10px;
-  font-size:11px;
+  font-size:var(--bm-type-meta,12px);
   line-height:1.48
 }
 .bm-bi__track-record .bm-bi__section-intro{
   max-width:760px;
   margin:6px 0 9px;
-  font-size:10px;
+  font-size:var(--bm-type-meta,12px);
   line-height:1.45
 }
 
@@ -61,20 +61,28 @@
   background:rgba(7,12,18,.54)
 }
 .bm-bi__history-bars span{height:24px;border-radius:2px;opacity:.9}
-.bm-bi__history-summary{gap:12px;margin-top:7px;font-size:9px}
-.bm-bi__history-summary small{font-size:8px}
+.bm-bi__history-summary{gap:12px;margin-top:7px;font-size:var(--bm-type-micro,11px)}
+.bm-bi__history-summary small{font-size:var(--bm-type-micro,11px)}
 
 /* Result-neutral badge, visually factual rather than defensive. */
 .bm-bi__ledger .bm-bi__audit-badge{
   min-height:24px;
   padding:0 8px;
   border-radius:5px;
-  font:800 8px/1 var(--bmi-mono);
+  font:800 var(--bm-type-micro,11px)/1 var(--bmi-mono);
   letter-spacing:.07em;
   white-space:nowrap
 }
 
 /* The ledger is an inspectable viewport: all records remain present and scrollable. */
+.bm-bi__scroll-hint{
+  display:none;
+  margin:6px 0 8px;
+  color:var(--bm-text-subtle-readable,#7f8b98);
+  font-family:var(--bm-font-sans,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif);
+  font-size:var(--bm-type-micro,11px);
+  line-height:1.45
+}
 .bm-bi__ledger-wrap{
   max-height:292px;
   overflow:auto;
@@ -82,7 +90,7 @@
   border-radius:7px;
   overscroll-behavior:contain
 }
-.bm-bi__ledger-table{min-width:700px;font-size:10px}
+.bm-bi__ledger-table{min-width:700px;font-size:var(--bm-type-meta,12px)}
 .bm-bi__ledger-table th{
   position:sticky;
   top:0;
@@ -92,11 +100,11 @@
   box-shadow:0 1px 0 var(--bmi-border)
 }
 .bm-bi__ledger-table td{padding:8px 10px}
-.bm-bi__ledger-table td:first-child{font-size:9px}
-.bm-bi__ledger-table td:first-child small{margin-top:2px;font-size:7.5px}
-.bm-bi__ledger-table td:nth-child(2) strong{font-size:10px}
-.bm-bi__verdict{min-height:21px;padding:0 6px;font-size:7.5px}
-.bm-bi__ledger .bm-bi__micro-note{margin-top:7px;font-size:8.5px;line-height:1.45}
+.bm-bi__ledger-table td:first-child{font-size:var(--bm-type-micro,11px)}
+.bm-bi__ledger-table td:first-child small{margin-top:2px;font-size:var(--bm-type-micro,11px)}
+.bm-bi__ledger-table td:nth-child(2) strong{font-size:var(--bm-type-meta,12px)}
+.bm-bi__verdict{min-height:21px;padding:0 6px;font-size:var(--bm-type-micro,11px)}
+.bm-bi__ledger .bm-bi__micro-note{margin-top:7px;font-size:var(--bm-type-meta,12px);line-height:1.45}
 
 /* Replace four oversized score cards with a dense KPI strip. */
 .bm-bi__track-record .bm-bi__proof-grid{
@@ -123,11 +131,11 @@
   background:#0c1219
 }
 .bm-bi__track-record .bm-bi__proof-metric:first-child{border-left:0}
-.bm-bi__track-record .bm-bi__proof-metric>span{font-size:8.5px}
+.bm-bi__track-record .bm-bi__proof-metric>span{font-size:var(--bm-type-micro,11px)}
 .bm-bi__track-record .bm-bi__proof-metric strong{margin-top:4px;font-size:16px}
-.bm-bi__track-record .bm-bi__proof-metric small{margin-top:4px;font-size:7.5px;line-height:1.35}
+.bm-bi__track-record .bm-bi__proof-metric small{margin-top:4px;font-size:var(--bm-type-meta,12px);line-height:1.35}
 .bm-bi__track-record .bm-bi__micro-note,
-.bm-bi__track-record .bm-bi__history-policy{margin-top:7px;font-size:8.5px;line-height:1.45}
+.bm-bi__track-record .bm-bi__history-policy{margin-top:7px;font-size:var(--bm-type-meta,12px);line-height:1.45}
 .bm-bi__track-record .bm-bi__history-policy{padding-top:7px}
 
 @media(max-width:860px){
@@ -162,6 +170,7 @@
   }
   .bm-bi__ledger .bm-bi__audit-badge{margin-left:0;align-self:flex-start}
   .bm-bi__ledger .bm-bi__section-head h2{max-width:26ch}
+  .bm-bi__scroll-hint{display:block}
   .bm-bi__ledger-wrap{max-height:260px}
   .bm-bi__history-summary small{width:auto;margin-left:auto}
 }
