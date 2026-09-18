@@ -26,6 +26,7 @@ from typing import Any, Mapping
 
 import pyarrow as pa
 
+from bitmomo_lab.engines.registry import EngineSpec
 from bitmomo_lab.store.pit import PITFrame, assert_pit
 
 
@@ -109,20 +110,20 @@ class EngineResult:
 
 
 class Engine(abc.ABC):
-    name: str
-    version: str
-    required_inputs: tuple[str, ...]
+    """An engine sees only a Snapshot (PIT views at the cutoff) and a resolver."""
+
+    spec: EngineSpec
 
     @abc.abstractmethod
     def compute(self, snapshot: Snapshot, resolver: InputResolver) -> Mapping[str, Any]: ...
 
     def run(self, snapshot: Snapshot, mode: Mode = Mode.STRICT) -> EngineResult:
-        missing = [name for name in self.required_inputs if name not in snapshot.inputs]
+        missing = [name for name in self.spec.required_inputs if name not in snapshot.inputs]
         if missing:
-            raise KeyError(f"{self.name}: snapshot lacks required inputs {missing}")
+            raise KeyError(f"{self.spec.engine_id}: snapshot lacks required inputs {missing}")
         resolver = InputResolver(mode)
         output = self.compute(snapshot, resolver)
         return EngineResult(
-            self.name, self.version, mode, snapshot.cutoff, output,
+            self.spec.engine_id, self.spec.engine_version, mode, snapshot.cutoff, output,
             tuple(resolver.missing), tuple(resolver.flags),
         )

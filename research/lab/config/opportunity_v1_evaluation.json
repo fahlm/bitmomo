@@ -1,0 +1,30 @@
+{
+  "evaluation_id": "opportunity-v1-eval-v1",
+  "registered_on": "2026-09-18",
+  "engine_id": "opportunity-v1-py",
+  "mode": "strict",
+  "input_manifest": "manifests/binance_um_klines_5m__BTCUSDT__2020-01-01__2026-09-10.json",
+  "cadence_seconds": 900,
+  "replay_start": "2020-01-01T00:00:00Z",
+  "replay_end_inclusive": "2026-09-10T18:00:00Z",
+  "entry": {
+    "price": "close of the last closed 5m candle at the cutoff",
+    "delay_seconds": 0
+  },
+  "horizons_minutes": [15, 30, 60, 120, 240, 360],
+  "excursion_thresholds_pct": [0.2, 0.3, 0.5],
+  "primary_cell": {"horizon_minutes": 60, "threshold_pct": 0.3},
+  "segments": {
+    "development": ["2020-01-01T00:00:00Z", "2023-01-01T00:00:00Z"],
+    "validation": ["2023-01-01T00:00:00Z", "2024-07-01T00:00:00Z"],
+    "holdout": ["2024-07-01T00:00:00Z", "2026-09-10T18:15:00Z"]
+  },
+  "purge_seconds": 21600,
+  "walk_forward": {"scheme": "expanding", "fold_unit": "calendar_year", "first_test_year": 2021},
+  "bootstrap": {"unit": "utc_day", "resamples": 200, "seed": 20260918},
+  "notes": [
+    "Holdout rows may be read only by evaluation, never by fitting code (enforced by DevelopmentSlice).",
+    "Opportunity V1 has no fitted parameters; fitting applies only to baselines (fixed-threshold states).",
+    "Purge = longest horizon (6h): rows whose outcome window crosses a segment end are excluded from that segment."
+  ]
+}

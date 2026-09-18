@@ -13,6 +13,7 @@ from bitmomo_lab.engines.contract import (
     Snapshot,
     StrictModeViolation,
 )
+from bitmomo_lab.engines.registry import EngineSpec
 from bitmomo_lab.store.parquet import ParityContaminationError, write_dataset
 from bitmomo_lab.store.pit import PITFrame
 
@@ -22,7 +23,8 @@ from conftest import us, utc
 class FundingEcho(Engine):
     """Toy engine mirroring the PHP pattern `(float) ($axis['funding_rate'] ?? 0)`."""
 
-    name, version, required_inputs = "funding-echo", "test", ("funding",)
+    spec = EngineSpec("funding-echo", "test", "test", ("funding",), {}, "1 row", {"funding_rate": "float|null"},
+                      {}, "php: (float) ($axis['funding_rate'] ?? 0)")
 
     def compute(self, snapshot, resolver):
         rows = snapshot.inputs["funding"]
