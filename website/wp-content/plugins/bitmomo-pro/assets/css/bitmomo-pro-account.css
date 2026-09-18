@@ -17,7 +17,7 @@
 .bm-pro-account__eyebrow {
 	margin: 0 0 8px;
 	color: var(--bm-teal);
-	font: 800 11px/1.35 var(--bm-font-mono);
+	font:800 11px/1.35 var(--bm-font-mono);
 	letter-spacing: .12em;
 }
 
@@ -111,7 +111,7 @@
 .bm-pro-account__badge {
 	display: inline-block;
 	padding: 2px 10px;
-	border-radius: 999px;
+	border-radius:var(--bm-radius-xl);
 	font-size: .8rem;
 	font-weight: 700;
 }
@@ -160,7 +160,7 @@
 .bm-pro-account__support a:hover,
 .bm-pro-account__support a:focus-visible { color: var(--bm-link-hover); }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
 	.bm-pro-account { padding-inline: var(--bm-shell-gutter-mobile); }
 	.bm-pro-account__gate,
 	.bm-pro-account__status { padding: 18px; }
