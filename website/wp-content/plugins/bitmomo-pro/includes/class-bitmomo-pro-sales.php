@@ -236,13 +236,13 @@ class Bitmomo_Pro_Sales {
 			array( 'Kondisi BTC sekarang', 'Ya', 'Ya' ),
 			array( 'Bias & Confidence', 'Ya', 'Ya' ),
 			array( 'Apa yang berubah · ringkas', 'Ya', 'Ya' ),
-			array( 'Why It Matters', 'Ya', 'Ya' ),
-			array( '1 konteks What to Watch', 'Ya', 'Ya' ),
+			array( 'Mengapa penting', 'Ya', 'Ya' ),
+			array( '1 konteks pantauan', 'Ya', 'Ya' ),
 			array( 'Pemantauan lengkap', '—', 'Ya' ),
 			array( 'Expected Range', '—', 'Ya' ),
 			array( 'Base / Bull / Bear', '—', 'Ya' ),
 			array( 'Kondisi invalidasi tesis', '—', 'Ya' ),
-			array( 'Public Decision Ledger', 'Ya', 'Ya' ),
+			array( 'Decision Ledger publik', 'Ya', 'Ya' ),
 		);
 		?>
 		<section class="bm-pro-sales__comparison" aria-labelledby="bm-pro-comparison-title">
