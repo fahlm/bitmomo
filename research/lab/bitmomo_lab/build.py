@@ -53,7 +53,8 @@ def manifest_name(dataset: str, symbol: str, start: dt.date, end: dt.date) -> st
 
 
 def body_sha256(manifest: dict) -> str:
-    body = {k: v for k, v in manifest.items() if k != "manifest_body_sha256"}
+    # "execution" holds per-run facts (wall clock, duration) and is deliberately unhashed.
+    body = {k: v for k, v in manifest.items() if k not in ("manifest_body_sha256", "execution")}
     return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 

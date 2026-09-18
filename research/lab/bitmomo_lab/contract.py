@@ -44,6 +44,10 @@ class AvailabilityBasis(str, enum.Enum):
     EVENT_PLUS_DECLARED_LAG = "event_plus_declared_lag"
     # Forward recorder: the moment our own process received the response.
     RECEIVED_AT = "received_at"
+    # Engine output: knowable at the decision cutoff it was computed for.
+    ENGINE_CUTOFF = "engine_cutoff"
+    # Outcome label: knowable only once the longest settled horizon has elapsed.
+    SETTLEMENT_COMPLETE = "settlement_complete"
 
 
 # Columns every normalized observation table must contain.

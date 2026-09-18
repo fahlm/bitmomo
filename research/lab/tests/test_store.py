@@ -68,3 +68,10 @@ def test_load_verified_rejects_tampered_data(tmp_path):
     pq.write_table(tampered, path)
     with pytest.raises(IntegrityError):
         load_verified(path, content)
+
+
+def test_content_hash_supports_booleans_with_nulls():
+    a = pa.table({"b": pa.array([True, None, False])})
+    b = pa.table({"b": pa.array([True, False, False])})
+    assert content_sha256(a) == content_sha256(pa.table({"b": pa.array([True, None, False])}))
+    assert content_sha256(a) != content_sha256(b)

@@ -1,0 +1,80 @@
+{
+  "registry_version": 1,
+  "rules": [
+    "Hypotheses are registered and committed before the evaluation that tests them is run.",
+    "A hypothesis is never edited after its evaluation; a changed idea gets a new id.",
+    "Reports state how many hypotheses and descriptive cells were evaluated."
+  ],
+  "hypotheses": [
+    {
+      "id": "H-OPP-001",
+      "registered_on": "2026-09-18",
+      "engine": "opportunity-v1-py",
+      "statement": "Opportunity V1 orders future movement: event rate HIGH > NORMAL > LOW for an absolute excursion >= 0.30% within +1h.",
+      "features": ["state"],
+      "horizon_minutes": 60,
+      "success_criterion": "Strict ordering HIGH > NORMAL > LOW holds in the holdout segment AND in every calendar year 2020-2026.",
+      "evaluation": "opportunity-v1-eval-v1"
+    },
+    {
+      "id": "H-OPP-002",
+      "registered_on": "2026-09-18",
+      "engine": "opportunity-v1-py",
+      "statement": "activity_percentile discriminates >= 0.30% excursions within +1h out of sample.",
+      "features": ["activity_percentile"],
+      "horizon_minutes": 60,
+      "success_criterion": "Holdout AUC >= 0.70.",
+      "evaluation": "opportunity-v1-eval-v1"
+    },
+    {
+      "id": "H-OPP-003a",
+      "registered_on": "2026-09-18",
+      "engine": "opportunity-v1-py",
+      "statement": "The 14-day adaptive percentile does not lose ranking information versus the raw trailing 60m range.",
+      "features": ["activity_percentile", "baseline:range_60m_pct"],
+      "horizon_minutes": 60,
+      "success_criterion": "Holdout AUC(activity_percentile) >= AUC(range_60m_pct) - 0.01 at +1h / 0.30%.",
+      "evaluation": "opportunity-v1-eval-v1"
+    },
+    {
+      "id": "H-OPP-003b",
+      "registered_on": "2026-09-18",
+      "engine": "opportunity-v1-py",
+      "statement": "Adaptive states are more stable out of sample than fixed thresholds fitted on development data.",
+      "features": ["state", "baseline:fixed_quartile_state"],
+      "horizon_minutes": 60,
+      "success_criterion": "In the holdout, |share(HIGH) - 25%| + |share(LOW) - 25%| is smaller for Opportunity V1 than for the development-fitted fixed-quartile baseline.",
+      "evaluation": "opportunity-v1-eval-v1"
+    },
+    {
+      "id": "H-OPP-004",
+      "registered_on": "2026-09-18",
+      "engine": "opportunity-v1-py",
+      "statement": "Opportunity V1 beats a naive recent-move baseline (|60m return|).",
+      "features": ["activity_percentile", "baseline:abs_return_60m"],
+      "horizon_minutes": 60,
+      "success_criterion": "Holdout AUC(activity_percentile) > AUC(abs_return_60m) at +1h / 0.30%.",
+      "evaluation": "opportunity-v1-eval-v1"
+    },
+    {
+      "id": "H-OPP-005",
+      "registered_on": "2026-09-18",
+      "engine": "opportunity-v1-py",
+      "statement": "The ordering survives volatility regimes.",
+      "features": ["state", "context:vol_context_v1"],
+      "horizon_minutes": 60,
+      "success_criterion": "Strict ordering HIGH > NORMAL > LOW at +1h / 0.30% within each of the low / normal / high volatility buckets in the holdout.",
+      "evaluation": "opportunity-v1-eval-v1"
+    },
+    {
+      "id": "H-OPP-006",
+      "registered_on": "2026-09-18",
+      "engine": "opportunity-v1-py",
+      "statement": "The platform reproduces the published P0.2C Opportunity event-rate tables.",
+      "features": ["state"],
+      "horizon_minutes": [15, 30, 60, 120],
+      "success_criterion": "Each of the 12 full-sample cells (3 states x 4 horizons) and each of the 21 yearly +1h cells is within +/-1.0 percentage point of docs/research/btc-mode/P02C_MULTIYEAR_TACTICAL_REPLAY_V0.md; every miss is explained.",
+      "evaluation": "opportunity-v1-eval-v1"
+    }
+  ]
+}

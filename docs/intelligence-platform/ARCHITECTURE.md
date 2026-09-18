@@ -1,6 +1,6 @@
-# Bitmomo Intelligence Lab — Architecture (Wave 1, as of M0)
+# Bitmomo Intelligence Lab — Architecture (Wave 1, as of M1)
 
-Status: M0 implemented on `research/intelligence-platform-v2`. Research only.
+Status: M0 accepted; M1 (first engine vertical slice, Opportunity V1) implemented. Research only.
 Code: `research/lab/` (package `bitmomo_lab`). Brief: [WAVE1_BRIEF.md](WAVE1_BRIEF.md).
 
 ## Scope decisions recorded for Wave 1 (Fahmi, 2026-09-18)
@@ -28,12 +28,45 @@ store/              deterministic Parquet writer + content hash + strict-only gu
                     PITFrame.as_of(T) = the only read path
 build.py            acquire -> normalize -> assemble -> validate -> store -> manifest
 recorder/           forward-only public-REST recorder (manual), raw envelopes, revisions
-engines/contract.py engine plug-in boundary, Snapshot, strict / production_parity modes
-cli.py              bitmomo-lab build | verify | coverage | record | recorder-gaps
+engines/contract.py Snapshot, InputResolver, strict / production_parity modes, Engine base
+engines/registry.py EngineSpec (id, version, methodology, inputs, features, min history,
+                    output schema, parameters, source ref) + a dict registry — no plugin framework
+engines/opportunity_v1.py  parity port of the PHP calculator + equivalent batch evaluator
+replay/runner.py    manifest-verified inputs -> engine -> immutable records -> run manifest
+outcomes/settlement.py     forward path labels (+15m..+6h), available only after settlement
+features/           evaluation-side features (abs_return_60m, vol_context_v1) and the
+                    metrics timestamp-semantics guard
+evaluate/           metrics (rank AUC, bootstrap), splits (segments, purge, walk-forward,
+                    DevelopmentSlice guard), opportunity study, report renderer, pipeline
+registry/           pre-registered hypotheses + historical references (parity oracles)
+config/             locked evaluation plans
+cli.py              build | verify | coverage | equivalence | replay | opportunity-study |
+                    record | recorder-gaps
 ```
 
-Planned (not yet built): `features/` (feature registry, M2), `engines/opportunity_v1.py` (M2),
-`replay/`, `outcomes/`, `evaluate/` (M3), `registry/` hypotheses (M3), `php-harness/` (M2).
+Ownership boundary: the lab owns data truth, PIT access, deterministic features, engine
+execution, settlement, evaluation and reproducibility. Each engine owns its methodology in
+one module (`engines/<engine>.py`) plus its `EngineSpec`. A second engine adds a module, a
+spec and an evaluator entry in `replay/runner.py`, with no storage redesign. Engines never
+import `outcomes` or `evaluate` (enforced by test).
+
+Not yet built: `php-harness/` (needs a PHP CLI; parity is currently proven by ported PHP
+test vectors plus hand-derived vectors).
+
+## M1 execution path
+
+```
+manifest (verified) -> PITFrame -> Snapshot.build(T) / BatchEvaluator (invariant-checked,
+64-cutoff cross-check) -> engine output -> immutable record (lineage, hashes, mode)
+-> run manifest (logical hash excludes computed_at)       [.data/intelligence | .data/parity]
+                    settlement (available_at = T + 6h) -> outcomes dataset [.data/outcomes]
+records x outcomes -> segments / walk-forward / baselines / bootstrap -> JSON + Markdown
+```
+
+Records: one row per cutoff with `event_time = available_at = cutoff`, engine identity,
+parameters hash, status/state/values, `error_code`, `quality_flags`, `evidence_coverage`,
+`output_json`, `output_sha256`, `record_sha256` (independent of code commit and wall clock),
+`code_commit`, `computed_at`. Run manifests live in `research/lab/runs/`.
 
 ## Canonical observation contract (`contract.py`)
 
@@ -64,13 +97,20 @@ Enforcement:
 4. Tests (`tests/test_pit.py`): candle not yet closed, late-arriving row, revised row,
    incomplete→complete observation, non-ok exclusion, naive-datetime rejection, a direct
    leak-guard test, and a randomized test of 200 cutoffs checked against a brute-force oracle.
+5. Integer cutoffs must be epoch **microseconds**. Anything smaller is refused, because a
+   seconds value silently selected nothing during M1 development (caught by tests).
+6. Outcomes are settled into rows with `available_at = cutoff + 6h`. An engine handed the
+   outcome table sees nothing for its own cutoff, and engine modules may not import
+   `outcomes`/`evaluate` (`tests/test_settlement.py`).
+7. Batch replay paths must prove the close-boundary invariant before running, and are
+   cross-checked against per-cutoff `Snapshot` evaluation on every real run.
 
 ### Source-specific `available_at` rules
 
 | Dataset | `event_time` | `available_at` | Basis |
 |---|---|---|---|
 | klines, mark/index/premium klines (5m) | open time | open + 5m (close boundary) | matches production (`close_time <= cutoff`) |
-| `metrics` (5m) | `create_time` as stamped. It marks the period **end** until 2024-02 and the period **start** from 2024-03 ([M0_SOURCE_COVERAGE §4.1](M0_SOURCE_COVERAGE.md)) | create_time + 5m + **5m declared lag** (≥ period end in both eras) | archive publication latency unobserved; replace with recorder-measured latency. OI/ratio values ≤ 0 are sentinels, nulled and listed in `invalid_value_fields` |
+| `metrics` (5m) | `create_time` as stamped; per-day `timestamp_semantics` (period_end / period_start / UNVERIFIED) via `features/metrics_semantics.py`. It marks the period **end** until 2024-02 and the period **start** from 2024-03 ([M0_SOURCE_COVERAGE §4.1](M0_SOURCE_COVERAGE.md)) | create_time + 5m + **5m declared lag** (≥ period end in both eras) | archive publication latency unobserved; replace with recorder-measured latency. OI/ratio values ≤ 0 are sentinels, nulled and listed in `invalid_value_fields` |
 | `fundingRate` | `calc_time` (±1 ms jitter kept) | calc_time + **5m declared lag** | settled rate cannot precede settlement |
 | recorder (all) | exchange timestamp | `received_at` | observed |
 
