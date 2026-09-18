@@ -233,7 +233,8 @@ class Bitmomo_Btc_Intelligence_Page {
 			return '—';
 		}
 		$value = (float) $value;
-		return ( $value > 0 ? '+' : '' ) . number_format_i18n( $value, 2 ) . '%';
+		$sign  = $value > 0 ? '+' : ( $value < 0 ? '−' : '' );
+		return $sign . number_format_i18n( abs( $value ), 2 ) . '%';
 	}
 
 	private function verdict_label( $verdict ) {
@@ -616,6 +617,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<?php if ( ! $rows ) : ?>
 				<?php $this->render_blocked_boundary( __( 'Belum ada hasil yang sudah dapat dievaluasi untuk Decision Ledger.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
+				<p class="bm-bi__scroll-hint"><?php esc_html_e( 'Geser horizontal untuk melihat semua kolom.', 'bitmomo-btc-intelligence' ); ?></p>
 				<div class="bm-bi__ledger-wrap" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Decision Ledger BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<table class="bm-bi__ledger-table">
 						<thead><tr><th>WAKTU</th><th>ARAH</th><th>CONF.</th><th>BTC</th><th>+24H</th><th>HASIL</th></tr></thead>
