@@ -153,9 +153,15 @@
   .bm-bi__ledger,
   .bm-bi__track-record{padding-left:12px;padding-right:12px}
   .bm-bi__history .bm-bi__section-head,
-  .bm-bi__ledger .bm-bi__section-head,
   .bm-bi__track-record .bm-bi__section-head{flex-direction:row;align-items:flex-start}
-  .bm-bi__ledger .bm-bi__audit-badge{margin-left:auto}
+  .bm-bi__ledger .bm-bi__section-head{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    align-items:flex-start
+  }
+  .bm-bi__ledger .bm-bi__audit-badge{margin-left:0;align-self:flex-start}
+  .bm-bi__ledger .bm-bi__section-head h2{max-width:26ch}
   .bm-bi__ledger-wrap{max-height:260px}
   .bm-bi__history-summary small{width:auto;margin-left:auto}
 }
@@ -165,14 +171,7 @@
   .bm-bi__history-bars{height:34px;padding:5px 6px}
   .bm-bi__history-bars span{height:22px}
   .bm-bi__history-summary{gap:8px}
-  .bm-bi__ledger .bm-bi__section-head{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    align-items:flex-start
-  }
-  .bm-bi__ledger .bm-bi__audit-badge{margin-left:0;align-self:flex-start}
-  .bm-bi__ledger .bm-bi__section-head h2{max-width:18ch}
+  .bm-bi__ledger .bm-bi__section-head h2{max-width:none}
   .bm-bi__ledger-wrap{max-height:244px}
   .bm-bi__track-record .bm-bi__proof-metric{flex-basis:min(190px,78vw)}
 }
