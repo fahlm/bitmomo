@@ -96,11 +96,11 @@ if ( ! $bm_research_items ) {
   <div class="bm-container">
     <header class="bm-home-research__head">
       <div>
-        <span class="bm-home-research__eyebrow"><?php esc_html_e( 'RESEARCH DESK', 'bitmomo' ); ?></span>
+        <span class="bm-home-research__eyebrow"><?php esc_html_e( 'DESK RISET', 'bitmomo' ); ?></span>
         <h2 id="bm-home-research-title"><?php esc_html_e( 'Riset yang membentuk cara Bitmomo membaca pasar.', 'bitmomo' ); ?></h2>
         <p><?php esc_html_e( 'Publikasi terbaru dari desk riset pasar Bitmomo. Fokusnya bukan berita harian, melainkan tesis yang dapat diuji terhadap data dan hasil berikutnya.', 'bitmomo' ); ?></p>
       </div>
-      <a class="bm-home-research__all" href="<?php echo esc_url( $bm_riset_url ); ?>"><?php esc_html_e( 'Buka Research Hub →', 'bitmomo' ); ?></a>
+      <a class="bm-home-research__all" href="<?php echo esc_url( $bm_riset_url ); ?>"><?php esc_html_e( 'Buka Pusat Riset →', 'bitmomo' ); ?></a>
     </header>
 
     <ol class="bm-home-research__list">
