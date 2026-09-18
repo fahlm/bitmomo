@@ -240,7 +240,7 @@
   margin-top: 1px;
   border-radius:var(--bm-radius-md);
   background: var(--bm-action, #f4ad32) !important;
-  color: #111827 !important;
+  color: var(--bm-bg-elevated) !important;
   font-size: 13px;
   font-weight:800;
   letter-spacing: .015em;
@@ -249,7 +249,7 @@
 .bm-wl-home .bm-wl__submit:hover,
 .bm-wl-home .bm-wl__submit:focus-visible {
   background: var(--bm-action-hover, #ffc15a) !important;
-  color: #111827 !important;
+  color: var(--bm-bg-elevated) !important;
 }
 
 .bm-wl-home .bm-wl__note {
@@ -339,7 +339,7 @@
   justify-content: center;
   border-radius:var(--bm-radius-md);
   background: var(--bm-action, #f4ad32);
-  color: #111827;
+  color: var(--bm-bg-elevated);
   font-size: 13px;
   font-weight:800;
 }
