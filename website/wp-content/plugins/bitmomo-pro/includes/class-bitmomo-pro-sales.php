@@ -143,7 +143,7 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section id="pro-product" class="bm-pro-sales__section--editorial bm-pro-sales__today" aria-labelledby="bm-pro-today-title">
 			<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'YANG SUDAH TERSEDIA SEKARANG', 'bitmomo-pro' ); ?></p>
-			<h2 id="bm-pro-today-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Apa yang terlihat di contoh itu adalah produk inti Bitmomo Pro.', 'bitmomo-pro' ); ?></h2>
+			<h2 id="bm-pro-today-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Inilah komponen inti Bitmomo Pro yang tersedia pada analisis yang memenuhi standar data.', 'bitmomo-pro' ); ?></h2>
 			<p class="bm-pro-sales__lead"><?php esc_html_e( 'Pro memperluas BTC Intelligence menjadi Expected Range, Scenario Map, invalidasi tesis, dan pemantauan lengkap. Analisis hanya ditampilkan ketika data memenuhi standar kualitas Bitmomo.', 'bitmomo-pro' ); ?></p>
 			<div class="bm-pro-sales__deliverables">
 				<div><span>01</span><strong><?php esc_html_e( 'Expected Range', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Rentang harga acuan berdasarkan kondisi pasar ketika analisis dibuat.', 'bitmomo-pro' ); ?></p></div>
@@ -170,10 +170,23 @@ class Bitmomo_Pro_Sales {
 		?>
 		<section id="pro-example" class="bm-pro-sales__product-proof" aria-labelledby="bm-pro-example-title">
 			<div class="bm-pro-sales__proof-head">
-				<div><p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'BUKTI PRODUK', 'bitmomo-pro' ); ?></p><h2 id="bm-pro-example-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Lihat bentuk Decision View-nya sebelum membaca daftar fitur.', 'bitmomo-pro' ); ?></h2></div>
-				<span class="bm-pro-sales__proof-badge"><?php esc_html_e( 'ARSIP ≥ 48 JAM', 'bitmomo-pro' ); ?></span>
+				<div>
+					<p class="bm-pro-sales__eyebrow"><?php esc_html_e( 'BUKTI PRODUK', 'bitmomo-pro' ); ?></p>
+					<h2 id="bm-pro-example-title" class="bm-pro-sales__section-title">
+						<?php echo esc_html( $row
+							? __( 'Lihat Decision View historis yang sudah dapat dievaluasi.', 'bitmomo-pro' )
+							: __( 'Bukti historis hanya ditampilkan setelah memenuhi syarat evaluasi.', 'bitmomo-pro' )
+						); ?>
+					</h2>
+				</div>
+				<span class="bm-pro-sales__proof-badge"><?php echo esc_html( $row ? __( 'ARSIP ≥ 48 JAM', 'bitmomo-pro' ) : __( 'BELUM ADA ROW VALID', 'bitmomo-pro' ) ); ?></span>
 			</div>
-			<p class="bm-pro-sales__section-intro"><?php esc_html_e( 'Contoh di bawah hanya menggunakan analisis Pro historis yang telah melewati periode publikasi tertunda dan evaluasi hasil. Analisis Pro aktif tidak ditampilkan pada halaman publik.', 'bitmomo-pro' ); ?></p>
+			<p class="bm-pro-sales__section-intro">
+				<?php echo esc_html( $row
+					? __( 'Contoh di bawah menggunakan analisis Pro historis yang telah melewati periode publikasi tertunda dan evaluasi hasil. Analisis Pro aktif tidak ditampilkan pada halaman publik.', 'bitmomo-pro' )
+					: __( 'Bitmomo tidak membuat contoh sintetis. Bagian ini akan menampilkan Decision View historis hanya setelah ada analisis Pro yang benar-benar melewati periode tunda dan evaluasi.', 'bitmomo-pro' )
+				); ?>
+			</p>
 			<?php if ( $row ) :
 				$published = $this->format_wib( $row['published_at'] ?? '' );
 				$state = sanitize_key( (string) ( $row['market_state'] ?? '' ) );
