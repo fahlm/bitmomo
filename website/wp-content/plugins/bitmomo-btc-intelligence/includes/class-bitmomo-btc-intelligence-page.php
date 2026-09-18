@@ -610,9 +610,9 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section id="decision-ledger" class="bm-bi__section bm-bi__ledger" aria-labelledby="bm-bi-ledger-title">
 			<div class="bm-bi__section-head">
 				<div><p class="bm-bi__eyebrow">DECISION LEDGER</p><h2 id="bm-bi-ledger-title"><?php esc_html_e( 'Apa yang kami katakan. Apa yang terjadi.', 'bitmomo-btc-intelligence' ); ?></h2></div>
-				<?php if ( $rows ) : ?><span class="bm-bi__audit-badge"><?php esc_html_e( 'TANPA PILIH-PILIH HASIL', 'bitmomo-btc-intelligence' ); ?></span><?php endif; ?>
+				<?php if ( $rows ) : ?><span class="bm-bi__audit-badge"><?php esc_html_e( 'SEMUA HASIL', 'bitmomo-btc-intelligence' ); ?></span><?php endif; ?>
 			</div>
-			<p class="bm-bi__section-intro"><?php esc_html_e( 'Ledger menampilkan catatan matang terbaru lintas versi evaluasi. Karena versi lama tidak dicampur ke scorecard aktif, jumlah baris ledger tidak harus sama dengan jumlah sampel scorecard di bawah.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__section-intro"><?php esc_html_e( 'Semua analisis yang sudah mencapai periode evaluasi ditampilkan di sini—termasuk yang hasilnya tidak sesuai. Versi evaluasi lama tetap terlihat, tetapi tidak dicampur ke statistik aktif.', 'bitmomo-btc-intelligence' ); ?></p>
 			<?php if ( ! $rows ) : ?>
 				<?php $this->render_blocked_boundary( __( 'Belum ada hasil yang sudah dapat dievaluasi untuk Decision Ledger.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
