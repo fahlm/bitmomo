@@ -51,7 +51,7 @@
 .bm-home-infrastructure__group-label {
   margin: 0 0 10px;
   color: var(--bm-text-subtle, #7f8b98);
-  font-size: 9px;
+  font-size:var(--bm-type-micro,11px);
   line-height: 1.3;
   letter-spacing: .12em;
 }
@@ -74,11 +74,11 @@
   gap: 9px;
   padding: 6px 11px;
   border: 1px solid rgba(255,255,255,.08);
-  border-radius: 7px;
+  border-radius:var(--bm-radius-md);
   background: rgba(255,255,255,.018);
   color: var(--bm-text-secondary, #b7c0ca);
   font-size: 12px;
-  font-weight: 760;
+  font-weight:800;
   line-height: 1;
   white-space: nowrap;
 }
@@ -131,7 +131,7 @@
   line-height: 1.5;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .bm-home-infrastructure {
     padding: 20px 0 22px;
   }
@@ -151,7 +151,7 @@
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .bm-home-infrastructure__brands {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
