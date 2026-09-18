@@ -96,7 +96,7 @@
   top:0;
   z-index:2;
   padding:8px 10px;
-  background:#101821;
+  background:var(--bm-bg-soft);
   box-shadow:0 1px 0 var(--bmi-border)
 }
 .bm-bi__ledger-table td{padding:8px 10px}
@@ -128,7 +128,7 @@
   border:0;
   border-left:1px solid var(--bmi-border-soft);
   border-radius:0;
-  background:#0c1219
+  background:var(--bm-bg-elevated)
 }
 .bm-bi__track-record .bm-bi__proof-metric:first-child{border-left:0}
 .bm-bi__track-record .bm-bi__proof-metric>span{font-size:var(--bm-type-micro,11px)}
