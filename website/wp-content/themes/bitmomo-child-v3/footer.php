@@ -30,15 +30,15 @@ $bm_footer_groups = array(
     ),
   ),
   array(
-    'label' => __( 'RESEARCH', 'bitmomo' ),
-    'aria'  => __( 'Research', 'bitmomo' ),
+    'label' => __( 'RISET', 'bitmomo' ),
+    'aria'  => __( 'Riset', 'bitmomo' ),
     'links' => array(
       array(
-        'label' => __( 'Market Research', 'bitmomo' ),
+        'label' => __( 'Riset Pasar', 'bitmomo' ),
         'url'   => home_url( '/category/riset/' ),
       ),
       array(
-        'label' => __( 'AI Research', 'bitmomo' ),
+        'label' => __( 'Riset AI', 'bitmomo' ),
         'url'   => add_query_arg( 'focus', 'systems', home_url( '/category/riset/' ) ),
       ),
       array(
