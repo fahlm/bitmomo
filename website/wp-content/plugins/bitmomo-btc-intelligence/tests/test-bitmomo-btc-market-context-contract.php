@@ -158,6 +158,11 @@ market_context_check(
 	false === strpos( $css, '.bm-mc__series-button:disabled{cursor:default;opacity:.54}' )
 );
 market_context_check(
+	'Loading state keeps comparison controls at full opacity while preventing interaction',
+	false !== strpos( $css, '.bm-mc.is-loading .bm-mc__controls{opacity:1;pointer-events:none}' ) &&
+	false === strpos( $css, '.bm-mc.is-loading .bm-mc__controls{opacity:.62;pointer-events:none}' )
+);
+market_context_check(
 	'Active-series summary is intrinsic and does not render the old empty three-column grid',
 	false !== strpos( $css, '.bm-mc__legend{' ) &&
 	false !== strpos( $css, 'display:flex;' ) &&

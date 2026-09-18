@@ -364,7 +364,7 @@
 }
 .bm-mc__unavailable strong{color:#c8d4e0;font-size:14px}
 .bm-mc__unavailable span{max-width:440px;line-height:1.55}
-.bm-mc.is-loading .bm-mc__controls{opacity:.62;pointer-events:none}
+.bm-mc.is-loading .bm-mc__controls{opacity:1;pointer-events:none}
 
 /* Active-series summary. Flex avoids the old empty-grid-cell visual gap. */
 .bm-mc__legend{
