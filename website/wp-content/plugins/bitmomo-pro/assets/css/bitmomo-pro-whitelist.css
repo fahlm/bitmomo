@@ -107,7 +107,7 @@
 	border: 0;
 	border-radius: var(--bm-radius-md);
 	background: var(--bm-action);
-	color: #0b1620;
+	color: var(--bm-bg);
 	font-size: .95rem;
 	font-weight: 800;
 	cursor: pointer;
@@ -116,7 +116,7 @@
 .bm-wl__submit:hover,
 .bm-wl__submit:focus-visible {
 	background: var(--bm-action-hover);
-	color: #0b1620;
+	color: var(--bm-bg);
 }
 
 .bm-wl__submit:disabled {
