@@ -151,6 +151,14 @@ function bitmomo_should_noindex_public_view() {
     return false;
 }
 
+/** Public search is publication discovery, not a site-wide dump of utility/legal pages. */
+function bitmomo_scope_public_search_to_posts($query) {
+    if (is_admin() || !is_object($query) || !$query->is_main_query() || !$query->is_search()) return;
+    $query->set('post_type', 'post');
+    $query->set('post_status', 'publish');
+}
+add_action('pre_get_posts', 'bitmomo_scope_public_search_to_posts', 5);
+
 function bitmomo_research_filter_robots($robots) {
     if (bitmomo_is_qualified_research_post()) {
         unset($robots['noindex'], $robots['nofollow']);
