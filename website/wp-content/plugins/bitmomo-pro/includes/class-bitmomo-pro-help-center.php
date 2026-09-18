@@ -138,9 +138,9 @@ class Bitmomo_Pro_Help_Center {
 				),
 			),
 			'ai-lab-decentralized-ai' => array(
-				'title' => 'Intelligence Systems Research',
+				'title' => 'Riset Sistem AI',
 				'items' => array(
-					self::q( 'apa-itu-ai-lab', 'Apa itu Intelligence Systems Research Bitmomo?', array( 'Ini adalah R&D layer Bitmomo yang meneliti teknologi dan pendekatan AI yang dapat meningkatkan kualitas intelligence system yang kami bangun.', 'Fokus riset mencakup antara lain:', 'Decentralized AI<br>Agent Systems<br>AI Evaluation', 'Tujuannya bukan menambah buzzword, tetapi memahami bagaimana reliability, transparency, model diversity, dan verifiability dapat ditingkatkan.' ) ),
+					self::q( 'apa-itu-ai-lab', 'Apa itu Riset Sistem AI Bitmomo?', array( 'Ini adalah area riset Bitmomo untuk menguji teknologi dan pendekatan AI yang dapat meningkatkan kualitas sistem analisis yang kami bangun.', 'Fokus riset mencakup antara lain:', 'Decentralized AI<br>Agent Systems<br>AI Evaluation', 'Tujuannya bukan menambah istilah teknis, tetapi menguji kapan teknologi AI benar-benar meningkatkan keandalan, transparansi, keragaman model, dan kemampuan evaluasi.' ) ),
 					self::q( 'mengapa-decentralized-ai', 'Mengapa Bitmomo meneliti decentralized AI?', array( 'Sistem AI tertutup dapat berubah dari waktu ke waktu—baik dari sisi model, behavior, pricing, maupun kebijakan—tanpa memberikan pengguna visibilitas penuh terhadap apa yang berubah di balik sistem tersebut.', 'Untuk produk intelligence yang menuntut konsistensi dan accountability, ketergantungan pada black-box provider menciptakan risiko tersendiri.', 'Decentralized AI menawarkan pendekatan yang berbeda: lebih banyak transparansi terhadap model dan provider yang digunakan, kemungkinan membandingkan performa antar-model secara lebih terbuka, serta mekanisme insentif dan evaluasi yang dapat dibuat lebih auditable.', 'Tujuan riset kami bukan berasumsi bahwa decentralized AI selalu lebih baik daripada closed AI. Kami ingin memahami kapan arsitektur terdesentralisasi benar-benar dapat meningkatkan reliability, transparency, model diversity, dan verifiability dari sistem intelligence yang kami bangun.' ) ),
 					self::q( 'hubungan-ai-lab-dengan-pro', 'Apa hubungan Intelligence Systems Research dengan Bitmomo Pro?', array( 'Riset ini berfungsi sebagai R&D layer Bitmomo.', 'Jika suatu teknologi terbukti meningkatkan kualitas, consistency, transparency, atau kemampuan evaluasi sistem intelligence kami, teknologi tersebut dapat diadopsi ke produk Bitmomo di masa depan.' ) ),
 				),
@@ -156,28 +156,24 @@ class Bitmomo_Pro_Help_Center {
 	}
 
 	/**
-	 * Buying-objection FAQ for /pro (per the sellability redesign brief,
-	 * 2026-09-02). A prior frontend-completion sprint trimmed this list
-	 * from 10 items to 5 to keep /pro's FAQ a lean purchase aid. That
-	 * trim is reversed here: the redesign explicitly requires these 10
-	 * objection-handling topics -- covering the new AI Analysts/Watchtower
-	 * positioning, Founding Membership economics, and lapse/rejoin rules --
-	 * to sit directly on /pro rather than one click away at /help. General
-	 * product education not tied to a buying objection still lives only at
-	 * /help via render_pro_subset()'s "Lihat Help Center" link.
+	 * Buying-objection FAQ for /pro.
+	 *
+	 * Keep this list limited to capabilities and commercial terms that are
+	 * available now. Speculative roadmap items belong in internal planning,
+	 * not in the launch conversion surface.
 	 */
 	public static function pro_question_ids() {
 		return array(
 			'sinyal-buy-atau-sell',
 			'apa-itu-bitmomo-pro',
 			'free-vs-pro',
-			'apa-itu-11-ai-analysts',
-			'apa-itu-watchtower',
-			'apakah-analysts-tersedia',
+			'apa-itu-expected-range',
+			'apa-itu-scenario-map',
 			'apa-itu-founding-membership',
 			'apakah-founding-price-tetap',
+			'batalkan-kapan-saja',
+			'kebijakan-refund',
 			'berhenti-dan-bergabung-kembali',
-			'founders-mendapat-analysts-watchtower',
 		);
 	}
 
@@ -239,10 +235,10 @@ class Bitmomo_Pro_Help_Center {
 			<nav class="bm-help__related" aria-label="Tautan terkait">
 				<a href="<?php echo esc_url( home_url( '/pro/' ) ); ?>">Bitmomo Pro</a>
 				<a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">BTC Intelligence</a>
-				<a href="<?php echo esc_url( $systems_url ); ?>">Intelligence Systems Research</a>
-				<a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>">Market Research</a>
-				<?php if ( $support_email ) : ?><a href="mailto:<?php echo esc_attr( $support_email ); ?>">Support</a><?php endif; ?>
-				<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>">Privacy</a>
+				<a href="<?php echo esc_url( $systems_url ); ?>">Riset Sistem AI</a>
+				<a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>">Riset Pasar</a>
+				<?php if ( $support_email ) : ?><a href="mailto:<?php echo esc_attr( $support_email ); ?>">Dukungan</a><?php endif; ?>
+				<a href="<?php echo esc_url( home_url( '/kebijakan-privasi/' ) ); ?>">Privasi</a>
 				<a href="<?php echo esc_url( home_url( '/disclaimer/' ) ); ?>">Disclaimer</a>
 			</nav>
 		</div>
