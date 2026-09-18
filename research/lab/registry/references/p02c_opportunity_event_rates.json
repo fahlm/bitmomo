@@ -1,0 +1,24 @@
+{
+  "classification": "historical_reference / parity_oracle",
+  "source_document": "docs/research/btc-mode/P02C_MULTIYEAR_TACTICAL_REPLAY_V0.md",
+  "transcribed_on": "2026-09-18",
+  "definition_in_source": "Share of 15-minute Opportunity evaluations (USD-M 5m, 14-day adaptive percentile) followed by an absolute BTC excursion >= 0.30% within the horizon. Entry price convention and exact excursion definition are not stated in the source.",
+  "full_sample_pct": {
+    "HIGH": {"15": 61.5, "30": 78.4, "60": 90.1, "120": 96.3},
+    "NORMAL": {"15": 33.2, "30": 53.6, "60": 73.4, "120": 88.2},
+    "LOW": {"15": 18.7, "30": 35.0, "60": 54.8, "120": 73.6}
+  },
+  "yearly_60m_pct": {
+    "2020": {"HIGH": 90.9, "NORMAL": 79.4, "LOW": 65.0},
+    "2021": {"HIGH": 98.9, "NORMAL": 96.5, "LOW": 93.1},
+    "2022": {"HIGH": 94.2, "NORMAL": 80.2, "LOW": 62.8},
+    "2023": {"HIGH": 79.9, "NORMAL": 53.9, "LOW": 29.9},
+    "2024": {"HIGH": 93.6, "NORMAL": 75.4, "LOW": 50.8},
+    "2025": {"HIGH": 86.6, "NORMAL": 62.8, "LOW": 36.2},
+    "2026": {"HIGH": 85.8, "NORMAL": 63.3, "LOW": 38.5}
+  },
+  "other_published_facts": {
+    "usdm_warmup_unavailable_observations": 1347,
+    "spot_usdm_state_agreement_pct": 96.2
+  }
+}

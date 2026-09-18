@@ -3,6 +3,8 @@
   bitmomo-lab build    --dataset binance_um_klines_5m --start 2020-01-01 --end 2026-09-10
   bitmomo-lab verify   --manifest manifests/<name>.json
   bitmomo-lab equivalence --metrics-manifest ... --klines-manifest ...
+  bitmomo-lab replay   --manifest manifests/<um klines>.json --start ... --end ...
+  bitmomo-lab opportunity-study [--config config/opportunity_v1_evaluation.json]
   bitmomo-lab coverage --prefix data/futures/um/daily/metrics/BTCUSDT/
   bitmomo-lab record   [--fixtures DIR] [--capture-fixtures DIR]
   bitmomo-lab recorder-gaps --endpoint taker_long_short_ratio_5m --start ... --end ...
@@ -62,6 +64,27 @@ def cmd_equivalence(args: argparse.Namespace) -> int:
     report = equivalence.metrics_vs_klines(pathlib.Path(args.metrics_manifest), pathlib.Path(args.klines_manifest),
                                            pathlib.Path(args.data_dir))
     print(json.dumps(report, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_replay(args: argparse.Namespace) -> int:
+    from bitmomo_lab.engines.contract import Mode
+    from bitmomo_lab.replay.runner import run_replay
+
+    manifest = run_replay(args.engine, [pathlib.Path(m) for m in args.manifest], _utc(args.start), _utc(args.end),
+                          args.cadence_seconds, Mode(args.mode), pathlib.Path(args.data_dir))
+    print(json.dumps({k: manifest[k] for k in ("run_id", "mode", "window", "outcome_counts", "output", "execution")},
+                     indent=2))
+    return 0
+
+
+def cmd_opportunity_study(args: argparse.Namespace) -> int:
+    from bitmomo_lab.evaluate.pipeline import opportunity_study
+
+    result = opportunity_study(pathlib.Path(args.config), pathlib.Path(args.data_dir))
+    print(json.dumps({"run_id": result["run"]["run_id"], "report": result["report_path"],
+                      "timings": result["timings"],
+                      "hypotheses": {h["id"]: h["result"] for h in result["hypotheses"]}}, indent=2))
     return 0
 
 
@@ -129,6 +152,19 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("coverage", help="list archive coverage for an S3 prefix")
     c.add_argument("--prefix", required=True)
     c.set_defaults(func=cmd_coverage)
+
+    rp = sub.add_parser("replay", help="run an engine over a manifest window (immutable records)")
+    rp.add_argument("--engine", default="opportunity-v1-py")
+    rp.add_argument("--manifest", action="append", required=True)
+    rp.add_argument("--start", required=True)
+    rp.add_argument("--end", required=True, help="inclusive last cutoff (UTC)")
+    rp.add_argument("--cadence-seconds", type=int, default=900)
+    rp.add_argument("--mode", default="strict", choices=["strict", "production_parity"])
+    rp.set_defaults(func=cmd_replay)
+
+    st = sub.add_parser("opportunity-study", help="manifest -> replay -> settle -> evaluate -> reports")
+    st.add_argument("--config", default=str(build_mod.LAB_ROOT / "config" / "opportunity_v1_evaluation.json"))
+    st.set_defaults(func=cmd_opportunity_study)
 
     e = sub.add_parser("equivalence", help="empirical metrics-archive vs kline semantics check")
     e.add_argument("--metrics-manifest", required=True)

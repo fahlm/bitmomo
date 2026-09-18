@@ -42,7 +42,12 @@ def _cutoff_us(cutoff: dt.datetime | int) -> int:
         if cutoff.tzinfo is None:
             raise ValueError("cutoff must be timezone-aware (UTC)")
         return int(cutoff.timestamp() * 1_000_000)
-    return int(cutoff)
+    value = int(cutoff)
+    # Integer cutoffs are epoch MICROSECONDS. A seconds or milliseconds value would silently
+    # select (almost) nothing, so anything below the microsecond magnitude is refused.
+    if value < 10**15:
+        raise ValueError(f"integer cutoff {value} is not epoch microseconds; pass a datetime or us")
+    return value
 
 
 def assert_pit(table: pa.Table, cutoff: dt.datetime | int) -> None:
@@ -102,6 +107,9 @@ def _latest_version(table: pa.Table) -> pa.Table:
     if "raw_ref" in table.column_names:
         order.append(("raw_ref", "descending"))
     ordered = table.sort_by(order)
+    groups = table.group_by(list(KEY_COLUMNS)).aggregate([("available_at", "count")])
+    if groups.num_rows == table.num_rows:  # no revisions: every key has exactly one version
+        return ordered
     keys = list(zip(*(ordered[c].to_pylist() for c in KEY_COLUMNS)))
     first = [0] + [i for i in range(1, len(keys)) if keys[i] != keys[i - 1]]
     if len(first) == ordered.num_rows:

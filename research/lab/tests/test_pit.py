@@ -85,6 +85,14 @@ def test_frame_exposes_no_unfiltered_table():
         f.extra = 1  # __slots__: no ad-hoc attributes
 
 
+def test_integer_cutoffs_must_be_microseconds():
+    f = frame([(us(2026, 9, 1), us(2026, 9, 1), 1.0)])
+    for wrong_unit in (1788220800, 1788220800000):  # seconds, milliseconds
+        with pytest.raises(ValueError, match="microseconds"):
+            f.as_of(wrong_unit)
+    assert f.as_of(us(2026, 9, 1)).num_rows == 1
+
+
 def test_naive_cutoff_is_rejected():
     f = frame([(us(2026, 9, 1), us(2026, 9, 1), 1.0)])
     with pytest.raises(ValueError):

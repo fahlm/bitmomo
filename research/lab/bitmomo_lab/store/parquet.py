@@ -106,6 +106,22 @@ def write_dataset(table: pa.Table, path: pathlib.Path) -> tuple[str, str]:
     return content_sha256(table), file_sha256(path)
 
 
+PARITY = b"production_parity"
+
+
+def write_parity_dataset(table: pa.Table, path: pathlib.Path) -> tuple[str, str]:
+    """Write a production-parity artifact. Only ever under a ``parity/`` directory."""
+    if "parity" not in path.parts:
+        raise ParityContaminationError(f"parity artifacts must live under a parity/ directory: {path}")
+    require_observation_fields(table)
+    table = table.replace_schema_metadata({STORE_MODE_KEY: PARITY})
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".partial")
+    pq.write_table(table, tmp, compression="zstd", compression_level=3, row_group_size=ROW_GROUP_SIZE)
+    tmp.replace(path)
+    return content_sha256(table), file_sha256(path)
+
+
 def read_dataset(path: pathlib.Path) -> pa.Table:
     table = pq.read_table(path, partitioning=None)
     guard_strict(table)
