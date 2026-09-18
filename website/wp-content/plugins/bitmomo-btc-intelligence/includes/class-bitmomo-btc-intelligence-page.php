@@ -610,15 +610,15 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section id="decision-ledger" class="bm-bi__section bm-bi__ledger" aria-labelledby="bm-bi-ledger-title">
 			<div class="bm-bi__section-head">
 				<div><p class="bm-bi__eyebrow">DECISION LEDGER</p><h2 id="bm-bi-ledger-title"><?php esc_html_e( 'Apa yang kami katakan. Apa yang terjadi.', 'bitmomo-btc-intelligence' ); ?></h2></div>
-				<?php if ( $rows ) : ?><span class="bm-bi__audit-badge"><?php esc_html_e( 'TANPA PILIH-PILIH HASIL', 'bitmomo-btc-intelligence' ); ?></span><?php endif; ?>
+				<?php if ( $rows ) : ?><span class="bm-bi__audit-badge"><?php esc_html_e( 'SEMUA HASIL', 'bitmomo-btc-intelligence' ); ?></span><?php endif; ?>
 			</div>
-			<p class="bm-bi__section-intro"><?php esc_html_e( 'Ledger menampilkan catatan matang terbaru lintas versi evaluasi. Karena versi lama tidak dicampur ke scorecard aktif, jumlah baris ledger tidak harus sama dengan jumlah sampel scorecard di bawah.', 'bitmomo-btc-intelligence' ); ?></p>
+			<p class="bm-bi__section-intro"><?php esc_html_e( 'Semua analisis yang sudah mencapai periode evaluasi ditampilkan di sini—termasuk yang hasilnya tidak sesuai. Versi evaluasi lama tetap terlihat, tetapi tidak dicampur ke statistik aktif.', 'bitmomo-btc-intelligence' ); ?></p>
 			<?php if ( ! $rows ) : ?>
 				<?php $this->render_blocked_boundary( __( 'Belum ada hasil yang sudah dapat dievaluasi untuk Decision Ledger.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
 				<div class="bm-bi__ledger-wrap" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Decision Ledger BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<table class="bm-bi__ledger-table">
-						<thead><tr><th>WAKTU</th><th>VIEW</th><th>CONF.</th><th>BTC</th><th>+24H</th><th>HASIL</th></tr></thead>
+						<thead><tr><th>WAKTU</th><th>ARAH</th><th>CONF.</th><th>BTC</th><th>+24H</th><th>HASIL</th></tr></thead>
 						<tbody>
 						<?php foreach ( $rows as $row ) :
 							$verdict = sanitize_key( (string) ( $row['verdict'] ?? 'unscored' ) );
@@ -652,11 +652,11 @@ class Bitmomo_Btc_Intelligence_Page {
 		$current = $active_version && isset( $versions[ $active_version ] ) ? $versions[ $active_version ] : array();
 		?>
 		<section class="bm-bi__section bm-bi__track-record" aria-labelledby="bm-bi-track-title">
-			<div class="bm-bi__section-head"><div><p class="bm-bi__eyebrow">AGGREGATE SCORECARD</p><h2 id="bm-bi-track-title"><?php esc_html_e( 'Track record', 'bitmomo-btc-intelligence' ); ?></h2></div><small class="bm-bi__section-kicker"><?php esc_html_e( 'Satu versi evaluasi aktif', 'bitmomo-btc-intelligence' ); ?></small></div>
+			<div class="bm-bi__section-head"><div><p class="bm-bi__eyebrow">RINGKASAN EVALUASI</p><h2 id="bm-bi-track-title"><?php esc_html_e( 'Rekam jejak', 'bitmomo-btc-intelligence' ); ?></h2></div><small class="bm-bi__section-kicker"><?php esc_html_e( 'Satu versi evaluasi aktif', 'bitmomo-btc-intelligence' ); ?></small></div>
 			<?php if ( ! is_array( $current ) || empty( $current ) || empty( $current['all']['n'] ) ) : ?>
 				<?php $this->render_blocked_boundary( __( 'Belum ada cukup hasil yang layak untuk diringkas.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
-				<p class="bm-bi__section-intro"><?php esc_html_e( 'Scorecard hanya menghitung record yang memakai kombinasi model, classifier, dan metode evaluasi yang sama. Record versi lama tetap ada di Decision Ledger tetapi tidak dicampur ke statistik aktif.', 'bitmomo-btc-intelligence' ); ?></p>
+				<p class="bm-bi__section-intro"><?php esc_html_e( 'Ringkasan aktif hanya menghitung catatan yang memakai versi model dan metode evaluasi yang sama. Catatan versi lama tetap ada di Decision Ledger tetapi tidak dicampur ke statistik aktif.', 'bitmomo-btc-intelligence' ); ?></p>
 				<p class="bm-bi__micro-note"><?php esc_html_e( 'Jumlah hasil konklusif ditampilkan lebih dulu agar ukuran sampel terlihat sebelum persentase akurasi.', 'bitmomo-btc-intelligence' ); ?></p>
 				<div class="bm-bi__proof-grid" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Ringkasan track record BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<?php $this->render_metric( __( 'Keseluruhan', 'bitmomo-btc-intelligence' ), $current['all'] ?? array() ); ?>
@@ -680,7 +680,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section id="pro-archive" class="bm-bi__section bm-bi__pro-archive" aria-labelledby="bm-bi-pro-archive-title">
 			<div class="bm-bi__section-head">
-				<div><p class="bm-bi__eyebrow">FROM THE PRO ARCHIVE</p><h2 id="bm-bi-pro-archive-title"><?php esc_html_e( 'Lihat decision support yang sudah kedaluwarsa.', 'bitmomo-btc-intelligence' ); ?></h2></div>
+				<div><p class="bm-bi__eyebrow">DARI ARSIP PRO</p><h2 id="bm-bi-pro-archive-title"><?php esc_html_e( 'Lihat analisis Pro historis yang sudah melewati masa tunda.', 'bitmomo-btc-intelligence' ); ?></h2></div>
 				<span class="bm-bi__delay-badge"><?php echo esc_html( sprintf( __( 'TERTUNDA ≥ %d JAM', 'bitmomo-btc-intelligence' ), $delay ) ); ?></span>
 			</div>
 			<p class="bm-bi__section-intro"><?php esc_html_e( 'Ini bukan contoh buatan. Ini brief Pro yang benar-benar pernah diterbitkan, disimpan dalam kondisi saat itu, lalu baru dibuka ke publik setelah nilainya tidak lagi sensitif terhadap waktu.', 'bitmomo-btc-intelligence' ); ?></p>
@@ -705,14 +705,14 @@ class Bitmomo_Btc_Intelligence_Page {
 							<div><span>CONFIDENCE</span><strong><?php echo esc_html( isset( $row['confidence'] ) ? (int) $row['confidence'] . '/100' : '—' ); ?></strong></div>
 							<div><span>HASIL +24H</span><strong><?php echo esc_html( $this->format_return( $return ) ); ?></strong></div>
 						</div>
-						<div class="bm-bi__archive-thesis"><span>BASE CASE</span><p><?php echo esc_html( (string) ( $row['base_scenario'] ?? '' ) ); ?></p></div>
+						<div class="bm-bi__archive-thesis"><span>SKENARIO BASE</span><p><?php echo esc_html( (string) ( $row['base_scenario'] ?? '' ) ); ?></p></div>
 						<div class="bm-bi__archive-thesis bm-bi__archive-thesis--invalidate"><span>INVALIDASI</span><p><?php echo esc_html( (string) ( $row['invalidation'] ?? '' ) ); ?></p></div>
 						<details class="bm-bi__archive-details">
 							<summary><?php esc_html_e( 'Lihat skenario historis lengkap', 'bitmomo-btc-intelligence' ); ?></summary>
 							<div class="bm-bi__archive-scenarios">
 								<?php if ( ! empty( $row['bull_scenario'] ) ) : ?><div><span>BULL</span><p><?php echo esc_html( (string) $row['bull_scenario'] ); ?></p></div><?php endif; ?>
 								<?php if ( ! empty( $row['bear_scenario'] ) ) : ?><div><span>BEAR</span><p><?php echo esc_html( (string) $row['bear_scenario'] ); ?></p></div><?php endif; ?>
-								<?php if ( ! empty( $row['what_changed'] ) ) : ?><div><span>WHAT CHANGED</span><p><?php echo esc_html( (string) $row['what_changed'] ); ?></p></div><?php endif; ?>
+								<?php if ( ! empty( $row['what_changed'] ) ) : ?><div><span>APA YANG BERUBAH</span><p><?php echo esc_html( (string) $row['what_changed'] ); ?></p></div><?php endif; ?>
 							</div>
 						</details>
 						<footer class="bm-bi__archive-outcome"><span><?php echo esc_html( 'Range tercapai: ' . ( 'yes' === ( $row['range_hit'] ?? '' ) ? 'YA' : ( 'no' === ( $row['range_hit'] ?? '' ) ? 'TIDAK' : '—' ) ) ); ?></span><span><?php esc_html_e( 'Arsip historis · bukan panduan saat ini', 'bitmomo-btc-intelligence' ); ?></span></footer>
@@ -733,7 +733,7 @@ class Bitmomo_Btc_Intelligence_Page {
 					<p><?php esc_html_e( 'Bitmomo merangkum pergerakan harga, volatilitas, struktur pasar, serta kondisi derivatif menjadi Bias, Confidence, dan Activity.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Bias menunjukkan arah dominan data pasar. Confidence mengukur konsistensi bukti; bukan probabilitas pergerakan harga. Activity mengukur intensitas pergerakan, bukan arah.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Market Pulse mengevaluasi kondisi intraday setiap 15 menit menggunakan candle 5 menit. Major Brief terbit pada dua jadwal utama: sekitar 08.10 dan 20.10 waktu New York, mengikuti perubahan daylight-saving AS. Keterlambatan pada salah satu jadwal tidak mengubah status jadwal lainnya.', 'bitmomo-btc-intelligence' ); ?></p>
-					<p><?php esc_html_e( 'Decision Ledger menyimpan catatan matang lintas versi evaluasi. Scorecard aktif hanya menggabungkan record dengan kombinasi model, classifier, dan metode evaluasi yang sama; versi lama tetap terlihat di ledger agar riwayat tidak disembunyikan.', 'bitmomo-btc-intelligence' ); ?></p>
+					<p><?php esc_html_e( 'Decision Ledger menyimpan catatan yang sudah mencapai periode evaluasi lintas versi. Ringkasan aktif hanya menggabungkan catatan dengan versi model dan metode evaluasi yang sama; versi lama tetap terlihat agar riwayat tidak disembunyikan.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Aturan +24 jam: Bullish sesuai pada return ≥ +0,5%; Bearish sesuai pada return ≤ -0,5%; Netral sesuai bila |return| < 0,5%. Gerak Bullish/Bearish di dalam band ±0,5% dinilai tidak konklusif.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Arsip Pro hanya menggunakan kondisi yang disimpan saat brief diterbitkan. Brief saat ini dan brief yang belum melewati masa tunda publik tidak dapat muncul di sini.', 'bitmomo-btc-intelligence' ); ?></p>
 				</div>
@@ -747,7 +747,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section class="bm-bi__pro-cta">
 			<div>
 				<p class="bm-bi__eyebrow">BITMOMO PRO</p>
-				<h2><?php esc_html_e( 'Gratis membantu memahami kondisi, perubahan, makna, dan satu konteks pantauan. Pro membuka decision support yang lebih dalam.', 'bitmomo-btc-intelligence' ); ?></h2>
+				<h2><?php esc_html_e( 'Gratis membantu memahami kondisi, perubahan, makna, dan satu konteks pantauan. Pro menambahkan skenario, level, dan invalidasi untuk menavigasi langkah berikutnya.', 'bitmomo-btc-intelligence' ); ?></h2>
 				<p><?php esc_html_e( 'Pro menambahkan pemantauan lengkap, skenario, Expected Range, dan invalidasi ketika metodologinya memenuhi standar publikasi. Founding whitelist membuka akses secara bertahap.', 'bitmomo-btc-intelligence' ); ?></p>
 			</div>
 			<a class="bm-bi__cta-primary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Lihat Bitmomo Pro', 'bitmomo-btc-intelligence' ); ?></a>

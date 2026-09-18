@@ -31,27 +31,57 @@ get_header();
 <main id="primary">
   <?php get_template_part( 'template-parts/home', 'hero' ); ?>
 
+  <?php
+  $bm_infra_sprite = get_stylesheet_directory_uri() . '/assets/images/infrastructure-logos.svg';
+  $bm_market_data_brands = array(
+    array( 'slug' => 'binance', 'label' => 'Binance', 'wordmark' => false ),
+    array( 'slug' => 'bybit', 'label' => 'Bybit', 'wordmark' => true ),
+  );
+  $bm_research_ecosystem_brands = array(
+    array( 'slug' => 'tradingview', 'label' => 'TradingView', 'wordmark' => false ),
+    array( 'slug' => 'glassnode', 'label' => 'Glassnode', 'wordmark' => true ),
+    array( 'slug' => 'cryptoquant', 'label' => 'CryptoQuant', 'wordmark' => false ),
+    array( 'slug' => 'dune', 'label' => 'Dune', 'wordmark' => true ),
+    array( 'slug' => 'coingecko', 'label' => 'CoinGecko', 'wordmark' => false ),
+    array( 'slug' => 'hyperliquid', 'label' => 'Hyperliquid', 'wordmark' => false ),
+  );
+  ?>
   <section class="bm-home-infrastructure" aria-labelledby="bm-home-infrastructure-title">
     <div class="bm-container">
       <div class="bm-home-infrastructure__row">
-        <p class="bm-home-infrastructure__eyebrow" id="bm-home-infrastructure-title">DATA &amp; INFRASTRUCTURE</p>
+        <p class="bm-home-infrastructure__eyebrow" id="bm-home-infrastructure-title">DATA &amp; INFRASTRUKTUR</p>
         <div class="bm-home-infrastructure__content">
-          <ul class="bm-home-infrastructure__brands" aria-label="Ekosistem data dan infrastruktur Bitmomo">
-            <li class="bm-home-infrastructure__brand">Binance</li>
-            <li class="bm-home-infrastructure__brand">Bybit</li>
-            <li class="bm-home-infrastructure__brand">TradingView</li>
-            <li class="bm-home-infrastructure__brand">Glassnode</li>
-            <li class="bm-home-infrastructure__brand">CryptoQuant</li>
-            <li class="bm-home-infrastructure__brand">Dune</li>
-            <li class="bm-home-infrastructure__brand">CoinGecko</li>
-            <li class="bm-home-infrastructure__brand">Hyperliquid</li>
-          </ul>
-          <p class="bm-home-infrastructure__note">Bitmomo membangun intelligence dari data pasar, perangkat analisis, dan infrastruktur pasar.</p>
-          <p class="bm-home-infrastructure__legal">Nama dan merek pihak ketiga adalah milik masing-masing pemilik dan tidak menyiratkan afiliasi atau endorsement.</p>
+          <div class="bm-home-infrastructure__group">
+            <p class="bm-home-infrastructure__group-label">SUMBER DATA PASAR</p>
+            <ul class="bm-home-infrastructure__brands" aria-label="Sumber data pasar Bitmomo">
+              <?php foreach ( $bm_market_data_brands as $bm_brand ) : ?>
+                <li class="bm-home-infrastructure__brand<?php echo $bm_brand['wordmark'] ? ' is-wordmark' : ''; ?>">
+                  <svg class="bm-home-infrastructure__mark" aria-hidden="true" focusable="false"><use href="<?php echo esc_url( $bm_infra_sprite . '#' . $bm_brand['slug'] ); ?>"></use></svg>
+                  <span class="bm-home-infrastructure__name"><?php echo esc_html( $bm_brand['label'] ); ?></span>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+
+          <div class="bm-home-infrastructure__group">
+            <p class="bm-home-infrastructure__group-label">RISET &amp; ANALISIS</p>
+            <ul class="bm-home-infrastructure__brands" aria-label="Ekosistem riset dan analisis Bitmomo">
+              <?php foreach ( $bm_research_ecosystem_brands as $bm_brand ) : ?>
+                <li class="bm-home-infrastructure__brand<?php echo $bm_brand['wordmark'] ? ' is-wordmark' : ''; ?>">
+                  <svg class="bm-home-infrastructure__mark" aria-hidden="true" focusable="false"><use href="<?php echo esc_url( $bm_infra_sprite . '#' . $bm_brand['slug'] ); ?>"></use></svg>
+                  <span class="bm-home-infrastructure__name"><?php echo esc_html( $bm_brand['label'] ); ?></span>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+
+          <p class="bm-home-infrastructure__note">Sumber data pasar yang digunakan saat ini dipisahkan dari platform riset dan analisis yang menjadi bagian dari cakupan kerja Bitmomo.</p>
+          <p class="bm-home-infrastructure__legal">Nama dan merek pihak ketiga adalah milik masing-masing pemilik. Penampilannya tidak menyiratkan afiliasi, kemitraan, atau endorsement.</p>
         </div>
       </div>
     </div>
   </section>
+  <?php unset( $bm_infra_sprite, $bm_market_data_brands, $bm_research_ecosystem_brands, $bm_brand ); ?>
 
   <?php get_template_part( 'template-parts/how-it-works' ); ?>
   <?php get_template_part( 'template-parts/research' ); ?>

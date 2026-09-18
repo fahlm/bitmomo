@@ -30,19 +30,19 @@ $bm_footer_groups = array(
     ),
   ),
   array(
-    'label' => __( 'RESEARCH', 'bitmomo' ),
-    'aria'  => __( 'Research', 'bitmomo' ),
+    'label' => __( 'RISET', 'bitmomo' ),
+    'aria'  => __( 'Riset', 'bitmomo' ),
     'links' => array(
       array(
-        'label' => __( 'Market Research', 'bitmomo' ),
+        'label' => __( 'Riset Pasar', 'bitmomo' ),
         'url'   => home_url( '/category/riset/' ),
       ),
       array(
-        'label' => __( 'AI Research', 'bitmomo' ),
+        'label' => __( 'Riset AI', 'bitmomo' ),
         'url'   => add_query_arg( 'focus', 'systems', home_url( '/category/riset/' ) ),
       ),
       array(
-        'label' => __( 'Research Standard', 'bitmomo' ),
+        'label' => __( 'Standar Riset', 'bitmomo' ),
         'url'   => home_url( '/category/riset/#research-standard' ),
       ),
     ),
@@ -65,16 +65,16 @@ $bm_footer_groups = array(
 
 $bm_footer_principles = array(
   array(
-    'label' => __( 'EVIDENCE FIRST', 'bitmomo' ),
-    'text'  => __( 'Market context dibangun dari data yang lolos quality gate.', 'bitmomo' ),
+    'label' => __( 'BUKTI SEBELUM NARASI', 'bitmomo' ),
+    'text'  => __( 'Konteks pasar hanya ditampilkan ketika data memenuhi standar kualitas.', 'bitmomo' ),
   ),
   array(
-    'label' => __( 'TESTABLE RESEARCH', 'bitmomo' ),
-    'text'  => __( 'AI systems diperlakukan sebagai sistem yang harus diuji, bukan klaim.', 'bitmomo' ),
+    'label' => __( 'RISET YANG DAPAT DIUJI', 'bitmomo' ),
+    'text'  => __( 'Sistem AI dan tesis pasar diperlakukan sebagai hal yang harus diuji, bukan sekadar klaim.', 'bitmomo' ),
   ),
   array(
-    'label' => __( 'FAIL CLOSED', 'bitmomo' ),
-    'text'  => __( 'Data stale atau invalid tidak ditampilkan sebagai intelligence terkini.', 'bitmomo' ),
+    'label' => __( 'DATA INVALID DITAHAN', 'bitmomo' ),
+    'text'  => __( 'Data yang terlambat atau tidak valid tidak ditampilkan sebagai kondisi terkini.', 'bitmomo' ),
   ),
 );
 
@@ -105,7 +105,7 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
     <div class="bm-footer-grid">
       <div class="bm-footer-brand">
         <?php bitmomo_render_brand(); ?>
-        <p><?php esc_html_e( 'Market intelligence BTC dan riset AI untuk memahami kondisi pasar, menguji thesis, dan menilai rekam jejak keputusan.', 'bitmomo' ); ?></p>
+        <p><?php esc_html_e( 'Market intelligence BTC dan riset AI untuk memahami kondisi pasar, menguji tesis, dan menilai rekam jejak keputusan.', 'bitmomo' ); ?></p>
 
         <?php if ( $bm_social_links ) : ?>
           <nav class="bm-footer-social" aria-label="<?php esc_attr_e( 'Kanal resmi Bitmomo', 'bitmomo' ); ?>">

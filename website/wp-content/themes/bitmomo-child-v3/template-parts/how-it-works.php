@@ -195,21 +195,21 @@ $bm_range_hit = is_array( $bm_proof_row ) ? sanitize_key( (string) ( $bm_proof_r
 
     <div class="bm-howworks" aria-labelledby="bm-howworks-title">
       <header class="bm-howworks-head">
-        <span class="bm-howworks-eyebrow"><?php esc_html_e( 'HOW BITMOMO WORKS', 'bitmomo' ); ?></span>
+        <span class="bm-howworks-eyebrow"><?php esc_html_e( 'CARA KERJA BITMOMO', 'bitmomo' ); ?></span>
         <h2 id="bm-howworks-title"><?php esc_html_e( 'Data pasar menjadi analisis yang dapat diuji.', 'bitmomo' ); ?></h2>
       </header>
 
       <ol class="bm-howworks-steps">
         <li>
-          <span class="bm-howworks-step-label"><?php esc_html_e( '01 · UNDERSTAND NOW', 'bitmomo' ); ?></span>
+          <span class="bm-howworks-step-label"><?php esc_html_e( '01 · PAHAMI SEKARANG', 'bitmomo' ); ?></span>
           <p><?php esc_html_e( 'BTC Intelligence merangkum kondisi, perubahan material, maknanya, dan satu konteks pantauan untuk membantu memahami pasar sekarang.', 'bitmomo' ); ?></p>
         </li>
         <li>
-          <span class="bm-howworks-step-label"><?php esc_html_e( '02 · MAP WHAT CHANGES', 'bitmomo' ); ?></span>
+          <span class="bm-howworks-step-label"><?php esc_html_e( '02 · PETAKAN PERUBAHAN', 'bitmomo' ); ?></span>
           <p><?php esc_html_e( 'Bitmomo Pro menambahkan Expected Range, Scenario Map, invalidasi tesis, dan perubahan sejak brief sebelumnya.', 'bitmomo' ); ?></p>
         </li>
         <li>
-          <span class="bm-howworks-step-label"><?php esc_html_e( '03 · AUDIT THE RESULT', 'bitmomo' ); ?></span>
+          <span class="bm-howworks-step-label"><?php esc_html_e( '03 · EVALUASI HASIL', 'bitmomo' ); ?></span>
           <p><?php esc_html_e( 'Analisis dicatat sebelum hasil pasar diketahui lalu dibandingkan dengan hasil aktual. Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.', 'bitmomo' ); ?></p>
         </li>
       </ol>

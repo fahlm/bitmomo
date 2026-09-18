@@ -33,6 +33,8 @@ const single = read('website/wp-content/themes/bitmomo-child-v3/single.php');
 const design = read('website/wp-content/themes/bitmomo-child-v3/assets/css/design-system.css');
 const navCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/navigation-footer.css');
 const homeCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home.css');
+const homeInfraCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home-infrastructure.css');
+const infraLogos = read('website/wp-content/themes/bitmomo-child-v3/assets/images/infrastructure-logos.svg');
 const frontendJs = read('website/wp-content/themes/bitmomo-child-v3/assets/js/bitmomo-frontend.js');
 const aiMain = read('website/wp-content/plugins/bitmomo-ai/bitmomo-ai.php');
 const keyDrivers = read('website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-key-drivers.php');
@@ -64,6 +66,7 @@ check('Institutional homepage layer exists, is loaded, and is runtime-required',
   assets.includes('assets/css/home.css') &&
   assets.includes("'bitmomo-home'") &&
   runtime.includes('"assets/css/home.css"') &&
+  runtime.includes('"assets/images/infrastructure-logos.svg"') &&
   homeCss.includes('.bm-home-hero') && homeCss.includes('.bm-home-reading') &&
   homeCss.includes('.bm-home-evidence') && homeCss.includes('.bm-home-ledger') &&
   homeCss.includes('.bm-home-pro-proof') && homeCss.includes('.bm-home-research')
@@ -84,7 +87,7 @@ check('Homepage is product-first and exposes accountability proof before commitm
   hero.includes('Periksa rekam jejak') &&
   howItWorks.includes('BUKTI, BUKAN KLAIM') &&
   howItWorks.includes('DECISION LEDGER') &&
-  howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('HOW BITMOMO WORKS') &&
+  howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('CARA KERJA BITMOMO') &&
   frontPage.indexOf("template-parts/research") < frontPage.indexOf("template-parts/whitelist")
 );
 check('Homepage market view exposes finance-grade context without engine internals',
@@ -125,12 +128,26 @@ check('Homepage product model follows the visitor lifecycle without reverting to
   howItWorks.includes('DECISION LEDGER') &&
   howItWorks.includes('ARSIP PRO ≥48 JAM') &&
   howItWorks.includes('EXPECTED RANGE') &&
-  howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('HOW BITMOMO WORKS') &&
-  howItWorks.includes('01 · UNDERSTAND NOW') &&
-  howItWorks.includes('02 · MAP WHAT CHANGES') &&
-  howItWorks.includes('03 · AUDIT THE RESULT') &&
+  howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('CARA KERJA BITMOMO') &&
+  howItWorks.includes('01 · PAHAMI SEKARANG') &&
+  howItWorks.includes('02 · PETAKAN PERUBAHAN') &&
+  howItWorks.includes('03 · EVALUASI HASIL') &&
   howItWorks.includes('Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.') &&
   !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b/i.test(howItWorks)
+);
+check('Homepage infrastructure trust strip is local, visual, and semantically bounded',
+  frontPage.includes('SUMBER DATA PASAR') &&
+  frontPage.includes('RISET &amp; ANALISIS') &&
+  frontPage.includes('infrastructure-logos.svg') &&
+  homeInfraCss.includes('.bm-home-infrastructure__mark') &&
+  homeInfraCss.includes('filter: grayscale(1) brightness(0) invert(1)') &&
+  infraLogos.includes('<symbol id="binance"') &&
+  infraLogos.includes('<symbol id="bybit"') &&
+  infraLogos.includes('<symbol id="glassnode"') &&
+  infraLogos.includes('<symbol id="cryptoquant"') &&
+  infraLogos.includes('<symbol id="dune"') &&
+  infraLogos.includes('<symbol id="coingecko"') &&
+  infraLogos.includes('<symbol id="hyperliquid"')
 );
 check('Homepage founding surface uses restrained commercial language',
   whitelistHome.includes('Founding Price') &&
@@ -253,9 +270,9 @@ check('BTC market-context shell is server-stable and series are not color-only',
   btcMarketCss.includes('.bm-mc__line.is-sol{stroke:var(--bmc-sol);stroke-dasharray:')
 );
 check('Theme runtime version remains the reconciled v4.7 contract', functions.includes("define('BM_VERSION', '4.7')"));
-check('Runtime manifest includes integrated public + Telegram runtime and 126 managed files',
-  runtime.includes('"expected_file_count": 126') &&
-  runtime.includes('"expected_file_count": 47') &&
+check('Runtime manifest includes integrated public + Telegram runtime and 127 managed files',
+  runtime.includes('"expected_file_count": 127') &&
+  runtime.includes('"expected_file_count": 48') &&
   runtime.includes('"expected_file_count": 14') &&
   runtime.includes('"expected_file_count": 29') &&
   runtime.includes('"assets/css/home.css"') &&

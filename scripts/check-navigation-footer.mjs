@@ -110,15 +110,15 @@ check(
 );
 check(
   'Footer IA exposes clear product, research and company destinations without internal jargon',
-  /PRODUK/.test(footer) && /RESEARCH/.test(footer) && /BITMOMO/.test(footer) &&
+  /PRODUK/.test(footer) && /RISET/.test(footer) && /BITMOMO/.test(footer) &&
   /BTC Intelligence/.test(footer) && /Bitmomo Pro/.test(footer) && /Track Record/.test(footer) &&
-  /Market Research/.test(footer) && /AI Research/.test(footer) && /Research Standard/.test(footer) &&
+  /Riset Pasar/.test(footer) && /Riset AI/.test(footer) && /Standar Riset/.test(footer) &&
   /Tentang Bitmomo/.test(footer) && /Help Center/.test(footer) && !/>Decision Ledger</.test(footer)
 );
 check(
   'Footer makes Bitmomo operating principles visible as a restrained trust rail',
-  /bm-footer-principles/.test(footer + navCss) && /EVIDENCE FIRST/.test(footer) &&
-  /TESTABLE RESEARCH/.test(footer) && /FAIL CLOSED/.test(footer) &&
+  /bm-footer-principles/.test(footer + navCss) && /BUKTI SEBELUM NARASI/.test(footer) &&
+  /RISET YANG DAPAT DIUJI/.test(footer) && /DATA INVALID DITAHAN/.test(footer) &&
   /grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/.test(navCss)
 );
 check(

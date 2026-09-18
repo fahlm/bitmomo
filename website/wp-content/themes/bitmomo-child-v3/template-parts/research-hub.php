@@ -205,14 +205,14 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
 <section class="bm-research-hub" aria-labelledby="bm-research-hub-title">
   <div class="bm-container">
     <header class="bm-research-head">
-      <p class="bm-research-kicker">BITMOMO RESEARCH</p>
+      <p class="bm-research-kicker">BITMOMO RISET</p>
       <div class="bm-research-head__grid">
         <div>
           <h1 id="bm-research-hub-title">Riset pasar dan AI yang dapat diuji.</h1>
-          <p class="bm-research-head__lead">Bitmomo Research menguji bagaimana pasar bergerak dan bagaimana sistem intelligence dibangun—dengan bukti, konteks, batas tesis, dan evaluasi hasil yang dapat ditelusuri.</p>
+          <p class="bm-research-head__lead">Bitmomo Research menguji bagaimana pasar bergerak dan bagaimana sistem analisis dibangun—dengan bukti, konteks, batas tesis, dan evaluasi hasil yang dapat ditelusuri.</p>
         </div>
         <div class="bm-research-head__utility">
-          <p><strong>Desk</strong><span>Market Research · AI &amp; Intelligence Systems</span></p>
+          <p><strong>Desk</strong><span>Riset Pasar · Sistem AI &amp; Intelligence</span></p>
           <p><strong>Proses</strong><span>Bukti → tesis → invalidasi → evaluasi</span></p>
           <a href="<?php echo esc_url( home_url( '/btc-intelligence/' ) ); ?>">Buka BTC Intelligence →</a>
         </div>
@@ -253,7 +253,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
 
     <?php if ( $bm_lead && 1 === $bm_page ) :
       $bm_lead_class = bitmomo_post_research_classification( $bm_lead_id );
-      $bm_lead_domain = 'ai-systems' === $bm_lead_class ? 'AI & INTELLIGENCE SYSTEMS' : 'MARKET RESEARCH';
+      $bm_lead_domain = 'ai-systems' === $bm_lead_class ? 'SISTEM AI & INTELLIGENCE' : 'RISET PASAR';
       $bm_lead_topic = bitmomo_post_research_topic_label( $bm_lead_id );
       $bm_lead_minutes = bitmomo_post_reading_minutes( $bm_lead_id );
       $bm_lead_excerpt = wp_trim_words( get_the_excerpt( $bm_lead ), 38, '…' );
@@ -261,7 +261,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
       $bm_has_figure = has_post_thumbnail( $bm_lead_id );
     ?>
       <section class="bm-research-lead" id="latest-research" aria-labelledby="bm-lead-research-title">
-        <div class="bm-research-section-label"><span>LEAD RESEARCH</span><span><?php echo esc_html( $bm_visible_filters[ $bm_focus ]['label'] ); ?></span></div>
+        <div class="bm-research-section-label"><span>RISET UTAMA</span><span><?php echo esc_html( $bm_visible_filters[ $bm_focus ]['label'] ); ?></span></div>
         <article class="bm-research-lead__paper<?php echo $bm_has_figure ? '' : ' bm-research-lead__paper--text'; ?>">
           <div class="bm-research-lead__body">
             <p class="bm-research-meta"><?php echo esc_html( $bm_lead_domain . ' · ' . strtoupper( $bm_lead_topic ) . ' · ' . get_the_date( 'd M Y', $bm_lead ) . ' · ' . $bm_lead_minutes . ' MENIT BACA' ); ?></p>
@@ -276,7 +276,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
           </div>
           <?php if ( $bm_has_figure ) : ?>
             <a class="bm-research-lead__figure" href="<?php echo esc_url( get_permalink( $bm_lead ) ); ?>" aria-label="Buka <?php echo esc_attr( get_the_title( $bm_lead ) ); ?>">
-              <span>RESEARCH FIGURE</span>
+              <span>FIGUR RISET</span>
               <?php echo get_the_post_thumbnail( $bm_lead, 'large', array( 'loading' => 'eager', 'fetchpriority' => 'high', 'decoding' => 'async' ) ); ?>
             </a>
           <?php endif; ?>
@@ -287,7 +287,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
     <section class="bm-research-library" id="research-library" aria-labelledby="bm-research-library-title">
       <header class="bm-research-library__head">
         <div>
-          <p class="bm-research-kicker">LATEST RESEARCH</p>
+          <p class="bm-research-kicker">RISET TERBARU</p>
           <h2 id="bm-research-library-title"><?php echo esc_html( $bm_visible_filters[ $bm_focus ]['label'] ); ?></h2>
         </div>
         <p>
@@ -308,7 +308,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
           <?php foreach ( $bm_library_posts as $bm_post ) :
             $bm_post_id = (int) $bm_post->ID;
             $bm_classification = bitmomo_post_research_classification( $bm_post_id );
-            $bm_domain_label = 'ai-systems' === $bm_classification ? 'AI & INTELLIGENCE SYSTEMS' : 'MARKET RESEARCH';
+            $bm_domain_label = 'ai-systems' === $bm_classification ? 'SISTEM AI & INTELLIGENCE' : 'RISET PASAR';
             $bm_topic_label = bitmomo_post_research_topic_label( $bm_post_id );
             $bm_minutes = bitmomo_post_reading_minutes( $bm_post_id );
           ?>
@@ -353,17 +353,17 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
       <?php elseif ( ! $bm_lead || $bm_page > 1 ) : ?>
         <div class="bm-research-empty">
           <strong>Belum ada publikasi yang cocok dengan tampilan ini.</strong>
-          <p>Ubah desk, topik, atau kata pencarian. Research Hub hanya menampilkan publikasi yang sudah diklasifikasikan sebagai riset Bitmomo.</p>
+          <p>Ubah desk, topik, atau kata pencarian. Pusat Riset hanya menampilkan publikasi yang sudah diklasifikasikan sebagai riset Bitmomo.</p>
           <a href="<?php echo esc_url( $bm_research_url ); ?>">Reset tampilan riset →</a>
         </div>
       <?php else : ?>
-        <p class="bm-research-library__single">Publikasi terpilih ditampilkan sebagai Lead Research di atas.</p>
+        <p class="bm-research-library__single">Publikasi terpilih ditampilkan sebagai Riset Utama di atas.</p>
       <?php endif; ?>
     </section>
 
     <section class="bm-research-methodology" id="research-standard" aria-labelledby="bm-research-methodology-title">
       <div class="bm-research-methodology__intro">
-        <p class="bm-research-kicker">RESEARCH STANDARD</p>
+        <p class="bm-research-kicker">STANDAR RISET</p>
         <h2 id="bm-research-methodology-title">Setiap tesis harus dapat diuji.</h2>
         <p>Riset Bitmomo menghubungkan bukti, tesis, kondisi invalidasi, dan evaluasi hasil. Tujuannya bukan memperbanyak narasi, tetapi membuat kesimpulan dapat diperiksa ketika data, model, atau kondisi pasar berubah.</p>
       </div>

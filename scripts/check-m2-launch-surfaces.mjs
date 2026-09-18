@@ -104,14 +104,14 @@ check(
     && /30D STATE TAPE/.test(howItWorks)
     && /DECISION LEDGER/.test(howItWorks)
     && /ARSIP PRO ≥48 JAM/.test(howItWorks)
-    && howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('HOW BITMOMO WORKS')
+    && howItWorks.indexOf('BUKTI, BUKAN KLAIM') < howItWorks.indexOf('CARA KERJA BITMOMO')
     && !/Bitmomo_Pro_Briefs|Bitmomo_AI_Scorecard|Bitmomo_Regime_State_Store/.test(howItWorks)
 );
 check(
   'Homepage explanation uses the canonical visitor lifecycle instead of engine vocabulary',
-  /01 · UNDERSTAND NOW/.test(howItWorks)
-    && /02 · MAP WHAT CHANGES/.test(howItWorks)
-    && /03 · AUDIT THE RESULT/.test(howItWorks)
+  /01 · PAHAMI SEKARANG/.test(howItWorks)
+    && /02 · PETAKAN PERUBAHAN/.test(howItWorks)
+    && /03 · EVALUASI HASIL/.test(howItWorks)
     && /Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis/.test(howItWorks)
     && !/quality gate|logic deterministik|classifier|axis|funding\/basis|\bstale\b|\bthesis\b|Data bermasalah ditahan/i.test(howItWorks)
 );
