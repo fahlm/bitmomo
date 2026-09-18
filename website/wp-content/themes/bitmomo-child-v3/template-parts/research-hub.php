@@ -209,7 +209,7 @@ if ( $bm_research_q ) $bm_pagination_args['research_q'] = $bm_research_q;
       <div class="bm-research-head__grid">
         <div>
           <h1 id="bm-research-hub-title">Riset pasar dan AI yang dapat diuji.</h1>
-          <p class="bm-research-head__lead">Bitmomo Research menguji bagaimana pasar bergerak dan bagaimana sistem intelligence dibangun—dengan bukti, konteks, batas tesis, dan evaluasi hasil yang dapat ditelusuri.</p>
+          <p class="bm-research-head__lead">Bitmomo Research menguji bagaimana pasar bergerak dan bagaimana sistem analisis dibangun—dengan bukti, konteks, batas tesis, dan evaluasi hasil yang dapat ditelusuri.</p>
         </div>
         <div class="bm-research-head__utility">
           <p><strong>Desk</strong><span>Riset Pasar · Sistem AI &amp; Intelligence</span></p>
