@@ -71,7 +71,7 @@
 	padding: 10px 12px;
 	border: 1px solid var(--bm-border);
 	border-radius: var(--bm-radius-md);
-	background: #0b1620;
+	background: var(--bm-bg);
 	color: var(--bm-text);
 }
 
@@ -96,7 +96,7 @@
 	border: 0;
 	border-radius: var(--bm-radius-md);
 	background: var(--bm-action);
-	color: #0b1620;
+	color: var(--bm-bg);
 	font-weight: 800;
 	cursor: pointer;
 }
@@ -104,7 +104,7 @@
 .bm-pro-account__login-form #wp-submit:hover,
 .bm-pro-account__login-form #wp-submit:focus-visible {
 	background: var(--bm-action-hover);
-	color: #0b1620;
+	color: var(--bm-bg);
 }
 .bm-pro-account__status-line { margin: 0 0 12px; }
 
@@ -133,7 +133,7 @@
 	padding: 10px 18px;
 	border-radius: var(--bm-radius-md);
 	background: var(--bm-action);
-	color: #0b1620;
+	color: var(--bm-bg);
 	font-weight: 800;
 	text-decoration: none;
 }
@@ -141,7 +141,7 @@
 .bm-pro-account__cta:hover,
 .bm-pro-account__cta:focus-visible {
 	background: var(--bm-action-hover);
-	color: #0b1620;
+	color: var(--bm-bg);
 }
 
 .bm-pro-account__contact-note {
