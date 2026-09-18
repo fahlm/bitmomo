@@ -158,10 +158,10 @@ if (!/class="bm-home-hero__primary"[^>]+\/btc-intelligence\//.test(homeHero) || 
 if (!homeHero.includes('/btc-intelligence/#decision-ledger') || !homeHero.includes('Periksa rekam jejak')) {
   fail('homepage must expose the public Decision Ledger proof path before the later Founding conversion surface');
 }
-for (const marker of ['BUKTI, BUKAN KLAIM', '30D STATE TAPE', 'DECISION LEDGER', 'ARSIP PRO ≥48 JAM', 'EXPECTED RANGE', 'HOW BITMOMO WORKS']) {
+for (const marker of ['BUKTI, BUKAN KLAIM', '30D STATE TAPE', 'DECISION LEDGER', 'ARSIP PRO ≥48 JAM', 'EXPECTED RANGE', 'CARA KERJA BITMOMO']) {
   if (!homeEvidence.includes(marker)) fail(`homepage evidence/mechanism surface lost required marker: ${marker}`);
 }
-if (homeEvidence.indexOf('BUKTI, BUKAN KLAIM') > homeEvidence.indexOf('HOW BITMOMO WORKS')) {
+if (homeEvidence.indexOf('BUKTI, BUKAN KLAIM') > homeEvidence.indexOf('CARA KERJA BITMOMO')) {
   fail('homepage evidence must precede secondary product-mechanism explanation');
 }
 if (!homeWhitelist.includes('/btc-intelligence/#decision-ledger') || !homeWhitelist.includes('Tidak ada pembayaran pada tahap whitelist')) {
