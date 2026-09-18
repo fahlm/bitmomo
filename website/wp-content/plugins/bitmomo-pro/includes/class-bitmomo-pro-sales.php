@@ -235,10 +235,10 @@ class Bitmomo_Pro_Sales {
 		$rows = array(
 			array( 'Kondisi BTC sekarang', 'Ya', 'Ya' ),
 			array( 'Bias & Confidence', 'Ya', 'Ya' ),
-			array( 'What Changed · ringkas', 'Ya', 'Ya' ),
+			array( 'Apa yang berubah · ringkas', 'Ya', 'Ya' ),
 			array( 'Why It Matters', 'Ya', 'Ya' ),
 			array( '1 konteks What to Watch', 'Ya', 'Ya' ),
-			array( 'Full monitoring / watch set', '—', 'Ya' ),
+			array( 'Pemantauan lengkap', '—', 'Ya' ),
 			array( 'Expected Range', '—', 'Ya' ),
 			array( 'Base / Bull / Bear', '—', 'Ya' ),
 			array( 'Kondisi invalidasi tesis', '—', 'Ya' ),
