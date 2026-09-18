@@ -618,7 +618,7 @@ class Bitmomo_Btc_Intelligence_Page {
 			<?php else : ?>
 				<div class="bm-bi__ledger-wrap" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Decision Ledger BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<table class="bm-bi__ledger-table">
-						<thead><tr><th>WAKTU</th><th>VIEW</th><th>CONF.</th><th>BTC</th><th>+24H</th><th>HASIL</th></tr></thead>
+						<thead><tr><th>WAKTU</th><th>ARAH</th><th>CONF.</th><th>BTC</th><th>+24H</th><th>HASIL</th></tr></thead>
 						<tbody>
 						<?php foreach ( $rows as $row ) :
 							$verdict = sanitize_key( (string) ( $row['verdict'] ?? 'unscored' ) );
@@ -652,11 +652,11 @@ class Bitmomo_Btc_Intelligence_Page {
 		$current = $active_version && isset( $versions[ $active_version ] ) ? $versions[ $active_version ] : array();
 		?>
 		<section class="bm-bi__section bm-bi__track-record" aria-labelledby="bm-bi-track-title">
-			<div class="bm-bi__section-head"><div><p class="bm-bi__eyebrow">AGGREGATE SCORECARD</p><h2 id="bm-bi-track-title"><?php esc_html_e( 'Track record', 'bitmomo-btc-intelligence' ); ?></h2></div><small class="bm-bi__section-kicker"><?php esc_html_e( 'Satu versi evaluasi aktif', 'bitmomo-btc-intelligence' ); ?></small></div>
+			<div class="bm-bi__section-head"><div><p class="bm-bi__eyebrow">RINGKASAN EVALUASI</p><h2 id="bm-bi-track-title"><?php esc_html_e( 'Rekam jejak', 'bitmomo-btc-intelligence' ); ?></h2></div><small class="bm-bi__section-kicker"><?php esc_html_e( 'Satu versi evaluasi aktif', 'bitmomo-btc-intelligence' ); ?></small></div>
 			<?php if ( ! is_array( $current ) || empty( $current ) || empty( $current['all']['n'] ) ) : ?>
 				<?php $this->render_blocked_boundary( __( 'Belum ada cukup hasil yang layak untuk diringkas.', 'bitmomo-btc-intelligence' ) ); ?>
 			<?php else : ?>
-				<p class="bm-bi__section-intro"><?php esc_html_e( 'Scorecard hanya menghitung record yang memakai kombinasi model, classifier, dan metode evaluasi yang sama. Record versi lama tetap ada di Decision Ledger tetapi tidak dicampur ke statistik aktif.', 'bitmomo-btc-intelligence' ); ?></p>
+				<p class="bm-bi__section-intro"><?php esc_html_e( 'Ringkasan aktif hanya menghitung catatan yang memakai versi model dan metode evaluasi yang sama. Catatan versi lama tetap ada di Decision Ledger tetapi tidak dicampur ke statistik aktif.', 'bitmomo-btc-intelligence' ); ?></p>
 				<p class="bm-bi__micro-note"><?php esc_html_e( 'Jumlah hasil konklusif ditampilkan lebih dulu agar ukuran sampel terlihat sebelum persentase akurasi.', 'bitmomo-btc-intelligence' ); ?></p>
 				<div class="bm-bi__proof-grid" tabindex="0" role="region" aria-label="<?php esc_attr_e( 'Ringkasan track record BTC', 'bitmomo-btc-intelligence' ); ?>">
 					<?php $this->render_metric( __( 'Keseluruhan', 'bitmomo-btc-intelligence' ), $current['all'] ?? array() ); ?>
@@ -733,7 +733,7 @@ class Bitmomo_Btc_Intelligence_Page {
 					<p><?php esc_html_e( 'Bitmomo merangkum pergerakan harga, volatilitas, struktur pasar, serta kondisi derivatif menjadi Bias, Confidence, dan Activity.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Bias menunjukkan arah dominan data pasar. Confidence mengukur konsistensi bukti; bukan probabilitas pergerakan harga. Activity mengukur intensitas pergerakan, bukan arah.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Market Pulse mengevaluasi kondisi intraday setiap 15 menit menggunakan candle 5 menit. Major Brief terbit pada dua jadwal utama: sekitar 08.10 dan 20.10 waktu New York, mengikuti perubahan daylight-saving AS. Keterlambatan pada salah satu jadwal tidak mengubah status jadwal lainnya.', 'bitmomo-btc-intelligence' ); ?></p>
-					<p><?php esc_html_e( 'Decision Ledger menyimpan catatan matang lintas versi evaluasi. Scorecard aktif hanya menggabungkan record dengan kombinasi model, classifier, dan metode evaluasi yang sama; versi lama tetap terlihat di ledger agar riwayat tidak disembunyikan.', 'bitmomo-btc-intelligence' ); ?></p>
+					<p><?php esc_html_e( 'Decision Ledger menyimpan catatan yang sudah mencapai periode evaluasi lintas versi. Ringkasan aktif hanya menggabungkan catatan dengan versi model dan metode evaluasi yang sama; versi lama tetap terlihat agar riwayat tidak disembunyikan.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Aturan +24 jam: Bullish sesuai pada return ≥ +0,5%; Bearish sesuai pada return ≤ -0,5%; Netral sesuai bila |return| < 0,5%. Gerak Bullish/Bearish di dalam band ±0,5% dinilai tidak konklusif.', 'bitmomo-btc-intelligence' ); ?></p>
 					<p><?php esc_html_e( 'Arsip Pro hanya menggunakan kondisi yang disimpan saat brief diterbitkan. Brief saat ini dan brief yang belum melewati masa tunda publik tidak dapat muncul di sini.', 'bitmomo-btc-intelligence' ); ?></p>
 				</div>
