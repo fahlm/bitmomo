@@ -163,6 +163,11 @@ market_context_check(
 	false === strpos( $css, '.bm-mc.is-loading .bm-mc__controls{opacity:.62;pointer-events:none}' )
 );
 market_context_check(
+	'Market Context owns a contrast-safe series-button focus background',
+	false !== strpos( $css, '.bm-bi--market-context .bm-mc__series-button:focus-visible{background:var(--bmc-panel)}' ) &&
+	false !== strpos( $css, '.bm-mc__range button:focus-visible,.bm-mc__series-button:focus-visible,.bm-mc__chart:focus-visible{' )
+);
+market_context_check(
 	'Active-series summary is intrinsic and does not render the old empty three-column grid',
 	false !== strpos( $css, '.bm-mc__legend{' ) &&
 	false !== strpos( $css, 'display:flex;' ) &&
