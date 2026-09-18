@@ -149,6 +149,7 @@
   outline:2px solid var(--bmi-teal);
   outline-offset:2px
 }
+.bm-bi--market-context .bm-mc__series-button:focus-visible{background:var(--bmc-panel)}
 .bm-mc__range button[aria-pressed="true"]{
   border-bottom-color:var(--bmi-teal);
   color:#eef4fa;
