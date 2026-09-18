@@ -310,7 +310,7 @@
   overflow-x: auto;
   border: 1px solid var(--bm-border);
   border-radius:var(--bm-radius-md);
-  background: #091925;
+  background: var(--bm-bg-elevated);
   color: var(--bm-text-secondary);
   font: 13px/1.65 var(--bm-font-mono);
   -webkit-overflow-scrolling: touch;
