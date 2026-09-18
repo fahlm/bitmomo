@@ -80,7 +80,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		}
 		wp_enqueue_style(
 			'bitmomo-btc-intelligence',
-			BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/bitmomo-btc-intelligence.css',
+			BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/bitmomo-btc-public.bundle.css',
 			array(),
 			BITMOMO_BTC_INTELLIGENCE_VERSION
 		);
