@@ -34,7 +34,14 @@ class Bitmomo_Pro_Help_Center {
 
 	public function enqueue_assets() {
 		global $post;
-		if ( is_a( $post, 'WP_Post' ) && ( has_shortcode( $post->post_content, 'bitmomo_help_center' ) || has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ) ) {
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
+		}
+		if ( has_shortcode( $post->post_content, 'bitmomo_pro_sales' ) ) {
+			// Sales already ships Help/FAQ presentation in the canonical Pro bundle.
+			return;
+		}
+		if ( has_shortcode( $post->post_content, 'bitmomo_help_center' ) ) {
 			wp_enqueue_style( 'bitmomo-pro-help', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-help.css', array(), BITMOMO_PRO_VERSION );
 		}
 	}
