@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "artifact_name": "bitmomo-runtime.tar",
-  "expected_file_count": 126,
+  "expected_file_count": 127,
   "include": [
     "*.php",
     "**/*.php",
@@ -11,6 +11,8 @@
     "**/*.js",
     "*.png",
     "**/*.png",
+    "*.svg",
+    "**/*.svg",
     "data/*.json"
   ],
   "exclude": [
@@ -41,7 +43,7 @@
       "name": "bitmomo-child-v3",
       "source": "website/wp-content/themes/bitmomo-child-v3",
       "destination": "wp-content/themes/bitmomo-child-v3",
-      "expected_file_count": 47,
+      "expected_file_count": 48,
       "required": [
         "style.css",
         "functions.php",
@@ -72,7 +74,8 @@
         "template-parts/research-hub.php",
         "template-parts/about-authority.php",
         "assets/js/bitmomo-frontend.js",
-        "assets/js/bitmomo-retention.js"
+        "assets/js/bitmomo-retention.js",
+        "assets/images/infrastructure-logos.svg"
       ]
     },
     {
