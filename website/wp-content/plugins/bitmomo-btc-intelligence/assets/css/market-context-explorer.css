@@ -94,7 +94,7 @@
   gap:5px;
   padding:11px 13px;
   border:1px solid var(--bmi-border-soft);
-  border-radius:8px;
+  border-radius:var(--bm-radius-md);
   background:rgba(255,255,255,.018);
   text-align:left
 }
@@ -207,7 +207,7 @@
   margin-top:16px;
   overflow:hidden;
   border:1px solid var(--bmc-border);
-  border-radius:10px;
+  border-radius:var(--bm-radius-md);
   background:
     linear-gradient(180deg,rgba(255,255,255,.012),transparent 26%),
     linear-gradient(180deg,#0d141d,var(--bmc-chart))
@@ -280,7 +280,7 @@
   max-width:min(310px,86vw);
   padding:11px 12px;
   border:1px solid #2d3a49;
-  border-radius:8px;
+  border-radius:var(--bm-radius-md);
   background:rgba(8,13,19,.97);
   box-shadow:0 14px 34px rgba(0,0,0,.34);
   transform:translateX(-50%);
@@ -384,7 +384,7 @@
   min-width:0;
   padding:11px 12px;
   border:1px solid #1f2b38;
-  border-radius:7px;
+  border-radius:var(--bm-radius-md);
   background:var(--bmc-panel)
 }
 .bm-mc__legend-item>span{
@@ -506,7 +506,7 @@
   white-space:nowrap
 }
 
-@media (max-width:900px){
+@media (max-width: 1024px){
   .bm-mc__heading{grid-template-columns:1fr;gap:14px}
   .bm-mc__mode{
     grid-template-columns:auto 1fr;
@@ -530,7 +530,7 @@
   .bm-mc__pro-items{justify-content:flex-start;margin-top:10px}
 }
 
-@media (max-width:640px){
+@media (max-width: 768px){
   .bm-bi--market-context{padding-left:16px;padding-right:16px}
   .bm-bi--market-context .bm-bi__hero{display:block;padding-top:28px}
   .bm-bi--market-context .bm-bi__hero>small{
@@ -571,7 +571,7 @@
   .bm-mc__series-button{min-width:82px}
   .bm-mc__chart{
     min-height:300px;
-    border-radius:8px
+    border-radius:var(--bm-radius-md)
   }
   .bm-mc__svg{min-height:298px}
   .bm-mc__loading,.bm-mc__unavailable{min-height:298px}
