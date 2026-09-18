@@ -113,13 +113,13 @@
 .bm-home-hero__primary {
   padding: 11px 20px;
   background: var(--bm-accent, #6c8ebf);
-  color: #111827;
+  color: var(--bm-bg-elevated);
 }
 
 .bm-home-hero__primary:hover,
 .bm-home-hero__primary:focus-visible {
   background: var(--bm-accent-hover, #88a6cf);
-  color: #111827;
+  color: var(--bm-bg-elevated);
 }
 
 .bm-home-hero__secondary {
