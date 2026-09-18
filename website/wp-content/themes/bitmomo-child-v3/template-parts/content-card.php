@@ -50,21 +50,7 @@ $title         = get_the_title();
 
         the_post_thumbnail( $image_size, $image_attributes );
     } else {
-        $safe_title = esc_html( mb_strimwidth( wp_strip_all_tags( $title ), 0, 48, '…', 'UTF-8' ) );
-        $svg        = rawurlencode(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450">'
-            . '<rect width="800" height="450" fill="#0f2434"/>'
-            . '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" '
-            . 'font-family="system-ui,-apple-system,Segoe UI,Roboto,Arial" font-size="28" fill="#adc7cf">'
-            . $safe_title
-            . '</text></svg>'
-        );
-
-        printf(
-            '<img class="bm-card-img" src="data:image/svg+xml;charset=UTF-8,%s" width="800" height="450" alt="" loading="%s" decoding="async">',
-            $svg,
-            $is_eager ? 'eager' : 'lazy'
-        );
+        echo '<span class="bm-card-art__placeholder" aria-hidden="true"></span>';
     }
     ?>
   </a>
