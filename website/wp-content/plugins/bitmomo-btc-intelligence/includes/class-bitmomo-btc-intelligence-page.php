@@ -680,7 +680,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		?>
 		<section id="pro-archive" class="bm-bi__section bm-bi__pro-archive" aria-labelledby="bm-bi-pro-archive-title">
 			<div class="bm-bi__section-head">
-				<div><p class="bm-bi__eyebrow">FROM THE PRO ARCHIVE</p><h2 id="bm-bi-pro-archive-title"><?php esc_html_e( 'Lihat decision support yang sudah kedaluwarsa.', 'bitmomo-btc-intelligence' ); ?></h2></div>
+				<div><p class="bm-bi__eyebrow">DARI ARSIP PRO</p><h2 id="bm-bi-pro-archive-title"><?php esc_html_e( 'Lihat analisis Pro historis yang sudah melewati masa tunda.', 'bitmomo-btc-intelligence' ); ?></h2></div>
 				<span class="bm-bi__delay-badge"><?php echo esc_html( sprintf( __( 'TERTUNDA ≥ %d JAM', 'bitmomo-btc-intelligence' ), $delay ) ); ?></span>
 			</div>
 			<p class="bm-bi__section-intro"><?php esc_html_e( 'Ini bukan contoh buatan. Ini brief Pro yang benar-benar pernah diterbitkan, disimpan dalam kondisi saat itu, lalu baru dibuka ke publik setelah nilainya tidak lagi sensitif terhadap waktu.', 'bitmomo-btc-intelligence' ); ?></p>
@@ -705,14 +705,14 @@ class Bitmomo_Btc_Intelligence_Page {
 							<div><span>CONFIDENCE</span><strong><?php echo esc_html( isset( $row['confidence'] ) ? (int) $row['confidence'] . '/100' : '—' ); ?></strong></div>
 							<div><span>HASIL +24H</span><strong><?php echo esc_html( $this->format_return( $return ) ); ?></strong></div>
 						</div>
-						<div class="bm-bi__archive-thesis"><span>BASE CASE</span><p><?php echo esc_html( (string) ( $row['base_scenario'] ?? '' ) ); ?></p></div>
+						<div class="bm-bi__archive-thesis"><span>SKENARIO BASE</span><p><?php echo esc_html( (string) ( $row['base_scenario'] ?? '' ) ); ?></p></div>
 						<div class="bm-bi__archive-thesis bm-bi__archive-thesis--invalidate"><span>INVALIDASI</span><p><?php echo esc_html( (string) ( $row['invalidation'] ?? '' ) ); ?></p></div>
 						<details class="bm-bi__archive-details">
 							<summary><?php esc_html_e( 'Lihat skenario historis lengkap', 'bitmomo-btc-intelligence' ); ?></summary>
 							<div class="bm-bi__archive-scenarios">
 								<?php if ( ! empty( $row['bull_scenario'] ) ) : ?><div><span>BULL</span><p><?php echo esc_html( (string) $row['bull_scenario'] ); ?></p></div><?php endif; ?>
 								<?php if ( ! empty( $row['bear_scenario'] ) ) : ?><div><span>BEAR</span><p><?php echo esc_html( (string) $row['bear_scenario'] ); ?></p></div><?php endif; ?>
-								<?php if ( ! empty( $row['what_changed'] ) ) : ?><div><span>WHAT CHANGED</span><p><?php echo esc_html( (string) $row['what_changed'] ); ?></p></div><?php endif; ?>
+								<?php if ( ! empty( $row['what_changed'] ) ) : ?><div><span>APA YANG BERUBAH</span><p><?php echo esc_html( (string) $row['what_changed'] ); ?></p></div><?php endif; ?>
 							</div>
 						</details>
 						<footer class="bm-bi__archive-outcome"><span><?php echo esc_html( 'Range tercapai: ' . ( 'yes' === ( $row['range_hit'] ?? '' ) ? 'YA' : ( 'no' === ( $row['range_hit'] ?? '' ) ? 'TIDAK' : '—' ) ) ); ?></span><span><?php esc_html_e( 'Arsip historis · bukan panduan saat ini', 'bitmomo-btc-intelligence' ); ?></span></footer>
@@ -747,7 +747,7 @@ class Bitmomo_Btc_Intelligence_Page {
 		<section class="bm-bi__pro-cta">
 			<div>
 				<p class="bm-bi__eyebrow">BITMOMO PRO</p>
-				<h2><?php esc_html_e( 'Gratis membantu memahami kondisi, perubahan, makna, dan satu konteks pantauan. Pro membuka decision support yang lebih dalam.', 'bitmomo-btc-intelligence' ); ?></h2>
+				<h2><?php esc_html_e( 'Gratis membantu memahami kondisi, perubahan, makna, dan satu konteks pantauan. Pro menambahkan skenario, level, dan invalidasi untuk menavigasi langkah berikutnya.', 'bitmomo-btc-intelligence' ); ?></h2>
 				<p><?php esc_html_e( 'Pro menambahkan pemantauan lengkap, skenario, Expected Range, dan invalidasi ketika metodologinya memenuhi standar publikasi. Founding whitelist membuka akses secara bertahap.', 'bitmomo-btc-intelligence' ); ?></p>
 			</div>
 			<a class="bm-bi__cta-primary" href="<?php echo esc_url( home_url( '/pro/' ) ); ?>"><?php esc_html_e( 'Lihat Bitmomo Pro', 'bitmomo-btc-intelligence' ); ?></a>
