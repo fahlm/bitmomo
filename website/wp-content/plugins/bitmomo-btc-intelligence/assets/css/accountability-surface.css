@@ -9,7 +9,7 @@
   padding:18px 18px 11px;
   border:1px solid var(--bmi-border);
   border-bottom:0;
-  border-radius:10px 10px 0 0;
+  border-radius:var(--bm-radius-md) 10px 0 0;
   background:linear-gradient(180deg,rgba(17,25,35,.72),rgba(9,15,22,.55))
 }
 .bm-bi__ledger{
@@ -57,10 +57,10 @@
   margin-top:10px;
   padding:6px 8px;
   border-color:var(--bmi-border-soft);
-  border-radius:6px;
+  border-radius:var(--bm-radius-sm);
   background:rgba(7,12,18,.54)
 }
-.bm-bi__history-bars span{height:24px;border-radius:2px;opacity:.9}
+.bm-bi__history-bars span{height:24px;border-radius:var(--bm-radius-sm);opacity:.9}
 .bm-bi__history-summary{gap:12px;margin-top:7px;font-size:var(--bm-type-micro,11px)}
 .bm-bi__history-summary small{font-size:var(--bm-type-micro,11px)}
 
@@ -68,7 +68,7 @@
 .bm-bi__ledger .bm-bi__audit-badge{
   min-height:24px;
   padding:0 8px;
-  border-radius:5px;
+  border-radius:var(--bm-radius-sm);
   font:800 var(--bm-type-micro,11px)/1 var(--bmi-mono);
   letter-spacing:.07em;
   white-space:nowrap
@@ -87,7 +87,7 @@
   max-height:292px;
   overflow:auto;
   scrollbar-gutter:stable;
-  border-radius:7px;
+  border-radius:var(--bm-radius-md);
   overscroll-behavior:contain
 }
 .bm-bi__ledger-table{min-width:700px;font-size:var(--bm-type-meta,12px)}
@@ -115,7 +115,7 @@
   overflow:hidden;
   outline:none;
   border:1px solid var(--bmi-border-soft);
-  border-radius:7px;
+  border-radius:var(--bm-radius-md);
   background:var(--bmi-border-soft)
 }
 .bm-bi__track-record .bm-bi__proof-grid:focus-visible{
@@ -138,7 +138,7 @@
 .bm-bi__track-record .bm-bi__history-policy{margin-top:7px;font-size:var(--bm-type-meta,12px);line-height:1.45}
 .bm-bi__track-record .bm-bi__history-policy{padding-top:7px}
 
-@media(max-width:860px){
+@media (max-width: 1024px){
   .bm-bi__history{padding:16px 14px 10px}
   .bm-bi__ledger{padding:11px 14px 0}
   .bm-bi__track-record{padding:12px 14px 15px}
@@ -156,7 +156,7 @@
   .bm-bi__track-record .bm-bi__proof-metric:first-child{border-left:0}
 }
 
-@media(max-width:720px){
+@media (max-width: 768px){
   .bm-bi__history,
   .bm-bi__ledger,
   .bm-bi__track-record{padding-left:12px;padding-right:12px}
