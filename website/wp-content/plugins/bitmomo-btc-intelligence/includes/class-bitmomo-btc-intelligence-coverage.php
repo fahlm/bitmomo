@@ -20,7 +20,6 @@ final class Bitmomo_Btc_Intelligence_Coverage {
 	public static function init() {
 		add_shortcode( 'bitmomo_major_brief_coverage', array( __CLASS__, 'shortcode' ) );
 		add_filter( 'the_content', array( __CLASS__, 'append_to_btc_intelligence' ), 12 );
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ), 21 );
 	}
 
 	/**
@@ -36,19 +35,6 @@ final class Bitmomo_Btc_Intelligence_Coverage {
 			return $content;
 		}
 		return rtrim( (string) $content ) . "\n\n[bitmomo_major_brief_coverage]";
-	}
-
-	public static function enqueue_assets() {
-		if ( ! is_page( 'btc-intelligence' ) ) return;
-		$asset = BITMOMO_BTC_INTELLIGENCE_DIR . 'assets/css/brief-coverage.css';
-		if ( ! is_readable( $asset ) ) return;
-		$hash = hash_file( 'sha256', $asset );
-		wp_enqueue_style(
-			'bitmomo-btc-brief-coverage',
-			BITMOMO_BTC_INTELLIGENCE_URL . 'assets/css/brief-coverage.css',
-			array( 'bitmomo-btc-intelligence' ),
-			$hash ? substr( $hash, 0, 16 ) : BITMOMO_BTC_INTELLIGENCE_VERSION
-		);
 	}
 
 	public static function shortcode() {
