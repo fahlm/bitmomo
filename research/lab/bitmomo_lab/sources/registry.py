@@ -83,10 +83,13 @@ DATASETS: dict[str, DatasetSpec] = {
             monthly=False,
             daily=True,
             availability_note=(
-                "create_time is the START of the 5m period it describes (verified: taker ratio at "
-                "create_time=T equals USD-M kline [T, T+5m)). Publication latency is unobserved in the "
-                "archive, so available_at = create_time + 5m (period end) + 5m declared lag, pending "
-                "forward-recorder latency measurement."
+                "create_time semantics change over time (taker ratio vs USD-M klines, full history): "
+                "2020-09..2024-02 it stamps the END of the 5m period; 2024-03..2025-07 and 2026-04.. it "
+                "stamps the START; 2025-08..2026-03 unexplained. event_time = create_time as stamped. "
+                "available_at = create_time + 5m + 5m declared lag, which is at or after the period end "
+                "under both explained conventions. Publication latency is unobserved; replace the "
+                "declared lag with recorder-measured latency. Non-positive OI/ratio values are "
+                "sentinels and are nulled (see invalid_value_fields)."
             ),
         ),
         DatasetSpec(

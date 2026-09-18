@@ -68,15 +68,19 @@ def metrics_vs_klines(metrics_manifest: pathlib.Path, klines_manifest: pathlib.P
     taker_err_by_year = {name: collections.defaultdict(list) for name in shifts}
     price_err = {"kline_open_price_at_T": [], "kline_close_price_at_T(prev close)": [],
                  "kline_close_price_at_T+5m": []}
+    exact_by_month = collections.defaultdict(lambda: collections.Counter())
     for t, ratio, q, qv in zip(m_time, taker, oi, oi_value):
-        year = str(dt.datetime.fromtimestamp(t / 1e6, tz=dt.timezone.utc).year)
+        stamp = dt.datetime.fromtimestamp(t / 1e6, tz=dt.timezone.utc)
+        year, month = str(stamp.year), stamp.strftime("%Y-%m")
         if ratio is not None and ratio > 0:
+            exact_by_month[month]["rows"] += 1
             for name, shift in shifts.items():
                 row = k_by_open.get(t + shift)
                 if row and row[2] - row[3] > 0:
                     err = _rel(row[3] / (row[2] - row[3]), ratio)
                     taker_err[name].append(err)
                     taker_err_by_year[name][year].append(err)
+                    exact_by_month[month][name] += err < 1e-3
         if q and qv:
             implied = qv / q
             here, prev = k_by_open.get(t), k_by_open.get(t - FIVE)
@@ -89,7 +93,12 @@ def metrics_vs_klines(metrics_manifest: pathlib.Path, klines_manifest: pathlib.P
     return {
         "metrics_rows": metrics.num_rows,
         "taker_ratio_alignment": {name: _summary(errs) for name, errs in taker_err.items()},
-        "taker_ratio_alignment_by_year_kline_open=T": {
-            year: _summary(errs) for year, errs in sorted(taker_err_by_year["kline_open=T"].items())},
+        "taker_ratio_alignment_by_year": {
+            name: {year: _summary(errs) for year, errs in sorted(by_year.items())}
+            for name, by_year in taker_err_by_year.items()},
+        # Share of rows per month whose ratio matches each alignment within 1e-3.
+        "taker_ratio_share_lt_1e-3_by_month": {
+            month: {name: round(counts[name] / counts["rows"], 4) for name in shifts}
+            for month, counts in sorted(exact_by_month.items())},
         "oi_implied_price_vs_kline": {name: _summary(errs) for name, errs in price_err.items()},
     }

@@ -114,6 +114,22 @@ def test_metrics_missing_values_stay_null(tmp_path):
     assert table["count_toptrader_long_short_ratio"].to_pylist() == [None]
 
 
+def test_metrics_zero_sentinels_become_null_with_provenance(tmp_path):
+    header = (GOLDEN / "um-BTCUSDT-metrics-2020-09-01-head.csv").read_text().splitlines()[0]
+    text = header + "\n2020-09-01 00:00:00,BTCUSDT,0,0,1.1,1.2,1.3,0\n2020-09-01 00:05:00,BTCUSDT,5,6,1.1,1.2,1.3,0.9\n"
+    raw = raw_file(tmp_path, "z.zip", make_zip("z.csv", text), dt.date(2020, 9, 1), dt.date(2020, 9, 1), "daily")
+    table = normalize_metrics_file(METRICS, "BTCUSDT", raw)
+    assert table["sum_open_interest"].to_pylist() == [None, 5.0]
+    assert table["sum_taker_long_short_vol_ratio"].to_pylist() == [None, 0.9]
+    assert table["count_long_short_ratio"].to_pylist() == [1.3, 1.3]
+    assert table["invalid_value_fields"].to_pylist() == [
+        "sum_open_interest:non_positive,sum_open_interest_value:non_positive,"
+        "sum_taker_long_short_vol_ratio:non_positive",
+        None,
+    ]
+    assert table["quality"].to_pylist() == ["ok", "ok"]  # other fields of the row remain usable
+
+
 def test_real_funding_jitter_is_preserved_and_lag_applied(tmp_path):
     raw = raw_file(tmp_path, "f.zip", make_zip("f.csv", (GOLDEN / "um-BTCUSDT-fundingRate-2026-08-head.csv").read_text()),
                    dt.date(2026, 8, 1), dt.date(2026, 8, 31))

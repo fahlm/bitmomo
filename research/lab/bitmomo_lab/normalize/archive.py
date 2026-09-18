@@ -169,13 +169,34 @@ def normalize_metrics_file(spec: DatasetSpec, symbol: str, raw: RawFile) -> pa.T
     lo, hi = _file_bounds(raw)
     outside = pc.or_(pc.less(start_us, lo), pc.greater_equal(start_us, hi))
     columns = _base(spec, symbol, raw, n)
+    values, invalid = _null_non_positive(table, METRICS_COLUMNS[2:])
     columns.update(
         event_time=_ts(start_us),
         available_at=_ts(pc.add(pc.add(start_us, period), spec.declared_lag_us)),
         quality=_quality(n, (misaligned, Quality.BOUNDARY_MISMATCH), (outside, Quality.OUT_OF_FILE_PERIOD)),
-        **{c: table[c] for c in METRICS_COLUMNS[2:]},
+        invalid_value_fields=invalid,
+        **values,
     )
     return pa.table(columns)
+
+
+def _null_non_positive(table: pa.Table, names: list[str]) -> tuple[dict[str, pa.Array], pa.Array]:
+    """Open interest and long/short/taker ratios are strictly positive by definition.
+
+    The archive encodes some missing observations as 0 (e.g. sum_open_interest = 0).
+    Such values are sentinels, not measurements: they become null in the normalized
+    table, and each nulled field is listed per row in ``invalid_value_fields``. The raw
+    archive bytes are untouched.
+    """
+    values: dict[str, pa.Array] = {}
+    marks: list[list[str]] = [[] for _ in range(table.num_rows)]
+    for name in names:
+        column = table[name].combine_chunks()
+        bad = pc.fill_null(pc.less_equal(column, 0.0), False)
+        for index in pc.indices_nonzero(bad).to_pylist():
+            marks[index].append(f"{name}:non_positive")
+        values[name] = pc.if_else(bad, pa.scalar(None, pa.float64()), column)
+    return values, pa.array([",".join(m) or None for m in marks], pa.string())
 
 
 def normalize_funding_file(spec: DatasetSpec, symbol: str, raw: RawFile) -> pa.Table:
