@@ -150,7 +150,7 @@ class Bitmomo_Pro_Sales {
 				<div><span>02</span><strong><?php esc_html_e( 'Scenario Map', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Base, Bull, dan Bear beserta kondisi yang mendukung masing-masing jalur.', 'bitmomo-pro' ); ?></p></div>
 				<div><span>03</span><strong><?php esc_html_e( 'Invalidasi Tesis', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Kondisi yang membuat tesis utama tidak lagi berlaku.', 'bitmomo-pro' ); ?></p></div>
 				<div><span>04</span><strong><?php esc_html_e( 'Pemantauan Lengkap', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Seluruh kondisi yang perlu dipantau setelah brief, bukan hanya satu konteks publik.', 'bitmomo-pro' ); ?></p></div>
-				<div><span>05</span><strong><?php esc_html_e( 'Konteks Confidence', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Penjelasan lebih dalam tentang kekuatan bukti di balik tesis; bukan probabilitas arah harga atau hasil investasi.', 'bitmomo-pro' ); ?></p></div>
+				<div><span>05</span><strong><?php esc_html_e( 'Penjelasan Confidence', 'bitmomo-pro' ); ?></strong><p><?php esc_html_e( 'Penjelasan lebih dalam tentang kekuatan bukti di balik tesis; bukan probabilitas arah harga atau hasil investasi.', 'bitmomo-pro' ); ?></p></div>
 			</div>
 		</section>
 		<?php
@@ -249,7 +249,7 @@ class Bitmomo_Pro_Sales {
 			<p class="bm-pro-sales__eyebrow">GRATIS → PRO</p>
 			<h2 id="bm-pro-comparison-title" class="bm-pro-sales__section-title"><?php esc_html_e( 'Bedanya bukan lebih banyak data. Bedanya adalah kedalaman keputusan.', 'bitmomo-pro' ); ?></h2>
 			<div class="bm-pro-sales__comparison-table" role="table" aria-label="Perbandingan BTC Intelligence gratis dan Bitmomo Pro">
-				<div class="bm-pro-sales__comparison-row is-head" role="row"><span role="columnheader">INTELLIGENCE</span><strong role="columnheader">GRATIS</strong><strong role="columnheader">PRO</strong></div>
+				<div class="bm-pro-sales__comparison-row is-head" role="row"><span role="columnheader">CAKUPAN</span><strong role="columnheader">GRATIS</strong><strong role="columnheader">PRO</strong></div>
 				<?php foreach ( $rows as $item ) : ?><div class="bm-pro-sales__comparison-row" role="row"><span role="cell"><?php echo esc_html( $item[0] ); ?></span><strong role="cell" class="<?php echo 'Ya' === $item[1] ? 'is-yes' : 'is-no'; ?>"><?php echo esc_html( $item[1] ); ?></strong><strong role="cell" class="is-yes"><?php echo esc_html( $item[2] ); ?></strong></div><?php endforeach; ?>
 			</div>
 			<p class="bm-pro-sales__micro-note"><?php esc_html_e( 'Gratis membantu memahami kondisi dan perubahan saat ini. Pro menambahkan pemantauan lengkap, skenario, level, dan invalidasi untuk menavigasi apa yang terjadi berikutnya.', 'bitmomo-pro' ); ?></p>
