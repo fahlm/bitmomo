@@ -43,9 +43,9 @@
     "source_ref": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php@d6e53044b5d989e04dcf7506e59c4480ca4c89a7"
   },
   "execution": {
-    "computed_at": "2026-09-18T06:12:37.993063+00:00",
-    "parquet_file_sha256": "4c4d86515334c71e45612ad6c03ffae50919b7c426d87e0b8839095e217b50d1",
-    "seconds": 68.32
+    "computed_at": "2026-09-18T06:18:44.801223+00:00",
+    "parquet_file_sha256": "6d0f358336be18ee45bfa37aaa7153b27d61b274a0284628197b3fbf75052175",
+    "seconds": 66.37
   },
   "inputs": [
     {
@@ -55,8 +55,8 @@
       "manifest_path": "manifests/binance_um_klines_5m__BTCUSDT__2020-01-01__2026-09-10.json"
     }
   ],
-  "manifest_body_sha256": "db3779d0318dc0362a7d7241ca77f57f076ab7dc39f2b9882b3a39269c13b1d3",
-  "mode": "strict",
+  "manifest_body_sha256": "4c6942fd2a1ded9ca54544bedbc2d2c3eb9fc6eb7d6eff7a1fdc9730e83095cb",
+  "mode": "production_parity",
   "outcome_counts": {
     "HIGH": 58900,
     "LOW": 62564,
@@ -64,18 +64,18 @@
     "bitmomo_opportunity_insufficient_history": 1348
   },
   "output": {
-    "logical_content_sha256": "71ce00aa1f2d94d2e9f1f886bc8cc39e8c6e29d21f7c6a6647e246f2e5a9da29",
+    "logical_content_sha256": "db4839e0bb8f765841b115ea05757063a5766fbc67e4762ca8f79c145b36c86c",
     "note": "logical hash excludes computed_at and code_commit",
-    "relative_path": "intelligence/opportunity-v1-py/2cb83ed716ea8724.parquet",
+    "relative_path": "parity/opportunity-v1-py/3d3ae43d4081a373.parquet",
     "rows": 234697
   },
-  "run_id": "2cb83ed716ea8724",
+  "run_id": "3d3ae43d4081a373",
   "run_manifest_version": "lab-run-v1",
   "symbol": "BTCUSDT",
   "verification": {
     "mismatches": 0,
     "path": "batch",
-    "sample_seed": 750272215,
+    "sample_seed": 1027269693,
     "sample_size": 64
   },
   "window": {

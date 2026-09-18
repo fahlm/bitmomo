@@ -173,8 +173,10 @@ funding premium index) and must not be substituted for mark − index basis.
 
 ## 7. Open items
 
-1. Explain the 2025-08 → 2026-03 metrics taker divergence (possible change in how Binance
-   computes the archive ratio). Until then, treat that window's taker ratio as unverified.
+1. ~~Explain the 2025-08 → 2026-03 metrics taker divergence.~~ Investigated in
+   [M1_METRICS_ANOMALY_INVESTIGATION.md](M1_METRICS_ANOMALY_INVESTIGATION.md): the divergence is
+   inside the archive metrics field (klines equal raw aggTrades); 2025-08-06 → 2026-04-06
+   stays `UNVERIFIED` and is guarded in code.
 2. Run the recorder from a host with legitimate API access. Capture real fixtures, measure
    publication latency (`received_at − period end`), and replace the declared 5m lags with
    measured, documented values (new dataset/schema version, never a silent change).

@@ -1,5 +1,86 @@
 # Intelligence Platform — Handoff
 
+## Session 2026-09-18 (continued) — M1: Opportunity V1 vertical slice
+
+Branch: `research/intelligence-platform-v2-m1`, stacked on `research/intelligence-platform-v2`
+(M0, Draft PR #210). **Depends on #210.** Nothing is merged, deployed, or changed in production,
+staging or WordPress. No `website/` file was modified; the PHP classes were only read.
+
+### What changed
+
+* `engines/registry.py` (EngineSpec + minimal registry), `engines/opportunity_v1.py` (parity
+  port + invariant-checked batch evaluator).
+* `replay/runner.py` (immutable lineage-carrying records, run manifests, strict vs parity storage).
+* `outcomes/settlement.py` (+15m…+6h path labels; `available_at = cutoff + 6h`).
+* `evaluate/` (rank AUC, day bootstrap, segments + purge, expanding walk-forward,
+  `DevelopmentSlice` fitting guard, study, generated Markdown, end-to-end pipeline,
+  P0.2C divergence diagnostic).
+* `features/context.py` (abs_return_60m, vol_context_v1), `features/metrics_semantics.py` (guard).
+* `validate/metrics_anomaly.py` (bounded investigation + aggTrades cross-check).
+* `registry/hypotheses.json` + `config/opportunity_v1_evaluation.json`, **committed before evaluation** (`9b3389f`).
+* `registry/references/` (P0.2C tables as historical_reference; per-day metrics semantics).
+* Fixes found during M1: `PITFrame.as_of` now refuses non-microsecond integer cutoffs; boolean
+  columns in the content hash; `as_of` fast path when there are no revisions.
+* Docs: `M1_OPPORTUNITY_V1_PARITY.md`, `M1_OPPORTUNITY_V1_RESULTS.md` (generated),
+  `M1_OPPORTUNITY_V1_FINDINGS.md`, `M1_METRICS_ANOMALY_INVESTIGATION.md`, `results/*.json`,
+  and updates to ARCHITECTURE / M0_SOURCE_COVERAGE.
+
+### Results (headline; details in FINDINGS)
+
+* Pre-registered hypotheses: H-OPP-001 PASS, 002 PASS, **003a FAIL**, 003b PASS, 004 PASS,
+  005 PASS, **006 FAIL (explained)**.
+* Holdout (+1h, ≥0.30%): HIGH 88.8% / NORMAL 67.5% / LOW 41.7%; HIGH−LOW 47.1 pp
+  (day-bootstrap 95% CI 44.5–49.4); AUC 0.736. Ordering holds in 303/306 cells (the 3 misses
+  are saturated 2021 long-horizon cells).
+* The raw 60m range ranks absolute moves better (003a), but fixed thresholds collapse out of
+  sample (holdout HIGH 8.9% / LOW 50.9%). The adaptive design is justified for a relative state.
+* P0.2C used **Spot-path outcomes**: with Spot outcomes all 33 published cells reproduce within
+  0.28 pp.
+* Metrics anomaly: inside the archive taker field (klines == aggTrades); 2025-08-06 → 2026-04-06
+  = `UNVERIFIED`, guarded in code.
+
+### M1 acceptance gate (reported separately; nothing collapsed into one "done")
+
+| # | Gate item | Status | Evidence |
+|---|---|---|---|
+| 1 | Deterministic Python implementation | ✅ | 3 replays → identical run id `2cb83ed716ea8724` and logical hash `71ce00aa…` |
+| 2 | Known PHP behavior reproduced by golden/parity tests | ✅ partial | all 10 calculator/scheduler checks of the PHP test file + hand-derived vectors; **PHP-executed harness still open** (no local PHP) |
+| 3 | Engine cannot bypass PIT rules | ✅ | Snapshot-only inputs; batch path proves invariant + 64-cutoff cross-check; µs-cutoff guard |
+| 4 | Output records have lineage/versioning | ✅ | records + run manifests (`research/lab/runs/`) |
+| 5 | Settlement cannot leak into evaluation | ✅ | `available_at = T+6h`; adversarial Snapshot test; engines may not import outcomes/evaluate |
+| 6 | Same input → identical output | ✅ | `test_replay.py`; real reruns identical |
+| 7 | Replay end-to-end manifest → report | ✅ | `bitmomo-lab opportunity-study`, 6.0 min on a laptop (replay 1–2 min, settlement 1.7 min, evaluation 2.2 min) |
+| 8 | Chronological / walk-forward reporting | ✅ | segments with 6h purge; 6 expanding yearly folds |
+| 9 | Baseline comparison | ✅ | base rate, raw range, dev-fitted fixed quartiles, |60m return| |
+| 10 | Missing data explicit | ✅ | 1,348 warm-up records kept as `insufficient_history`; incomplete paths null, never zero |
+| 11 | Strict / parity isolated | ✅ | parity run `3d3ae43d4081a373` under `.data/parity/`, refused by canonical I/O; outputs identical (no fills in Opportunity) |
+| 12 | No production/staging/runtime change | ✅ | diff vs `origin/main` touches no `website/`, `scripts/`, `.github/`, `config/` |
+| 13 | Tests green | ✅ | `pytest` 120 passed (13.8 s) |
+| 14 | Methodology/report documented | ✅ | PARITY, RESULTS (generated), FINDINGS docs |
+| 15 | HANDOFF updated | ✅ | this section |
+| — | Reviewed | ❌ | not yet reviewed |
+
+Validation run for this session:
+* `pytest` (research/lab): **120 passed**.
+* `bash scripts/bitmomo-check.sh quick`: still exits at `need php` (by decision). Its Python
+  compile step was run by hand on all 55 changed `.py` files: PASS. The diff contains no
+  `.php`/`.js`.
+
+### Open items
+
+1. **PHP-executed golden vectors** (`php-harness/`) need a PHP CLI or a CI job. This is the only
+   parity item not closed.
+2. Recorder live capture (deferred acceptance item from M0; unchanged).
+3. Suggested next research (not started): evaluate Opportunity against a **volatility-scaled**
+   event target, which is the fair target for a relative state. It needs a new hypothesis entry.
+
+### Next step
+
+Stop here per instruction. Directional Stance (Wave 1.5) starts only after Fahmi/CTO review
+of M1.
+
+---
+
 ## Session 2026-09-18 — M0 (data recovery + forward recorder)
 
 **Decision (Fahmi, 2026-09-18): M0 = PASS.**
