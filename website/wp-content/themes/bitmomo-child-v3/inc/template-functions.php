@@ -32,9 +32,9 @@ if (!function_exists('bitmomo_public_social_links')) {
     /**
      * Canonical public social destinations.
      *
-     * Public finance surfaces fail closed: a channel is rendered only when an
-     * HTTPS destination is explicitly configured via wp-config constant or the
-     * matching filter. There are deliberately no hard-coded public fallbacks.
+     * Stable public brand channels may define a canonical source default.
+     * Sensitive/deferred channels such as Telegram remain fail-closed unless an
+     * HTTPS destination is explicitly configured.
      *
      * @return array<string,array{label:string,url:string}>
      */
@@ -44,22 +44,25 @@ if (!function_exists('bitmomo_public_social_links')) {
                 'label'    => 'Telegram',
                 'constant' => 'BITMOMO_TELEGRAM_URL',
                 'filter'   => 'bitmomo_telegram_url',
+                'default'  => '',
             ),
             'youtube' => array(
                 'label'    => 'YouTube',
                 'constant' => 'BITMOMO_YOUTUBE_URL',
                 'filter'   => 'bitmomo_youtube_url',
+                'default'  => 'https://www.youtube.com/@bitmomoid',
             ),
             'x' => array(
                 'label'    => 'X',
                 'constant' => 'BITMOMO_X_URL',
                 'filter'   => 'bitmomo_x_url',
+                'default'  => 'https://x.com/bitmomoid',
             ),
         );
         $links = array();
 
         foreach ($definitions as $key => $definition) {
-            $configured = defined($definition['constant']) ? (string) constant($definition['constant']) : '';
+            $configured = defined($definition['constant']) ? (string) constant($definition['constant']) : (string) ($definition['default'] ?? '');
             $candidate = trim((string) apply_filters($definition['filter'], $configured));
             if ('' === $candidate) continue;
 
