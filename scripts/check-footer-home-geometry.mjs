@@ -260,8 +260,9 @@ try {
     if (!approx(metrics.foundingUnified.left, foundingContentLeft, 1.5) || !approx(metrics.foundingUnified.right, foundingContentRight, 1.5)) {
       fail(viewport, `Founding conversion surface does not align to homepage content rail: ${metrics.foundingUnified.left.toFixed(2)}..${metrics.foundingUnified.right.toFixed(2)} expected ${foundingContentLeft.toFixed(2)}..${foundingContentRight.toFixed(2)}`);
     }
-    if (metrics.foundingIntro.textAlign !== 'left' || metrics.foundingForm.textAlign !== 'left') {
-      fail(viewport, `Founding conversion copy has inconsistent alignment: intro=${metrics.foundingIntro.textAlign}, form=${metrics.foundingForm.textAlign}`);
+    const startAligned = (value) => value === 'left' || value === 'start';
+    if (!startAligned(metrics.foundingIntro.textAlign) || !startAligned(metrics.foundingForm.textAlign)) {
+      fail(viewport, `Founding conversion copy is not aligned to inline-start: intro=${metrics.foundingIntro.textAlign}, form=${metrics.foundingForm.textAlign}`);
     }
     if (metrics.foundingFacts && (metrics.foundingFacts.left < metrics.foundingUnified.left - 2 || metrics.foundingFacts.right > metrics.foundingUnified.right + 2)) {
       fail(viewport, 'Founding facts escape the conversion surface');
