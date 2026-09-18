@@ -74,7 +74,10 @@ check('Canonical public typeface is self-hosted Archivo with no third-party font
   design.includes('--bm-font-sans: "Archivo"') &&
   runtime.includes('"assets/fonts/archivo/archivo-regular.woff2"') &&
   runtime.includes('"assets/fonts/archivo/archivo-extrabold.woff2"') &&
-  !assets.includes('fonts.googleapis.com')
+  !design.includes('fonts.googleapis.com') &&
+  !design.includes('fonts.gstatic.com') &&
+  assets.includes("wp_dequeue_style('hello-elementor-fonts')") &&
+  assets.includes("add_filter('elementor/frontend/print_google_fonts','__return_false',99)")
 );
 
 check('Institutional homepage layer exists, is loaded, and is runtime-required',
