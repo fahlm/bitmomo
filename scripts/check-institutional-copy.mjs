@@ -9,6 +9,9 @@ const check = (label, condition) => {
   console.log(`[${condition ? 'PASS' : 'FAIL'}] ${label}`);
 };
 
+const frontPage = read('website/wp-content/themes/bitmomo-child-v3/front-page.php');
+const infraCss = read('website/wp-content/themes/bitmomo-child-v3/assets/css/home-infrastructure.css');
+const infraLogos = read('website/wp-content/themes/bitmomo-child-v3/assets/images/infrastructure-logos.svg');
 const hero = read('website/wp-content/themes/bitmomo-child-v3/template-parts/home-hero.php');
 const how = read('website/wp-content/themes/bitmomo-child-v3/template-parts/how-it-works.php');
 const whitelistHome = read('website/wp-content/themes/bitmomo-child-v3/template-parts/whitelist.php');
@@ -71,15 +74,29 @@ check('Homepage proves accountability before explaining the product mechanism',
   how.includes('DECISION LEDGER') &&
   how.includes('ARSIP PRO ≥48 JAM') &&
   how.includes('EXPECTED RANGE') &&
-  how.indexOf('BUKTI, BUKAN KLAIM') < how.indexOf('HOW BITMOMO WORKS') &&
+  how.indexOf('BUKTI, BUKAN KLAIM') < how.indexOf('CARA KERJA BITMOMO') &&
   how.includes('Analisis terdahulu yang sudah dievaluasi') &&
   how.includes('Belum ada hasil yang sudah dapat dievaluasi.') &&
   how.includes('Data pasar menjadi analisis yang dapat diuji.') &&
-  how.includes('01 · UNDERSTAND NOW') &&
-  how.includes('02 · MAP WHAT CHANGES') &&
-  how.includes('03 · AUDIT THE RESULT') &&
+  how.includes('01 · PAHAMI SEKARANG') &&
+  how.includes('02 · PETAKAN PERUBAHAN') &&
+  how.includes('03 · EVALUASI HASIL') &&
   how.includes('Data yang tidak memenuhi standar tidak dipaksakan menjadi analisis.') &&
   !/PEMBACAAN TERBARU|Data pasar menjadi pembacaan|mature outcome|Data compression|quality gate|six-stage|11 AI Analysts/i.test(how)
+);
+check('Homepage infrastructure uses local visual marks with truthful source semantics',
+  frontPage.includes('DATA &amp; INFRASTRUKTUR') &&
+  frontPage.includes('SUMBER DATA PASAR') &&
+  frontPage.includes('RISET &amp; ANALISIS') &&
+  frontPage.includes('infrastructure-logos.svg') &&
+  frontPage.includes("array( 'slug' => 'binance'") &&
+  frontPage.includes("array( 'slug' => 'bybit'") &&
+  frontPage.includes("array( 'slug' => 'glassnode'") &&
+  frontPage.includes('tidak menyiratkan afiliasi, kemitraan, atau endorsement') &&
+  infraCss.includes('.bm-home-infrastructure__mark') &&
+  infraLogos.includes('<symbol id="binance"') &&
+  infraLogos.includes('<symbol id="glassnode"') &&
+  infraLogos.includes('<symbol id="dune"')
 );
 check('Homepage founding copy avoids urgency theater and raw product jargon',
   whitelistHome.includes('Founding Price') && whitelistHome.includes('AKTIFKAN FOUNDING MEMBERSHIP') &&
@@ -118,11 +135,11 @@ check('Research taxonomy models desk-specific Market and AI topics',
 );
 check('Research Hub is publication-first with Desk then Topic navigation',
   researchHub.includes('Riset pasar dan AI yang dapat diuji.') &&
-  researchHub.includes('Market Research · AI &amp; Intelligence Systems') &&
+  researchHub.includes('Riset Pasar · Sistem AI &amp; Intelligence') &&
   researchHub.includes('aria-label="Desk riset"') &&
   researchHub.includes('bm-research-filter--topics') &&
   researchHub.includes('bukti, konteks, batas tesis, dan evaluasi hasil') &&
-  researchHub.includes('LATEST RESEARCH') &&
+  researchHub.includes('RISET TERBARU') &&
   researchHub.includes('Setiap tesis harus dapat diuji.') &&
   researchHub.includes('$bm_visible_desks') && researchHub.includes('$bm_visible_topics') &&
   researchHub.includes('bitmomo_research_focus_has_posts( $bm_filter_key, $bm_research_q )') &&
@@ -138,7 +155,7 @@ check('About explains the research advantage and the same Free versus Pro depth 
   about.includes('Dari data pasar menjadi tesis yang dapat diuji.') &&
   about.includes('Setiap tesis harus dapat diuji.') &&
   about.includes('Ringkasan kondisi BTC saat ini, perubahan material, maknanya, dan satu konteks yang layak dipantau') &&
-  about.includes('Monitoring lengkap, Expected Range, Scenario Map, dan invalidasi tesis') &&
+  about.includes('Pemantauan lengkap, Expected Range, Scenario Map, dan invalidasi tesis') &&
   about.includes('Gratis membantu memahami sekarang. Pro membantu menavigasi berikutnya.') &&
   about.includes('Decision Ledger memperlihatkan apa yang Bitmomo katakan sebelumnya') &&
   !/Bitmomo bukan portal berita|Data compression|compression →|memproduksi narasi sebanyak mungkin/i.test(about)
@@ -146,6 +163,24 @@ check('About explains the research advantage and the same Free versus Pro depth 
 check('About reserves the commercial primary action for Founding access',
   /bm-about-button bm-about-button--primary[^>]*founding-whitelist/.test(about) &&
   !/bm-about-button bm-about-button--primary[^>]*btc-intelligence/.test(about)
+);
+
+check('About and footer avoid internal engineering language',
+  !/\bpembacaan\b|CURRENT VIEW|DECISION SUPPORT|FROM RESEARCH TO PRODUCT/i.test(about) &&
+  footer.includes('BUKTI SEBELUM NARASI') &&
+  footer.includes('RISET YANG DAPAT DIUJI') &&
+  footer.includes('DATA INVALID DITAHAN') &&
+  !/FAIL CLOSED|quality gate|AI systems|\bstale\b|\bthesis\b/i.test(footer)
+);
+check('Pro keeps branded product primitives but localizes utility language',
+  proSales.includes('BUKTI PRODUK') &&
+  proSales.includes('Pemantauan Lengkap') &&
+  proSales.includes('Konteks Confidence') &&
+  proSales.includes('APA YANG BERUBAH') &&
+  proSales.includes('GRATIS → PRO') &&
+  proSales.includes('REKAM EVALUASI') &&
+  proSales.includes('SEBELUM BERGABUNG') &&
+  !/Evidence before narrative|Full Monitoring|Confidence Context|PRODUCT PROOF|WHAT CHANGED|BEFORE YOU JOIN/.test(proSales)
 );
 
 check('SEO descriptions use canonical public terminology',
