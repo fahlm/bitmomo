@@ -42,7 +42,7 @@ $bm_footer_groups = array(
         'url'   => add_query_arg( 'focus', 'systems', home_url( '/category/riset/' ) ),
       ),
       array(
-        'label' => __( 'Research Standard', 'bitmomo' ),
+        'label' => __( 'Standar Riset', 'bitmomo' ),
         'url'   => home_url( '/category/riset/#research-standard' ),
       ),
     ),
