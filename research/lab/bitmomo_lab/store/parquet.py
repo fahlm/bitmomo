@@ -48,6 +48,9 @@ def _column_digest(column: pa.ChunkedArray) -> bytes:
     if pa.types.is_timestamp(dtype):
         array = array.cast(pa.int64())
         dtype = pa.int64()
+    elif pa.types.is_boolean(dtype):  # bit-packed in Arrow; hash as one byte per value
+        array = array.cast(pa.int8())
+        dtype = pa.int8()
     if pa.types.is_integer(dtype) or pa.types.is_floating(dtype):
         filled = pc.fill_null(array, pa.scalar(0, dtype)) if array.null_count else array
         h.update(_fixed_width_bytes(filled))

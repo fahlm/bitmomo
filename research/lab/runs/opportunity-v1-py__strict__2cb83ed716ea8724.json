@@ -1,0 +1,86 @@
+{
+  "cadence_seconds": 900,
+  "code": {
+    "code_commit": "713ece74d849bd069d40c39859739cd697e76110",
+    "code_dirty": false,
+    "pyarrow": "21.0.0",
+    "python": "3.12.11"
+  },
+  "engine": {
+    "engine_id": "opportunity-v1-py",
+    "engine_version": "1.0.0",
+    "methodology_version": "opportunity-v1",
+    "parameters_sha256": "5aa7581126a39ed05c83b88e5ae6ed061887a4c7a4aa5f46409863fb692b54be",
+    "required_features": {
+      "activity_percentile_14d": "opportunity-v1",
+      "range_60m_pct": "opportunity-v1"
+    }
+  },
+  "engine_spec": {
+    "min_history": "4044 contiguous closed 5m USD-M candles (14 days + 60 minutes)",
+    "output_schema": {
+      "activity_percentile": "float, PHP round 4|null",
+      "error_code": "PHP WP_Error code|null",
+      "range_60m_pct": "float, PHP round 8|null",
+      "reference_observation_count": "int|null",
+      "state": "HIGH|NORMAL|LOW|null",
+      "status": "available|unavailable"
+    },
+    "parameters": {
+      "evaluation_seconds": 900,
+      "high_threshold": 75,
+      "interval_seconds": 300,
+      "low_threshold": 25,
+      "reference_observations": 1344,
+      "required_candles": 4044,
+      "source": "binance_usdm_btcusdt_5m",
+      "tie_rule": "reference <= current",
+      "trailing_candles": 12
+    },
+    "required_inputs": [
+      "binance_um_klines_5m"
+    ],
+    "source_ref": "website/wp-content/plugins/bitmomo-ai/includes/class-bitmomo-ai-opportunity.php@d6e53044b5d989e04dcf7506e59c4480ca4c89a7"
+  },
+  "execution": {
+    "computed_at": "2026-09-18T05:35:11.492718+00:00",
+    "parquet_file_sha256": "3239737adb5c956e1c116ab460ea01e959a5217b4b5e91cb9b7272e47c4159a2",
+    "seconds": 29.56
+  },
+  "inputs": [
+    {
+      "content_sha256": "025cfa10c1378fcb5fb1e9ac58898c8b13c842ffedb362058f15aab723253407",
+      "dataset": "binance_um_klines_5m",
+      "manifest_body_sha256": "d1a1884107559a0634bb9effc048b8eec69585001c57d28a569cac55cc599e37",
+      "manifest_path": "manifests/binance_um_klines_5m__BTCUSDT__2020-01-01__2026-09-10.json"
+    }
+  ],
+  "manifest_body_sha256": "73eabdd9bb4c6777133687ecd01553358dd486ce2e65acaa49f6dbf8433def5e",
+  "mode": "strict",
+  "outcome_counts": {
+    "HIGH": 58900,
+    "LOW": 62564,
+    "NORMAL": 111885,
+    "bitmomo_opportunity_insufficient_history": 1348
+  },
+  "output": {
+    "logical_content_sha256": "71ce00aa1f2d94d2e9f1f886bc8cc39e8c6e29d21f7c6a6647e246f2e5a9da29",
+    "note": "logical hash excludes computed_at and code_commit",
+    "relative_path": "intelligence/opportunity-v1-py/2cb83ed716ea8724.parquet",
+    "rows": 234697
+  },
+  "run_id": "2cb83ed716ea8724",
+  "run_manifest_version": "lab-run-v1",
+  "symbol": "BTCUSDT",
+  "verification": {
+    "mismatches": 0,
+    "path": "batch",
+    "sample_seed": 750272215,
+    "sample_size": 64
+  },
+  "window": {
+    "cutoffs": 234697,
+    "first_cutoff": "2020-01-01T00:00:00+00:00",
+    "last_cutoff": "2026-09-10T18:00:00+00:00"
+  }
+}
