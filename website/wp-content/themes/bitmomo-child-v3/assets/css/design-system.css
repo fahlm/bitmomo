@@ -62,11 +62,15 @@
   --bm-link-hover: #b7cdee;
   --bm-action: #f4ad32;
   --bm-action-hover: #ffc15a;
+  --bm-action-rgb: 244, 173, 50;
 
   /* Semantic state colors are deliberately softer than the product accent. */
   --bm-positive: #63a98a;
+  --bm-positive-rgb: 99, 169, 138;
   --bm-negative: #c97b77;
+  --bm-negative-rgb: 201, 123, 119;
   --bm-warning: #c6a46a;
+  --bm-warning-rgb: 198, 164, 106;
   --bm-neutral: #8996a6;
   --bm-danger: #d58a84;
 
