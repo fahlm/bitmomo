@@ -54,15 +54,10 @@ final class Bitmomo_Btc_Intelligence_Market_Context {
 			return;
 		}
 
-		$css_asset = 'assets/css/market-context-explorer.css';
-		$js_asset  = 'assets/js/market-context-explorer.js';
+		$js_asset = 'assets/js/market-context-explorer.js';
 
-		wp_enqueue_style(
-			'bitmomo-btc-market-context',
-			BITMOMO_BTC_INTELLIGENCE_URL . $css_asset,
-			array( 'bitmomo-btc-intelligence' ),
-			self::asset_version( $css_asset )
-		);
+		// CSS ships inside bitmomo-btc-public.bundle.css. Only the interaction
+		// script remains a separate runtime asset.
 		wp_enqueue_script(
 			'bitmomo-btc-market-context',
 			BITMOMO_BTC_INTELLIGENCE_URL . $js_asset,
