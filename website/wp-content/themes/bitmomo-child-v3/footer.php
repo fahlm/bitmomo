@@ -142,8 +142,8 @@ $bm_newsletter_available = $bm_newsletter_form_id > 0 && shortcode_exists( 'mail
           </div>
         <?php else : ?>
           <div class="bm-footer-newsletter__standby" aria-live="polite">
-            <span><?php esc_html_e( 'Brief publik tetap tersedia melalui Research.', 'bitmomo' ); ?></span>
-            <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Baca Research', 'bitmomo' ); ?></a>
+            <span><?php esc_html_e( 'Brief publik tetap tersedia melalui Riset.', 'bitmomo' ); ?></span>
+            <a href="<?php echo esc_url( home_url( '/category/riset/' ) ); ?>"><?php esc_html_e( 'Baca Riset', 'bitmomo' ); ?></a>
           </div>
         <?php endif; ?>
       </section>
