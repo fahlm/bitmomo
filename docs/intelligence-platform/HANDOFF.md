@@ -13,8 +13,8 @@
 * Metrics 2025-08 → 2026-03: `timestamp_semantics = UNVERIFIED`; bounded investigation runs alongside M1.
 * P0.2B CSVs located (outside the repo): `historical_reference / parity_oracle` for Wave 1.5 only.
 
-Branch: `research/intelligence-platform-v2` (from `origin/main` `e7f53e4`). Local commits
-only; **not pushed**. The push is blocked on the token-in-remote-URL cleanup (Fahmi).
+Branch: `research/intelligence-platform-v2` (from `origin/main` `e7f53e4`), pushed after the
+remote was sanitized; M0 is in a Draft PR (not to be merged by the engineer).
 Worktree: `worktrees/intelligence-platform-v2` inside the main checkout. The main checkout,
 the release/RC worktrees and all runtimes were not touched.
 
@@ -64,24 +64,14 @@ Validation run for this session:
 6. `count_long_short_ratio` ↔ production `globalLongShortAccountRatio` (1h) is **unverified**
    and not to be treated as equivalent yet.
 
-### Open questions for Fahmi / CTO
+### Open questions (M0) — resolved 2026-09-18
 
-1. **Recorder live verification.** Can someone run
-   `bitmomo-lab record --capture-fixtures fixtures/recorder` once from a host with legitimate
-   Binance API access? This replaces the synthetic fixtures and starts latency measurement.
-   Where should the recorder eventually run? (It needs your explicit approval; nothing is
-   deployed.)
-2. **Remote auth cleanup** (PAT embedded in `origin` URL) before the first push / PR.
-3. **Metrics 2025-08 → 2026-03 anomaly.** Should it be investigated in M1, or should
-   research simply exclude that window for taker-ratio claims?
-4. The P0.2B oracle CSVs (`canonical_hourly_intraday_replay.csv`,
-   `tactical_15m_exploratory.csv`): when convenient, send their location. They will be
-   registered as `historical_reference / parity_oracle` for Wave 1.5.
+1. Recorder live verification: deferred acceptance item (see top of this section).
+2. Remote auth cleanup: done; the old token is being revoked separately.
+3. Metrics anomaly: bounded investigation alongside M1; `UNVERIFIED` until explained.
+4. P0.2B oracle CSVs: located outside the repo; used only in Wave 1.5.
 
 ### Next step
 
-M1: extend `store/` with multi-dataset joins through `Snapshot`; turn the data-quality report
-into a standalone command (gaps, duplicates, out-of-order, coverage per source per window);
-and add adversarial tests on real data slices, including the 470-slot Spot gap set.
-Then M2: `opportunity-v1-py` plus the PHP golden-fixture harness. That needs a local PHP CLI;
-the install decision is deferred to M2 per Fahmi.
+M1 (redefined by Fahmi 2026-09-18): first engine vertical slice, Opportunity V1: registry →
+parity port → immutable records → settlement → walk-forward evaluation → reports.
