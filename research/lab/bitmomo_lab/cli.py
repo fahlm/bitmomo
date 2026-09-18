@@ -2,6 +2,7 @@
 
   bitmomo-lab build    --dataset binance_um_klines_5m --start 2020-01-01 --end 2026-09-10
   bitmomo-lab verify   --manifest manifests/<name>.json
+  bitmomo-lab equivalence --metrics-manifest ... --klines-manifest ...
   bitmomo-lab coverage --prefix data/futures/um/daily/metrics/BTCUSDT/
   bitmomo-lab record   [--fixtures DIR] [--capture-fixtures DIR]
   bitmomo-lab recorder-gaps --endpoint taker_long_short_ratio_5m --start ... --end ...
@@ -21,6 +22,7 @@ from bitmomo_lab.recorder import recorder
 from bitmomo_lab.recorder.endpoints import default_endpoints
 from bitmomo_lab.sources import coverage, registry
 from bitmomo_lab.store.pit import load_verified
+from bitmomo_lab.validate import equivalence
 
 
 def _date(text: str) -> dt.date:
@@ -53,6 +55,13 @@ def cmd_verify(args: argparse.Namespace) -> int:
     path = pathlib.Path(args.data_dir) / manifest["normalized"]["relative_path"]
     frame = load_verified(path, manifest["normalized"]["content_sha256"], manifest["dataset"])
     print(f"PASS {manifest['dataset']} rows={frame.num_rows} content_sha256={manifest['normalized']['content_sha256']}")
+    return 0
+
+
+def cmd_equivalence(args: argparse.Namespace) -> int:
+    report = equivalence.metrics_vs_klines(pathlib.Path(args.metrics_manifest), pathlib.Path(args.klines_manifest),
+                                           pathlib.Path(args.data_dir))
+    print(json.dumps(report, indent=2, sort_keys=True))
     return 0
 
 
@@ -120,6 +129,11 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("coverage", help="list archive coverage for an S3 prefix")
     c.add_argument("--prefix", required=True)
     c.set_defaults(func=cmd_coverage)
+
+    e = sub.add_parser("equivalence", help="empirical metrics-archive vs kline semantics check")
+    e.add_argument("--metrics-manifest", required=True)
+    e.add_argument("--klines-manifest", required=True)
+    e.set_defaults(func=cmd_equivalence)
 
     r = sub.add_parser("record", help="one manual forward-recorder pass (public endpoints only)")
     r.add_argument("--symbol", default="BTCUSDT")
