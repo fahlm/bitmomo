@@ -1,0 +1,27 @@
+[project]
+name = "bitmomo-lab"
+version = "0.1.0"
+description = "Bitmomo Intelligence Lab: point-in-time research and replay platform (research only)."
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "pyarrow==21.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.4.2",
+]
+
+[project.scripts]
+bitmomo-lab = "bitmomo_lab.cli:main"
+
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["bitmomo_lab*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

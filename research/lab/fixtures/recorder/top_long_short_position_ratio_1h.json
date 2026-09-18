@@ -1,0 +1,27 @@
+{
+  "provenance": "synthetic: shaped from the Binance USD-M public API documentation (field names/types); NOT a live capture - fapi.binance.com is DNS-blocked on the authoring network. Replace with `bitmomo-lab record --capture-fixtures` output from an unblocked host.",
+  "status": 200,
+  "body": [
+    {
+      "symbol": "BTCUSDT",
+      "longShortRatio": "1.3000",
+      "longAccount": "0.5652",
+      "shortAccount": "0.4348",
+      "timestamp": 1789718400000
+    },
+    {
+      "symbol": "BTCUSDT",
+      "longShortRatio": "1.3000",
+      "longAccount": "0.5652",
+      "shortAccount": "0.4348",
+      "timestamp": 1789722000000
+    },
+    {
+      "symbol": "BTCUSDT",
+      "longShortRatio": "1.3000",
+      "longAccount": "0.5652",
+      "shortAccount": "0.4348",
+      "timestamp": 1789725600000
+    }
+  ]
+}

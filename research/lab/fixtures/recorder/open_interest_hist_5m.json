@@ -1,0 +1,27 @@
+{
+  "provenance": "synthetic: shaped from the Binance USD-M public API documentation (field names/types); NOT a live capture - fapi.binance.com is DNS-blocked on the authoring network. Replace with `bitmomo-lab record --capture-fixtures` output from an unblocked host.",
+  "status": 200,
+  "body": [
+    {
+      "symbol": "BTCUSDT",
+      "sumOpenInterest": "81234.100",
+      "sumOpenInterestValue": "6410000000.00000000",
+      "CMCCirculatingSupply": "19912345.00",
+      "timestamp": 1789725000000
+    },
+    {
+      "symbol": "BTCUSDT",
+      "sumOpenInterest": "81244.100",
+      "sumOpenInterestValue": "6411000000.00000000",
+      "CMCCirculatingSupply": "19912345.00",
+      "timestamp": 1789725300000
+    },
+    {
+      "symbol": "BTCUSDT",
+      "sumOpenInterest": "81254.100",
+      "sumOpenInterestValue": "6412000000.00000000",
+      "CMCCirculatingSupply": "19912345.00",
+      "timestamp": 1789725600000
+    }
+  ]
+}

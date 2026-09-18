@@ -1,0 +1,24 @@
+{
+  "provenance": "synthetic: shaped from the Binance USD-M public API documentation (field names/types); NOT a live capture - fapi.binance.com is DNS-blocked on the authoring network. Replace with `bitmomo-lab record --capture-fixtures` output from an unblocked host.",
+  "status": 200,
+  "body": [
+    {
+      "symbol": "BTCUSDT",
+      "fundingTime": 1789660800000,
+      "fundingRate": "0.00010000",
+      "markPrice": "78900.1"
+    },
+    {
+      "symbol": "BTCUSDT",
+      "fundingTime": 1789689600000,
+      "fundingRate": "0.00010000",
+      "markPrice": "78900.1"
+    },
+    {
+      "symbol": "BTCUSDT",
+      "fundingTime": 1789718400000,
+      "fundingRate": "0.00010000",
+      "markPrice": "78900.1"
+    }
+  ]
+}

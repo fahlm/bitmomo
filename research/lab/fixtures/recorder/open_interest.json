@@ -1,0 +1,9 @@
+{
+  "provenance": "synthetic: shaped from the Binance USD-M public API documentation (field names/types); NOT a live capture - fapi.binance.com is DNS-blocked on the authoring network. Replace with `bitmomo-lab record --capture-fixtures` output from an unblocked host.",
+  "status": 200,
+  "body": {
+    "openInterest": "81250.123",
+    "symbol": "BTCUSDT",
+    "time": 1789726020000
+  }
+}

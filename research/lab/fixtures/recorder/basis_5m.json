@@ -1,0 +1,36 @@
+{
+  "provenance": "synthetic: shaped from the Binance USD-M public API documentation (field names/types); NOT a live capture - fapi.binance.com is DNS-blocked on the authoring network. Replace with `bitmomo-lab record --capture-fixtures` output from an unblocked host.",
+  "status": 200,
+  "body": [
+    {
+      "indexPrice": "78950.12",
+      "contractType": "PERPETUAL",
+      "basisRate": "0.0002",
+      "futuresPrice": "78965.90",
+      "annualizedBasisRate": "",
+      "basis": "15.78",
+      "pair": "BTCUSDT",
+      "timestamp": 1789725000000
+    },
+    {
+      "indexPrice": "78950.12",
+      "contractType": "PERPETUAL",
+      "basisRate": "0.0002",
+      "futuresPrice": "78965.90",
+      "annualizedBasisRate": "",
+      "basis": "15.78",
+      "pair": "BTCUSDT",
+      "timestamp": 1789725300000
+    },
+    {
+      "indexPrice": "78950.12",
+      "contractType": "PERPETUAL",
+      "basisRate": "0.0002",
+      "futuresPrice": "78965.90",
+      "annualizedBasisRate": "",
+      "basis": "15.78",
+      "pair": "BTCUSDT",
+      "timestamp": 1789725600000
+    }
+  ]
+}
