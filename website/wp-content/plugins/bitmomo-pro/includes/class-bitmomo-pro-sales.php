@@ -120,7 +120,7 @@ class Bitmomo_Pro_Sales {
 	private function render_section_nav() {
 		?>
 		<nav class="bm-pro-sales__rail" aria-label="<?php esc_attr_e( 'Navigasi Bitmomo Pro', 'bitmomo-pro' ); ?>">
-			<a href="#pro-example"><?php esc_html_e( 'Contoh', 'bitmomo-pro' ); ?></a>
+			<a href="#pro-example"><?php esc_html_e( 'Arsip', 'bitmomo-pro' ); ?></a>
 			<a href="#pro-product"><?php esc_html_e( 'Produk', 'bitmomo-pro' ); ?></a>
 			<a href="#pro-proof"><?php esc_html_e( 'Bukti', 'bitmomo-pro' ); ?></a>
 			<a href="#pro-pricing"><?php esc_html_e( 'Harga', 'bitmomo-pro' ); ?></a>
@@ -179,7 +179,7 @@ class Bitmomo_Pro_Sales {
 						); ?>
 					</h2>
 				</div>
-				<span class="bm-pro-sales__proof-badge"><?php echo esc_html( $row ? __( 'ARSIP ≥ 48 JAM', 'bitmomo-pro' ) : __( 'BELUM ADA ROW VALID', 'bitmomo-pro' ) ); ?></span>
+				<span class="bm-pro-sales__proof-badge"><?php echo esc_html( $row ? __( 'ARSIP ≥ 48 JAM', 'bitmomo-pro' ) : __( 'BELUM ADA ARSIP VALID', 'bitmomo-pro' ) ); ?></span>
 			</div>
 			<p class="bm-pro-sales__section-intro">
 				<?php echo esc_html( $row
