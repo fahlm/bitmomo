@@ -56,8 +56,8 @@
 .bm-bi--market-context .bm-bi__brief-grid{
   grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
   margin-top:20px;
-  border-color:#25313f;
-  background:#25313f
+  border-color:var(--bm-border-strong);
+  background:var(--bm-border-strong)
 }
 .bm-bi--market-context .bm-bi__brief-panel:last-child{
   order:-1;
@@ -65,7 +65,7 @@
   box-shadow:inset 2px 0 0 var(--bmi-teal)
 }
 .bm-bi--market-context .bm-bi__brief-panel:last-child h3{color:var(--bmi-teal)}
-.bm-bi--market-context .bm-bi__brief-panel:first-child{background:#0c1219}
+.bm-bi--market-context .bm-bi__brief-panel:first-child{background:var(--bmc-panel)}
 
 /* Market Context heading */
 .bm-mc{position:relative}
