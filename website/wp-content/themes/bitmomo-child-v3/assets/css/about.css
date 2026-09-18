@@ -26,7 +26,7 @@
 .bm-about-authority__eyebrow {
   margin: 0 0 12px;
   color: var(--bm-accent);
-  font: 800 11px/1.35 var(--bm-font-mono);
+  font:800 11px/1.35 var(--bm-font-mono);
   letter-spacing: .13em;
   text-transform: uppercase;
 }
@@ -76,7 +76,7 @@
 
 .bm-about-authority__grid article > span {
   color: var(--bm-accent);
-  font: 800 11px/1.35 var(--bm-font-mono);
+  font:800 11px/1.35 var(--bm-font-mono);
   letter-spacing: .1em;
 }
 
@@ -222,7 +222,7 @@
   color: var(--bm-link);
   text-align: center;
   font-size: 13px;
-  font-weight: 750;
+  font-weight:700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -249,14 +249,14 @@
   text-underline-offset: 3px;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1024px) {
   .bm-about-authority__grid,
   .bm-about-product { grid-template-columns: 1fr; }
   .bm-about-principles > header { grid-template-columns: 1fr; gap: 14px; }
   .bm-about-principles__grid { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .bm-public-page:has(.bm-about-authority) {
     padding-top: 28px;
     padding-bottom: 52px;
