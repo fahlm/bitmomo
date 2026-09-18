@@ -175,7 +175,7 @@ check('About and footer avoid internal engineering language',
 check('Pro keeps branded product primitives but localizes utility language',
   proSales.includes('BUKTI PRODUK') &&
   proSales.includes('Pemantauan Lengkap') &&
-  proSales.includes('Konteks Confidence') &&
+  proSales.includes('Penjelasan Confidence') &&
   proSales.includes('APA YANG BERUBAH') &&
   proSales.includes('GRATIS → PRO') &&
   proSales.includes('REKAM EVALUASI') &&
