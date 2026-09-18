@@ -24,7 +24,7 @@
 .bm-help__eyebrow {
 	margin: 0 0 10px;
 	color: var(--bmh-accent);
-	font: 800 11px/1.35 var(--bm-font-mono);
+	font:800 11px/1.35 var(--bm-font-mono);
 	letter-spacing: .12em;
 }
 .bm-help__title {
@@ -58,7 +58,7 @@
 	flex: 0 0 auto;
 	align-items: center;
 	border: 1px solid var(--bmh-border);
-	border-radius: 999px;
+	border-radius:var(--bm-radius-xl);
 	color: var(--bmh-muted);
 	font-size: 12px;
 	line-height: 1.2;
@@ -78,9 +78,9 @@
 .bm-faq__question small {
 	padding: 4px 8px;
 	border: 1px solid var(--bmh-border);
-	border-radius: 999px;
+	border-radius:var(--bm-radius-xl);
 	color: var(--bmh-muted);
-	font-size: 10px;
+	font-size:var(--bm-type-micro,11px);
 	font-weight: 700;
 	letter-spacing: .04em;
 }
@@ -99,7 +99,7 @@
 	gap: 14px;
 	cursor: pointer;
 	font-size: .98rem;
-	font-weight: 650;
+	font-weight:700;
 	line-height: 1.45;
 	list-style: none;
 }
@@ -154,7 +154,7 @@
 	.bm-faq__item { scroll-margin-top: calc(var(--bm-header-height-mobile) + 20px); }
 }
 
-@media (max-width: 412px) {
+@media (max-width: 480px) {
 	.bm-help__hero { padding-top: 20px; }
 	.bm-faq__question { align-items: flex-start; font-size: .94rem; }
 	.bm-faq__question small { max-width: 105px; text-align: center; }
