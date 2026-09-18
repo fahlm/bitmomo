@@ -1,14 +1,13 @@
 /*
  * Homepage data & infrastructure trust strip.
  *
- * This surface is deliberately provider-neutral: it identifies the ecosystem
- * Bitmomo works across without using partnership, endorsement, or powered-by
- * language. Brand names stay typographic so the homepage has no third-party
- * asset/CDN dependency.
+ * The strip separates current live market-data sources from the wider research
+ * and analysis ecosystem so visual trust never implies a partnership or a live
+ * runtime feed that does not exist. Brand artwork ships locally with Bitmomo.
  */
 
 .bm-home-infrastructure {
-  padding: 22px 0 24px;
+  padding: 24px 0 26px;
   background: var(--bm-bg, #0b1118);
 }
 
@@ -23,22 +22,44 @@
   align-items: start;
 }
 
-.bm-home-infrastructure__eyebrow {
-  margin: 2px 0 0;
-  color: var(--bm-text-subtle, #7f8b98);
-  font: 800 var(--bm-type-micro, 11px)/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  letter-spacing: .14em;
+.bm-home-infrastructure__eyebrow,
+.bm-home-infrastructure__group-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
-.bm-home-infrastructure__content {
+.bm-home-infrastructure__eyebrow {
+  margin: 2px 0 0;
+  color: var(--bm-text-subtle, #7f8b98);
+  font-size: var(--bm-type-micro, 11px);
+  line-height: 1.4;
+  letter-spacing: .14em;
+}
+
+.bm-home-infrastructure__content,
+.bm-home-infrastructure__group {
   min-width: 0;
+}
+
+.bm-home-infrastructure__group + .bm-home-infrastructure__group {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bm-border, rgba(255,255,255,.10));
+}
+
+.bm-home-infrastructure__group-label {
+  margin: 0 0 10px;
+  color: var(--bm-text-subtle, #7f8b98);
+  font-size: 9px;
+  line-height: 1.3;
+  letter-spacing: .12em;
 }
 
 .bm-home-infrastructure__brands {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px clamp(20px, 3vw, 34px);
+  gap: 10px 12px;
   align-items: center;
   margin: 0;
   padding: 0;
@@ -46,12 +67,50 @@
 }
 
 .bm-home-infrastructure__brand {
+  position: relative;
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 11px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 7px;
+  background: rgba(255,255,255,.018);
   color: var(--bm-text-secondary, #b7c0ca);
-  font-size: clamp(13px, 1.3vw, 15px);
-  font-weight: 780;
-  line-height: 1.35;
-  letter-spacing: -.01em;
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1;
   white-space: nowrap;
+}
+
+.bm-home-infrastructure__mark {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  filter: grayscale(1) brightness(0) invert(1);
+  opacity: .66;
+  transition: opacity .16s ease;
+}
+
+.bm-home-infrastructure__brand.is-wordmark .bm-home-infrastructure__mark {
+  width: 86px;
+  height: 22px;
+}
+
+.bm-home-infrastructure__brand.is-wordmark .bm-home-infrastructure__name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.bm-home-infrastructure__brand:hover .bm-home-infrastructure__mark {
+  opacity: .9;
 }
 
 .bm-home-infrastructure__note,
@@ -61,14 +120,14 @@
 }
 
 .bm-home-infrastructure__note {
-  margin: 16px 0 0;
-  font-size: 13px;
+  margin: 17px 0 0;
+  font-size: 12.5px;
   line-height: 1.55;
 }
 
 .bm-home-infrastructure__legal {
   margin: 6px 0 0;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -83,7 +142,12 @@
   }
 
   .bm-home-infrastructure__brands {
-    gap: 10px 20px;
+    gap: 8px;
+  }
+
+  .bm-home-infrastructure__brand {
+    min-height: 36px;
+    padding: 6px 9px;
   }
 }
 
@@ -91,11 +155,19 @@
   .bm-home-infrastructure__brands {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 16px;
   }
 
   .bm-home-infrastructure__brand {
     min-width: 0;
+    justify-content: flex-start;
     white-space: normal;
   }
+
+  .bm-home-infrastructure__brand.is-wordmark .bm-home-infrastructure__mark {
+    width: min(86px, 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-home-infrastructure__mark { transition: none; }
 }
