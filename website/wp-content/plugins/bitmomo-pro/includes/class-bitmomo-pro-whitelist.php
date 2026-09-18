@@ -474,8 +474,11 @@ class Bitmomo_Pro_Whitelist {
 
 		$whatsapp_enabled = self::whatsapp_opt_in_enabled();
 
-		wp_enqueue_style( 'bitmomo-pro-sales', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-sales.css', array(), BITMOMO_PRO_VERSION );
-		wp_enqueue_style( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-whitelist.css', array( 'bitmomo-pro-sales' ), BITMOMO_PRO_VERSION );
+		// Homepage presentation is already included in the canonical home bundle.
+		// Other whitelist/sales surfaces use one deterministic Pro bundle.
+		if ( ! is_front_page() && ! is_home() ) {
+			wp_enqueue_style( 'bitmomo-pro-public', BITMOMO_PRO_URL . 'assets/css/bitmomo-pro-public.bundle.css', array(), BITMOMO_PRO_VERSION );
+		}
 		wp_enqueue_script( 'bitmomo-pro-whitelist', BITMOMO_PRO_URL . 'assets/js/bitmomo-pro-whitelist.js', array(), BITMOMO_PRO_VERSION, true );
 		wp_localize_script(
 			'bitmomo-pro-whitelist',
