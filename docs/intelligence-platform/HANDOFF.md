@@ -2,6 +2,17 @@
 
 ## Session 2026-09-18 — M0 (data recovery + forward recorder)
 
+**Decision (Fahmi, 2026-09-18): M0 = PASS.**
+* Forward recorder status: `RESEARCH-READY / NOT PRODUCTION-VALIDATED`. It stays that way until at
+  least one legitimate live Binance response has been captured (`record --capture-fixtures`) and
+  replayed in tests. This is a **deferred acceptance item that blocks any persistent recorder
+  deployment**, not M0. No proxy, VPN, alternate endpoint or other workaround for the DNS/ISP block.
+* Git remote sanitized to `https://github.com/fahlm/bitmomo.git` (no embedded credential; the old
+  token is being revoked separately). Branch pushed via `gh` as a one-off credential helper, with
+  no global Git config change.
+* Metrics 2025-08 → 2026-03: `timestamp_semantics = UNVERIFIED`; bounded investigation runs alongside M1.
+* P0.2B CSVs located (outside the repo): `historical_reference / parity_oracle` for Wave 1.5 only.
+
 Branch: `research/intelligence-platform-v2` (from `origin/main` `e7f53e4`). Local commits
 only; **not pushed**. The push is blocked on the token-in-remote-URL cleanup (Fahmi).
 Worktree: `worktrees/intelligence-platform-v2` inside the main checkout. The main checkout,

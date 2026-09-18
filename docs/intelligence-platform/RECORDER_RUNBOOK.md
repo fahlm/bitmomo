@@ -1,6 +1,7 @@
 # Forward Derivatives Recorder — Runbook
 
-Status: M0 — research branch only. **Not deployed anywhere.**
+Status: **RESEARCH-READY / NOT PRODUCTION-VALIDATED**. Research branch only; **not deployed anywhere.**
+A live capture + replay from a legitimately connected host is a required acceptance step before any persistent deployment.
 Code: `research/lab/bitmomo_lab/recorder/`
 Scheduler example (not installed): `research/lab/ops/recorder.cron.example`
 
