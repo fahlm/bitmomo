@@ -153,7 +153,7 @@ body.admin-bar .bm-header { top: 32px; }
   border: 1px solid transparent;
   border-radius:var(--bm-radius-md);
   background: var(--bm-action);
-  color: #0b1620;
+  color: var(--bm-bg);
   font-size: 13px;
   font-weight:800;
   letter-spacing: .015em;
@@ -162,7 +162,7 @@ body.admin-bar .bm-header { top: 32px; }
 .bm-nav-list .bm-nav-pro:hover,
 .bm-nav-list .bm-nav-pro:focus-visible {
   background: var(--bm-action-hover);
-  color: #0b1620;
+  color: var(--bm-bg);
 }
 
 .bm-nav-list .bm-nav-pro[aria-current="page"] {
