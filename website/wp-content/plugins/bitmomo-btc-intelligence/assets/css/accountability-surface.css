@@ -75,6 +75,14 @@
 }
 
 /* The ledger is an inspectable viewport: all records remain present and scrollable. */
+.bm-bi__scroll-hint{
+  display:none;
+  margin:6px 0 8px;
+  color:var(--bm-text-subtle-readable,#7f8b98);
+  font-family:var(--bm-font-sans,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif);
+  font-size:var(--bm-type-micro,11px);
+  line-height:1.45
+}
 .bm-bi__ledger-wrap{
   max-height:292px;
   overflow:auto;
@@ -162,6 +170,7 @@
   }
   .bm-bi__ledger .bm-bi__audit-badge{margin-left:0;align-self:flex-start}
   .bm-bi__ledger .bm-bi__section-head h2{max-width:26ch}
+  .bm-bi__scroll-hint{display:block}
   .bm-bi__ledger-wrap{max-height:260px}
   .bm-bi__history-summary small{width:auto;margin-left:auto}
 }
