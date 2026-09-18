@@ -59,6 +59,7 @@ accountability_surface_check(
 );
 accountability_surface_check(
 	'Mobile Decision Ledger stacks its heading and audit badge instead of crushing the title',
+	false !== strpos( $css, '@media(max-width:720px)' ) &&
 	false !== strpos( $css, '.bm-bi__ledger .bm-bi__section-head{' ) &&
 	false !== strpos( $css, 'flex-direction:column' ) &&
 	false !== strpos( $css, '.bm-bi__ledger .bm-bi__audit-badge{margin-left:0;align-self:flex-start}' ) &&
